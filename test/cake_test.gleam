@@ -1,8 +1,8 @@
-import gleeunit
-import gleeunit/should
+import glacier
+import glacier/should
 
 pub fn main() {
-  gleeunit.main()
+  glacier.main()
 }
 
 // gleeunit test functions end in `_test`

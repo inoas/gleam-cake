@@ -1,5 +1,5 @@
 name = "cake"
-version = "1.0.0"
+version = "0.0.1"
 
 # Fill out these fields if you intend to generate HTML documentation or publish
 # your project to the Hex package manager.
@@ -13,7 +13,42 @@ version = "1.0.0"
 # https://gleam.run/writing-gleam/gleam-toml/.
 
 [dependencies]
-gleam_stdlib = ">= 0.34.0 and < 2.0.0"
+act = ">= 0.3.0 and < 1.0.0"
+carpenter = ">= 0.3.1 and < 1.0.0"
+envoy = ">= 1.0.1 and < 2.0.0"
+exception = ">= 2.0.0 and < 3.0.0"
+fmt = ">= 0.1.0 and < 1.0.0"
+gleam_erlang = ">= 0.25.0 and < 1.0.0"
+gleam_json = ">= 1.0.0 and < 2.0.0"
+gleam_pgo = ">= 0.7.0 and < 1.0.0"
+gleam_stdlib = ">= 0.36.0 and < 1.0.0"
+gleamy_structures = ">= 0.4.1 and < 1.0.0"
+glearray = ">= 0.2.1 and < 1.0.0"
+gsv = ">= 1.4.0 and < 2.0.0"
+parallel_map = ">= 1.0.0 and < 2.0.0"
+prng = ">= 3.0.2 and < 4.0.0"
+ranged_int = ">= 2.0.0 and < 3.0.0"
+ranger = ">= 1.2.0 and < 2.0.0"
+rank = ">= 1.0.0 and < 2.0.0"
+shellout = ">= 1.6.0 and < 2.0.0"
+spinner = ">= 1.1.0 and < 2.0.0"
+sqlight = ">= 0.9.0 and < 1.0.0"
+youid = ">= 1.0.0 and < 2.0.0"
+# bigben
+# birl
+# blah
+# cleam
+# dotenv_gleam
+# glam
+# glenvy
+# gluid
+# libsql
+# migrant
+# nibble
+# non_empty_list
+# prequel
 
 [dev-dependencies]
-gleeunit = ">= 1.0.0 and < 2.0.0"
+birdie = ">= 1.1.2 and < 2.0.0"
+glacier = ">= 1.0.0 and < 2.0.0"
+glychee = ">= 1.1.0 and < 2.0.0"
