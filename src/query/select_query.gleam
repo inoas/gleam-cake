@@ -1,17 +1,19 @@
 import fragment/order_by_direction.{type OrderByDirectionFragment}
+import fragment/where.{type WhereFragment}
 import gleam/list
 
 // List of SQL parts that will be used to build a select query.
 pub type SelectQuery {
   SelectQuery(
+    from: String,
     // comment: String,
     // modifier: String,
     // with: String,
     select: List(String),
     // distinct: String,
-    from: String,
     // join: String,
-    where: List(String),
+    where: List(WhereFragment),
+    where_strings: List(String),
     // group_by: String,
     // having: String,
     // window: String,
@@ -32,6 +34,7 @@ pub fn new(from from: String, select select: List(String)) -> SelectQuery {
     select: select,
     from: from,
     where: [],
+    where_strings: [],
     order_by: [],
     limit: -1,
     offset: -1,
@@ -44,6 +47,7 @@ pub fn new_from(from from: String) -> SelectQuery {
     select: [],
     from: from,
     where: [],
+    where_strings: [],
     order_by: [],
     limit: -1,
     offset: -1,
@@ -56,6 +60,7 @@ pub fn new_select(select select: List(String)) -> SelectQuery {
     select: select,
     from: "",
     where: [],
+    where_strings: [],
     order_by: [],
     limit: -1,
     offset: -1,
@@ -93,15 +98,35 @@ pub fn select_replace(
 // ———— WHERE ——————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn where(query qry: SelectQuery, where where: List(String)) -> SelectQuery {
+pub fn where(
+  query qry: SelectQuery,
+  where where: List(WhereFragment),
+) -> SelectQuery {
   SelectQuery(..qry, where: list.append(qry.where, where))
 }
 
 pub fn where_replace(
   query qry: SelectQuery,
-  where where: List(String),
+  where where: List(WhereFragment),
 ) -> SelectQuery {
   SelectQuery(..qry, where: where)
+}
+
+pub fn where_strings(
+  query qry: SelectQuery,
+  where where_strings: List(String),
+) -> SelectQuery {
+  SelectQuery(
+    ..qry,
+    where_strings: list.append(qry.where_strings, where_strings),
+  )
+}
+
+pub fn where_strings_replace(
+  query qry: SelectQuery,
+  where where_strings: List(String),
+) -> SelectQuery {
+  SelectQuery(..qry, where_strings: where_strings)
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
