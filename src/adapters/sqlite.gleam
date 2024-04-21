@@ -1,5 +1,5 @@
 import adapters/generic
-import pprint
+import pprint.{debug as dbg}
 import query/select_query.{type SelectQuery}
 import sqlight
 
@@ -11,6 +11,6 @@ pub fn to_sql(query: SelectQuery) {
 pub fn execute(conn, query, decoder) {
   query
   |> to_sql
-  |> pprint.debug
+  |> dbg
   |> sqlight.query(on: conn, with: [], expecting: decoder)
 }

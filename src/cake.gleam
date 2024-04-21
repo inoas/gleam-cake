@@ -1,19 +1,50 @@
 import adapters/sqlite
 import fragment/order_by_direction
+import fragment/where
 import gleam/dynamic
-import pprint
+import pprint.{debug as dbg}
 import query/select_query as sq
 import sqlight
 
 pub fn main() {
+  let where_a = where.ColumnEqualLiteral("age", where.Int(10))
+  // |> dbg
+
+  let where_b = where.ColumnEqualLiteral("name", where.String("5"))
+  // |> dbg
+
+  let where_c =
+    where.ColumnInLiterals("age", [where.String("-1"), where.Int(10)])
+  // |> dbg
+
+  let where =
+    where.OrWhere([where_a, where_b, where_c])
+    // |> dbg
+    |> where.to_sql
+  // |> dbg
+
+  let where =
+    where.OrWhere([where_a, where_b])
+    // |> dbg
+    |> where.to_sql
+  // |> dbg
+
+  let where2 =
+    where.ColumnNotEqualLiteral("name", where.Null(Nil))
+    |> dbg
+    |> where.to_sql
+  // |> dbg
+
   let query =
     sq.new_from("cats")
-    |> sq.select(["name AS foo", "age AS bar"])
-    |> sq.where(["age > 5"])
+    |> sq.select(["name", "age"])
+    |> sq.where([where])
+    |> sq.where([where2])
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
     |> sq.set_limit(-1)
-    |> sq.set_limit_and_offset(1, 1)
+    |> sq.set_limit_and_offset(10, 0)
+    |> dbg
 
   use conn <- sqlight.with_connection(":memory:")
 
@@ -23,7 +54,7 @@ pub fn main() {
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
   sqlite.execute(conn, query, query_decoder)
-  |> pprint.debug
+  |> dbg
 }
 
 fn create_dummy_cats_table(conn) {
