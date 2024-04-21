@@ -1,4 +1,6 @@
+import fragment/order_by_direction
 import gleam/int
+import gleam/list
 import gleam/string
 import query/select_query.{type SelectQuery}
 
@@ -23,9 +25,17 @@ fn maybe_add_where_sql(query_string: String, query: SelectQuery) {
 }
 
 fn maybe_add_order_sql(query_string: String, query: SelectQuery) {
-  case query.order {
+  case query.order_by {
     [] -> query_string
-    _ -> query_string <> " ORDER BY " <> string.join(query.order, ", ")
+    _ -> {
+      let order_bys =
+        query.order_by
+        |> list.map(fn(order_by) {
+          order_by.0 <> " " <> order_by_direction.to_sql(order_by.1)
+        })
+
+      query_string <> " ORDER BY " <> string.join(order_bys, ", ")
+    }
   }
 }
 

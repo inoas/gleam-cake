@@ -1,3 +1,4 @@
+import fragment/order_by_direction.{type OrderByDirectionFragment}
 import gleam/list
 
 // List of SQL parts that will be used to build a select query.
@@ -14,7 +15,7 @@ pub type SelectQuery {
     // group_by: String,
     // having: String,
     // window: String,
-    order: List(String),
+    order_by: List(#(String, OrderByDirectionFragment)),
     limit: Int,
     offset: Int,
     // epilog: String,
@@ -22,65 +23,187 @@ pub type SelectQuery {
   )
 }
 
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— NEW ————————————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
 pub fn new(from from: String, select select: List(String)) -> SelectQuery {
   SelectQuery(
     select: select,
     from: from,
     where: [],
-    order: [],
+    order_by: [],
     limit: -1,
     offset: -1,
     flags: [],
   )
 }
 
-pub fn from(query: SelectQuery, from: String) -> SelectQuery {
-  SelectQuery(..query, from: from)
+pub fn new_from(from from: String) -> SelectQuery {
+  SelectQuery(
+    select: [],
+    from: from,
+    where: [],
+    order_by: [],
+    limit: -1,
+    offset: -1,
+    flags: [],
+  )
 }
+
+pub fn new_select(select select: List(String)) -> SelectQuery {
+  SelectQuery(
+    select: select,
+    from: "",
+    where: [],
+    order_by: [],
+    limit: -1,
+    offset: -1,
+    flags: [],
+  )
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— FROM ———————————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn set_from(query qry: SelectQuery, from from: String) -> SelectQuery {
+  SelectQuery(..qry, from: from)
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— SELECT —————————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
 
 pub fn select(
-  query: SelectQuery,
-  select: List(String),
-  append: Bool,
+  query qry: SelectQuery,
+  select select: List(String),
 ) -> SelectQuery {
-  case append {
-    True -> SelectQuery(..query, select: list.append(query.select, select))
-    False -> SelectQuery(..query, select: select)
-  }
+  SelectQuery(..qry, select: list.append(qry.select, select))
 }
 
-pub fn where(
-  query: SelectQuery,
-  where: List(String),
-  append: Bool,
+pub fn select_replace(
+  query qry: SelectQuery,
+  select select: List(String),
 ) -> SelectQuery {
-  case append {
-    True -> SelectQuery(..query, where: list.append(query.where, where))
-    False -> SelectQuery(..query, where: where)
-  }
+  SelectQuery(..qry, select: select)
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— WHERE ——————————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn where(query qry: SelectQuery, where where: List(String)) -> SelectQuery {
+  SelectQuery(..qry, where: list.append(qry.where, where))
+}
+
+pub fn where_replace(
+  query qry: SelectQuery,
+  where where: List(String),
+) -> SelectQuery {
+  SelectQuery(..qry, where: where)
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— ORDER BY ———————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn order_asc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.Asc), True)
+}
+
+pub fn order_asc_nulls_first(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.AscNullsFirst), True)
+}
+
+pub fn order_asc_replace(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.Asc), False)
+}
+
+pub fn order_asc_nulls_first_replace(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.AscNullsFirst), False)
+}
+
+pub fn order_desc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.Desc), True)
+}
+
+pub fn order_desc_nulls_first(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.DescNullsFirst), True)
+}
+
+pub fn order_desc_replace(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.Desc), False)
+}
+
+pub fn order_desc_nulls_first_replace(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, order_by_direction.DescNullsFirst), False)
 }
 
 pub fn order(
-  query: SelectQuery,
-  order: List(String),
-  append: Bool,
+  query qry: SelectQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionFragment,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, dir), True)
+}
+
+pub fn order_replace(
+  query qry: SelectQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionFragment,
+) -> SelectQuery {
+  do_order_by(qry, #(ordb, dir), False)
+}
+
+fn do_order_by(
+  query qry: SelectQuery,
+  by ordb: #(String, OrderByDirectionFragment),
+  append append: Bool,
 ) -> SelectQuery {
   case append {
-    True -> SelectQuery(..query, order: list.append(query.order, order))
-    False -> SelectQuery(..query, order: order)
+    True -> SelectQuery(..qry, order_by: list.append(qry.order_by, [ordb]))
+    False -> SelectQuery(..qry, order_by: [ordb])
   }
 }
 
-pub fn limit(query: SelectQuery, limit: Int) -> SelectQuery {
-  case limit < 0 {
-    True -> SelectQuery(..query, limit: -1)
-    False -> SelectQuery(..query, limit: limit)
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— LIMIT & OFFSET —————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+  case lmt >= 0 {
+    True -> SelectQuery(..qry, limit: lmt)
+    // TODO: Add warning, negative limit is ignored
+    False -> SelectQuery(..qry, limit: -1)
   }
 }
 
-pub fn offset(query: SelectQuery, offset: Int) -> SelectQuery {
-  case offset < 0 {
-    True -> SelectQuery(..query, offset: -1)
-    False -> SelectQuery(..query, offset: offset)
+pub fn set_limit_and_offset(
+  query qry: SelectQuery,
+  limit lmt: Int,
+  offset offst: Int,
+) -> SelectQuery {
+  case lmt >= 0, offst >= 0 {
+    True, True -> SelectQuery(..qry, limit: lmt, offset: offst)
+    // TODO: Add debug warning, negative limit is ignored as well as any offset then
+    True, False -> SelectQuery(..qry, limit: lmt, offset: -1)
+    // TODO: Add debug negative offset is ignored
+    False, _ -> SelectQuery(..qry, limit: -1, offset: -1)
   }
 }
