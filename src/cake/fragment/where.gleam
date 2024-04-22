@@ -1,3 +1,4 @@
+import cake/sql_types.{type Param, NullParam}
 import gleam/list
 import gleam/pair
 import pprint.{debug as dbg}
@@ -31,16 +32,6 @@ pub type WhereFragment {
   // XorWhere(List(WhereFragment))
   // Column contains value
   ColInParams(column: String, parameters: List(Param))
-}
-
-pub type Null
-
-pub type Param {
-  BoolParam(Bool)
-  FloatParam(Float)
-  IntParam(Int)
-  StringParam(String)
-  NullParam
 }
 
 pub type PreparedStatement =
@@ -111,21 +102,6 @@ fn apply_column_in_params(col: String, params: List(Param)) -> PreparedStatement
   )
   |> pair.map_first(fn(string) { col <> " IN (" <> string <> ")" })
 }
-
-// import gleam/float
-// import gleam/int
-// // TODO: Move this to prepared statements and use question marks then,
-// // ... or at least optionally though.
-// fn param_to_sql(param: Param) -> String {
-//   case param {
-//     BoolParam(True) -> "TRUE"
-//     BoolParam(False) -> "FALSE"
-//     FloatParam(value) -> float.to_string(value)
-//     IntParam(value) -> int.to_string(value)
-//     StringParam(value) -> "'" <> value <> "'"
-//     NullParam -> "NULL"
-//   }
-// }
 
 pub fn to_debug_sql(fragment frgmt: WhereFragment) -> String {
   frgmt

@@ -3,6 +3,7 @@ import cake/adapters/sqlite_adapter
 import cake/fragment/order_by_direction
 import cake/fragment/where
 import cake/query/select as sq
+import cake/sql_types
 import gleam/dynamic
 import gleam/io
 import gleam/string
@@ -11,16 +12,19 @@ import pprint.{debug as dbg}
 pub fn main() {
   print_dashes()
 
-  let where_a = where.ColEqualParam("age", where.IntParam(10))
-  let where_b = where.ColEqualParam("name", where.StringParam("5"))
+  let where_a = where.ColEqualParam("age", sql_types.IntParam(10))
+  let where_b = where.ColEqualParam("name", sql_types.StringParam("5"))
   let where_c =
-    where.ColInParams("age", [where.StringParam("-1"), where.IntParam(10)])
+    where.ColInParams("age", [
+      sql_types.StringParam("-1"),
+      sql_types.IntParam(10),
+    ])
   let where = where.OrWhere([where_a, where_b, where_c])
 
   print_dashes()
 
   let where_string =
-    where.ColNotEqualParam("name", where.NullParam)
+    where.ColNotEqualParam("name", sql_types.NullParam)
     |> where.to_debug_sql
 
   print_dashes()
