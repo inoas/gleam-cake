@@ -11,42 +11,40 @@ import pprint.{debug as dbg}
 
 pub fn main() {
   print_dashes()
+  io.println("Query")
+  print_dashes()
 
   let where_a = where.ColEqualParam("age", sql_types.IntParam(10))
   let where_b = where.ColEqualParam("name", sql_types.StringParam("5"))
   let where_c =
     where.ColInParams("age", [
-      sql_types.StringParam("-1"),
-      sql_types.IntParam(10),
+      sql_types.StringParam("1"),
+      sql_types.IntParam(1),
+      sql_types.IntParam(2),
+      sql_types.IntParam(3),
+      sql_types.IntParam(4),
+      sql_types.NullParam,
+      sql_types.IntParam(5),
     ])
   let where = where.OrWhere([where_a, where_b, where_c])
 
-  print_dashes()
-
-  let where_string =
-    where.ColNotEqualParam("name", sql_types.NullParam)
-    |> where.to_debug_sql
-
-  print_dashes()
+  let where_string = "name NOT NULL"
 
   let query =
     sq.new_from("cats")
     |> sq.select(["name", "age"])
     |> sq.where_strings([where_string])
-    |> sq.where([where])
+    |> sq.where_replace([where])
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
-    |> sq.set_limit(-1)
-    |> sq.set_limit_and_offset(10, 0)
-    |> print_dashes_tap()
+    |> sq.set_limit(1)
+    |> sq.set_limit_and_offset(1, 0)
     |> dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
   print_dashes()
-
   io.println("Running on SQLite")
-
   print_dashes()
 
   let _ =
@@ -54,9 +52,7 @@ pub fn main() {
     |> dbg
 
   print_dashes()
-
   io.println("Running on Postgres")
-
   print_dashes()
 
   let _ =
@@ -104,8 +100,8 @@ fn insert_dummy_cats_data() {
 fn print_dashes() {
   io.println(string.repeat("—", 80))
 }
-
-fn print_dashes_tap(tap) {
-  print_dashes()
-  tap
-}
+//
+// fn print_dashes_tap(tap) {
+//   print_dashes()
+//   tap
+// }

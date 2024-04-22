@@ -1,7 +1,8 @@
-import cake/sql_types.{type Param, NullParam}
+import cake/sql_types.{type Param, type PreparedStatement, NullParam}
 import gleam/list
 import gleam/pair
-import pprint.{debug as dbg}
+
+// import pprint.{debug as dbg}
 
 pub type WhereFragment {
   // Column A to column B comparison
@@ -33,9 +34,6 @@ pub type WhereFragment {
   // Column contains value
   ColInParams(column: String, parameters: List(Param))
 }
-
-pub type PreparedStatement =
-  #(String, List(Param))
 
 // TODO: Move this to prepared statements and use question marks then
 // ... or at least optionally though.
@@ -76,12 +74,12 @@ fn apply_logical_sql_operator(fragments: List(WhereFragment), operator: String) 
     #("", []),
     fn(acc: PreparedStatement, fragment: WhereFragment) -> PreparedStatement {
       let prepared = to_prepared_sql(fragment)
-      let new_string = case acc.0 {
+      let new_query = case acc.0 {
         "" -> prepared.0
         _ -> acc.0 <> " " <> operator <> " " <> prepared.0
       }
       let new_params = list.append(acc.1, prepared.1)
-      #(new_string, new_params)
+      #(new_query, new_params)
     },
   )
   |> pair.map_first(fn(string) { "(" <> string <> ")" })
@@ -92,21 +90,18 @@ fn apply_column_in_params(col: String, params: List(Param)) -> PreparedStatement
   |> list.fold(
     #("", []),
     fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
-      let new_string = case acc.0 {
+      let new_query = case acc.0 {
         "" -> "?"
         _ -> acc.0 <> ", ?"
       }
       let new_params = list.append(acc.1, [param])
-      #(new_string, new_params)
+      #(new_query, new_params)
     },
   )
   |> pair.map_first(fn(string) { col <> " IN (" <> string <> ")" })
 }
 
-pub fn to_debug_sql(fragment frgmt: WhereFragment) -> String {
+pub fn to_debug_sql(fragment frgmt: WhereFragment) -> PreparedStatement {
   frgmt
   |> to_prepared_sql()
-  |> dbg
-  |> pair.first()
-  // TODO: insert values here
 }

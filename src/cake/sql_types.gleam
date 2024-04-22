@@ -1,7 +1,8 @@
 import gleam/float
 import gleam/int
 
-pub type Null
+pub type PreparedStatement =
+  #(String, List(Param))
 
 pub type Param {
   BoolParam(Bool)

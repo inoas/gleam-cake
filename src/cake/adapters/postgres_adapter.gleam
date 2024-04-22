@@ -1,12 +1,17 @@
 import cake/query/select.{type SelectQuery}
 import cake/query_builder
+import cake/sql_types.{
+  type PreparedStatement, BoolParam, FloatParam, IntParam, NullParam,
+  StringParam,
+}
 import gleam/dynamic.{type Dynamic}
+import gleam/list
 import gleam/pgo
 import pprint.{debug as dbg}
 
-pub fn to_sql(query: SelectQuery) -> String {
+pub fn to_prepared_statement(query: SelectQuery) -> PreparedStatement {
   query
-  |> query_builder.build_select_sql
+  |> query_builder.build_select_prepared_statement
 }
 
 pub fn with_memory_connection(callback_fun) {
@@ -26,10 +31,27 @@ pub fn with_memory_connection(callback_fun) {
 }
 
 pub fn run_query(db_conn, query: SelectQuery, decoder) {
+  let #(query, params) =
+    query
+    |> to_prepared_statement
+
   query
-  |> to_sql
   |> dbg
-  |> pgo.execute(on: db_conn, with: [], expecting: decoder)
+
+  let pgo_params =
+    list.map(params, fn(param) {
+      case param {
+        BoolParam(param) -> pgo.bool(param)
+        FloatParam(param) -> pgo.float(param)
+        IntParam(param) -> pgo.int(param)
+        StringParam(param) -> pgo.text(param)
+        NullParam -> pgo.null()
+      }
+    })
+    |> dbg
+
+  query
+  |> pgo.execute(on: db_conn, with: pgo_params, expecting: decoder)
 }
 
 pub fn execute(query, conn) {
