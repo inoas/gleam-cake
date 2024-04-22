@@ -1,5 +1,3 @@
-import gleam/float
-import gleam/int
 import gleam/list
 import gleam/pair
 import pprint.{debug as dbg}
@@ -114,6 +112,8 @@ fn apply_column_in_params(col: String, params: List(Param)) -> PreparedStatement
   |> pair.map_first(fn(string) { col <> " IN (" <> string <> ")" })
 }
 
+// import gleam/float
+// import gleam/int
 // // TODO: Move this to prepared statements and use question marks then,
 // // ... or at least optionally though.
 // fn param_to_sql(param: Param) -> String {
