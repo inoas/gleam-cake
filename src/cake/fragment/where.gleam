@@ -13,26 +13,26 @@ pub type WhereFragment {
   ColGreaterOrEqualCol(a_column: String, b_column: String)
   ColNotEqualCol(a_column: String, b_column: String)
   // Column to parameter comparison
-  ColEqualParam(column: String, param: Param)
-  ColLowerParam(column: String, param: Param)
-  ColLowerOrEqualParam(column: String, param: Param)
-  ColGreaterParam(column: String, param: Param)
-  ColGreaterOrEqualParam(column: String, param: Param)
-  ColNotEqualParam(column: String, param: Param)
+  ColEqualParam(column: String, parameter: Param)
+  ColLowerParam(column: String, parameter: Param)
+  ColLowerOrEqualParam(column: String, parameter: Param)
+  ColGreaterParam(column: String, parameter: Param)
+  ColGreaterOrEqualParam(column: String, parameter: Param)
+  ColNotEqualParam(column: String, parameter: Param)
   // Parameter to column comparison
-  ParamEqualCol(param: Param, column: String)
-  ParamLowerCol(param: Param, column: String)
-  ParamLowerOrEqualCol(param: Param, column: String)
-  ParamGreaterCol(param: Param, column: String)
-  ParamGreaterOrEqualCol(param: Param, column: String)
-  ParamEqualNotCol(param: Param, column: String)
+  ParamEqualCol(parameter: Param, column: String)
+  ParamLowerCol(parameter: Param, column: String)
+  ParamLowerOrEqualCol(parameter: Param, column: String)
+  ParamGreaterCol(parameter: Param, column: String)
+  ParamGreaterOrEqualCol(parameter: Param, column: String)
+  ParamEqualNotCol(parameter: Param, column: String)
   // Logical operators
-  AndWhere(List(WhereFragment))
-  NotWhere(List(WhereFragment))
-  OrWhere(List(WhereFragment))
+  AndWhere(fragments: List(WhereFragment))
+  NotWhere(fragments: List(WhereFragment))
+  OrWhere(fragments: List(WhereFragment))
   // XorWhere(List(WhereFragment))
   // Column contains value
-  ColInParams(column: String, params: List(Param))
+  ColInParams(column: String, parameters: List(Param))
 }
 
 pub type Null
@@ -74,9 +74,9 @@ pub fn to_prepared_sql(fragment frgmt: WhereFragment) -> Prepared {
     ParamGreaterOrEqualCol(param, col) -> #("? >= " <> col, [param])
     ParamEqualNotCol(NullParam, col) -> #(col <> " IS NOT NULL", [])
     ParamEqualNotCol(param, col) -> #("? <> " <> col, [param])
-    AndWhere(fragments) -> apply_logical_sql_operator(fragments, "AND")
-    NotWhere(fragments) -> apply_logical_sql_operator(fragments, "NOT")
-    OrWhere(fragments) -> apply_logical_sql_operator(fragments, "OR")
+    AndWhere(frgmts) -> apply_logical_sql_operator(frgmts, "AND")
+    NotWhere(frgmts) -> apply_logical_sql_operator(frgmts, "NOT")
+    OrWhere(frgmts) -> apply_logical_sql_operator(frgmts, "OR")
     ColInParams(col, params) -> apply_column_in_params(col, params)
   }
 }
