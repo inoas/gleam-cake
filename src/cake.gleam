@@ -1,9 +1,9 @@
 import cake/adapters/postgres_adapter
 import cake/adapters/sqlite_adapter
 import cake/fragment/order_by_direction
-import cake/fragment/where
+import cake/fragment/where as wf
 import cake/query/select as sq
-import cake/sql_types
+import cake/types
 import gleam/dynamic
 import gleam/io
 import gleam/string
@@ -14,26 +14,22 @@ pub fn main() {
   io.println("Query")
   print_dashes()
 
-  let where_a = where.ColEqualParam("age", sql_types.IntParam(10))
-  let where_b = where.ColEqualParam("name", sql_types.StringParam("5"))
-  let where_c =
-    where.ColInParams("age", [
-      sql_types.StringParam("1"),
-      sql_types.IntParam(1),
-      sql_types.IntParam(2),
-      sql_types.IntParam(3),
-      sql_types.IntParam(4),
-      sql_types.NullParam,
-      sql_types.IntParam(5),
+  let where =
+    wf.OrWhere([
+      wf.ColEqualParam("age", types.IntParam(10)),
+      wf.ColEqualParam("name", types.StringParam("5")),
+      wf.ColInParams("age", [
+        // types.StringParam("1"),
+        types.IntParam(2),
+        types.NullParam,
+        types.IntParam(3),
+      ]),
     ])
-  let where = where.OrWhere([where_a, where_b, where_c])
-
-  let where_string = "name NOT NULL"
 
   let query =
     sq.new_from("cats")
-    |> sq.select(["name", "age"])
-    |> sq.where_strings([where_string])
+    |> sq.select(["name, age"])
+    |> sq.where_string("name NOT NULL")
     |> sq.where_replace([where])
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)

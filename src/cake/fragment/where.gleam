@@ -1,4 +1,4 @@
-import cake/sql_types.{type Param, type PreparedStatement, NullParam}
+import cake/types.{type Param, type PreparedStatement, NullParam}
 import gleam/list
 import gleam/pair
 

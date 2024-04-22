@@ -1,7 +1,7 @@
 import cake/fragment/order_by_direction
 import cake/fragment/where.{type WhereFragment}
 import cake/query/select.{type SelectQuery}
-import cake/sql_types.{type PreparedStatement}
+import cake/types.{type PreparedStatement}
 import gleam/int
 import gleam/list
 import gleam/string

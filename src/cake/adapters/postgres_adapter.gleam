@@ -1,6 +1,6 @@
 import cake/query/select.{type SelectQuery}
 import cake/query_builder
-import cake/sql_types.{
+import cake/types.{
   type PreparedStatement, BoolParam, FloatParam, IntParam, NullParam,
   StringParam,
 }

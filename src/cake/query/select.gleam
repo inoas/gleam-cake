@@ -112,21 +112,21 @@ pub fn where_replace(
   SelectQuery(..qry, where: where)
 }
 
-pub fn where_strings(
+pub fn where_string(
   query qry: SelectQuery,
-  where where_strings: List(String),
+  where where_string: String,
 ) -> SelectQuery {
   SelectQuery(
     ..qry,
-    where_strings: list.append(qry.where_strings, where_strings),
+    where_strings: list.append(qry.where_strings, [where_string]),
   )
 }
 
-pub fn where_strings_replace(
+pub fn where_string_replace(
   query qry: SelectQuery,
-  where where_strings: List(String),
+  where where_string: String,
 ) -> SelectQuery {
-  SelectQuery(..qry, where_strings: where_strings)
+  SelectQuery(..qry, where_strings: [where_string])
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
