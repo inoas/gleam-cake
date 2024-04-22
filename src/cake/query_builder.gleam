@@ -6,18 +6,15 @@ import gleam/int
 import gleam/list
 import gleam/string
 
-pub fn to_sql(query: SelectQuery) {
-  query
-  |> build_select_sql
-  |> maybe_add_where_sql(query)
-  |> maybe_add_where_strings_sql(query)
-  |> maybe_add_order_sql(query)
-  |> maybe_add_limit_sql(query)
-  |> maybe_add_offset_sql(query)
-}
+pub fn build_select_sql(sq: SelectQuery) -> String {
+  let qry = "SELECT " <> string.join(sq.select, ", ") <> " FROM " <> sq.from
 
-fn build_select_sql(query: SelectQuery) {
-  "SELECT " <> string.join(query.select, ", ") <> " FROM " <> query.from
+  qry
+  |> maybe_add_where_sql(sq)
+  |> maybe_add_where_strings_sql(sq)
+  |> maybe_add_order_sql(sq)
+  |> maybe_add_limit_sql(sq)
+  |> maybe_add_offset_sql(sq)
 }
 
 fn maybe_add_where_sql(query_string: String, query: SelectQuery) {

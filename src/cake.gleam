@@ -1,21 +1,29 @@
-import cake/adapters/sqlite
+import cake/adapters/postgres_adapter
+import cake/adapters/sqlite_adapter
 import cake/fragment/order_by_direction
 import cake/fragment/where
 import cake/query/select as sq
 import gleam/dynamic
+import gleam/io
+import gleam/string
 import pprint.{debug as dbg}
-import sqlight
 
 pub fn main() {
+  print_line()
+
   let where_a = where.ColEqualParam("age", where.IntParam(10))
   let where_b = where.ColEqualParam("name", where.StringParam("5"))
   let where_c =
     where.ColInParams("age", [where.StringParam("-1"), where.IntParam(10)])
   let where = where.OrWhere([where_a, where_b, where_c])
 
+  print_line()
+
   let where_string =
     where.ColNotEqualParam("name", where.NullParam)
     |> where.to_sql
+
+  print_line()
 
   let query =
     sq.new_from("cats")
@@ -26,25 +34,74 @@ pub fn main() {
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
     |> sq.set_limit(-1)
     |> sq.set_limit_and_offset(10, 0)
+    |> print_line_tap()
     |> dbg
-
-  use conn <- sqlight.with_connection(":memory:")
-
-  let assert Ok(Nil) = create_dummy_cats_table(conn)
-  let assert Ok(Nil) = insert_dummy_cats_data(conn)
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  sqlite.execute(conn, query, query_decoder)
-  |> dbg
+  print_line()
+
+  io.println("Running on SQLite")
+
+  print_line()
+
+  let _ =
+    run_on_sqlite(query, query_decoder)
+    |> dbg
+
+  print_line()
+
+  io.println("Running on Postgres")
+
+  print_line()
+
+  let _ =
+    run_on_postgres(query, query_decoder)
+    |> dbg
+
+  Nil
 }
 
-fn create_dummy_cats_table(conn) {
+fn run_on_sqlite(query, query_decoder) {
+  use conn <- sqlite_adapter.with_memory_connection()
+
+  let _ =
+    create_dummy_cats_table()
+    |> sqlite_adapter.execute(conn)
+
+  let _ =
+    insert_dummy_cats_data()
+    |> sqlite_adapter.execute(conn)
+
+  sqlite_adapter.run_query(conn, query, query_decoder)
+}
+
+fn run_on_postgres(query, query_decoder) {
+  use conn <- postgres_adapter.with_memory_connection()
+
+  let _ =
+    create_dummy_cats_table()
+    |> postgres_adapter.execute(conn)
+  let _ =
+    insert_dummy_cats_data()
+    |> postgres_adapter.execute(conn)
+
+  postgres_adapter.run_query(conn, query, query_decoder)
+}
+
+fn create_dummy_cats_table() {
   "CREATE TABLE cats (name text, age int);"
-  |> sqlight.exec(conn)
 }
 
-fn insert_dummy_cats_data(conn) {
+fn insert_dummy_cats_data() {
   "INSERT INTO cats (name, age) VALUES ('Nubi', 4), ('Biffy', 10), ('Ginny', 6);"
-  |> sqlight.exec(conn)
+}
+
+fn print_line() {
+  io.println(string.repeat("—", 80))
+}
+
+fn print_line_tap(tap) {
+  print_line()
+  tap
 }

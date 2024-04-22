@@ -45,12 +45,12 @@ pub type Param {
   NullParam
 }
 
-type Prepared =
+pub type PreparedStatement =
   #(String, List(Param))
 
 // TODO: Move this to prepared statements and use question marks then
 // ... or at least optionally though.
-pub fn to_prepared_sql(fragment frgmt: WhereFragment) -> Prepared {
+pub fn to_prepared_sql(fragment frgmt: WhereFragment) -> PreparedStatement {
   case frgmt {
     ColEqualCol(a_col, b_col) -> #(a_col <> " = " <> b_col, [])
     ColLowerCol(a_col, b_col) -> #(a_col <> " < " <> b_col, [])
@@ -85,7 +85,7 @@ fn apply_logical_sql_operator(fragments: List(WhereFragment), operator: String) 
   fragments
   |> list.fold(
     #("", []),
-    fn(acc: Prepared, fragment: WhereFragment) -> Prepared {
+    fn(acc: PreparedStatement, fragment: WhereFragment) -> PreparedStatement {
       let prepared = to_prepared_sql(fragment)
       let new_string = case acc.0 {
         "" -> prepared.0
@@ -98,18 +98,34 @@ fn apply_logical_sql_operator(fragments: List(WhereFragment), operator: String) 
   |> pair.map_first(fn(string) { "(" <> string <> ")" })
 }
 
-fn apply_column_in_params(col: String, params: List(Param)) -> Prepared {
+fn apply_column_in_params(col: String, params: List(Param)) -> PreparedStatement {
   params
-  |> list.fold(#("", []), fn(acc: Prepared, param: Param) -> Prepared {
-    let new_string = case acc.0 {
-      "" -> "?"
-      _ -> acc.0 <> ", ?"
-    }
-    let new_params = list.append(acc.1, [param])
-    #(new_string, new_params)
-  })
+  |> list.fold(
+    #("", []),
+    fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
+      let new_string = case acc.0 {
+        "" -> "?"
+        _ -> acc.0 <> ", ?"
+      }
+      let new_params = list.append(acc.1, [param])
+      #(new_string, new_params)
+    },
+  )
   |> pair.map_first(fn(string) { col <> " IN (" <> string <> ")" })
 }
+
+// // TODO: Move this to prepared statements and use question marks then,
+// // ... or at least optionally though.
+// fn param_to_sql(param: Param) -> String {
+//   case param {
+//     BoolParam(True) -> "TRUE"
+//     BoolParam(False) -> "FALSE"
+//     FloatParam(value) -> float.to_string(value)
+//     IntParam(value) -> int.to_string(value)
+//     StringParam(value) -> "'" <> value <> "'"
+//     NullParam -> "NULL"
+//   }
+// }
 
 pub fn to_sql(fragment frgmt: WhereFragment) -> String {
   frgmt
@@ -117,17 +133,4 @@ pub fn to_sql(fragment frgmt: WhereFragment) -> String {
   |> dbg
   |> pair.first()
   // TODO: insert values here
-}
-
-// TODO: Move this to prepared statements and use question marks then,
-// ... or at least optionally though.
-fn param_to_sql(param: Param) -> String {
-  case param {
-    BoolParam(True) -> "TRUE"
-    BoolParam(False) -> "FALSE"
-    FloatParam(value) -> float.to_string(value)
-    IntParam(value) -> int.to_string(value)
-    StringParam(value) -> "'" <> value <> "'"
-    NullParam -> "NULL"
-  }
 }
