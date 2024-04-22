@@ -1,6 +1,6 @@
-import adapters/generic
+import cake/adapters/generic
+import cake/query/select.{type SelectQuery}
 import pprint.{debug as dbg}
-import query/select_query.{type SelectQuery}
 import sqlight
 
 pub fn to_sql(query: SelectQuery) {

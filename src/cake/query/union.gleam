@@ -1,4 +1,4 @@
-import query/select_query.{type SelectQuery}
+import cake/query/select.{type SelectQuery}
 
 // List of SQL parts that will be used to build a union query.
 pub opaque type UnionQuery {

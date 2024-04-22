@@ -1,20 +1,20 @@
-import adapters/sqlite
-import fragment/order_by_direction
-import fragment/where
+import cake/adapters/sqlite
+import cake/fragment/order_by_direction
+import cake/fragment/where
+import cake/query/select as sq
 import gleam/dynamic
 import pprint.{debug as dbg}
-import query/select_query as sq
 import sqlight
 
 pub fn main() {
-  let where_a = where.ColumnEqualLiteral("age", where.Int(10))
-  let where_b = where.ColumnEqualLiteral("name", where.String("5"))
+  let where_a = where.ColEqualParam("age", where.IntParam(10))
+  let where_b = where.ColEqualParam("name", where.StringParam("5"))
   let where_c =
-    where.ColumnInLiterals("age", [where.String("-1"), where.Int(10)])
+    where.ColInParams("age", [where.StringParam("-1"), where.IntParam(10)])
   let where = where.OrWhere([where_a, where_b, where_c])
 
   let where_string =
-    where.ColumnNotEqualLiteral("name", where.Null(Nil))
+    where.ColNotEqualParam("name", where.NullParam)
     |> where.to_sql
 
   let query =

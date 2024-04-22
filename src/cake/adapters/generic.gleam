@@ -1,11 +1,10 @@
-import extlib/stringx
-import fragment/order_by_direction
-import fragment/where
+import cake/fragment/order_by_direction
+import cake/fragment/where
+import cake/query/select.{type SelectQuery}
+import cake/stdlib/stringx
 import gleam/int
 import gleam/list
 import gleam/string
-import query/select_query.{type SelectQuery}
-import sqlight
 
 pub fn to_sql(query: SelectQuery) {
   query

@@ -1,5 +1,5 @@
-import fragment/order_by_direction.{type OrderByDirectionFragment}
-import fragment/where.{type WhereFragment}
+import cake/fragment/order_by_direction.{type OrderByDirectionFragment}
+import cake/fragment/where.{type WhereFragment}
 import gleam/list
 
 // List of SQL parts that will be used to build a select query.
