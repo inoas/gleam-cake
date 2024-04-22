@@ -25,7 +25,7 @@ fn maybe_add_where_sql(query_string: String, query: SelectQuery) {
         query.where
         |> stringx.map_join(
           // TODO: use to_prepared_sql here
-          map: fn(where) { where.to_sql(where) },
+          map: fn(where) { where.to_debug_sql(where) },
           join: " AND ",
         )
       query_string <> " WHERE " <> where_sql

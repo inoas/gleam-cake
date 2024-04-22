@@ -127,7 +127,7 @@ fn apply_column_in_params(col: String, params: List(Param)) -> PreparedStatement
 //   }
 // }
 
-pub fn to_sql(fragment frgmt: WhereFragment) -> String {
+pub fn to_debug_sql(fragment frgmt: WhereFragment) -> String {
   frgmt
   |> to_prepared_sql()
   |> dbg
