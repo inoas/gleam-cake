@@ -1,10 +1,8 @@
+import cake/prepared_statement.{type PreparedStatement}
 import cake/query/select.{type SelectQuery}
 import cake/query_builder
 import cake/stdlib/iox
-import cake/types.{
-  type PreparedStatement, BoolParam, FloatParam, IntParam, NullParam,
-  StringParam,
-}
+import cake/types.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection}
@@ -32,15 +30,21 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 }
 
 pub fn run_query(db_conn, query: SelectQuery, decoder) {
-  let #(query, params) =
-    query
-    |> to_prepared_statement
+  let prp_stm =
+    to_prepared_statement(query)
+    |> iox.dbg_label("prp_stm")
 
-  query
-  |> iox.dbg_label("query")
+  let sql =
+    prepared_statement.get_sql(prp_stm)
+    |> iox.dbg_label("sql")
 
-  let pgo_params =
-    list.map(params, fn(param) {
+  let params =
+    prepared_statement.get_params(prp_stm)
+    |> iox.dbg_label("params")
+
+  let db_params =
+    params
+    |> list.map(fn(param) {
       case param {
         BoolParam(param) -> pgo.bool(param)
         FloatParam(param) -> pgo.float(param)
@@ -49,10 +53,10 @@ pub fn run_query(db_conn, query: SelectQuery, decoder) {
         NullParam -> pgo.null()
       }
     })
-    |> iox.dbg_label("params")
+    |> iox.dbg_label("db_params")
 
-  query
-  |> pgo.execute(on: db_conn, with: pgo_params, expecting: decoder)
+  sql
+  |> pgo.execute(on: db_conn, with: db_params, expecting: decoder)
 }
 
 pub fn execute(query, conn) {
