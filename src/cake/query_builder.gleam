@@ -1,7 +1,7 @@
 import cake/fragment/order_by_direction
 import cake/fragment/where.{type WhereFragment}
+import cake/prepared_statement.{type PreparedStatement}
 import cake/query/select.{type SelectQuery}
-import cake/types.{type PreparedStatement}
 import gleam/int
 import gleam/list
 import gleam/string
@@ -10,14 +10,14 @@ import gleam/string
 
 pub fn build_select_prepared_statement(
   select_query sq: SelectQuery,
-  prepared_symbol prpsmbl: String,
+  prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
-  let prep_stm = #("", [])
+  let prp_stm = prepared_statement.new(prp_stm_prfx)
 
-  prep_stm
+  prp_stm
   |> apply_to_query(maybe_add_select_sql, sq)
   |> apply_to_query(maybe_add_from_sql, sq)
-  |> maybe_add_where(sq, prpsmbl)
+  |> maybe_add_where(sq)
   |> apply_to_query(maybe_add_where_strings_sql, sq)
   |> apply_to_query(maybe_add_order_sql, sq)
   |> apply_to_query(maybe_add_limit_sql, sq)
@@ -25,12 +25,11 @@ pub fn build_select_prepared_statement(
 }
 
 fn maybe_add_where(
-  prepared_statement prep_stm: PreparedStatement,
+  prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
-  prepared_symbol prepsym: String,
 ) -> PreparedStatement {
   case qry.where {
-    [] -> prep_stm
+    [] -> prp_stm
     _ -> {
       let #(new_query, new_params) =
         qry.where
@@ -44,7 +43,7 @@ fn maybe_add_where(
           #(new_query, new_params)
         })
 
-      #(prep_stm.0 <> new_query, list.append(prep_stm.1, new_params))
+      #(prp_stm.0 <> new_query, list.append(prp_stm.1, new_params))
     }
   }
 }
@@ -60,8 +59,8 @@ fn maybe_add_where_strings_sql(
   }
 }
 
-fn apply_to_query(prep_stm: PreparedStatement, fun, query) -> PreparedStatement {
-  #(fun(prep_stm.0, query), prep_stm.1)
+fn apply_to_query(prp_stm: PreparedStatement, fun, query) -> PreparedStatement {
+  #(fun(prp_stm.0, query), prp_stm.1)
 }
 
 fn maybe_add_select_sql(

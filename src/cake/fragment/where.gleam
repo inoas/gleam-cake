@@ -1,8 +1,6 @@
-import cake/types.{type Param, type PreparedStatement, NullParam}
+import cake/prepared_statement.{type PreparedStatement}
+import cake/types.{type Param, NullParam}
 import gleam/list
-import gleam/pair
-
-// import pprint.{debug as dbg}
 
 pub type WhereFragment {
   // Column A to column B comparison
@@ -25,7 +23,7 @@ pub type WhereFragment {
   ParamLowerOrEqualCol(parameter: Param, column: String)
   ParamGreaterCol(parameter: Param, column: String)
   ParamGreaterOrEqualCol(parameter: Param, column: String)
-  ParamEqualNotCol(parameter: Param, column: String)
+  ParamNotEqualCol(parameter: Param, column: String)
   // Logical operators
   AndWhere(fragments: List(WhereFragment))
   NotWhere(fragments: List(WhereFragment))
@@ -39,83 +37,152 @@ pub type WhereFragment {
 // ... or at least optionally though.
 pub fn to_prepared_sql(
   fragment frgmt: WhereFragment,
-  prepared_symbol prpsmbl: String,
+  prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
   case frgmt {
-    ColEqualCol(a_col, b_col) -> #(a_col <> " = " <> b_col, [])
-    ColLowerCol(a_col, b_col) -> #(a_col <> " < " <> b_col, [])
-    ColLowerOrEqualCol(a_col, b_col) -> #(a_col <> " <= " <> b_col, [])
-    ColGreaterCol(a_col, b_col) -> #(a_col <> " > " <> b_col, [])
-    ColGreaterOrEqualCol(a_col, b_col) -> #(a_col <> " >= " <> b_col, [])
-    ColNotEqualCol(a_col, b_col) -> #(a_col <> " <> " <> b_col, [])
-    ColEqualParam(col, NullParam) -> #(col <> " IS NULL", [])
-    ColEqualParam(col, param) -> #(col <> " = " <> prpsmbl, [param])
-    ColLowerParam(col, param) -> #(col <> " < " <> prpsmbl, [param])
-    ColLowerOrEqualParam(col, param) -> #(col <> " <= " <> prpsmbl, [param])
-    ColGreaterParam(col, param) -> #(col <> " > $ ", [param])
-    ColGreaterOrEqualParam(col, param) -> #(col <> " >= $ ", [param])
-    ColNotEqualParam(col, NullParam) -> #(col <> " IS NOT NULL", [])
-    ColNotEqualParam(col, param) -> #(col <> " <> $ ", [param])
-    ParamEqualCol(NullParam, col) -> #(col <> "IS NULL", [])
-    ParamEqualCol(param, col) -> #("$ = " <> col, [param])
-    ParamLowerCol(param, col) -> #("$ < " <> col, [param])
-    ParamLowerOrEqualCol(param, col) -> #("$ <= " <> col, [param])
-    ParamGreaterCol(param, col) -> #("$ > " <> col, [param])
-    ParamGreaterOrEqualCol(param, col) -> #("$ >= " <> col, [param])
-    ParamEqualNotCol(NullParam, col) -> #(col <> " IS NOT NULL", [])
-    ParamEqualNotCol(param, col) -> #("$ <> " <> col, [param])
-    AndWhere(frgmts) -> apply_logical_sql_operator("AND", frgmts, prpsmbl)
-    NotWhere(frgmts) -> apply_logical_sql_operator("NOT", frgmts, prpsmbl)
-    OrWhere(frgmts) -> apply_logical_sql_operator("OR", frgmts, prpsmbl)
-    ColInParams(col, params) -> apply_column_in_params(col, params, prpsmbl)
+    ColEqualCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, "=", b_col)
+    ColLowerCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, "<", b_col)
+    ColLowerOrEqualCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, "<=", b_col)
+    ColGreaterCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, ">", b_col)
+    ColGreaterOrEqualCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, ">=", b_col)
+    ColNotEqualCol(a_col, b_col) ->
+      apply_comparison_col_col(prp_stm, a_col, "<>", b_col)
+    ColEqualParam(col, NullParam) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NULL")
+    ColEqualParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, "=", param)
+    ColLowerParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, "<", param)
+    ColLowerOrEqualParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, "<=", param)
+    ColGreaterParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, ">", param)
+    ColGreaterOrEqualParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, ">=", param)
+    ColNotEqualParam(col, NullParam) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
+    ColNotEqualParam(col, param) ->
+      apply_comparison_col_param(prp_stm, col, "<>", param)
+    ParamEqualCol(NullParam, col) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NULL")
+    ParamEqualCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, "=", col)
+    ParamLowerCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, "<", col)
+    ParamLowerOrEqualCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, "<=", col)
+    ParamGreaterCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, ">", col)
+    ParamGreaterOrEqualCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, ">=", col)
+    ParamNotEqualCol(NullParam, col) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
+    ParamNotEqualCol(param, col) ->
+      apply_comparison_param_col(prp_stm, param, "<>", col)
+    AndWhere(frgmts) -> apply_logical_sql_operator("AND", frgmts, prp_stm)
+    NotWhere(frgmts) -> apply_logical_sql_operator("NOT", frgmts, prp_stm)
+    OrWhere(frgmts) -> apply_logical_sql_operator("OR", frgmts, prp_stm)
+    ColInParams(col, params) -> apply_column_in_params(col, params, prp_stm)
   }
 }
 
 fn apply_logical_sql_operator(
   operator oprtr: String,
   fragments frgmts: List(WhereFragment),
-  prepared_symbol prpsmbl: String,
+  prepared_statement prp_stm: PreparedStatement,
 ) {
-  frgmts
-  |> list.fold(
-    #("", []),
-    fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
-      let prepared = to_prepared_sql(frgmt, prpsmbl)
-      let new_query = case acc.0 {
-        "" -> prepared.0
-        _ -> acc.0 <> " " <> oprtr <> " " <> prepared.0
-      }
-      let new_params = list.append(acc.1, prepared.1)
-      #(new_query, new_params)
-    },
+  let new_prep_stm =
+    prp_stm
+    |> prepared_statement.with_sql("(")
+
+  let new_prep_stm =
+    list.fold(
+      frgmts,
+      new_prep_stm,
+      fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
+        let prepared = to_prepared_sql(frgmt, prp_stm)
+        let new_sql = case acc == new_prep_stm {
+          True -> prepared_statement.get_sql(prp_stm)
+          False ->
+            prepared_statement.get_sql(prp_stm)
+            <> " "
+            <> oprtr
+            <> " "
+            <> prepared_statement.get_sql(prepared)
+        }
+        prepared_statement.with_sql(acc, new_sql)
+      },
+    )
+
+  new_prep_stm
+  |> prepared_statement.with_sql(")")
+}
+
+fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
+  prepared_statement.with_sql(
+    prp_stm,
+    a_col <> " " <> sql_operator <> " " <> b_col,
   )
-  |> pair.map_first(fn(string) { "(" <> string <> ")" })
+}
+
+fn apply_comparison_col_param(prp_stm, col, sql_operator, param) {
+  let next_param = prepared_statement.next_param(prp_stm)
+
+  prepared_statement.with_sql_and_param(
+    prp_stm,
+    col <> " " <> sql_operator <> " " <> next_param,
+    param,
+  )
+}
+
+fn apply_comparison_param_col(prp_stm, param, sql_operator, col) {
+  let next_param = prepared_statement.next_param(prp_stm)
+
+  prepared_statement.with_sql_and_param(
+    prp_stm,
+    next_param <> " " <> sql_operator <> " " <> col,
+    param,
+  )
 }
 
 fn apply_column_in_params(
   column col: String,
   parameters params: List(Param),
-  prepared_symbol prpsmbl: String,
+  prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
-  params
-  |> list.fold(
-    #("", []),
-    fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
-      let new_query = case acc.0 {
-        "" -> "" <> prpsmbl
-        _ -> acc.0 <> ", " <> prpsmbl
-      }
-      let new_params = list.append(acc.1, [param])
-      #(new_query, new_params)
-    },
-  )
-  |> pair.map_first(fn(string) { col <> " IN (" <> string <> ")" })
+  let new_prep_stm =
+    prp_stm
+    |> prepared_statement.with_sql(col <> " IN (")
+
+  let new_prep_stm =
+    list.fold(
+      params,
+      new_prep_stm,
+      fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
+        let new_sql = case acc == new_prep_stm {
+          True -> prepared_statement.get_prefix(prp_stm)
+          False ->
+            prepared_statement.get_sql(prp_stm)
+            <> ", "
+            <> prepared_statement.next_param(acc)
+        }
+        prepared_statement.with_sql_and_param(acc, new_sql, param)
+      },
+    )
+
+  new_prep_stm
+  |> prepared_statement.with_sql(")")
 }
 
 pub fn to_debug_sql(
   fragment frgmt: WhereFragment,
-  prepared_symbol prpsmbl: String,
+  prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
   frgmt
-  |> to_prepared_sql(prpsmbl)
+  |> to_prepared_sql(prp_stm)
 }

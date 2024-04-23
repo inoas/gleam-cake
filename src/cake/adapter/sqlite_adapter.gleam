@@ -1,11 +1,11 @@
 import cake/query/select.{type SelectQuery}
 import cake/query_builder
+import cake/stdlib/iox
 import cake/types.{
   type PreparedStatement, BoolParam, FloatParam, IntParam, NullParam,
   StringParam,
 }
 import gleam/list
-import pprint.{debug as dbg}
 import sqlight
 
 pub fn to_prepared_statement(query: SelectQuery) -> PreparedStatement {
@@ -23,7 +23,7 @@ pub fn run_query(db_conn, query: SelectQuery, decoder) {
     |> to_prepared_statement
 
   query
-  |> dbg
+  |> iox.dbg_label("query")
 
   let sqlite_params =
     list.map(params, fn(param) {
@@ -35,7 +35,7 @@ pub fn run_query(db_conn, query: SelectQuery, decoder) {
         NullParam -> sqlight.null()
       }
     })
-    |> dbg
+    |> iox.dbg_label("params")
 
   query
   |> sqlight.query(on: db_conn, with: sqlite_params, expecting: decoder)
