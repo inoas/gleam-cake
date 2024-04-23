@@ -1,9 +1,9 @@
 # cake
 
-[![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
+<!-- [![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/) -->
 
-```sh
+<!-- ```sh
 gleam add cake
 ```
 
@@ -16,7 +16,7 @@ pub fn main() {
 ```
 
 Further documentation can be found at <https://hexdocs.pm/cake>.
-
+ -->
 ## Development
 
 ```sh
