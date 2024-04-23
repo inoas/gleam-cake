@@ -21,7 +21,6 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
         ..pgo.default_config(),
         host: "localhost",
         database: "gleam_cake",
-        pool_size: 1,
       ),
     )
 

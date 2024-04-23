@@ -67,7 +67,7 @@ fn run_on_postgres(query, query_decoder) {
   use conn <- postgres_adapter.with_connection()
 
   let _ =
-    create_dummy_cats_table()
+    create_dummy_fresh_cats_table()
     |> postgres_adapter.execute(conn)
   let _ =
     insert_dummy_cats_data()
@@ -81,7 +81,7 @@ fn run_on_sqlite(query, query_decoder) {
   use conn <- sqlite_adapter.with_memory_connection()
 
   let _ =
-    create_dummy_cats_table()
+    create_dummy_fresh_cats_table()
     |> sqlite_adapter.execute(conn)
 
   let _ =
@@ -91,9 +91,9 @@ fn run_on_sqlite(query, query_decoder) {
   sqlite_adapter.run_query(conn, query, query_decoder)
 }
 
-fn create_dummy_cats_table() {
-  io.println("create_dummy_cats_table")
-  "CREATE TABLE cats (name text, age int);"
+fn create_dummy_fresh_cats_table() {
+  io.println("create_dummy_fresh_cats_table")
+  "DROP TABLE IF EXISTS cats; CREATE TABLE cats (name text, age int);"
 }
 
 fn insert_dummy_cats_data() {
