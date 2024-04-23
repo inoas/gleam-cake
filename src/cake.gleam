@@ -1,10 +1,11 @@
-import cake/adapters/postgres_adapter
-import cake/adapters/sqlite_adapter
+import cake/adapter/postgres_adapter
+import cake/adapter/sqlite_adapter
 import cake/fragment/order_by_direction
 import cake/fragment/where as wf
 import cake/query/select as sq
 import cake/types
 import gleam/dynamic
+import gleam/erlang/process
 import gleam/io
 import gleam/string
 import pprint.{debug as dbg}
@@ -38,6 +39,17 @@ pub fn main() {
     |> dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
+  print_dashes()
+  io.println("Running on Postgres")
+  print_dashes()
+
+  let _ =
+    run_on_postgres(query, query_decoder)
+    |> dbg
+
+  print_dashes()
+  io.println("Sleeping for 1000ms")
+  process.sleep(1000)
 
   print_dashes()
   io.println("Running on SQLite")
@@ -47,18 +59,25 @@ pub fn main() {
     run_on_sqlite(query, query_decoder)
     |> dbg
 
-  print_dashes()
-  io.println("Running on Postgres")
-  print_dashes()
-
-  let _ =
-    run_on_postgres(query, query_decoder)
-    |> dbg
-
   Nil
 }
 
+fn run_on_postgres(query, query_decoder) {
+  io.println("run_on_postgres")
+  use conn <- postgres_adapter.with_connection()
+
+  let _ =
+    create_dummy_cats_table()
+    |> postgres_adapter.execute(conn)
+  let _ =
+    insert_dummy_cats_data()
+    |> postgres_adapter.execute(conn)
+
+  postgres_adapter.run_query(conn, query, query_decoder)
+}
+
 fn run_on_sqlite(query, query_decoder) {
+  io.println("run_on_sqlite")
   use conn <- sqlite_adapter.with_memory_connection()
 
   let _ =
@@ -72,24 +91,13 @@ fn run_on_sqlite(query, query_decoder) {
   sqlite_adapter.run_query(conn, query, query_decoder)
 }
 
-fn run_on_postgres(query, query_decoder) {
-  use conn <- postgres_adapter.with_memory_connection()
-
-  let _ =
-    create_dummy_cats_table()
-    |> postgres_adapter.execute(conn)
-  let _ =
-    insert_dummy_cats_data()
-    |> postgres_adapter.execute(conn)
-
-  postgres_adapter.run_query(conn, query, query_decoder)
-}
-
 fn create_dummy_cats_table() {
+  io.println("create_dummy_cats_table")
   "CREATE TABLE cats (name text, age int);"
 }
 
 fn insert_dummy_cats_data() {
+  io.println("insert_dummy_cats_data")
   "INSERT INTO cats (name, age) VALUES ('Nubi', 4), ('Biffy', 10), ('Ginny', 6);"
 }
 

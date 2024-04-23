@@ -10,7 +10,7 @@ import sqlight
 
 pub fn to_prepared_statement(query: SelectQuery) -> PreparedStatement {
   query
-  |> query_builder.build_select_prepared_statement
+  |> query_builder.build_select_prepared_statement("?")
 }
 
 pub fn with_memory_connection(callback_fun) {
@@ -43,6 +43,5 @@ pub fn run_query(db_conn, query: SelectQuery, decoder) {
 
 pub fn execute(query, conn) {
   query
-  |> dbg
   |> sqlight.exec(conn)
 }

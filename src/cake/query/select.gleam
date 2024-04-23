@@ -31,8 +31,8 @@ pub type SelectQuery {
 
 pub fn new(from from: String, select select: List(String)) -> SelectQuery {
   SelectQuery(
-    select: select,
     from: from,
+    select: select,
     where: [],
     where_strings: [],
     order_by: [],
@@ -44,8 +44,8 @@ pub fn new(from from: String, select select: List(String)) -> SelectQuery {
 
 pub fn new_from(from from: String) -> SelectQuery {
   SelectQuery(
-    select: [],
     from: from,
+    select: [],
     where: [],
     where_strings: [],
     order_by: [],
@@ -57,8 +57,8 @@ pub fn new_from(from from: String) -> SelectQuery {
 
 pub fn new_select(select select: List(String)) -> SelectQuery {
   SelectQuery(
-    select: select,
     from: "",
+    select: select,
     where: [],
     where_strings: [],
     order_by: [],

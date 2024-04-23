@@ -8,13 +8,16 @@ import gleam/string
 
 // import pprint.{debug as dbg}
 
-pub fn build_select_prepared_statement(sq: SelectQuery) -> PreparedStatement {
+pub fn build_select_prepared_statement(
+  select_query sq: SelectQuery,
+  prepared_symbol prpsmbl: String,
+) -> PreparedStatement {
   let prep_stm = #("", [])
 
   prep_stm
   |> apply_to_query(maybe_add_select_sql, sq)
   |> apply_to_query(maybe_add_from_sql, sq)
-  |> maybe_add_where(sq)
+  |> maybe_add_where(sq, prpsmbl)
   |> apply_to_query(maybe_add_where_strings_sql, sq)
   |> apply_to_query(maybe_add_order_sql, sq)
   |> apply_to_query(maybe_add_limit_sql, sq)
@@ -22,16 +25,17 @@ pub fn build_select_prepared_statement(sq: SelectQuery) -> PreparedStatement {
 }
 
 fn maybe_add_where(
-  prep_stm: PreparedStatement,
-  query: SelectQuery,
+  prepared_statement prep_stm: PreparedStatement,
+  query qry: SelectQuery,
+  prepared_symbol prepsym: String,
 ) -> PreparedStatement {
-  case query.where {
+  case qry.where {
     [] -> prep_stm
     _ -> {
       let #(new_query, new_params) =
-        query.where
+        qry.where
         |> list.fold(#("", []), fn(acc: PreparedStatement, item: WhereFragment) {
-          let #(query, params) = where.to_prepared_sql(item)
+          let #(query, params) = where.to_prepared_sql(item, prepsym)
           let new_query = case acc.0 {
             "" -> " WHERE " <> query
             _ -> acc.0 <> " AND " <> query
@@ -46,14 +50,13 @@ fn maybe_add_where(
 }
 
 fn maybe_add_where_strings_sql(
-  query_string: String,
-  query: SelectQuery,
+  query_string qs: String,
+  query qry: SelectQuery,
 ) -> String {
-  case query.where_strings, query.where {
-    [], _ -> query_string
-    _, [] ->
-      query_string <> " WHERE " <> string.join(query.where_strings, " AND ")
-    _, _ -> query_string <> " AND " <> string.join(query.where_strings, " AND ")
+  case qry.where_strings, qry.where {
+    [], _ -> qs
+    _, [] -> qs <> " WHERE " <> string.join(qry.where_strings, " AND ")
+    _, _ -> qs <> " AND " <> string.join(qry.where_strings, " AND ")
   }
 }
 
@@ -61,42 +64,54 @@ fn apply_to_query(prep_stm: PreparedStatement, fun, query) -> PreparedStatement 
   #(fun(prep_stm.0, query), prep_stm.1)
 }
 
-fn maybe_add_select_sql(query_string: String, query: SelectQuery) -> String {
-  case query.select {
-    [] -> query_string <> "SELECT *"
-    _ -> query_string <> "SELECT " <> string.join(query.select, ", ")
+fn maybe_add_select_sql(
+  query_string qs: String,
+  query qry: SelectQuery,
+) -> String {
+  case qry.select {
+    [] -> qs <> "SELECT *"
+    _ -> qs <> "SELECT " <> string.join(qry.select, ", ")
   }
 }
 
-fn maybe_add_from_sql(query_string: String, query: SelectQuery) -> String {
-  query_string <> " FROM " <> query.from
+fn maybe_add_from_sql(query_string qs: String, query qry: SelectQuery) -> String {
+  qs <> " FROM " <> qry.from
 }
 
-fn maybe_add_order_sql(query_string: String, query: SelectQuery) -> String {
-  case query.order_by {
-    [] -> query_string
+fn maybe_add_order_sql(
+  query_string qs: String,
+  query qry: SelectQuery,
+) -> String {
+  case qry.order_by {
+    [] -> qs
     _ -> {
       let order_bys =
-        query.order_by
+        qry.order_by
         |> list.map(fn(order_by) {
           order_by.0 <> " " <> order_by_direction.to_sql(order_by.1)
         })
 
-      query_string <> " ORDER BY " <> string.join(order_bys, ", ")
+      qs <> " ORDER BY " <> string.join(order_bys, ", ")
     }
   }
 }
 
-fn maybe_add_limit_sql(query_string: String, query: SelectQuery) -> String {
-  case query.limit < 0 {
-    True -> query_string
-    False -> query_string <> " LIMIT " <> int.to_string(query.limit)
+fn maybe_add_limit_sql(
+  query_string qs: String,
+  query qry: SelectQuery,
+) -> String {
+  case qry.limit < 0 {
+    True -> qs
+    False -> qs <> " LIMIT " <> int.to_string(qry.limit)
   }
 }
 
-fn maybe_add_offset_sql(query_string: String, query: SelectQuery) -> String {
-  case query.offset < 0 {
-    True -> query_string
-    False -> query_string <> " OFFSET " <> int.to_string(query.offset)
+fn maybe_add_offset_sql(
+  query_string qs: String,
+  query qry: SelectQuery,
+) -> String {
+  case qry.offset < 0 {
+    True -> qs
+    False -> qs <> " OFFSET " <> int.to_string(qry.offset)
   }
 }

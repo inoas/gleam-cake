@@ -6,28 +6,28 @@ import cake/types.{
 }
 import gleam/dynamic.{type Dynamic}
 import gleam/list
-import gleam/pgo
+import gleam/pgo.{type Connection}
 import pprint.{debug as dbg}
 
 pub fn to_prepared_statement(query: SelectQuery) -> PreparedStatement {
   query
-  |> query_builder.build_select_prepared_statement
+  |> query_builder.build_select_prepared_statement("$")
 }
 
-pub fn with_memory_connection(callback_fun) {
-  let db_conn =
+pub fn with_connection(f: fn(Connection) -> a) -> a {
+  let connection =
     pgo.connect(
       pgo.Config(
         ..pgo.default_config(),
         host: "localhost",
         database: "gleam_cake",
-        pool_size: 15,
+        pool_size: 1,
       ),
     )
 
-  callback_fun(db_conn)
-
-  pgo.disconnect(db_conn)
+  let value = f(connection)
+  let assert Nil = pgo.disconnect(connection)
+  value
 }
 
 pub fn run_query(db_conn, query: SelectQuery, decoder) {
@@ -58,6 +58,5 @@ pub fn execute(query, conn) {
   let execute_decoder = fn(d: Dynamic) { Ok(d) }
 
   query
-  |> dbg
   |> pgo.execute(conn, with: [], expecting: execute_decoder)
 }
