@@ -9,6 +9,10 @@ pub fn build(
   select uq: UnionQuery,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
+  // TODO: what happens if multiple select queries have different type signatures
+  // in prepared statements we can already check this and return either an OK() or an Error()
+  // The error would return that the column types missmatch
+  // The user probably let assets this then?
   prp_stm_prfx
   |> prepared_statement.new()
   |> apply_sql(uq)
