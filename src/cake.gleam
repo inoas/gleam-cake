@@ -1,5 +1,6 @@
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
+import cake/fragment/from as ff
 import cake/fragment/order_by_direction
 import cake/fragment/where as wf
 import cake/query/select as sq
@@ -23,7 +24,7 @@ pub fn main() {
     ])
 
   let query =
-    sq.new_from("cats")
+    sq.new_from(ff.FromFragment("cats"))
     |> sq.select(["name, age"])
     |> sq.set_where(where)
     |> sq.order_asc("name")

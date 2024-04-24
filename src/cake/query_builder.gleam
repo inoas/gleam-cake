@@ -1,3 +1,4 @@
+import cake/fragment/from
 import cake/fragment/order_by_direction
 import cake/fragment/where
 import cake/prepared_statement.{type PreparedStatement}
@@ -49,7 +50,7 @@ fn maybe_add_from_sql(
   query_string _qs: String,
   query qry: SelectQuery,
 ) -> String {
-  " FROM " <> qry.from
+  from.to_sql(qry.from)
 }
 
 fn maybe_add_order_sql(

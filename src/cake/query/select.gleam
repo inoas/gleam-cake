@@ -1,3 +1,4 @@
+import cake/fragment/from.{type FromFragment, NoFromFragment}
 import cake/fragment/order_by_direction.{type OrderByDirectionFragment}
 import cake/fragment/where.{type WhereFragment, NoWhereFragment}
 import gleam/list
@@ -5,7 +6,7 @@ import gleam/list
 // List of SQL parts that will be used to build a select query.
 pub type SelectQuery {
   SelectQuery(
-    from: String,
+    from: FromFragment,
     // comment: String,
     // modifier: String,
     // with: String,
@@ -28,7 +29,7 @@ pub type SelectQuery {
 // ———— NEW ————————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn new(from from: String, select select: List(String)) -> SelectQuery {
+pub fn new(from from: FromFragment, select select: List(String)) -> SelectQuery {
   SelectQuery(
     from: from,
     select: select,
@@ -40,7 +41,7 @@ pub fn new(from from: String, select select: List(String)) -> SelectQuery {
   )
 }
 
-pub fn new_from(from from: String) -> SelectQuery {
+pub fn new_from(from from: FromFragment) -> SelectQuery {
   SelectQuery(
     from: from,
     select: [],
@@ -54,7 +55,7 @@ pub fn new_from(from from: String) -> SelectQuery {
 
 pub fn new_select(select select: List(String)) -> SelectQuery {
   SelectQuery(
-    from: "",
+    from: NoFromFragment,
     select: select,
     where: NoWhereFragment,
     order_by: [],
@@ -68,7 +69,7 @@ pub fn new_select(select select: List(String)) -> SelectQuery {
 // ———— FROM ———————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn set_from(query qry: SelectQuery, from from: String) -> SelectQuery {
+pub fn set_from(query qry: SelectQuery, from from: FromFragment) -> SelectQuery {
   SelectQuery(..qry, from: from)
 }
 
