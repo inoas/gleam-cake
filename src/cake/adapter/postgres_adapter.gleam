@@ -3,7 +3,7 @@ import cake/query/select.{type SelectQuery}
 import cake/query_builder
 
 // import cake/stdlib/iox
-import cake/types.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection}

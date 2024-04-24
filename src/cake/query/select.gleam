@@ -1,5 +1,6 @@
 import cake/fragment/from.{type FromFragment, NoFromFragment}
 import cake/fragment/order_by_direction.{type OrderByDirectionFragment}
+import cake/fragment/select.{type SelectFragment}
 import cake/fragment/where.{type WhereFragment, NoWhereFragment}
 import gleam/list
 
@@ -10,7 +11,7 @@ pub type SelectQuery {
     // comment: String,
     // modifier: String,
     // with: String,
-    select: List(String),
+    select: List(SelectFragment),
     // distinct: String,
     // join: String,
     where: WhereFragment,
@@ -29,7 +30,10 @@ pub type SelectQuery {
 // ———— NEW ————————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn new(from from: FromFragment, select select: List(String)) -> SelectQuery {
+pub fn new(
+  from from: FromFragment,
+  select select: List(SelectFragment),
+) -> SelectQuery {
   SelectQuery(
     from: from,
     select: select,
@@ -53,7 +57,7 @@ pub fn new_from(from from: FromFragment) -> SelectQuery {
   )
 }
 
-pub fn new_select(select select: List(String)) -> SelectQuery {
+pub fn new_select(select select: List(SelectFragment)) -> SelectQuery {
   SelectQuery(
     from: NoFromFragment,
     select: select,
@@ -79,14 +83,14 @@ pub fn set_from(query qry: SelectQuery, from from: FromFragment) -> SelectQuery 
 
 pub fn select(
   query qry: SelectQuery,
-  select select: List(String),
+  select select: List(SelectFragment),
 ) -> SelectQuery {
   SelectQuery(..qry, select: list.append(qry.select, select))
 }
 
 pub fn select_replace(
   query qry: SelectQuery,
-  select select: List(String),
+  select select: List(SelectFragment),
 ) -> SelectQuery {
   SelectQuery(..qry, select: select)
 }

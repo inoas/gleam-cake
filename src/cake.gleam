@@ -2,10 +2,11 @@ import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
 import cake/fragment/from as ff
 import cake/fragment/order_by_direction
+import cake/fragment/select as sf
 import cake/fragment/where as wf
+import cake/param
 import cake/query/select as sq
 import cake/stdlib/iox
-import cake/types
 import gleam/dynamic
 import gleam/erlang/process as erlang_process
 
@@ -14,18 +15,18 @@ pub fn main() {
 
   let where =
     wf.OrWhere([
-      wf.ColEqualParam("age", types.IntParam(10)),
-      wf.ColEqualParam("name", types.StringParam("5")),
-      wf.ColInParams("age", [
-        types.NullParam,
-        types.IntParam(1),
-        types.IntParam(2),
+      wf.WhereColEqualParam("age", param.IntParam(10)),
+      wf.WhereColEqualParam("name", param.StringParam("5")),
+      wf.WhereColInParams("age", [
+        param.NullParam,
+        param.IntParam(1),
+        param.IntParam(2),
       ]),
     ])
 
   let query =
-    sq.new_from(ff.FromFragment("cats"))
-    |> sq.select(["name, age"])
+    sq.new_from(ff.from_table("cats"))
+    |> sq.select([sf.from_string("name"), sf.from_string("age")])
     |> sq.set_where(where)
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)

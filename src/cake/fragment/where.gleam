@@ -1,38 +1,38 @@
 import cake/prepared_statement.{type PreparedStatement}
 
 // import cake/stdlib/iox
-import cake/types.{type Param, NullParam}
+import cake/param.{type Param, NullParam}
 import gleam/list
 
 pub type WhereFragment {
   // Column A to column B comparison
-  ColEqualCol(a_column: String, b_column: String)
-  ColLowerCol(a_column: String, b_column: String)
-  ColLowerOrEqualCol(a_column: String, b_column: String)
-  ColGreaterCol(a_column: String, b_column: String)
-  ColGreaterOrEqualCol(a_column: String, b_column: String)
-  ColNotEqualCol(a_column: String, b_column: String)
+  WhereColEqualCol(a_column: String, b_column: String)
+  WhereColLowerCol(a_column: String, b_column: String)
+  WhereColLowerOrEqualCol(a_column: String, b_column: String)
+  WhereColGreaterCol(a_column: String, b_column: String)
+  WhereColGreaterOrEqualCol(a_column: String, b_column: String)
+  WhereColNotEqualCol(a_column: String, b_column: String)
   // Column to parameter comparison
-  ColEqualParam(column: String, parameter: Param)
-  ColLowerParam(column: String, parameter: Param)
-  ColLowerOrEqualParam(column: String, parameter: Param)
-  ColGreaterParam(column: String, parameter: Param)
-  ColGreaterOrEqualParam(column: String, parameter: Param)
-  ColNotEqualParam(column: String, parameter: Param)
+  WhereColEqualParam(column: String, parameter: Param)
+  WhereColLowerParam(column: String, parameter: Param)
+  WhereColLowerOrEqualParam(column: String, parameter: Param)
+  WhereColGreaterParam(column: String, parameter: Param)
+  WhereColGreaterOrEqualParam(column: String, parameter: Param)
+  WhereColNotEqualParam(column: String, parameter: Param)
   // Parameter to column comparison
-  ParamEqualCol(parameter: Param, column: String)
-  ParamLowerCol(parameter: Param, column: String)
-  ParamLowerOrEqualCol(parameter: Param, column: String)
-  ParamGreaterCol(parameter: Param, column: String)
-  ParamGreaterOrEqualCol(parameter: Param, column: String)
-  ParamNotEqualCol(parameter: Param, column: String)
+  WhereParamEqualCol(parameter: Param, column: String)
+  WhereParamLowerCol(parameter: Param, column: String)
+  WhereParamLowerOrEqualCol(parameter: Param, column: String)
+  WhereParamGreaterCol(parameter: Param, column: String)
+  WhereParamGreaterOrEqualCol(parameter: Param, column: String)
+  WhereParamNotEqualCol(parameter: Param, column: String)
   // Logical operators
   AndWhere(fragments: List(WhereFragment))
   NotWhere(fragments: List(WhereFragment))
   OrWhere(fragments: List(WhereFragment))
   // XorWhere(List(WhereFragment))
   // Column contains value
-  ColInParams(column: String, parameters: List(Param))
+  WhereColInParams(column: String, parameters: List(Param))
   NoWhereFragment
 }
 
@@ -43,54 +43,55 @@ fn append_to_prepared_statement(
   fragment frgmt: WhereFragment,
 ) -> PreparedStatement {
   case frgmt {
-    ColEqualCol(a_col, b_col) ->
+    WhereColEqualCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, "=", b_col)
-    ColLowerCol(a_col, b_col) ->
+    WhereColLowerCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, "<", b_col)
-    ColLowerOrEqualCol(a_col, b_col) ->
+    WhereColLowerOrEqualCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, "<=", b_col)
-    ColGreaterCol(a_col, b_col) ->
+    WhereColGreaterCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, ">", b_col)
-    ColGreaterOrEqualCol(a_col, b_col) ->
+    WhereColGreaterOrEqualCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, ">=", b_col)
-    ColNotEqualCol(a_col, b_col) ->
+    WhereColNotEqualCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, "<>", b_col)
-    ColEqualParam(col, NullParam) ->
+    WhereColEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
-    ColEqualParam(col, param) ->
+    WhereColEqualParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, "=", param)
-    ColLowerParam(col, param) ->
+    WhereColLowerParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, "<", param)
-    ColLowerOrEqualParam(col, param) ->
+    WhereColLowerOrEqualParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, "<=", param)
-    ColGreaterParam(col, param) ->
+    WhereColGreaterParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, ">", param)
-    ColGreaterOrEqualParam(col, param) ->
+    WhereColGreaterOrEqualParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, ">=", param)
-    ColNotEqualParam(col, NullParam) ->
+    WhereColNotEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
-    ColNotEqualParam(col, param) ->
+    WhereColNotEqualParam(col, param) ->
       apply_comparison_col_param(prp_stm, col, "<>", param)
-    ParamEqualCol(NullParam, col) ->
+    WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
-    ParamEqualCol(param, col) ->
+    WhereParamEqualCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, "=", col)
-    ParamLowerCol(param, col) ->
+    WhereParamLowerCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, "<", col)
-    ParamLowerOrEqualCol(param, col) ->
+    WhereParamLowerOrEqualCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, "<=", col)
-    ParamGreaterCol(param, col) ->
+    WhereParamGreaterCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, ">", col)
-    ParamGreaterOrEqualCol(param, col) ->
+    WhereParamGreaterOrEqualCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, ">=", col)
-    ParamNotEqualCol(NullParam, col) ->
+    WhereParamNotEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
-    ParamNotEqualCol(param, col) ->
+    WhereParamNotEqualCol(param, col) ->
       apply_comparison_param_col(prp_stm, param, "<>", col)
     AndWhere(frgmts) -> apply_logical_sql_operator("AND", frgmts, prp_stm)
     NotWhere(frgmts) -> apply_logical_sql_operator("NOT", frgmts, prp_stm)
     OrWhere(frgmts) -> apply_logical_sql_operator("OR", frgmts, prp_stm)
-    ColInParams(col, params) -> apply_column_in_params(col, params, prp_stm)
+    WhereColInParams(col, params) ->
+      apply_column_in_params(col, params, prp_stm)
     NoWhereFragment -> prp_stm
   }
 }

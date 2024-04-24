@@ -1,4 +1,4 @@
-import cake/types.{type Param}
+import cake/param.{type Param}
 import gleam/int
 import gleam/list
 

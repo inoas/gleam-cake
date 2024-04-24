@@ -1,8 +1,10 @@
 import cake/fragment/from
 import cake/fragment/order_by_direction
+import cake/fragment/select as sf
 import cake/fragment/where
 import cake/prepared_statement.{type PreparedStatement}
 import cake/query/select.{type SelectQuery}
+import cake/stdlib/stringx
 
 // import cake/stdlib/iox
 import gleam/int
@@ -42,7 +44,7 @@ fn maybe_add_select_sql(
 ) -> String {
   case qry.select {
     [] -> "SELECT *"
-    _ -> "SELECT " <> string.join(qry.select, ", ")
+    _ -> "SELECT " <> stringx.map_join(qry.select, sf.to_sql, " ,")
   }
 }
 
