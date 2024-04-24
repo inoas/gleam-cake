@@ -25,19 +25,21 @@ pub fn main() {
     ])
 
   let query =
-    select_query.new_from(from_fragment.from_table("cats"))
-    |> select_query.select([
-      select_fragment.from_string("name"),
-      select_fragment.from_string("age"),
+    select_query.select_query_new_from(from_fragment.from_fragment_from_table(
+      "cats",
+    ))
+    |> select_query.select_query_select([
+      select_fragment.select_fragment_from_string("name"),
+      select_fragment.select_fragment_from_string("age"),
     ])
-    |> select_query.set_where(where)
-    |> select_query.order_asc("name")
-    |> select_query.order_replace(
+    |> select_query.select_query_set_where(where)
+    |> select_query.select_query_order_asc("name")
+    |> select_query.select_query_order_replace(
       by: "age",
       direction: order_by_direction_fragment.Asc,
     )
-    |> select_query.set_limit(1)
-    |> select_query.set_limit_and_offset(1, 0)
+    |> select_query.select_query_set_limit(1)
+    |> select_query.select_query_set_limit_and_offset(1, 0)
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)

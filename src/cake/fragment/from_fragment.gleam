@@ -5,11 +5,11 @@ pub type FromFragment {
   NoFromFragment
 }
 
-pub fn from_table(s: String) -> FromFragment {
+pub fn from_fragment_from_table(s: String) -> FromFragment {
   FromTable(s)
 }
 
-pub fn to_sql(fragment frgmt: FromFragment) {
+pub fn from_fragment_to_sql(fragment frgmt: FromFragment) {
   case frgmt {
     FromString(s) -> " FROM " <> s
     FromTable(s) -> " FROM " <> s

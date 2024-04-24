@@ -1,7 +1,7 @@
 import cake/fragment/from_fragment
 import cake/fragment/order_by_direction_fragment
 import cake/fragment/select_fragment
-import cake/fragment/where_fragment
+import cake/fragment/where_fragment as wf
 import cake/prepared_statement.{type PreparedStatement}
 import cake/query/select_query.{type SelectQuery}
 import cake/stdlib/stringx
@@ -35,7 +35,7 @@ fn maybe_add_where(
   prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
-  where_fragment.append_to_prepared_statement_as_clause(qry.where, prp_stm)
+  wf.where_fragment_append_to_prepared_statement_as_clause(qry.where, prp_stm)
 }
 
 fn maybe_add_select_sql(
@@ -44,7 +44,13 @@ fn maybe_add_select_sql(
 ) -> String {
   case qry.select {
     [] -> "SELECT *"
-    _ -> "SELECT " <> stringx.map_join(qry.select, select_fragment.to_sql, " ,")
+    _ ->
+      "SELECT "
+      <> stringx.map_join(
+        qry.select,
+        select_fragment.select_fragment_to_sql,
+        " ,",
+      )
   }
 }
 
@@ -52,7 +58,7 @@ fn maybe_add_from_sql(
   query_string _qs: String,
   query qry: SelectQuery,
 ) -> String {
-  from_fragment.to_sql(qry.from)
+  from_fragment.from_fragment_to_sql(qry.from)
 }
 
 fn maybe_add_order_sql(
@@ -65,7 +71,11 @@ fn maybe_add_order_sql(
       let order_bys =
         qry.order_by
         |> list.map(fn(order_by) {
-          order_by.0 <> " " <> order_by_direction_fragment.to_sql(order_by.1)
+          order_by.0
+          <> " "
+          <> order_by_direction_fragment.order_by_direction_fragment_to_sql(
+            order_by.1,
+          )
         })
 
       " ORDER BY " <> string.join(order_bys, ", ")

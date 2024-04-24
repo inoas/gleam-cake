@@ -10,12 +10,12 @@ pub type SelectFragment {
   SelectColumnAlias(column: String, alias: String)
 }
 
-pub fn from_string(s: String) -> SelectFragment {
+pub fn select_fragment_from_string(s: String) -> SelectFragment {
   // TODO: check if the table does indeed exist
   SelectString(s)
 }
 
-pub fn to_sql(fragment frgmt: SelectFragment) {
+pub fn select_fragment_to_sql(fragment frgmt: SelectFragment) {
   case frgmt {
     SelectString(string) -> string
     SelectStringAlias(string, alias) -> string <> " AS " <> alias

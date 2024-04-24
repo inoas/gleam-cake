@@ -48,7 +48,7 @@ pub type WhereFragment {
 
 // TODO: Move this to prepared statements and use question marks then
 // ... or at least optionally though.
-fn append_to_prepared_statement(
+fn where_fragment_append_to_prepared_statement(
   prepared_statement prp_stm: PreparedStatement,
   fragment frgmt: WhereFragment,
 ) -> PreparedStatement {
@@ -68,45 +68,48 @@ fn append_to_prepared_statement(
     WhereColEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereColEqualParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, "=", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, "=", param)
     WhereColLowerParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, "<", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, "<", param)
     WhereColLowerOrEqualParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, "<=", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, "<=", param)
     WhereColGreaterParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, ">", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, ">", param)
     WhereColGreaterOrEqualParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, ">=", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, ">=", param)
     WhereColNotEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereColNotEqualParam(col, param) ->
-      apply_comparison_col_param(prp_stm, col, "<>", param)
+      where_fragment_apply_comparison_col_param(prp_stm, col, "<>", param)
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, "=", col)
+      where_fragment_apply_comparison_param_col(prp_stm, param, "=", col)
     WhereParamLowerCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, "<", col)
+      where_fragment_apply_comparison_param_col(prp_stm, param, "<", col)
     WhereParamLowerOrEqualCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, "<=", col)
+      where_fragment_apply_comparison_param_col(prp_stm, param, "<=", col)
     WhereParamGreaterCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, ">", col)
+      where_fragment_apply_comparison_param_col(prp_stm, param, ">", col)
     WhereParamGreaterOrEqualCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, ">=", col)
+      where_fragment_apply_comparison_param_col(prp_stm, param, ">=", col)
     WhereParamNotEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereParamNotEqualCol(param, col) ->
-      apply_comparison_param_col(prp_stm, param, "<>", col)
-    AndWhere(frgmts) -> apply_logical_sql_operator("AND", frgmts, prp_stm)
-    NotWhere(frgmts) -> apply_logical_sql_operator("NOT", frgmts, prp_stm)
-    OrWhere(frgmts) -> apply_logical_sql_operator("OR", frgmts, prp_stm)
+      where_fragment_apply_comparison_param_col(prp_stm, param, "<>", col)
+    AndWhere(frgmts) ->
+      where_fragment_apply_logical_sql_operator("AND", frgmts, prp_stm)
+    NotWhere(frgmts) ->
+      where_fragment_apply_logical_sql_operator("NOT", frgmts, prp_stm)
+    OrWhere(frgmts) ->
+      where_fragment_apply_logical_sql_operator("OR", frgmts, prp_stm)
     WhereColInParams(col, params) ->
-      apply_column_in_params(col, params, prp_stm)
+      where_fragment_apply_column_in_params(col, params, prp_stm)
     NoWhereFragment -> prp_stm
   }
 }
 
-pub fn append_to_prepared_statement_as_clause(
+pub fn where_fragment_append_to_prepared_statement_as_clause(
   fragment frgmt: WhereFragment,
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
@@ -115,7 +118,7 @@ pub fn append_to_prepared_statement_as_clause(
     _ -> {
       prp_stm
       |> prepared_statement.with_sql(" WHERE ")
-      |> append_to_prepared_statement(frgmt)
+      |> where_fragment_append_to_prepared_statement(frgmt)
     }
   }
 }
@@ -127,7 +130,7 @@ fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
   )
 }
 
-fn apply_comparison_col_param(prp_stm, col, sql_operator, param) {
+fn where_fragment_apply_comparison_col_param(prp_stm, col, sql_operator, param) {
   let next_param = prepared_statement.next_param(prp_stm)
 
   prepared_statement.with_sql_and_param(
@@ -137,7 +140,7 @@ fn apply_comparison_col_param(prp_stm, col, sql_operator, param) {
   )
 }
 
-fn apply_comparison_param_col(prp_stm, param, sql_operator, col) {
+fn where_fragment_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
   let next_param = prepared_statement.next_param(prp_stm)
 
   prepared_statement.with_sql_and_param(
@@ -147,7 +150,7 @@ fn apply_comparison_param_col(prp_stm, param, sql_operator, col) {
   )
 }
 
-fn apply_logical_sql_operator(
+fn where_fragment_apply_logical_sql_operator(
   operator oprtr: String,
   fragments frgmts: List(WhereFragment),
   prepared_statement prp_stm: PreparedStatement,
@@ -164,11 +167,11 @@ fn apply_logical_sql_operator(
         case acc == new_prep_stm {
           True ->
             acc
-            |> append_to_prepared_statement(frgmt)
+            |> where_fragment_append_to_prepared_statement(frgmt)
           False ->
             acc
             |> prepared_statement.with_sql(" " <> oprtr <> " ")
-            |> append_to_prepared_statement(frgmt)
+            |> where_fragment_append_to_prepared_statement(frgmt)
         }
       },
     )
@@ -177,7 +180,7 @@ fn apply_logical_sql_operator(
   |> prepared_statement.with_sql(")")
 }
 
-fn apply_column_in_params(
+fn where_fragment_apply_column_in_params(
   column col: String,
   parameters params: List(Param),
   prepared_statement prp_stm: PreparedStatement,
@@ -201,12 +204,4 @@ fn apply_column_in_params(
 
   new_prep_stm
   |> prepared_statement.with_sql(")")
-}
-
-pub fn to_debug(
-  fragment frgmt: WhereFragment,
-  prepared_statement prp_stm: PreparedStatement,
-) -> PreparedStatement {
-  prp_stm
-  |> append_to_prepared_statement(frgmt)
 }

@@ -5,6 +5,8 @@ pub opaque type UnionQuery {
   UnionQuery(select_queries: List(SelectQuery), flags: List(#(String, String)))
 }
 
-pub fn new(select_queries select_queries: List(SelectQuery)) -> UnionQuery {
+pub fn union_query_new(
+  select_queries select_queries: List(SelectQuery),
+) -> UnionQuery {
   UnionQuery(select_queries: select_queries, flags: [])
 }

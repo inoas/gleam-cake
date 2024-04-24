@@ -5,7 +5,9 @@ pub type OrderByDirectionFragment {
   DescNullsFirst
 }
 
-pub fn to_sql(fragment frgmt: OrderByDirectionFragment) {
+pub fn order_by_direction_fragment_to_sql(
+  fragment frgmt: OrderByDirectionFragment,
+) {
   case frgmt {
     Asc -> " ASC NULLS LAST"
     Desc -> " DESC NULLS LAST"

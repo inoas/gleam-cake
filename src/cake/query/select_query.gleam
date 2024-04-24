@@ -30,7 +30,7 @@ pub type SelectQuery {
 // ———— NEW ————————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn new(
+pub fn select_query_new(
   from from: FromFragment,
   select select: List(SelectFragment),
 ) -> SelectQuery {
@@ -45,7 +45,7 @@ pub fn new(
   )
 }
 
-pub fn new_from(from from: FromFragment) -> SelectQuery {
+pub fn select_query_new_from(from from: FromFragment) -> SelectQuery {
   SelectQuery(
     from: from,
     select: [],
@@ -57,7 +57,9 @@ pub fn new_from(from from: FromFragment) -> SelectQuery {
   )
 }
 
-pub fn new_select(select select: List(SelectFragment)) -> SelectQuery {
+pub fn select_query_new_select(
+  select select: List(SelectFragment),
+) -> SelectQuery {
   SelectQuery(
     from: NoFromFragment,
     select: select,
@@ -73,7 +75,10 @@ pub fn new_select(select select: List(SelectFragment)) -> SelectQuery {
 // ———— FROM ———————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn set_from(query qry: SelectQuery, from from: FromFragment) -> SelectQuery {
+pub fn select_query_set_from(
+  query qry: SelectQuery,
+  from from: FromFragment,
+) -> SelectQuery {
   SelectQuery(..qry, from: from)
 }
 
@@ -81,14 +86,14 @@ pub fn set_from(query qry: SelectQuery, from from: FromFragment) -> SelectQuery 
 // ———— SELECT —————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn select(
+pub fn select_query_select(
   query qry: SelectQuery,
   select select: List(SelectFragment),
 ) -> SelectQuery {
   SelectQuery(..qry, select: list.append(qry.select, select))
 }
 
-pub fn select_replace(
+pub fn select_query_select_replace(
   query qry: SelectQuery,
   select select: List(SelectFragment),
 ) -> SelectQuery {
@@ -99,7 +104,7 @@ pub fn select_replace(
 // ———— WHERE ——————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn set_where(
+pub fn select_query_set_where(
   query qry: SelectQuery,
   where where: WhereFragment,
 ) -> SelectQuery {
@@ -110,54 +115,63 @@ pub fn set_where(
 // ———— ORDER BY ———————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn order_asc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn select_query_order_asc(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.Asc), True)
 }
 
-pub fn order_asc_nulls_first(
+pub fn select_query_order_asc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.AscNullsFirst), True)
 }
 
-pub fn order_asc_replace(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn select_query_order_asc_replace(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.Asc), False)
 }
 
-pub fn order_asc_nulls_first_replace(
+pub fn select_query_order_asc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.AscNullsFirst), False)
 }
 
-pub fn order_desc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn select_query_order_desc(
+  query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.Desc), True)
 }
 
-pub fn order_desc_nulls_first(
+pub fn select_query_order_desc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.DescNullsFirst), True)
 }
 
-pub fn order_desc_replace(
+pub fn select_query_order_desc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.Desc), False)
 }
 
-pub fn order_desc_nulls_first_replace(
+pub fn select_query_order_desc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, order_by_direction_fragment.DescNullsFirst), False)
 }
 
-pub fn order(
+pub fn select_query_order(
   query qry: SelectQuery,
   by ordb: String,
   direction dir: OrderByDirectionFragment,
@@ -165,7 +179,7 @@ pub fn order(
   do_order_by(qry, #(ordb, dir), True)
 }
 
-pub fn order_replace(
+pub fn select_query_order_replace(
   query qry: SelectQuery,
   by ordb: String,
   direction dir: OrderByDirectionFragment,
@@ -188,7 +202,7 @@ fn do_order_by(
 // ———— LIMIT & OFFSET —————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+pub fn select_query_set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
   case lmt >= 0 {
     True -> SelectQuery(..qry, limit: lmt)
     // TODO: Add warning, negative limit is ignored
@@ -196,7 +210,7 @@ pub fn set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
   }
 }
 
-pub fn set_limit_and_offset(
+pub fn select_query_set_limit_and_offset(
   query qry: SelectQuery,
   limit lmt: Int,
   offset offst: Int,
