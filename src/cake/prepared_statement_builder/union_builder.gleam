@@ -22,6 +22,7 @@ pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
   select uq: UnionQuery,
 ) -> PreparedStatement {
+  // TODO: first check if it is union all or union distinct
   query.union_get_select_queries(uq)
   |> list.fold(
     prp_stm,
