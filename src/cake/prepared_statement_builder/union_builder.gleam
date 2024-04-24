@@ -34,6 +34,7 @@ pub fn apply_sql(
         }
         False -> {
           acc
+          // UNION vs UNION ALL vs EXCEPT vs INTERSECT
           |> prepared_statement.with_sql(" UNION ")
           |> select_builder.apply_sql(sq)
         }
