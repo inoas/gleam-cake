@@ -1,69 +1,103 @@
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
-import cake/fragment/from_fragment
-import cake/fragment/order_by_direction_fragment
-import cake/fragment/select_fragment
-import cake/fragment/where_fragment
+import cake/internal/query
 import cake/param
-import cake/query/select_query
 import cake/stdlib/iox
 import gleam/dynamic
 import gleam/erlang/process
 
 pub fn main() {
+  let _ = run_dummy_select()
+  let _ = run_dummy_union()
+
+  Nil
+}
+
+pub fn run_dummy_select() {
   iox.print_dashes()
 
   let where =
-    where_fragment.OrWhere([
-      where_fragment.WhereColEqualParam("age", param.IntParam(10)),
-      where_fragment.WhereColEqualParam("name", param.StringParam("5")),
-      where_fragment.WhereColInParams("age", [
+    query.OrWhere([
+      query.WhereColEqualParam("age", param.IntParam(10)),
+      query.WhereColEqualParam("name", param.StringParam("5")),
+      query.WhereColInParams("age", [
         param.NullParam,
         param.IntParam(1),
         param.IntParam(2),
       ]),
     ])
 
-  let query =
-    select_query.select_query_new_from(from_fragment.from_fragment_from_table(
-      "cats",
-    ))
-    |> select_query.select_query_select([
-      select_fragment.select_fragment_from_string("name"),
-      select_fragment.select_fragment_from_string("age"),
+  let select_query =
+    query.from_fragment_from_table("cats")
+    |> query.select_query_new_from()
+    |> query.select_query_select([
+      query.select_fragment_from_string("name"),
+      query.select_fragment_from_string("age"),
     ])
-    |> select_query.select_query_set_where(where)
-    |> select_query.select_query_order_asc("name")
-    |> select_query.select_query_order_replace(
-      by: "age",
-      direction: order_by_direction_fragment.Asc,
-    )
-    |> select_query.select_query_set_limit(1)
-    |> select_query.select_query_set_limit_and_offset(1, 0)
+    |> query.select_query_set_where(where)
+    |> query.select_query_order_asc("name")
+    |> query.select_query_order_replace(by: "age", direction: query.Asc)
+    |> query.select_query_set_limit(1)
+    |> query.select_query_set_limit_and_offset(1, 0)
+    |> query.query_select_wrap
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  iox.print_dashes()
-  iox.print("Postgres: ")
+  iox.print("SQLite:   ")
 
   let _ =
-    run_on_postgres(query, query_decoder)
+    run_on_sqlite(select_query, query_decoder)
     |> iox.dbg
 
   process.sleep(100)
 
+  iox.print("Postgres: ")
+
+  let _ =
+    run_on_postgres(select_query, query_decoder)
+    |> iox.dbg
+
+  process.sleep(100)
+}
+
+pub fn run_dummy_union() {
   iox.print_dashes()
+
+  let select_query =
+    query.from_fragment_from_table("cats")
+    |> query.select_query_new_from()
+    |> query.select_query_select([
+      query.select_fragment_from_string("name"),
+      query.select_fragment_from_string("age"),
+    ])
+  // UNION must take ORDER BY at the outside
+  // it can also take an own LIMIT and OFFSET
+  // |> query.select_query_order_asc("name")
+
+  let union_query =
+    query.union_distinct_query_new([select_query, select_query])
+    |> query.query_union_wrap
+    |> iox.dbg
+
+  let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
+
   iox.print("SQLite:   ")
 
   let _ =
-    run_on_sqlite(query, query_decoder)
+    run_on_sqlite(union_query, query_decoder)
     |> iox.dbg
 
-  Nil
+  iox.print("Postgres: ")
+
+  let _ =
+    run_on_postgres(union_query, query_decoder)
+    |> iox.dbg
+
+  process.sleep(100)
 }
 
-fn run_on_postgres(query, query_decoder) {
+pub fn run_on_postgres(query, query_decoder) {
   // iox.println("run_on_postgres")
 
   use conn <- postgres_adapter.with_connection()

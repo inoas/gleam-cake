@@ -1,23 +1,23 @@
+import cake/internal/query.{type Query}
 import cake/prepared_statement.{type PreparedStatement}
-import cake/query/select_query.{type SelectQuery}
-import cake/query_builder
+import cake/prepared_statement_builder/builder
 
 // import cake/stdlib/iox
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/list
 import sqlight
 
-pub fn to_prepared_statement(query: SelectQuery) -> PreparedStatement {
-  query
-  |> query_builder.build_select_prepared_statement("?")
+pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
+  qry
+  |> builder.build("?")
 }
 
 pub fn with_memory_connection(callback_fun) {
   sqlight.with_connection(":memory:", callback_fun)
 }
 
-pub fn run_query(db_conn, query: SelectQuery, decoder) {
-  let prp_stm = to_prepared_statement(query)
+pub fn run_query(db_connection db_conn, query qry: Query, decoder decoder) {
+  let prp_stm = to_prepared_statement(qry)
   // |> iox.dbg_label("prp_stm")
 
   let sql = prepared_statement.get_sql(prp_stm)
