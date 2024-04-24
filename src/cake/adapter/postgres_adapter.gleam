@@ -1,9 +1,8 @@
 import cake/internal/query.{type Query}
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/prepared_statement_builder/builder
-
-// import cake/stdlib/iox
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/stdlib/iox
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection}
@@ -53,6 +52,7 @@ pub fn run_query(db_conn, query qry: Query, decoder decoder) {
 
   let result =
     sql
+    |> iox.dbg_label("sql")
     |> pgo.execute(on: db_conn, with: db_params, expecting: decoder)
 
   case result {

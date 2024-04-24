@@ -8,7 +8,7 @@ import gleam/erlang/process
 
 pub fn main() {
   let _ = run_dummy_select()
-  let _ = run_dummy_union()
+  let _ = run_dummy_union_all()
 
   Nil
 }
@@ -61,7 +61,7 @@ pub fn run_dummy_select() {
   process.sleep(100)
 }
 
-pub fn run_dummy_union() {
+pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
@@ -71,12 +71,26 @@ pub fn run_dummy_union() {
       query.select_fragment_from_string("name"),
       query.select_fragment_from_string("age"),
     ])
+
+  let select_query_a =
+    select_query
+    |> query.select_query_set_where(query.WhereColLowerOrEqualParam(
+      "age",
+      param.IntParam(4),
+    ))
+  let select_query_b =
+    select_query
+    |> query.select_query_set_where(query.WhereColGreaterOrEqualParam(
+      "age",
+      param.IntParam(7),
+    ))
+
   // UNION must take ORDER BY at the outside
   // it can also take an own LIMIT and OFFSET
   // |> query.select_query_order_asc("name")
 
   let union_query =
-    query.union_distinct_query_new([select_query, select_query])
+    query.union_all_query_new([select_query_a, select_query_b])
     |> query.query_union_wrap
     |> iox.dbg
 
