@@ -1,5 +1,5 @@
 import cake/prepared_statement.{type PreparedStatement}
-import cake/query/select.{type SelectQuery}
+import cake/query/select_query.{type SelectQuery}
 import cake/query_builder
 
 // import cake/stdlib/iox

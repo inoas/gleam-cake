@@ -1,5 +1,5 @@
-import cake/query/select.{type SelectQuery}
-import cake/query/union.{type UnionQuery}
+import cake/query/select_query.{type SelectQuery}
+import cake/query/union_query.{type UnionQuery}
 
 pub type Query {
   SelectQuery(SelectQuery)

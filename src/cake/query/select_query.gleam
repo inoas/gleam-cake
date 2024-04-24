@@ -1,7 +1,7 @@
-import cake/fragment/from.{type FromFragment, NoFromFragment}
-import cake/fragment/order_by_direction.{type OrderByDirectionFragment}
-import cake/fragment/select.{type SelectFragment}
-import cake/fragment/where.{type WhereFragment, NoWhereFragment}
+import cake/fragment/from_fragment.{type FromFragment, NoFromFragment}
+import cake/fragment/order_by_direction_fragment.{type OrderByDirectionFragment}
+import cake/fragment/select_fragment.{type SelectFragment}
+import cake/fragment/where_fragment.{type WhereFragment, NoWhereFragment}
 import gleam/list
 
 // List of SQL parts that will be used to build a select query.
@@ -111,50 +111,50 @@ pub fn set_where(
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub fn order_asc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.Asc), True)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.Asc), True)
 }
 
 pub fn order_asc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.AscNullsFirst), True)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.AscNullsFirst), True)
 }
 
 pub fn order_asc_replace(query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.Asc), False)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.Asc), False)
 }
 
 pub fn order_asc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.AscNullsFirst), False)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.AscNullsFirst), False)
 }
 
 pub fn order_desc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.Desc), True)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.Desc), True)
 }
 
 pub fn order_desc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.DescNullsFirst), True)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.DescNullsFirst), True)
 }
 
 pub fn order_desc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.Desc), False)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.Desc), False)
 }
 
 pub fn order_desc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, order_by_direction.DescNullsFirst), False)
+  do_order_by(qry, #(ordb, order_by_direction_fragment.DescNullsFirst), False)
 }
 
 pub fn order(

@@ -1,23 +1,23 @@
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
-import cake/fragment/from as ff
-import cake/fragment/order_by_direction
-import cake/fragment/select as sf
-import cake/fragment/where as wf
+import cake/fragment/from_fragment
+import cake/fragment/order_by_direction_fragment
+import cake/fragment/select_fragment
+import cake/fragment/where_fragment
 import cake/param
-import cake/query/select as sq
+import cake/query/select_query
 import cake/stdlib/iox
 import gleam/dynamic
-import gleam/erlang/process as erlang_process
+import gleam/erlang/process
 
 pub fn main() {
   iox.print_dashes()
 
   let where =
-    wf.OrWhere([
-      wf.WhereColEqualParam("age", param.IntParam(10)),
-      wf.WhereColEqualParam("name", param.StringParam("5")),
-      wf.WhereColInParams("age", [
+    where_fragment.OrWhere([
+      where_fragment.WhereColEqualParam("age", param.IntParam(10)),
+      where_fragment.WhereColEqualParam("name", param.StringParam("5")),
+      where_fragment.WhereColInParams("age", [
         param.NullParam,
         param.IntParam(1),
         param.IntParam(2),
@@ -25,13 +25,19 @@ pub fn main() {
     ])
 
   let query =
-    sq.new_from(ff.from_table("cats"))
-    |> sq.select([sf.from_string("name"), sf.from_string("age")])
-    |> sq.set_where(where)
-    |> sq.order_asc("name")
-    |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
-    |> sq.set_limit(1)
-    |> sq.set_limit_and_offset(1, 0)
+    select_query.new_from(from_fragment.from_table("cats"))
+    |> select_query.select([
+      select_fragment.from_string("name"),
+      select_fragment.from_string("age"),
+    ])
+    |> select_query.set_where(where)
+    |> select_query.order_asc("name")
+    |> select_query.order_replace(
+      by: "age",
+      direction: order_by_direction_fragment.Asc,
+    )
+    |> select_query.set_limit(1)
+    |> select_query.set_limit_and_offset(1, 0)
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
@@ -43,7 +49,7 @@ pub fn main() {
     run_on_postgres(query, query_decoder)
     |> iox.dbg
 
-  erlang_process.sleep(100)
+  process.sleep(100)
 
   iox.print_dashes()
   iox.print("SQLite:   ")

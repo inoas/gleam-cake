@@ -2,6 +2,8 @@ import cake/prepared_statement.{type PreparedStatement}
 
 // import cake/stdlib/iox
 import cake/param.{type Param, NullParam}
+
+// import cake/query.{type Query}
 import gleam/list
 
 pub type WhereFragment {
@@ -31,8 +33,16 @@ pub type WhereFragment {
   NotWhere(fragments: List(WhereFragment))
   OrWhere(fragments: List(WhereFragment))
   // XorWhere(List(WhereFragment))
+  // Subquery
+  // WhereColEqualSubquery(column: String, sub_query: Query)
+  // WhereColLowerSubquery(column: String, sub_query: Query)
+  // WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
+  // WhereColGreaterSubquery(column: String, sub_query: Query)
+  // WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
+  // WhereColNotEqualSubquery(column: String, sub_query: Query)
   // Column contains value
   WhereColInParams(column: String, parameters: List(Param))
+  // WhereColInSubquery(column: String, sub_query: Query)
   NoWhereFragment
 }
 
