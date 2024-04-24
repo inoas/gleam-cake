@@ -1,4 +1,6 @@
 import cake/prepared_statement.{type PreparedStatement}
+
+// import cake/stdlib/iox
 import cake/types.{type Param, NullParam}
 import gleam/list
 
@@ -31,13 +33,14 @@ pub type WhereFragment {
   // XorWhere(List(WhereFragment))
   // Column contains value
   ColInParams(column: String, parameters: List(Param))
+  NoWhereFragment
 }
 
 // TODO: Move this to prepared statements and use question marks then
 // ... or at least optionally though.
-pub fn to_prepared_sql(
-  fragment frgmt: WhereFragment,
+fn append_to_prepared_statement(
   prepared_statement prp_stm: PreparedStatement,
+  fragment frgmt: WhereFragment,
 ) -> PreparedStatement {
   case frgmt {
     ColEqualCol(a_col, b_col) ->
@@ -88,39 +91,22 @@ pub fn to_prepared_sql(
     NotWhere(frgmts) -> apply_logical_sql_operator("NOT", frgmts, prp_stm)
     OrWhere(frgmts) -> apply_logical_sql_operator("OR", frgmts, prp_stm)
     ColInParams(col, params) -> apply_column_in_params(col, params, prp_stm)
+    NoWhereFragment -> prp_stm
   }
 }
 
-fn apply_logical_sql_operator(
-  operator oprtr: String,
-  fragments frgmts: List(WhereFragment),
+pub fn append_to_prepared_statement_as_clause(
+  fragment frgmt: WhereFragment,
   prepared_statement prp_stm: PreparedStatement,
-) {
-  let new_prep_stm =
-    prp_stm
-    |> prepared_statement.with_sql("(")
-
-  let new_prep_stm =
-    list.fold(
-      frgmts,
-      new_prep_stm,
-      fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
-        let prepared = to_prepared_sql(frgmt, prp_stm)
-        let new_sql = case acc == new_prep_stm {
-          True -> prepared_statement.get_sql(prp_stm)
-          False ->
-            prepared_statement.get_sql(prp_stm)
-            <> " "
-            <> oprtr
-            <> " "
-            <> prepared_statement.get_sql(prepared)
-        }
-        prepared_statement.with_sql(acc, new_sql)
-      },
-    )
-
-  new_prep_stm
-  |> prepared_statement.with_sql(")")
+) -> PreparedStatement {
+  case frgmt {
+    NoWhereFragment -> prp_stm
+    _ -> {
+      prp_stm
+      |> prepared_statement.with_sql(" WHERE ")
+      |> append_to_prepared_statement(frgmt)
+    }
+  }
 }
 
 fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
@@ -150,6 +136,36 @@ fn apply_comparison_param_col(prp_stm, param, sql_operator, col) {
   )
 }
 
+fn apply_logical_sql_operator(
+  operator oprtr: String,
+  fragments frgmts: List(WhereFragment),
+  prepared_statement prp_stm: PreparedStatement,
+) {
+  let new_prep_stm =
+    prp_stm
+    |> prepared_statement.with_sql("(")
+
+  let new_prep_stm =
+    list.fold(
+      frgmts,
+      new_prep_stm,
+      fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
+        case acc == new_prep_stm {
+          True ->
+            acc
+            |> append_to_prepared_statement(frgmt)
+          False ->
+            acc
+            |> prepared_statement.with_sql(" " <> oprtr <> " ")
+            |> append_to_prepared_statement(frgmt)
+        }
+      },
+    )
+
+  new_prep_stm
+  |> prepared_statement.with_sql(")")
+}
+
 fn apply_column_in_params(
   column col: String,
   parameters params: List(Param),
@@ -165,11 +181,8 @@ fn apply_column_in_params(
       new_prep_stm,
       fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
         let new_sql = case acc == new_prep_stm {
-          True -> prepared_statement.get_prefix(prp_stm)
-          False ->
-            prepared_statement.get_sql(prp_stm)
-            <> ", "
-            <> prepared_statement.next_param(acc)
+          True -> prepared_statement.next_param(prp_stm)
+          False -> ", " <> prepared_statement.next_param(acc)
         }
         prepared_statement.with_sql_and_param(acc, new_sql, param)
       },
@@ -179,10 +192,10 @@ fn apply_column_in_params(
   |> prepared_statement.with_sql(")")
 }
 
-pub fn to_debug_sql(
+pub fn to_debug(
   fragment frgmt: WhereFragment,
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
-  frgmt
-  |> to_prepared_sql(prp_stm)
+  prp_stm
+  |> append_to_prepared_statement(frgmt)
 }

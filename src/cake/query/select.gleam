@@ -1,5 +1,5 @@
 import cake/fragment/order_by_direction.{type OrderByDirectionFragment}
-import cake/fragment/where.{type WhereFragment}
+import cake/fragment/where.{type WhereFragment, NoWhereFragment}
 import gleam/list
 
 // List of SQL parts that will be used to build a select query.
@@ -12,8 +12,7 @@ pub type SelectQuery {
     select: List(String),
     // distinct: String,
     // join: String,
-    where: List(WhereFragment),
-    where_strings: List(String),
+    where: WhereFragment,
     // group_by: String,
     // having: String,
     // window: String,
@@ -33,8 +32,7 @@ pub fn new(from from: String, select select: List(String)) -> SelectQuery {
   SelectQuery(
     from: from,
     select: select,
-    where: [],
-    where_strings: [],
+    where: NoWhereFragment,
     order_by: [],
     limit: -1,
     offset: -1,
@@ -46,8 +44,7 @@ pub fn new_from(from from: String) -> SelectQuery {
   SelectQuery(
     from: from,
     select: [],
-    where: [],
-    where_strings: [],
+    where: NoWhereFragment,
     order_by: [],
     limit: -1,
     offset: -1,
@@ -59,8 +56,7 @@ pub fn new_select(select select: List(String)) -> SelectQuery {
   SelectQuery(
     from: "",
     select: select,
-    where: [],
-    where_strings: [],
+    where: NoWhereFragment,
     order_by: [],
     limit: -1,
     offset: -1,
@@ -98,35 +94,15 @@ pub fn select_replace(
 // ———— WHERE ——————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn where(
-  query qry: SelectQuery,
-  where where: List(WhereFragment),
-) -> SelectQuery {
-  SelectQuery(..qry, where: list.append(qry.where, where))
+pub fn where(query qry: SelectQuery, where where: WhereFragment) -> SelectQuery {
+  SelectQuery(..qry, where: where)
 }
 
 pub fn where_replace(
   query qry: SelectQuery,
-  where where: List(WhereFragment),
+  where where: WhereFragment,
 ) -> SelectQuery {
   SelectQuery(..qry, where: where)
-}
-
-pub fn where_string(
-  query qry: SelectQuery,
-  where where_string: String,
-) -> SelectQuery {
-  SelectQuery(
-    ..qry,
-    where_strings: list.append(qry.where_strings, [where_string]),
-  )
-}
-
-pub fn where_string_replace(
-  query qry: SelectQuery,
-  where where_string: String,
-) -> SelectQuery {
-  SelectQuery(..qry, where_strings: [where_string])
 }
 
 // —————————————————————————————————————————————————————————————————————————— //

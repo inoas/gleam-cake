@@ -1,7 +1,6 @@
 import cake/types.{type Param}
 import gleam/int
 import gleam/list
-import gleam/string
 
 pub opaque type PreparedStatement {
   PreparedStatement(
@@ -36,6 +35,19 @@ pub fn with_sql_and_param(
   )
 }
 
+pub fn with_sql_and_params(
+  prepared_statement: PreparedStatement,
+  new_sql: String,
+  new_params: List(Param),
+) {
+  PreparedStatement(
+    ..prepared_statement,
+    sql: prepared_statement.sql <> new_sql,
+    params: list.append(prepared_statement.params, new_params),
+    index: prepared_statement.index + list.length(new_params),
+  )
+}
+
 pub fn get_prefix(prepared_statement: PreparedStatement) -> String {
   prepared_statement.prefix
 }
@@ -49,8 +61,8 @@ pub fn get_params(prepared_statement: PreparedStatement) -> List(Param) {
 }
 
 pub fn next_param(prepared_statement: PreparedStatement) -> String {
-  prepared_statement.index
+  prepared_statement.prefix
+  <> prepared_statement.index
   |> int.add(1)
   |> int.to_string
-  |> string.append(prepared_statement.prefix)
 }

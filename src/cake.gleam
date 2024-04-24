@@ -10,98 +10,91 @@ import gleam/erlang/process as erlang_process
 
 pub fn main() {
   iox.print_dashes()
-  iox.println("Query")
-  iox.print_dashes()
 
   let where =
     wf.OrWhere([
       wf.ColEqualParam("age", types.IntParam(10)),
       wf.ColEqualParam("name", types.StringParam("5")),
       wf.ColInParams("age", [
-        types.StringParam("1"),
-        types.IntParam(2),
         types.NullParam,
-        types.IntParam(3),
+        types.IntParam(1),
+        types.IntParam(2),
       ]),
     ])
 
   let query =
     sq.new_from("cats")
     |> sq.select(["name, age"])
-    |> sq.where_string("name NOT NULL")
-    |> sq.where_replace([where])
+    |> sq.where_replace(where)
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
     |> sq.set_limit(1)
     |> sq.set_limit_and_offset(1, 0)
-    |> iox.dbg_label("query")
+    |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
+
   iox.print_dashes()
-  iox.println("Running on Postgres")
-  iox.print_dashes()
+  iox.print("Postgres: ")
 
   let _ =
     run_on_postgres(query, query_decoder)
-    |> iox.dbg_label("run_on_postgres")
+    |> iox.dbg
+
+  erlang_process.sleep(100)
 
   iox.print_dashes()
-  iox.println("Sleeping for 1000ms")
-  erlang_process.sleep(1000)
-
-  iox.print_dashes()
-  iox.println("Running on SQLite")
-  iox.print_dashes()
+  iox.print("SQLite:   ")
 
   let _ =
     run_on_sqlite(query, query_decoder)
-    |> iox.dbg_label("run_on_sqlite")
+    |> iox.dbg
 
   Nil
 }
 
 fn run_on_postgres(query, query_decoder) {
-  iox.println("run_on_postgres")
+  // iox.println("run_on_postgres")
 
   use conn <- postgres_adapter.with_connection()
 
   let _ =
     drop_cats_table_if_exists()
     |> postgres_adapter.execute(conn)
-    |> iox.dbg_label("drop_cats_table_if_exists")
+  // |> iox.dbg_label("drop_cats_table_if_exists")
 
   let _ =
     create_cats_table()
     |> postgres_adapter.execute(conn)
-    |> iox.dbg_label("create_cats_table")
+  // |> iox.dbg_label("create_cats_table")
 
   let _ =
     insert_cats_rows()
     |> postgres_adapter.execute(conn)
-    |> iox.dbg_label("insert_cats_rows")
+  // |> iox.dbg_label("insert_cats_rows")
 
   postgres_adapter.run_query(conn, query, query_decoder)
 }
 
 fn run_on_sqlite(query, query_decoder) {
-  iox.println("run_on_sqlite")
+  // iox.println("run_on_sqlite")
 
   use conn <- sqlite_adapter.with_memory_connection()
 
   let _ =
     drop_cats_table_if_exists()
     |> sqlite_adapter.execute(conn)
-    |> iox.dbg_label("drop_cats_table_if_exists")
+  // |> iox.dbg_label("drop_cats_table_if_exists")
 
   let _ =
     create_cats_table()
     |> sqlite_adapter.execute(conn)
-    |> iox.dbg_label("create_cats_table")
+  // |> iox.dbg_label("create_cats_table")
 
   let _ =
     insert_cats_rows()
     |> sqlite_adapter.execute(conn)
-    |> iox.dbg_label("insert_cats_rows")
+  // |> iox.dbg_label("insert_cats_rows")
 
   sqlite_adapter.run_query(conn, query, query_decoder)
 }

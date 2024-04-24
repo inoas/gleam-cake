@@ -24,3 +24,7 @@ pub fn print_dashes_tap(v) {
 pub fn println(s: String) {
   io.println(s)
 }
+
+pub fn print(s: String) {
+  io.print(s)
+}
