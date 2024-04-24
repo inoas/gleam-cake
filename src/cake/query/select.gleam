@@ -94,11 +94,7 @@ pub fn select_replace(
 // ———— WHERE ——————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub fn where(query qry: SelectQuery, where where: WhereFragment) -> SelectQuery {
-  SelectQuery(..qry, where: where)
-}
-
-pub fn where_replace(
+pub fn set_where(
   query qry: SelectQuery,
   where where: WhereFragment,
 ) -> SelectQuery {

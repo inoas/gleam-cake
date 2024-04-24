@@ -25,7 +25,7 @@ pub fn main() {
   let query =
     sq.new_from("cats")
     |> sq.select(["name, age"])
-    |> sq.where_replace(where)
+    |> sq.set_where(where)
     |> sq.order_asc("name")
     |> sq.order_replace(by: "age", direction: order_by_direction.Asc)
     |> sq.set_limit(1)
