@@ -11,9 +11,7 @@ pub fn build(
   select sq: SelectQuery,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
-  prp_stm_prfx
-  |> prepared_statement.new()
-  |> apply_sql(sq)
+  prp_stm_prfx |> prepared_statement.new() |> apply_sql(sq)
 }
 
 pub fn apply_sql(

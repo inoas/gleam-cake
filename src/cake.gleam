@@ -7,8 +7,8 @@ import gleam/dynamic
 import gleam/erlang/process
 
 pub fn main() {
-  let _ = run_dummy_select()
-  let _ = run_dummy_union_all()
+  run_dummy_select()
+  run_dummy_union_all()
 
   Nil
 }
@@ -44,7 +44,7 @@ pub fn run_dummy_select() {
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  iox.print("SQLite:   ")
+  iox.print("SQLite: ")
 
   let _ =
     run_on_sqlite(select_query, query_decoder)
@@ -96,7 +96,7 @@ pub fn run_dummy_union_all() {
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  iox.print("SQLite:   ")
+  iox.print("SQLite: ")
 
   let _ =
     run_on_sqlite(union_query, query_decoder)
@@ -112,47 +112,25 @@ pub fn run_dummy_union_all() {
 }
 
 pub fn run_on_postgres(query, query_decoder) {
-  // iox.println("run_on_postgres")
-
   use conn <- postgres_adapter.with_connection()
 
-  let _ =
-    drop_cats_table_if_exists()
-    |> postgres_adapter.execute(conn)
-  // |> iox.dbg_label("drop_cats_table_if_exists")
+  let _ = drop_cats_table_if_exists() |> postgres_adapter.execute(conn)
 
-  let _ =
-    create_cats_table()
-    |> postgres_adapter.execute(conn)
-  // |> iox.dbg_label("create_cats_table")
+  let _ = create_cats_table() |> postgres_adapter.execute(conn)
 
-  let _ =
-    insert_cats_rows()
-    |> postgres_adapter.execute(conn)
-  // |> iox.dbg_label("insert_cats_rows")
+  let _ = insert_cats_rows() |> postgres_adapter.execute(conn)
 
   postgres_adapter.run_query(conn, query, query_decoder)
 }
 
 fn run_on_sqlite(query, query_decoder) {
-  // iox.println("run_on_sqlite")
-
   use conn <- sqlite_adapter.with_memory_connection()
 
-  let _ =
-    drop_cats_table_if_exists()
-    |> sqlite_adapter.execute(conn)
-  // |> iox.dbg_label("drop_cats_table_if_exists")
+  let _ = drop_cats_table_if_exists() |> sqlite_adapter.execute(conn)
 
-  let _ =
-    create_cats_table()
-    |> sqlite_adapter.execute(conn)
-  // |> iox.dbg_label("create_cats_table")
+  let _ = create_cats_table() |> sqlite_adapter.execute(conn)
 
-  let _ =
-    insert_cats_rows()
-    |> sqlite_adapter.execute(conn)
-  // |> iox.dbg_label("insert_cats_rows")
+  let _ = insert_cats_rows() |> sqlite_adapter.execute(conn)
 
   sqlite_adapter.run_query(conn, query, query_decoder)
 }

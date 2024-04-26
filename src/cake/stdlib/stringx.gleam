@@ -7,7 +7,5 @@ pub fn map_join(
   map m: fn(a) -> String,
   join j: String,
 ) -> String {
-  l
-  |> list.map(m)
-  |> string.join(j)
+  l |> list.map(m) |> string.join(j)
 }

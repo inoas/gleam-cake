@@ -62,7 +62,5 @@ pub fn get_params(prepared_statement: PreparedStatement) -> List(Param) {
 
 pub fn next_param(prepared_statement: PreparedStatement) -> String {
   prepared_statement.prefix
-  <> prepared_statement.index
-  |> int.add(1)
-  |> int.to_string
+  <> prepared_statement.index |> int.add(1) |> int.to_string
 }

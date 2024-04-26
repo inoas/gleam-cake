@@ -7,8 +7,7 @@ import gleam/list
 import sqlight
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry
-  |> builder.build("?")
+  qry |> builder.build("?")
 }
 
 pub fn with_memory_connection(callback_fun) {
@@ -44,6 +43,5 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder decoder) {
 }
 
 pub fn execute(query, conn) {
-  query
-  |> sqlight.exec(conn)
+  query |> sqlight.exec(conn)
 }

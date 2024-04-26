@@ -494,10 +494,7 @@ fn where_fragment_apply_logical_sql_operator(
   fragments frgmts: List(WhereFragment),
   prepared_statement prp_stm: PreparedStatement,
 ) {
-  let new_prep_stm =
-    prp_stm
-    |> prepared_statement.with_sql("(")
-
+  let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
   let new_prep_stm =
     list.fold(
       frgmts,
@@ -515,8 +512,7 @@ fn where_fragment_apply_logical_sql_operator(
       },
     )
 
-  new_prep_stm
-  |> prepared_statement.with_sql(")")
+  new_prep_stm |> prepared_statement.with_sql(")")
 }
 
 fn where_fragment_apply_column_in_params(
@@ -524,9 +520,7 @@ fn where_fragment_apply_column_in_params(
   parameters params: List(Param),
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
-  let new_prep_stm =
-    prp_stm
-    |> prepared_statement.with_sql(col <> " IN (")
+  let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
 
   let new_prep_stm =
     list.fold(
@@ -541,6 +535,5 @@ fn where_fragment_apply_column_in_params(
       },
     )
 
-  new_prep_stm
-  |> prepared_statement.with_sql(")")
+  new_prep_stm |> prepared_statement.with_sql(")")
 }

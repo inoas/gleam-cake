@@ -8,8 +8,7 @@ import gleam/list
 import gleam/pgo.{type Connection}
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry
-  |> builder.build("$")
+  qry |> builder.build("$")
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
@@ -23,7 +22,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
     )
 
   let value = f(connection)
-  let assert Nil = pgo.disconnect(connection)
+  pgo.disconnect(connection)
+
   value
 }
 
