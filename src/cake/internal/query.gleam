@@ -3,16 +3,26 @@
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type Query {
-  Select(SelectQuery)
-  Union(UnionQuery)
+  Select(
+    query: SelectQuery,
+    // Epilog allows you to append raw SQL to the end of queries.
+    // You should never put raw user data into epilog.
+    epilog: String,
+  )
+  Union(
+    query: UnionQuery,
+    // Epilog allows you to append raw SQL to the end of queries.
+    // You should never put raw user data into epilog.
+    epilog: String,
+  )
 }
 
 pub fn query_select_wrap(qry: SelectQuery) -> Query {
-  Select(qry)
+  Select(qry, epilog: "")
 }
 
 pub fn query_union_wrap(qry: UnionQuery) -> Query {
-  Union(qry)
+  Union(qry, epilog: "")
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
@@ -36,8 +46,6 @@ pub type SelectQuery {
     order_by: List(#(String, OrderByDirectionFragment)),
     limit: Int,
     offset: Int,
-    // epilog: String,
-    flags: List(#(String, String)),
   )
 }
 
@@ -54,7 +62,6 @@ pub fn select_query_new(
     order_by: [],
     limit: -1,
     offset: -1,
-    flags: [],
   )
 }
 
@@ -66,7 +73,6 @@ pub fn select_query_new_from(from from: FromFragment) -> SelectQuery {
     order_by: [],
     limit: -1,
     offset: -1,
-    flags: [],
   )
 }
 
@@ -80,7 +86,6 @@ pub fn select_query_new_select(
     order_by: [],
     limit: -1,
     offset: -1,
-    flags: [],
   )
 }
 
