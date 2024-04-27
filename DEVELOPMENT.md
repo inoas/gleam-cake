@@ -11,5 +11,8 @@
 
    Make certain that RDMBS specific queries can be run through the same abstraction.
    It should be possible as it is still string based.
+
+   - Use snapshot testing soon
+
 2. Build an ActiveRecord pattern
    - Follow CakePHP ORM but put any stateless validation rules in entities (opaque custom types of rows) and put any stateful validation in table types.

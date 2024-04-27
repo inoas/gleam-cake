@@ -192,13 +192,16 @@ pub fn select_query_order_replace(
   do_order_by(qry, #(ordb, dir), False)
 }
 
+import cake/stdlib/listx
+
 fn do_order_by(
   query qry: SelectQuery,
   by ordb: #(String, OrderByDirectionFragment),
   append append: Bool,
 ) -> SelectQuery {
   case append {
-    True -> SelectQuery(..qry, order_by: list.append(qry.order_by, [ordb]))
+    True ->
+      SelectQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
     False -> SelectQuery(..qry, order_by: [ordb])
   }
 }
@@ -317,6 +320,7 @@ pub type SelectFragment {
   // - checked if they exist
   SelectColumn(column: String)
   SelectColumnAlias(column: String, alias: String)
+  // RawSelect(string: String, parameters: List(Param))
 }
 
 pub fn select_fragment_from_string(s: String) -> SelectFragment {
@@ -382,6 +386,8 @@ pub type WhereFragment {
   // Column contains value
   WhereColInParams(column: String, parameters: List(Param))
   // WhereColInSubquery(column: String, sub_query: Query)
+  // Raw SQL
+  // RawWhere(string: String, parameters: List(Param))
   NoWhereFragment
 }
 
@@ -463,10 +469,8 @@ pub fn where_fragment_append_to_prepared_statement_as_clause(
 }
 
 fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
-  prepared_statement.with_sql(
-    prp_stm,
-    a_col <> " " <> sql_operator <> " " <> b_col,
-  )
+  prp_stm
+  |> prepared_statement.with_sql(a_col <> " " <> sql_operator <> " " <> b_col)
 }
 
 fn where_fragment_apply_comparison_col_param(prp_stm, col, sql_operator, param) {
@@ -495,24 +499,22 @@ fn where_fragment_apply_logical_sql_operator(
   prepared_statement prp_stm: PreparedStatement,
 ) {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
-  let new_prep_stm =
-    list.fold(
-      frgmts,
-      new_prep_stm,
-      fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
-        case acc == new_prep_stm {
-          True ->
-            acc
-            |> where_fragment_append_to_prepared_statement(frgmt)
-          False ->
-            acc
-            |> prepared_statement.with_sql(" " <> oprtr <> " ")
-            |> where_fragment_append_to_prepared_statement(frgmt)
-        }
-      },
-    )
-
-  new_prep_stm |> prepared_statement.with_sql(")")
+  list.fold(
+    frgmts,
+    new_prep_stm,
+    fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
+      case acc == new_prep_stm {
+        True ->
+          acc
+          |> where_fragment_append_to_prepared_statement(frgmt)
+        False ->
+          acc
+          |> prepared_statement.with_sql(" " <> oprtr <> " ")
+          |> where_fragment_append_to_prepared_statement(frgmt)
+      }
+    },
+  )
+  |> prepared_statement.with_sql(")")
 }
 
 fn where_fragment_apply_column_in_params(
@@ -521,19 +523,16 @@ fn where_fragment_apply_column_in_params(
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
-
-  let new_prep_stm =
-    list.fold(
-      params,
-      new_prep_stm,
-      fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
-        let new_sql = case acc == new_prep_stm {
-          True -> prepared_statement.next_param(prp_stm)
-          False -> ", " <> prepared_statement.next_param(acc)
-        }
-        prepared_statement.with_sql_and_param(acc, new_sql, param)
-      },
-    )
-
-  new_prep_stm |> prepared_statement.with_sql(")")
+  list.fold(
+    params,
+    new_prep_stm,
+    fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
+      let new_sql = case acc == new_prep_stm {
+        True -> prepared_statement.next_param(prp_stm)
+        False -> ", " <> prepared_statement.next_param(acc)
+      }
+      prepared_statement.with_sql_and_param(acc, new_sql, param)
+    },
+  )
+  |> prepared_statement.with_sql(")")
 }
