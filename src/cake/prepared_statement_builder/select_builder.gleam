@@ -23,8 +23,8 @@ pub fn apply_sql(
   |> apply_to_sql(maybe_add_from_sql, sq)
   |> maybe_add_where(sq)
   |> apply_to_sql(maybe_add_order_sql, sq)
-  |> apply_to_sql(maybe_add_limit_sql, sq)
-  |> apply_to_sql(maybe_add_offset_sql, sq)
+  // |> apply_to_sql(maybe_add_limit_sql, sq)
+  // |> apply_to_sql(maybe_add_offset_sql, sq)
 }
 
 fn apply_to_sql(
@@ -68,17 +68,16 @@ fn maybe_add_order_sql(query qry: SelectQuery) -> String {
     }
   }
 }
+// fn maybe_add_limit_sql(query qry: SelectQuery) -> String {
+//   case qry.limit < 0 {
+//     True -> ""
+//     False -> " LIMIT " <> int.to_string(qry.limit)
+//   }
+// }
 
-fn maybe_add_limit_sql(query qry: SelectQuery) -> String {
-  case qry.limit < 0 {
-    True -> ""
-    False -> " LIMIT " <> int.to_string(qry.limit)
-  }
-}
-
-fn maybe_add_offset_sql(query qry: SelectQuery) -> String {
-  case qry.offset < 0 {
-    True -> ""
-    False -> " OFFSET " <> int.to_string(qry.offset)
-  }
-}
+// fn maybe_add_offset_sql(query qry: SelectQuery) -> String {
+//   case qry.offset < 0 {
+//     True -> ""
+//     False -> " OFFSET " <> int.to_string(qry.offset)
+//   }
+// }

@@ -8,8 +8,10 @@ pub fn build(
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
   case qry {
-    Select(query: qry, epilog: _) -> qry |> select_builder.build(prp_stm_prfx)
-    Union(query: qry, epilog: _) -> qry |> union_builder.build(prp_stm_prfx)
+    Select(query: qry, epilog: _, limit: _) ->
+      qry |> select_builder.build(prp_stm_prfx)
+    Union(query: qry, epilog: _, limit: _) ->
+      qry |> union_builder.build(prp_stm_prfx)
   }
   |> prepared_statement.with_sql(qry.epilog)
 }

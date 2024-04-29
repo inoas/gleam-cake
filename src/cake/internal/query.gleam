@@ -5,12 +5,14 @@
 pub type Query {
   Select(
     query: SelectQuery,
+    limit: LimitOffsetPart,
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
     epilog: String,
   )
   Union(
     query: UnionQuery,
+    limit: LimitOffsetPart,
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
     epilog: String,
@@ -18,11 +20,43 @@ pub type Query {
 }
 
 pub fn query_select_wrap(qry: SelectQuery) -> Query {
-  Select(qry, epilog: "")
+  Select(qry, limit: NoLimitOffset, epilog: "")
 }
 
 pub fn query_union_wrap(qry: UnionQuery) -> Query {
-  Union(qry, epilog: "")
+  Union(qry, limit: NoLimitOffset, epilog: "")
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— UnionQuery —————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+// List of SQL parts that will be used to build a union query.
+pub type UnionQuery {
+  UnionDistinctQuery(select_queries: List(SelectQuery))
+  UnionAllQuery(select_queries: List(SelectQuery))
+  // TODO: also takes order_by, limit, offset
+  // TODO: order_by of contained selects must be stripped
+}
+
+pub fn union_distinct_query_new(
+  select_queries select_queries: List(SelectQuery),
+) -> UnionQuery {
+  UnionDistinctQuery(select_queries: select_queries)
+}
+
+pub fn union_all_query_new(
+  select_queries select_queries: List(SelectQuery),
+) -> UnionQuery {
+  UnionAllQuery(select_queries: select_queries)
+}
+
+pub fn union_get_select_queries(union_query uq: UnionQuery) -> List(SelectQuery) {
+  case uq {
+    // TODO: UNION vs UNION ALL vs EXCEPT vs INTERSECT
+    UnionDistinctQuery(select_queries) -> select_queries
+    UnionAllQuery(select_queries) -> select_queries
+  }
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
@@ -47,8 +81,6 @@ pub type SelectQuery {
     // use order_by, limit and offset, possibly make them real types, too
     // at least alias them
     order_by: List(#(String, OrderByDirectionPart)),
-    limit: Int,
-    offset: Int,
   )
 }
 
@@ -58,25 +90,11 @@ pub fn select_query_new(
   from from: FromPart,
   select select: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(
-    from: from,
-    select: select,
-    where: NoWherePart,
-    order_by: [],
-    limit: -1,
-    offset: -1,
-  )
+  SelectQuery(from: from, select: select, where: NoWherePart, order_by: [])
 }
 
 pub fn select_query_new_from(from from: FromPart) -> SelectQuery {
-  SelectQuery(
-    from: from,
-    select: [],
-    where: NoWherePart,
-    order_by: [],
-    limit: -1,
-    offset: -1,
-  )
+  SelectQuery(from: from, select: [], where: NoWherePart, order_by: [])
 }
 
 pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
@@ -85,8 +103,6 @@ pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
     select: select,
     where: NoWherePart,
     order_by: [],
-    limit: -1,
-    offset: -1,
   )
 }
 
@@ -212,61 +228,29 @@ fn do_order_by(
   }
 }
 
-// ———— LIMIT & OFFSET —————————————————————————————————————————————————————— //
+// // ———— LIMIT & OFFSET —————————————————————————————————————————————————————— //
 
-pub fn select_query_set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
-  case lmt >= 0 {
-    True -> SelectQuery(..qry, limit: lmt)
-    // TODO: Add debug warning, negative limit is ignored
-    False -> SelectQuery(..qry, limit: -1)
-  }
-}
+// pub fn select_query_set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+//   case lmt >= 0 {
+//     True -> SelectQuery(..qry)
+//     // TODO: Add debug warning, negative limit is ignored
+//     False -> SelectQuery(..qry, limit: -1)
+//   }
+// }
 
-pub fn select_query_set_limit_and_offset(
-  query qry: SelectQuery,
-  limit lmt: Int,
-  offset offst: Int,
-) -> SelectQuery {
-  case lmt >= 0, offst >= 0 {
-    True, True -> SelectQuery(..qry, limit: lmt, offset: offst)
-    // TODO: Add debug warning, negative limit is ignored as well as any offset then
-    True, False -> SelectQuery(..qry, limit: lmt, offset: -1)
-    // TODO: Add debug negative offset is ignored
-    False, _ -> SelectQuery(..qry, limit: -1, offset: -1)
-  }
-}
-
-// —————————————————————————————————————————————————————————————————————————— //
-// ———— UnionQuery —————————————————————————————————————————————————————————— //
-// —————————————————————————————————————————————————————————————————————————— //
-
-// List of SQL parts that will be used to build a union query.
-pub type UnionQuery {
-  UnionDistinctQuery(select_queries: List(SelectQuery))
-  UnionAllQuery(select_queries: List(SelectQuery))
-  // TODO: also takes order_by, limit, offset
-  // TODO: order_by of contained selects must be stripped
-}
-
-pub fn union_distinct_query_new(
-  select_queries select_queries: List(SelectQuery),
-) -> UnionQuery {
-  UnionDistinctQuery(select_queries: select_queries)
-}
-
-pub fn union_all_query_new(
-  select_queries select_queries: List(SelectQuery),
-) -> UnionQuery {
-  UnionAllQuery(select_queries: select_queries)
-}
-
-pub fn union_get_select_queries(union_query uq: UnionQuery) -> List(SelectQuery) {
-  case uq {
-    // TODO: UNION vs UNION ALL vs EXCEPT vs INTERSECT
-    UnionDistinctQuery(select_queries) -> select_queries
-    UnionAllQuery(select_queries) -> select_queries
-  }
-}
+// pub fn select_query_set_limit_and_offset(
+//   query qry: SelectQuery,
+//   limit lmt: Int,
+//   offset offst: Int,
+// ) -> SelectQuery {
+//   case lmt >= 0, offst >= 0 {
+//     True, True -> SelectQuery(..qry, limit: lmt, offset: offst)
+//     // TODO: Add debug warning, negative limit is ignored as well as any offset then
+//     True, False -> SelectQuery(..qry, limit: lmt, offset: -1)
+//     // TODO: Add debug negative offset is ignored
+//     False, _ -> SelectQuery(..qry, limit: -1, offset: -1)
+//   }
+// }
 
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— FromPart ———————————————————————————————————————————————————————————— //
@@ -537,4 +521,40 @@ fn where_part_apply_column_in_params(
     },
   )
   |> prepared_statement.with_sql(")")
+}
+
+pub opaque type LimitOffsetPart {
+  LimitOffset(limit: Int, offset: Int)
+  LimitNoOffset(limit: Int)
+  NoLimitOffset
+}
+
+pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
+  case lmt >= 0, offst >= 0 {
+    True, True -> LimitOffset(limit: lmt, offset: offst)
+    True, False -> LimitNoOffset(limit: lmt)
+    False, _ -> NoLimitOffset
+  }
+}
+
+pub fn limit_new(limit lmt: Int) -> LimitOffsetPart {
+  case lmt >= 0 {
+    True -> LimitNoOffset(limit: lmt)
+    False -> NoLimitOffset
+  }
+}
+
+import gleam/int
+
+pub fn limit_offset_applyu(
+  limit_part lmt_prt: LimitOffsetPart,
+  prepared_statement prp_stm: PreparedStatement,
+) -> PreparedStatement {
+  case lmt_prt {
+    LimitOffset(limit: lmt, offset: offst) ->
+      " LIMIT  " <> int.to_string(lmt) <> " OFFSET  " <> int.to_string(offst)
+    LimitNoOffset(limit: lmt) -> " LIMIT  " <> int.to_string(lmt)
+    NoLimitOffset -> ""
+  }
+  |> prepared_statement.with_sql(prp_stm, _)
 }

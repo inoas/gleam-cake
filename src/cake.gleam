@@ -37,8 +37,8 @@ pub fn run_dummy_select() {
     |> query.select_query_set_where(where)
     |> query.select_query_order_asc("name")
     |> query.select_query_order_replace(by: "age", direction: query.Asc)
-    |> query.select_query_set_limit(1)
-    |> query.select_query_set_limit_and_offset(1, 0)
+    // |> query.select_query_set_limit(1)
+    // |> query.select_query_set_limit_and_offset(1, 0)
     |> query.query_select_wrap
     |> iox.dbg
 
