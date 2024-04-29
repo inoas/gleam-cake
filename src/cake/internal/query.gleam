@@ -1,4 +1,4 @@
-import cake/stdlib/iox
+// import cake/stdlib/iox
 
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— Query ——————————————————————————————————————————————————————————————— //
@@ -6,32 +6,34 @@ import cake/stdlib/iox
 
 pub type Query {
   Select(query: SelectQuery)
-  Union(query: UnionQuery)
+  Combined(query: CombinedQuery)
 }
 
 pub fn query_select_wrap(qry: SelectQuery) -> Query {
   Select(qry)
 }
 
-pub fn query_union_wrap(qry: UnionQuery) -> Query {
-  Union(qry)
+pub fn query_combined_wrap(qry: CombinedQuery) -> Query {
+  Combined(qry)
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— UnionQuery —————————————————————————————————————————————————————————— //
+// ———— CombinedQuery ——————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub type UnionKind {
+pub type CombinedKind {
+  Union
   UnionAll
-  UnionDistinct
-  UnionExcept
-  UnionIntersect
+  Except
+  ExceptAll
+  Intersect
+  IntersectAll
 }
 
 // List of SQL parts that will be used to build a union query.
-pub type UnionQuery {
-  UnionQuery(
-    union_kind: UnionKind,
+pub type CombinedQuery {
+  CombinedQuery(
+    kind: CombinedKind,
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
     // order_by: List(OrderByPart),
@@ -40,71 +42,97 @@ pub type UnionQuery {
     epilog: EpilogPart,
   )
   // TODO: order_by of contained selects must be stripped
+  // ... or rather ignored during prep statement building?
+  // or still stipped? dev warning?
 }
 
-pub fn union_distinct_query_new(
+pub fn combined_union_query_new(
   select_queries slct_qrys: List(SelectQuery),
-) -> UnionQuery {
-  UnionQuery(
-    union_kind: UnionDistinct,
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: Union,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
   )
 }
 
-pub fn union_all_query_new(
+pub fn combined_union_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
-) -> UnionQuery {
-  UnionQuery(
-    union_kind: UnionAll,
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: UnionAll,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
   )
 }
 
-pub fn union_except_query_new(
+pub fn combined_except_query_new(
   select_queries slct_qrys: List(SelectQuery),
-) -> UnionQuery {
-  UnionQuery(
-    union_kind: UnionExcept,
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: Except,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
   )
 }
 
-pub fn union_intersect_query_new(
+pub fn combined_except_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
-) -> UnionQuery {
-  UnionQuery(
-    union_kind: UnionIntersect,
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: ExceptAll,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
   )
 }
 
-pub fn union_get_select_queries(union_query uq: UnionQuery) -> List(SelectQuery) {
+pub fn combined_intersect_query_new(
+  select_queries slct_qrys: List(SelectQuery),
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: Intersect,
+    select_queries: slct_qrys,
+    limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
+  )
+}
+
+pub fn combined_intersect_all_query_new(
+  select_queries slct_qrys: List(SelectQuery),
+) -> CombinedQuery {
+  CombinedQuery(
+    kind: IntersectAll,
+    select_queries: slct_qrys,
+    limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
+  )
+}
+
+pub fn combined_get_select_queries(
+  combined_query uq: CombinedQuery,
+) -> List(SelectQuery) {
   uq.select_queries
 }
 
-pub fn union_query_set_limit(
-  query qry: UnionQuery,
+pub fn combined_query_set_limit(
+  query qry: CombinedQuery,
   limit lmt: Int,
-) -> UnionQuery {
+) -> CombinedQuery {
   let limit_offset = limit_new(lmt)
-  UnionQuery(..qry, limit_offset: limit_offset)
+  CombinedQuery(..qry, limit_offset: limit_offset)
 }
 
-pub fn union_query_set_limit_and_offset(
-  query qry: UnionQuery,
+pub fn combined_query_set_limit_and_offset(
+  query qry: CombinedQuery,
   limit lmt: Int,
   offset offst: Int,
-) -> UnionQuery {
+) -> CombinedQuery {
   let limit_offset = limit_offset_new(limit: lmt, offset: offst)
-  UnionQuery(..qry, limit_offset: limit_offset)
+  CombinedQuery(..qry, limit_offset: limit_offset)
 }
 
 // —————————————————————————————————————————————————————————————————————————— //

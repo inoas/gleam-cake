@@ -1,6 +1,6 @@
 import cake/internal/query.{
-  type SelectQuery, type UnionQuery, UnionAll, UnionDistinct, UnionExcept,
-  UnionIntersect,
+  type CombinedQuery, type SelectQuery, Except, ExceptAll, Intersect,
+  IntersectAll, Union, UnionAll,
 }
 import cake/prepared_statement.{type PreparedStatement}
 import cake/prepared_statement_builder/select_builder
@@ -9,7 +9,7 @@ import cake/prepared_statement_builder/select_builder
 import gleam/list
 
 pub fn build(
-  select uq: UnionQuery,
+  select uq: CombinedQuery,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
   // TODO: what happens if multiple select queries have different type signatures for their columns?
@@ -21,13 +21,15 @@ pub fn build(
 
 pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
-  select uq: UnionQuery,
+  select uq: CombinedQuery,
 ) -> PreparedStatement {
-  let union_keyword = case uq.union_kind {
+  let union_keyword = case uq.kind {
+    Union -> "UNION"
     UnionAll -> "UNION ALL"
-    UnionDistinct -> "UNION"
-    UnionExcept -> "EXCEPT"
-    UnionIntersect -> "INTERSECT"
+    Except -> "EXCEPT"
+    ExceptAll -> "EXCEPT ALL"
+    Intersect -> "INTERSECT"
+    IntersectAll -> "INTERSECT ALL"
   }
 
   uq.select_queries
