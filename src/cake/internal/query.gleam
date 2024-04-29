@@ -30,7 +30,8 @@ pub type CombinedKind {
   IntersectAll
 }
 
-// List of SQL parts that will be used to build a union query.
+// List of SQL parts that will be used to build a combined query
+// such as UNION queries.
 pub type CombinedQuery {
   CombinedQuery(
     kind: CombinedKind,
@@ -113,9 +114,9 @@ pub fn combined_intersect_all_query_new(
 }
 
 pub fn combined_get_select_queries(
-  combined_query uq: CombinedQuery,
+  combined_query cq: CombinedQuery,
 ) -> List(SelectQuery) {
-  uq.select_queries
+  cq.select_queries
 }
 
 pub fn combined_query_set_limit(

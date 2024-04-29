@@ -9,21 +9,21 @@ import cake/prepared_statement_builder/select_builder
 import gleam/list
 
 pub fn build(
-  select uq: CombinedQuery,
+  select cq: CombinedQuery,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
   // TODO: what happens if multiple select queries have different type signatures for their columns?
   // -> In prepared statements we can already check this and return either an OK() or an Error()
   // The error would return that the column types missmatch
   // The user probably let assets this then?
-  prp_stm_prfx |> prepared_statement.new() |> apply_sql(uq)
+  prp_stm_prfx |> prepared_statement.new() |> apply_sql(cq)
 }
 
 pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
-  select uq: CombinedQuery,
+  select cq: CombinedQuery,
 ) -> PreparedStatement {
-  let union_keyword = case uq.kind {
+  let combination = case cq.kind {
     Union -> "UNION"
     UnionAll -> "UNION ALL"
     Except -> "EXCEPT"
@@ -32,7 +32,7 @@ pub fn apply_sql(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  uq.select_queries
+  cq.select_queries
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
@@ -40,12 +40,12 @@ pub fn apply_sql(
         True -> acc |> select_builder.apply_sql(sq)
         False -> {
           acc
-          |> prepared_statement.with_sql(" " <> union_keyword <> " ")
+          |> prepared_statement.with_sql(" " <> combination <> " ")
           |> select_builder.apply_sql(sq)
         }
       }
     },
   )
-  |> query.limit_offset_apply(uq.limit_offset)
-  |> query.epilog_apply(uq.epilog)
+  |> query.limit_offset_apply(cq.limit_offset)
+  |> query.epilog_apply(cq.epilog)
 }
