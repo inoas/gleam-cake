@@ -28,11 +28,11 @@ pub fn run_dummy_select() {
     ])
 
   let select_query =
-    query.from_fragment_from_table("cats")
+    query.from_part_from_table("cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
-      query.select_fragment_from_string("name"),
-      query.select_fragment_from_string("age"),
+      query.select_part_from_string("name"),
+      query.select_part_from_string("age"),
     ])
     |> query.select_query_set_where(where)
     |> query.select_query_order_asc("name")
@@ -65,11 +65,11 @@ pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
-    query.from_fragment_from_table("cats")
+    query.from_part_from_table("cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
-      query.select_fragment_from_string("name"),
-      query.select_fragment_from_string("age"),
+      query.select_part_from_string("name"),
+      query.select_part_from_string("age"),
     ])
 
   let select_query_a =

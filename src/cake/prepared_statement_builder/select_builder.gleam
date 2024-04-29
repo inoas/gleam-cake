@@ -39,23 +39,19 @@ fn maybe_add_where(
   prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
-  query.where_fragment_append_to_prepared_statement_as_clause(
-    qry.where,
-    prp_stm,
-  )
+  query.where_part_append_to_prepared_statement_as_clause(qry.where, prp_stm)
 }
 
 fn maybe_add_select_sql(query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
     _ ->
-      "SELECT "
-      <> stringx.map_join(qry.select, query.select_fragment_to_sql, ", ")
+      "SELECT " <> stringx.map_join(qry.select, query.select_part_to_sql, ", ")
   }
 }
 
 fn maybe_add_from_sql(query qry: SelectQuery) -> String {
-  query.from_fragment_to_sql(qry.from)
+  query.from_part_to_sql(qry.from)
 }
 
 fn maybe_add_order_sql(query qry: SelectQuery) -> String {
@@ -65,9 +61,7 @@ fn maybe_add_order_sql(query qry: SelectQuery) -> String {
       let order_bys =
         qry.order_by
         |> list.map(fn(order_by) {
-          order_by.0
-          <> " "
-          <> query.order_by_direction_fragment_to_sql(order_by.1)
+          order_by.0 <> " " <> query.order_by_direction_part_to_sql(order_by.1)
         })
 
       " ORDER BY " <> string.join(order_bys, ", ")

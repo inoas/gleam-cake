@@ -32,18 +32,21 @@ pub fn query_union_wrap(qry: UnionQuery) -> Query {
 // List of SQL parts that will be used to build a select query.
 pub type SelectQuery {
   SelectQuery(
-    from: FromFragment,
+    from: FromPart,
     // comment: String,
     // modifier: String,
     // with: String,
-    select: List(SelectFragment),
+    select: List(SelectPart),
     // distinct: String,
     // join: String,
-    where: WhereFragment,
+    where: WherePart,
     // group_by: String,
     // having: String,
     // window: String,
-    order_by: List(#(String, OrderByDirectionFragment)),
+    // TODO: as not just SELECT but also UNION and maybe other causes
+    // use order_by, limit and offset, possibly make them real types, too
+    // at least alias them
+    order_by: List(#(String, OrderByDirectionPart)),
     limit: Int,
     offset: Int,
   )
@@ -52,37 +55,35 @@ pub type SelectQuery {
 // ———— NEW ————————————————————————————————————————————————————————————————— //
 
 pub fn select_query_new(
-  from from: FromFragment,
-  select select: List(SelectFragment),
+  from from: FromPart,
+  select select: List(SelectPart),
 ) -> SelectQuery {
   SelectQuery(
     from: from,
     select: select,
-    where: NoWhereFragment,
+    where: NoWherePart,
     order_by: [],
     limit: -1,
     offset: -1,
   )
 }
 
-pub fn select_query_new_from(from from: FromFragment) -> SelectQuery {
+pub fn select_query_new_from(from from: FromPart) -> SelectQuery {
   SelectQuery(
     from: from,
     select: [],
-    where: NoWhereFragment,
+    where: NoWherePart,
     order_by: [],
     limit: -1,
     offset: -1,
   )
 }
 
-pub fn select_query_new_select(
-  select select: List(SelectFragment),
-) -> SelectQuery {
+pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
   SelectQuery(
-    from: NoFromFragment,
+    from: NoFromPart,
     select: select,
-    where: NoWhereFragment,
+    where: NoWherePart,
     order_by: [],
     limit: -1,
     offset: -1,
@@ -93,7 +94,7 @@ pub fn select_query_new_select(
 
 pub fn select_query_set_from(
   query qry: SelectQuery,
-  from from: FromFragment,
+  from from: FromPart,
 ) -> SelectQuery {
   SelectQuery(..qry, from: from)
 }
@@ -102,14 +103,14 @@ pub fn select_query_set_from(
 
 pub fn select_query_select(
   query qry: SelectQuery,
-  select select: List(SelectFragment),
+  select select: List(SelectPart),
 ) -> SelectQuery {
   SelectQuery(..qry, select: list.append(qry.select, select))
 }
 
 pub fn select_query_select_replace(
   query qry: SelectQuery,
-  select select: List(SelectFragment),
+  select select: List(SelectPart),
 ) -> SelectQuery {
   SelectQuery(..qry, select: select)
 }
@@ -118,7 +119,7 @@ pub fn select_query_select_replace(
 
 pub fn select_query_set_where(
   query qry: SelectQuery,
-  where where: WhereFragment,
+  where where: WherePart,
 ) -> SelectQuery {
   SelectQuery(..qry, where: where)
 }
@@ -184,7 +185,7 @@ pub fn select_query_order_desc_nulls_first_replace(
 pub fn select_query_order(
   query qry: SelectQuery,
   by ordb: String,
-  direction dir: OrderByDirectionFragment,
+  direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, dir), True)
 }
@@ -192,7 +193,7 @@ pub fn select_query_order(
 pub fn select_query_order_replace(
   query qry: SelectQuery,
   by ordb: String,
-  direction dir: OrderByDirectionFragment,
+  direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
   do_order_by(qry, #(ordb, dir), False)
 }
@@ -201,7 +202,7 @@ import cake/stdlib/listx
 
 fn do_order_by(
   query qry: SelectQuery,
-  by ordb: #(String, OrderByDirectionFragment),
+  by ordb: #(String, OrderByDirectionPart),
   append append: Bool,
 ) -> SelectQuery {
   case append {
@@ -216,7 +217,7 @@ fn do_order_by(
 pub fn select_query_set_limit(qry: SelectQuery, limit lmt: Int) -> SelectQuery {
   case lmt >= 0 {
     True -> SelectQuery(..qry, limit: lmt)
-    // TODO: Add warning, negative limit is ignored
+    // TODO: Add debug warning, negative limit is ignored
     False -> SelectQuery(..qry, limit: -1)
   }
 }
@@ -240,7 +241,7 @@ pub fn select_query_set_limit_and_offset(
 // —————————————————————————————————————————————————————————————————————————— //
 
 // List of SQL parts that will be used to build a union query.
-pub opaque type UnionQuery {
+pub type UnionQuery {
   UnionDistinctQuery(select_queries: List(SelectQuery))
   UnionAllQuery(select_queries: List(SelectQuery))
   // TODO: also takes order_by, limit, offset
@@ -261,49 +262,48 @@ pub fn union_all_query_new(
 
 pub fn union_get_select_queries(union_query uq: UnionQuery) -> List(SelectQuery) {
   case uq {
+    // TODO: UNION vs UNION ALL vs EXCEPT vs INTERSECT
     UnionDistinctQuery(select_queries) -> select_queries
     UnionAllQuery(select_queries) -> select_queries
   }
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— FromFragment ———————————————————————————————————————————————————————— //
+// ———— FromPart ———————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub type FromFragment {
+pub type FromPart {
   FromString(String)
   // TODO: check if the table does indeed exist
   FromTable(String)
-  NoFromFragment
+  NoFromPart
 }
 
-pub fn from_fragment_from_table(s: String) -> FromFragment {
+pub fn from_part_from_table(s: String) -> FromPart {
   FromTable(s)
 }
 
-pub fn from_fragment_to_sql(fragment frgmt: FromFragment) {
-  case frgmt {
+pub fn from_part_to_sql(part prt: FromPart) {
+  case prt {
     FromString(s) -> " FROM " <> s
     FromTable(s) -> " FROM " <> s
-    NoFromFragment -> ""
+    NoFromPart -> ""
   }
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— OrderByDirectionFragment ———————————————————————————————————————————— //
+// ———— OrderByDirectionPart ———————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub type OrderByDirectionFragment {
+pub type OrderByDirectionPart {
   Asc
   Desc
   AscNullsFirst
   DescNullsFirst
 }
 
-pub fn order_by_direction_fragment_to_sql(
-  fragment frgmt: OrderByDirectionFragment,
-) {
-  case frgmt {
+pub fn order_by_direction_part_to_sql(part prt: OrderByDirectionPart) {
+  case prt {
     Asc -> " ASC NULLS LAST"
     Desc -> " DESC NULLS LAST"
     AscNullsFirst -> " ASC NULLS FIRST"
@@ -312,10 +312,10 @@ pub fn order_by_direction_fragment_to_sql(
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— SelectFragment —————————————————————————————————————————————————————— //
+// ———— SelectPart —————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub type SelectFragment {
+pub type SelectPart {
   // Strings are arbitrary SQL strings
   // Aliases rename fields
   SelectString(string: String)
@@ -328,13 +328,13 @@ pub type SelectFragment {
   // RawSelect(string: String, parameters: List(Param))
 }
 
-pub fn select_fragment_from_string(s: String) -> SelectFragment {
+pub fn select_part_from_string(s: String) -> SelectPart {
   // TODO: check if the table does indeed exist
   SelectString(s)
 }
 
-pub fn select_fragment_to_sql(fragment frgmt: SelectFragment) {
-  case frgmt {
+pub fn select_part_to_sql(part prt: SelectPart) {
+  case prt {
     SelectString(string) -> string
     SelectStringAlias(string, alias) -> string <> " AS " <> alias
     SelectColumn(column) -> column
@@ -343,7 +343,7 @@ pub fn select_fragment_to_sql(fragment frgmt: SelectFragment) {
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— WhereFragment ——————————————————————————————————————————————————————— //
+// ———— WherePart ——————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 import cake/prepared_statement.{type PreparedStatement}
@@ -354,7 +354,7 @@ import cake/param.{type Param, NullParam}
 // import cake/query.{type Query}
 import gleam/list
 
-pub type WhereFragment {
+pub type WherePart {
   // Column A to column B comparison
   WhereColEqualCol(a_column: String, b_column: String)
   WhereColLowerCol(a_column: String, b_column: String)
@@ -377,10 +377,10 @@ pub type WhereFragment {
   WhereParamGreaterOrEqualCol(parameter: Param, column: String)
   WhereParamNotEqualCol(parameter: Param, column: String)
   // Logical operators
-  AndWhere(fragments: List(WhereFragment))
-  NotWhere(fragments: List(WhereFragment))
-  OrWhere(fragments: List(WhereFragment))
-  // XorWhere(List(WhereFragment))
+  AndWhere(parts: List(WherePart))
+  NotWhere(parts: List(WherePart))
+  OrWhere(parts: List(WherePart))
+  // XorWhere(List(WherePart))
   // Subquery
   // WhereColEqualSubquery(column: String, sub_query: Query)
   // WhereColLowerSubquery(column: String, sub_query: Query)
@@ -393,16 +393,16 @@ pub type WhereFragment {
   // WhereColInSubquery(column: String, sub_query: Query)
   // Raw SQL
   // RawWhere(string: String, parameters: List(Param))
-  NoWhereFragment
+  NoWherePart
 }
 
 // TODO: Move this to prepared statements and use question marks then
 // ... or at least optionally though.
-fn where_fragment_append_to_prepared_statement(
+fn where_part_append_to_prepared_statement(
   prepared_statement prp_stm: PreparedStatement,
-  fragment frgmt: WhereFragment,
+  part prt: WherePart,
 ) -> PreparedStatement {
-  case frgmt {
+  case prt {
     WhereColEqualCol(a_col, b_col) ->
       apply_comparison_col_col(prp_stm, a_col, "=", b_col)
     WhereColLowerCol(a_col, b_col) ->
@@ -418,57 +418,56 @@ fn where_fragment_append_to_prepared_statement(
     WhereColEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereColEqualParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, "=", param)
+      where_part_apply_comparison_col_param(prp_stm, col, "=", param)
     WhereColLowerParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, "<", param)
+      where_part_apply_comparison_col_param(prp_stm, col, "<", param)
     WhereColLowerOrEqualParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, "<=", param)
+      where_part_apply_comparison_col_param(prp_stm, col, "<=", param)
     WhereColGreaterParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, ">", param)
+      where_part_apply_comparison_col_param(prp_stm, col, ">", param)
     WhereColGreaterOrEqualParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, ">=", param)
+      where_part_apply_comparison_col_param(prp_stm, col, ">=", param)
     WhereColNotEqualParam(col, NullParam) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereColNotEqualParam(col, param) ->
-      where_fragment_apply_comparison_col_param(prp_stm, col, "<>", param)
+      where_part_apply_comparison_col_param(prp_stm, col, "<>", param)
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, "=", col)
+      where_part_apply_comparison_param_col(prp_stm, param, "=", col)
     WhereParamLowerCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, "<", col)
+      where_part_apply_comparison_param_col(prp_stm, param, "<", col)
     WhereParamLowerOrEqualCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, "<=", col)
+      where_part_apply_comparison_param_col(prp_stm, param, "<=", col)
     WhereParamGreaterCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, ">", col)
+      where_part_apply_comparison_param_col(prp_stm, param, ">", col)
     WhereParamGreaterOrEqualCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, ">=", col)
+      where_part_apply_comparison_param_col(prp_stm, param, ">=", col)
     WhereParamNotEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereParamNotEqualCol(param, col) ->
-      where_fragment_apply_comparison_param_col(prp_stm, param, "<>", col)
-    AndWhere(frgmts) ->
-      where_fragment_apply_logical_sql_operator("AND", frgmts, prp_stm)
-    NotWhere(frgmts) ->
-      where_fragment_apply_logical_sql_operator("NOT", frgmts, prp_stm)
-    OrWhere(frgmts) ->
-      where_fragment_apply_logical_sql_operator("OR", frgmts, prp_stm)
+      where_part_apply_comparison_param_col(prp_stm, param, "<>", col)
+    AndWhere(prts) ->
+      where_part_apply_logical_sql_operator("AND", prts, prp_stm)
+    NotWhere(prts) ->
+      where_part_apply_logical_sql_operator("NOT", prts, prp_stm)
+    OrWhere(prts) -> where_part_apply_logical_sql_operator("OR", prts, prp_stm)
     WhereColInParams(col, params) ->
-      where_fragment_apply_column_in_params(col, params, prp_stm)
-    NoWhereFragment -> prp_stm
+      where_part_apply_column_in_params(col, params, prp_stm)
+    NoWherePart -> prp_stm
   }
 }
 
-pub fn where_fragment_append_to_prepared_statement_as_clause(
-  fragment frgmt: WhereFragment,
+pub fn where_part_append_to_prepared_statement_as_clause(
+  part prt: WherePart,
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
-  case frgmt {
-    NoWhereFragment -> prp_stm
+  case prt {
+    NoWherePart -> prp_stm
     _ -> {
       prp_stm
       |> prepared_statement.with_sql(" WHERE ")
-      |> where_fragment_append_to_prepared_statement(frgmt)
+      |> where_part_append_to_prepared_statement(prt)
     }
   }
 }
@@ -478,7 +477,7 @@ fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
   |> prepared_statement.with_sql(a_col <> " " <> sql_operator <> " " <> b_col)
 }
 
-fn where_fragment_apply_comparison_col_param(prp_stm, col, sql_operator, param) {
+fn where_part_apply_comparison_col_param(prp_stm, col, sql_operator, param) {
   let next_param = prepared_statement.next_param(prp_stm)
 
   prepared_statement.with_sql_and_param(
@@ -488,7 +487,7 @@ fn where_fragment_apply_comparison_col_param(prp_stm, col, sql_operator, param) 
   )
 }
 
-fn where_fragment_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
+fn where_part_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
   let next_param = prepared_statement.next_param(prp_stm)
 
   prepared_statement.with_sql_and_param(
@@ -498,31 +497,29 @@ fn where_fragment_apply_comparison_param_col(prp_stm, param, sql_operator, col) 
   )
 }
 
-fn where_fragment_apply_logical_sql_operator(
+fn where_part_apply_logical_sql_operator(
   operator oprtr: String,
-  fragments frgmts: List(WhereFragment),
+  parts prts: List(WherePart),
   prepared_statement prp_stm: PreparedStatement,
 ) {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
   list.fold(
-    frgmts,
+    prts,
     new_prep_stm,
-    fn(acc: PreparedStatement, frgmt: WhereFragment) -> PreparedStatement {
+    fn(acc: PreparedStatement, prt: WherePart) -> PreparedStatement {
       case acc == new_prep_stm {
-        True ->
-          acc
-          |> where_fragment_append_to_prepared_statement(frgmt)
+        True -> acc |> where_part_append_to_prepared_statement(prt)
         False ->
           acc
           |> prepared_statement.with_sql(" " <> oprtr <> " ")
-          |> where_fragment_append_to_prepared_statement(frgmt)
+          |> where_part_append_to_prepared_statement(prt)
       }
     },
   )
   |> prepared_statement.with_sql(")")
 }
 
-fn where_fragment_apply_column_in_params(
+fn where_part_apply_column_in_params(
   column col: String,
   parameters params: List(Param),
   prepared_statement prp_stm: PreparedStatement,

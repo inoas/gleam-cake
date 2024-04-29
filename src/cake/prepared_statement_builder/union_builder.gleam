@@ -1,4 +1,6 @@
-import cake/internal/query.{type SelectQuery, type UnionQuery}
+import cake/internal/query.{
+  type SelectQuery, type UnionQuery, UnionAllQuery, UnionDistinctQuery,
+}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/prepared_statement_builder/select_builder
 
@@ -20,8 +22,12 @@ pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
   select uq: UnionQuery,
 ) -> PreparedStatement {
-  // TODO: First check if it is union all or union distinct
-  query.union_get_select_queries(uq)
+  let #(sql_command, select_queries) = case uq {
+    UnionDistinctQuery(select_queries) -> #("UNION", select_queries)
+    UnionAllQuery(select_queries) -> #("UNION ALL", select_queries)
+  }
+
+  select_queries
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
@@ -29,8 +35,7 @@ pub fn apply_sql(
         True -> acc |> select_builder.apply_sql(sq)
         False -> {
           acc
-          // TODO: UNION vs UNION ALL vs EXCEPT vs INTERSECT
-          |> prepared_statement.with_sql(" UNION ")
+          |> prepared_statement.with_sql(" " <> sql_command <> " ")
           |> select_builder.apply_sql(sq)
         }
       }
