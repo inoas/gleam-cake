@@ -2,8 +2,7 @@ import cake/internal/query.{type SelectQuery}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/stringx
 
-// import cake/stdlib/iox
-import gleam/int
+import cake/stdlib/iox
 import gleam/list
 import gleam/string
 
@@ -23,8 +22,7 @@ pub fn apply_sql(
   |> apply_to_sql(maybe_add_from_sql, sq)
   |> maybe_add_where(sq)
   |> apply_to_sql(maybe_add_order_sql, sq)
-  // |> apply_to_sql(maybe_add_limit_sql, sq)
-  // |> apply_to_sql(maybe_add_offset_sql, sq)
+  |> maybe_add_limit_offset(sq)
 }
 
 fn apply_to_sql(
@@ -68,16 +66,15 @@ fn maybe_add_order_sql(query qry: SelectQuery) -> String {
     }
   }
 }
-// fn maybe_add_limit_sql(query qry: SelectQuery) -> String {
-//   case qry.limit < 0 {
-//     True -> ""
-//     False -> " LIMIT " <> int.to_string(qry.limit)
-//   }
-// }
 
-// fn maybe_add_offset_sql(query qry: SelectQuery) -> String {
-//   case qry.offset < 0 {
-//     True -> ""
-//     False -> " OFFSET " <> int.to_string(qry.offset)
-//   }
-// }
+fn maybe_add_limit_offset(
+  prepared_statement prp_stm: PreparedStatement,
+  select_query slct_qry: SelectQuery,
+) -> PreparedStatement {
+  let lmt_offst =
+    query.limit_offset_get(slct_qry)
+    |> iox.dbg_label("lmt_offst")
+
+  prp_stm
+  |> query.limit_offset_apply(lmt_offst)
+}

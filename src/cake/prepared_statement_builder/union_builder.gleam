@@ -22,12 +22,20 @@ pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
   select uq: UnionQuery,
 ) -> PreparedStatement {
-  let #(sql_command, select_queries) = case uq {
-    UnionDistinctQuery(select_queries) -> #("UNION", select_queries)
-    UnionAllQuery(select_queries) -> #("UNION ALL", select_queries)
+  let #(union_keyword, slct_qrys, lmt_offst, epl) = case uq {
+    UnionDistinctQuery(
+      select_queries: slct_qrys,
+      limit_offset: lmt_offst,
+      epilog: epl,
+    ) -> #("UNION", slct_qrys, lmt_offst, epl)
+    UnionAllQuery(
+      select_queries: slct_qrys,
+      limit_offset: lmt_offst,
+      epilog: epl,
+    ) -> #("UNION ALL", slct_qrys, lmt_offst, epl)
   }
 
-  select_queries
+  slct_qrys
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
@@ -35,10 +43,12 @@ pub fn apply_sql(
         True -> acc |> select_builder.apply_sql(sq)
         False -> {
           acc
-          |> prepared_statement.with_sql(" " <> sql_command <> " ")
+          |> prepared_statement.with_sql(" " <> union_keyword <> " ")
           |> select_builder.apply_sql(sq)
         }
       }
     },
   )
+  |> query.limit_offset_apply(lmt_offst)
+  |> prepared_statement.with_sql(" " <> epl)
 }
