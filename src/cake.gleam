@@ -90,7 +90,7 @@ pub fn run_dummy_union_all() {
   // |> query.select_query_order_asc("name")
 
   let union_query =
-    query.union_all_query_new([select_query_a, select_query_b])
+    query.union_except_query_new([select_query_a, select_query_b])
     // |> query.union_set_limit(1)
     |> query.query_union_wrap
     |> iox.dbg

@@ -1,8 +1,5 @@
 import cake/stdlib/iox
 
-type EpilogPart =
-  String
-
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— Query ——————————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
@@ -25,85 +22,90 @@ pub fn query_union_wrap(qry: UnionQuery) -> Query {
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type UnionKind {
-  All
-  Distinct
-  Except
-  Intersect
+  UnionAll
+  UnionDistinct
+  UnionExcept
+  UnionIntersect
 }
 
 // List of SQL parts that will be used to build a union query.
 pub type UnionQuery {
-  // unify and have a kind key that is All or Distinct
-  UnionDistinctQuery(
+  UnionQuery(
+    union_kind: UnionKind,
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
+    // order_by: List(OrderByPart),
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
     epilog: EpilogPart,
   )
-  UnionAllQuery(
-    select_queries: List(SelectQuery),
-    limit_offset: LimitOffsetPart,
-    // Epilog allows you to append raw SQL to the end of queries.
-    // You should never put raw user data into epilog.
-    epilog: EpilogPart,
-  )
-  // TODO: also takes order_by, limit, offset
   // TODO: order_by of contained selects must be stripped
 }
 
 pub fn union_distinct_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> UnionQuery {
-  UnionDistinctQuery(
+  UnionQuery(
+    union_kind: UnionDistinct,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
-    epilog: "",
+    epilog: NoEpilogPart,
   )
 }
 
 pub fn union_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> UnionQuery {
-  UnionAllQuery(
+  UnionQuery(
+    union_kind: UnionAll,
     select_queries: slct_qrys,
     limit_offset: NoLimitOffset,
-    epilog: "",
+    epilog: NoEpilogPart,
+  )
+}
+
+pub fn union_except_query_new(
+  select_queries slct_qrys: List(SelectQuery),
+) -> UnionQuery {
+  UnionQuery(
+    union_kind: UnionExcept,
+    select_queries: slct_qrys,
+    limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
+  )
+}
+
+pub fn union_intersect_query_new(
+  select_queries slct_qrys: List(SelectQuery),
+) -> UnionQuery {
+  UnionQuery(
+    union_kind: UnionIntersect,
+    select_queries: slct_qrys,
+    limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
   )
 }
 
 pub fn union_get_select_queries(union_query uq: UnionQuery) -> List(SelectQuery) {
-  case uq {
-    // TODO: UNION vs UNION ALL vs EXCEPT vs INTERSECT
-    UnionDistinctQuery(
-      select_queries: slct_qrys,
-      limit_offset: _lmt_offst,
-      epilog: _epl,
-    ) -> slct_qrys
-    UnionAllQuery(
-      select_queries: slct_qrys,
-      limit_offset: _lmt_offst,
-      epilog: _epl,
-    ) -> slct_qrys
-  }
+  uq.select_queries
 }
 
-// pub fn union_query_set_limit(
-//   query qry: UnionQuery,
-//   limit lmt: Int,
-// ) -> UnionQuery {
-//   let limit_offset = limit_new(lmt)
-//   UnionQuery(..qry, limit_offset: limit_offset)
-// }
+pub fn union_query_set_limit(
+  query qry: UnionQuery,
+  limit lmt: Int,
+) -> UnionQuery {
+  let limit_offset = limit_new(lmt)
+  UnionQuery(..qry, limit_offset: limit_offset)
+}
 
-// pub fn union_query_set_limit_and_offset(
-//   query qry: UnionQuery,
-//   limit lmt: Int,
-//   offset offst: Int,
-// ) -> UnionQuery {
-//   let limit_offset = limit_offset_new(limit: lmt, offset: offst)
-//   UnionQuery(..qry, limit_offset: limit_offset)
-// }
+pub fn union_query_set_limit_and_offset(
+  query qry: UnionQuery,
+  limit lmt: Int,
+  offset offst: Int,
+) -> UnionQuery {
+  let limit_offset = limit_offset_new(limit: lmt, offset: offst)
+  UnionQuery(..qry, limit_offset: limit_offset)
+}
 
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— SelectQuery ————————————————————————————————————————————————————————— //
@@ -128,6 +130,7 @@ pub type SelectQuery {
     // use order_by, limit and offset, possibly make them real types, too
     // at least alias them
     order_by: List(#(String, OrderByDirectionPart)),
+    epilog: EpilogPart,
   )
 }
 
@@ -143,6 +146,7 @@ pub fn select_query_new(
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
   )
 }
 
@@ -153,6 +157,7 @@ pub fn select_query_new_from(from from: FromPart) -> SelectQuery {
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
   )
 }
 
@@ -163,6 +168,7 @@ pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitOffset,
+    epilog: NoEpilogPart,
   )
 }
 
@@ -617,4 +623,30 @@ pub fn limit_offset_apply(
 
 pub fn limit_offset_get(select_query slct_qry: SelectQuery) -> LimitOffsetPart {
   slct_qry.limit_offset
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Epilog Part ————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub opaque type EpilogPart {
+  Epilog(string: String)
+  NoEpilogPart
+}
+
+pub fn epilog_new(epilog: String) -> EpilogPart {
+  case epilog {
+    "" -> NoEpilogPart
+    _ -> Epilog(string: epilog)
+  }
+}
+
+pub fn epilog_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  epilog_part epl_prt: EpilogPart,
+) -> PreparedStatement {
+  case epl_prt {
+    NoEpilogPart -> prp_stm
+    Epilog(string: epl) -> epl |> prepared_statement.with_sql(prp_stm, _)
+  }
 }

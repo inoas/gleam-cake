@@ -1,5 +1,6 @@
 import cake/internal/query.{
-  type SelectQuery, type UnionQuery, UnionAllQuery, UnionDistinctQuery,
+  type SelectQuery, type UnionQuery, UnionAll, UnionDistinct, UnionExcept,
+  UnionIntersect,
 }
 import cake/prepared_statement.{type PreparedStatement}
 import cake/prepared_statement_builder/select_builder
@@ -22,20 +23,14 @@ pub fn apply_sql(
   prepared_statement prp_stm: PreparedStatement,
   select uq: UnionQuery,
 ) -> PreparedStatement {
-  let #(union_keyword, slct_qrys, lmt_offst, epl) = case uq {
-    UnionDistinctQuery(
-      select_queries: slct_qrys,
-      limit_offset: lmt_offst,
-      epilog: epl,
-    ) -> #("UNION", slct_qrys, lmt_offst, epl)
-    UnionAllQuery(
-      select_queries: slct_qrys,
-      limit_offset: lmt_offst,
-      epilog: epl,
-    ) -> #("UNION ALL", slct_qrys, lmt_offst, epl)
+  let union_keyword = case uq.union_kind {
+    UnionAll -> "UNION ALL"
+    UnionDistinct -> "UNION"
+    UnionExcept -> "EXCEPT"
+    UnionIntersect -> "INTERSECT"
   }
 
-  slct_qrys
+  uq.select_queries
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
@@ -49,6 +44,6 @@ pub fn apply_sql(
       }
     },
   )
-  |> query.limit_offset_apply(lmt_offst)
-  |> prepared_statement.with_sql(" " <> epl)
+  |> query.limit_offset_apply(uq.limit_offset)
+  |> query.epilog_apply(uq.epilog)
 }

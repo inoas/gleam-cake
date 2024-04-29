@@ -71,9 +71,8 @@ fn maybe_add_limit_offset(
   prepared_statement prp_stm: PreparedStatement,
   select_query slct_qry: SelectQuery,
 ) -> PreparedStatement {
-  let lmt_offst =
-    query.limit_offset_get(slct_qry)
-    |> iox.dbg_label("lmt_offst")
+  let lmt_offst = query.limit_offset_get(slct_qry)
+  // |> iox.dbg_label("lmt_offst")
 
   prp_stm
   |> query.limit_offset_apply(lmt_offst)
