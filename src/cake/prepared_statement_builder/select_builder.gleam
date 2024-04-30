@@ -1,8 +1,9 @@
-import cake/internal/query.{type SelectQuery}
+import cake/internal/query.{
+  type OrderByDirectionPart, type OrderByPart, type SelectQuery,
+}
 import cake/prepared_statement.{type PreparedStatement}
-import cake/stdlib/stringx
-
 import cake/stdlib/iox
+import cake/stdlib/stringx
 import gleam/list
 import gleam/string
 
@@ -58,8 +59,8 @@ fn maybe_add_order_sql(query qry: SelectQuery) -> String {
     _ -> {
       let order_bys =
         qry.order_by
-        |> list.map(fn(order_by) {
-          order_by.0 <> " " <> query.order_by_direction_part_to_sql(order_by.1)
+        |> list.map(fn(ordrb: OrderByPart) -> String {
+          ordrb.column <> " " <> query.order_by_part_to_sql(ordrb)
         })
 
       " ORDER BY " <> string.join(order_bys, ", ")

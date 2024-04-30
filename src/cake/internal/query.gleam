@@ -152,7 +152,7 @@ pub type SelectQuery {
     // TODO: as not just SELECT but also UNION and maybe other causes
     // use order_by, limit and offset, possibly make them real types, too
     // at least alias them
-    order_by: List(#(String, OrderByDirectionPart)),
+    order_by: List(OrderByPart),
     epilog: EpilogPart,
   )
 }
@@ -235,56 +235,56 @@ pub fn select_query_order_asc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, Asc), True)
+  do_order_by(qry, OrderByColumnPart(ordb, Asc), True)
 }
 
 pub fn select_query_order_asc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, AscNullsFirst), True)
+  do_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
 }
 
 pub fn select_query_order_asc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, Asc), False)
+  do_order_by(qry, OrderByColumnPart(ordb, Asc), False)
 }
 
 pub fn select_query_order_asc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, AscNullsFirst), False)
+  do_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
 }
 
 pub fn select_query_order_desc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, Desc), True)
+  do_order_by(qry, OrderByColumnPart(ordb, Desc), True)
 }
 
 pub fn select_query_order_desc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, DescNullsFirst), True)
+  do_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
 }
 
 pub fn select_query_order_desc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, Desc), False)
+  do_order_by(qry, OrderByColumnPart(ordb, Desc), False)
 }
 
 pub fn select_query_order_desc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, DescNullsFirst), False)
+  do_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
 }
 
 pub fn select_query_order(
@@ -292,7 +292,7 @@ pub fn select_query_order(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, dir), True)
+  do_order_by(qry, OrderByColumnPart(ordb, dir), True)
 }
 
 pub fn select_query_order_replace(
@@ -300,20 +300,20 @@ pub fn select_query_order_replace(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_order_by(qry, #(ordb, dir), False)
+  do_order_by(qry, OrderByColumnPart(ordb, dir), False)
 }
 
 import cake/stdlib/listx
 
 fn do_order_by(
   query qry: SelectQuery,
-  by ordb: #(String, OrderByDirectionPart),
+  by ordb: OrderByPart,
   append append: Bool,
 ) -> SelectQuery {
   case append {
     True ->
       SelectQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
-    False -> SelectQuery(..qry, order_by: [ordb])
+    False -> SelectQuery(..qry, order_by: listx.wrap(ordb))
   }
 }
 
@@ -363,6 +363,10 @@ pub fn from_part_to_sql(part prt: FromPart) {
 // ———— OrderByDirectionPart ———————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
+pub type OrderByPart {
+  OrderByColumnPart(column: String, direction: OrderByDirectionPart)
+}
+
 pub type OrderByDirectionPart {
   Asc
   Desc
@@ -370,12 +374,12 @@ pub type OrderByDirectionPart {
   DescNullsFirst
 }
 
-pub fn order_by_direction_part_to_sql(part prt: OrderByDirectionPart) {
-  case prt {
-    Asc -> " ASC NULLS LAST"
-    Desc -> " DESC NULLS LAST"
-    AscNullsFirst -> " ASC NULLS FIRST"
-    DescNullsFirst -> " DESC NULLS FIRST"
+pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) {
+  case ordbpt.direction {
+    Asc -> "ASC NULLS LAST"
+    Desc -> "DESC NULLS LAST"
+    AscNullsFirst -> "ASC NULLS FIRST"
+    DescNullsFirst -> "DESC NULLS FIRST"
   }
 }
 
