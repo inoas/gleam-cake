@@ -48,7 +48,7 @@ pub fn run_query(db_conn, query qry: Query, decoder decoder) {
         NullParam -> pgo.null()
       }
     })
-  // |> iox.dbg_label("db_params")
+    |> iox.dbg_label("db_params")
 
   let result =
     sql

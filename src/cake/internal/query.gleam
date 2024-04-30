@@ -573,6 +573,8 @@ pub type WherePart {
   WhereColGreaterParam(column: String, parameter: Param)
   WhereColGreaterOrEqualParam(column: String, parameter: Param)
   WhereColNotEqualParam(column: String, parameter: Param)
+  WhereColLike(a_column: String, paramter: String)
+  WhereColILike(a_column: String, parameter: String)
   // Parameter to column comparison
   WhereParamEqualCol(parameter: Param, column: String)
   WhereParamLowerCol(parameter: Param, column: String)
@@ -588,11 +590,7 @@ pub type WherePart {
   NotWhere(parts: List(WherePart))
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
-  // WhereLike(column: String, parameter: String)
-  // WhereILike(column: String, parameter: String)
   // TODO: LIKE and ILIKE
-  // TODO: LikeWhere(parameter: Param, parameter: String)
-  // TODO: ILikeWhere(parameter: Param, parameter: String)
   // TODO: Subquery
   // - WhereColEqualSubquery(column: String, sub_query: Query)
   // - WhereColLowerSubquery(column: String, sub_query: Query)
@@ -641,6 +639,22 @@ fn where_part_append_to_prepared_statement(
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereColNotEqualParam(col, param) ->
       where_part_apply_comparison_col_param(prp_stm, col, "<>", param)
+
+    WhereColLike(col, param) ->
+      where_part_apply_comparison_col_param(
+        prp_stm,
+        col,
+        "LIKE",
+        param.StringParam(param),
+      )
+    WhereColILike(col, param) ->
+      where_part_apply_comparison_col_param(
+        prp_stm,
+        col,
+        "ILIKE",
+        param.StringParam(param),
+      )
+
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->

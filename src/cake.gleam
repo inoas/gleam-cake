@@ -72,14 +72,18 @@ pub fn run_dummy_union_all() {
       query.select_part_from("age"),
     ])
 
+  let where_a = query.WhereColLike("name", "%ara%")
+
   let select_query_a =
     select_query
     |> query.select_query_set_where(query.WhereColLowerOrEqualParam(
       "age",
       param.IntParam(4),
     ))
+    |> query.select_query_set_where(where_a)
 
-  let where = query.NotWhere([query.WhereColIsNotBool("is_wild", False)])
+  let where_b = query.NotWhere([query.WhereColIsNotBool("is_wild", False)])
+  // FIXME
   // let where = query.NotWhere([query.WhereColIsParam("age", param.NullParam)])
 
   let select_query_b =
@@ -89,7 +93,7 @@ pub fn run_dummy_union_all() {
       param.IntParam(7),
     ))
     |> query.select_query_order_asc(by: "will_be_removed")
-    |> query.select_query_set_where(where)
+    |> query.select_query_set_where(where_b)
 
   let union_query =
     query.combined_union_all_query_new([select_query_a, select_query_b])
