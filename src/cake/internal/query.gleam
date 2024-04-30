@@ -587,10 +587,9 @@ pub type WherePart {
   WhereColIsNotBool(column: String, bool: Bool)
   // Logical operators
   AndWhere(parts: List(WherePart))
-  NotWhere(parts: List(WherePart))
+  NotWhere(part: WherePart)
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
-  // TODO: LIKE and ILIKE
   // TODO: Subquery
   // - WhereColEqualSubquery(column: String, sub_query: Query)
   // - WhereColLowerSubquery(column: String, sub_query: Query)
@@ -681,8 +680,13 @@ fn where_part_append_to_prepared_statement(
       prepared_statement.with_sql(prp_stm, col <> " IS NOT FALSE")
     AndWhere(prts) ->
       where_part_apply_logical_sql_operator("AND", prts, prp_stm)
-    NotWhere(prts) ->
-      where_part_apply_logical_sql_operator("NOT", prts, prp_stm)
+    NotWhere(prt) -> {
+      let new_prep_stm =
+        prp_stm
+        |> prepared_statement.with_sql("NOT (")
+        |> where_part_append_to_prepared_statement(prt)
+        |> prepared_statement.with_sql(")")
+    }
     OrWhere(prts) -> where_part_apply_logical_sql_operator("OR", prts, prp_stm)
     WhereColInParams(col, params) ->
       where_part_apply_column_in_params(col, params, prp_stm)

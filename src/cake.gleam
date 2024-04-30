@@ -82,7 +82,9 @@ pub fn run_dummy_union_all() {
     ))
     |> query.select_query_set_where(where_a)
 
-  let where_b = query.NotWhere([query.WhereColIsNotBool("is_wild", False)])
+  let where_b =
+    query.NotWhere(query.WhereColIsNotBool("is_wild", False))
+    |> iox.dbg_label("where_b")
   // FIXME
   // let where = query.NotWhere([query.WhereColIsParam("age", param.NullParam)])
 
