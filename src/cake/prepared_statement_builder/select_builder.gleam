@@ -1,8 +1,7 @@
-import cake/internal/query.{
-  type OrderByDirectionPart, type OrderByPart, type SelectQuery,
-}
+import cake/internal/query.{type OrderByPart, type SelectQuery}
 import cake/prepared_statement.{type PreparedStatement}
-import cake/stdlib/iox
+
+// import cake/stdlib/iox
 import cake/stdlib/stringx
 import gleam/list
 import gleam/string

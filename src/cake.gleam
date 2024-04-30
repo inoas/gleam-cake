@@ -84,14 +84,12 @@ pub fn run_dummy_union_all() {
       "age",
       param.IntParam(7),
     ))
-
-  // UNION must take ORDER BY at the outside
-  // it can also take an own LIMIT and OFFSET
-  // |> query.select_query_order_asc("name")
+    |> query.select_query_order_asc(by: "will_be_removed")
 
   let union_query =
     query.combined_union_all_query_new([select_query_a, select_query_b])
-    // |> query.union_set_limit(1)
+    |> query.combined_query_set_limit(1)
+    |> query.combined_query_order_replace(by: "age", direction: query.Asc)
     |> query.query_combined_wrap
     |> iox.dbg
 

@@ -1,4 +1,6 @@
 // import cake/stdlib/iox
+import cake/stdlib/listx
+import gleam/int
 
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— Query ——————————————————————————————————————————————————————————————— //
@@ -18,7 +20,73 @@ pub fn query_combined_wrap(qry: CombinedQuery) -> Query {
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— CombinedQuery ——————————————————————————————————————————————————————— //
+// ———— OrderByDirectionPart ———————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub type OrderByPart {
+  OrderByColumnPart(column: String, direction: OrderByDirectionPart)
+}
+
+pub type OrderByDirectionPart {
+  Asc
+  Desc
+  AscNullsFirst
+  DescNullsFirst
+}
+
+pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) {
+  case ordbpt.direction {
+    Asc -> "ASC NULLS LAST"
+    Desc -> "DESC NULLS LAST"
+    AscNullsFirst -> "ASC NULLS FIRST"
+    DescNullsFirst -> "DESC NULLS FIRST"
+  }
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Limit & Offset Part ————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub opaque type LimitOffsetPart {
+  LimitOffset(limit: Int, offset: Int)
+  LimitNoOffset(limit: Int)
+  NoLimitOffset
+}
+
+pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
+  case lmt >= 0, offst >= 0 {
+    True, True -> LimitOffset(limit: lmt, offset: offst)
+    True, False -> LimitNoOffset(limit: lmt)
+    False, _ -> NoLimitOffset
+  }
+}
+
+pub fn limit_new(limit lmt: Int) -> LimitOffsetPart {
+  case lmt >= 0 {
+    True -> LimitNoOffset(limit: lmt)
+    False -> NoLimitOffset
+  }
+}
+
+pub fn limit_offset_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  limit_part lmt_prt: LimitOffsetPart,
+) -> PreparedStatement {
+  case lmt_prt {
+    LimitOffset(limit: lmt, offset: offst) ->
+      " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
+    LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
+    NoLimitOffset -> ""
+  }
+  |> prepared_statement.with_sql(prp_stm, _)
+}
+
+pub fn limit_offset_get(select_query slct_qry: SelectQuery) -> LimitOffsetPart {
+  slct_qry.limit_offset
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Combined Query —————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type CombinedKind {
@@ -40,53 +108,50 @@ pub type CombinedQuery {
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
     // TODO: before adding epilog to combined, fix it for selects with a custom type
-    // order_by: List(OrderByPart),
+    order_by: List(OrderByPart),
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
     epilog: EpilogPart,
   )
-  // TODO: order_by of contained selects must be stripped
-  // ... or rather ignored during prep statement building?
-  // or still stipped? dev warning?
 }
 
 pub fn combined_union_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Union |> combined_query_query(slct_qrys)
+  Union |> combined_query_new(slct_qrys)
 }
 
 pub fn combined_union_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  UnionAll |> combined_query_query(slct_qrys)
+  UnionAll |> combined_query_new(slct_qrys)
 }
 
 pub fn combined_except_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Except |> combined_query_query(slct_qrys)
+  Except |> combined_query_new(slct_qrys)
 }
 
 pub fn combined_except_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  ExceptAll |> combined_query_query(slct_qrys)
+  ExceptAll |> combined_query_new(slct_qrys)
 }
 
 pub fn combined_intersect_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Intersect |> combined_query_query(slct_qrys)
+  Intersect |> combined_query_new(slct_qrys)
 }
 
 pub fn combined_intersect_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  IntersectAll |> combined_query_query(slct_qrys)
+  IntersectAll |> combined_query_new(slct_qrys)
 }
 
-fn combined_query_query(
+fn combined_query_new(
   kind: CombinedKind,
   select_queries: List(SelectQuery),
 ) -> CombinedQuery {
@@ -96,6 +161,7 @@ fn combined_query_query(
     kind: kind,
     select_queries: select_queries,
     limit_offset: NoLimitOffset,
+    order_by: [],
     epilog: NoEpilogPart,
   )
 }
@@ -112,6 +178,8 @@ pub fn combined_get_select_queries(
 ) -> List(SelectQuery) {
   cq.select_queries
 }
+
+// ———— LIMIT & OFFSET ————————————————————————————————————————————————————————— //
 
 pub fn combined_query_set_limit(
   query qry: CombinedQuery,
@@ -130,8 +198,94 @@ pub fn combined_query_set_limit_and_offset(
   CombinedQuery(..qry, limit_offset: limit_offset)
 }
 
+// ———— ORDER BY —————————————————————————————————————————————————————————————————— //
+
+pub fn combined_query_order_asc(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, Asc), True)
+}
+
+pub fn combined_query_order_asc_nulls_first(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
+}
+
+pub fn combined_query_order_asc_replace(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, Asc), False)
+}
+
+pub fn combined_query_order_asc_nulls_first_replace(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
+}
+
+pub fn combined_query_order_desc(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, Desc), True)
+}
+
+pub fn combined_query_order_desc_nulls_first(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
+}
+
+pub fn combined_query_order_desc_replace(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, Desc), False)
+}
+
+pub fn combined_query_order_desc_nulls_first_replace(
+  query qry: CombinedQuery,
+  by ordb: String,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
+}
+
+pub fn combined_query_order(
+  query qry: CombinedQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionPart,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, dir), True)
+}
+
+pub fn combined_query_order_replace(
+  query qry: CombinedQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionPart,
+) -> CombinedQuery {
+  do_combined_order_by(qry, OrderByColumnPart(ordb, dir), False)
+}
+
+fn do_combined_order_by(
+  query qry: CombinedQuery,
+  by ordb: OrderByPart,
+  append append: Bool,
+) -> CombinedQuery {
+  case append {
+    True ->
+      CombinedQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
+    False -> CombinedQuery(..qry, order_by: listx.wrap(ordb))
+  }
+}
+
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— SelectQuery ————————————————————————————————————————————————————————— //
+// ———— Select Query ———————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 // List of SQL parts that will be used to build a select query.
@@ -149,9 +303,6 @@ pub type SelectQuery {
     // having: String,
     // window: String,
     limit_offset: LimitOffsetPart,
-    // TODO: as not just SELECT but also UNION and maybe other causes
-    // use order_by, limit and offset, possibly make them real types, too
-    // at least alias them
     order_by: List(OrderByPart),
     epilog: EpilogPart,
   )
@@ -235,56 +386,56 @@ pub fn select_query_order_asc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, Asc), True)
+  do_select_order_by(qry, OrderByColumnPart(ordb, Asc), True)
 }
 
 pub fn select_query_order_asc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
+  do_select_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
 }
 
 pub fn select_query_order_asc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, Asc), False)
+  do_select_order_by(qry, OrderByColumnPart(ordb, Asc), False)
 }
 
 pub fn select_query_order_asc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
+  do_select_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
 }
 
 pub fn select_query_order_desc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, Desc), True)
+  do_select_order_by(qry, OrderByColumnPart(ordb, Desc), True)
 }
 
 pub fn select_query_order_desc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
+  do_select_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
 }
 
 pub fn select_query_order_desc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, Desc), False)
+  do_select_order_by(qry, OrderByColumnPart(ordb, Desc), False)
 }
 
 pub fn select_query_order_desc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
+  do_select_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
 }
 
 pub fn select_query_order(
@@ -292,7 +443,7 @@ pub fn select_query_order(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, dir), True)
+  do_select_order_by(qry, OrderByColumnPart(ordb, dir), True)
 }
 
 pub fn select_query_order_replace(
@@ -300,12 +451,10 @@ pub fn select_query_order_replace(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_order_by(qry, OrderByColumnPart(ordb, dir), False)
+  do_select_order_by(qry, OrderByColumnPart(ordb, dir), False)
 }
 
-import cake/stdlib/listx
-
-fn do_order_by(
+fn do_select_order_by(
   query qry: SelectQuery,
   by ordb: OrderByPart,
   append append: Bool,
@@ -317,7 +466,7 @@ fn do_order_by(
   }
 }
 
-// // ———— LIMIT & OFFSET —————————————————————————————————————————————————————— //
+// ———— LIMIT & OFFSET ————————————————————————————————————————————————————————— //
 
 pub fn select_query_set_limit(
   query qry: SelectQuery,
@@ -337,7 +486,7 @@ pub fn select_query_set_limit_and_offset(
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— FromPart ———————————————————————————————————————————————————————————— //
+// ———— From Part ——————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type FromPart {
@@ -360,31 +509,7 @@ pub fn from_part_to_sql(part prt: FromPart) {
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— OrderByDirectionPart ———————————————————————————————————————————————— //
-// —————————————————————————————————————————————————————————————————————————— //
-
-pub type OrderByPart {
-  OrderByColumnPart(column: String, direction: OrderByDirectionPart)
-}
-
-pub type OrderByDirectionPart {
-  Asc
-  Desc
-  AscNullsFirst
-  DescNullsFirst
-}
-
-pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) {
-  case ordbpt.direction {
-    Asc -> "ASC NULLS LAST"
-    Desc -> "DESC NULLS LAST"
-    AscNullsFirst -> "ASC NULLS FIRST"
-    DescNullsFirst -> "DESC NULLS FIRST"
-  }
-}
-
-// —————————————————————————————————————————————————————————————————————————— //
-// ———— SelectPart —————————————————————————————————————————————————————————— //
+// ———— Select Part ————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type SelectPart {
@@ -415,7 +540,7 @@ pub fn select_part_to_sql(part prt: SelectPart) {
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
-// ———— WherePart ——————————————————————————————————————————————————————————— //
+// ———— Where Part —————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
 import cake/prepared_statement.{type PreparedStatement}
@@ -606,50 +731,6 @@ fn where_part_apply_column_in_params(
     },
   )
   |> prepared_statement.with_sql(")")
-}
-
-// —————————————————————————————————————————————————————————————————————————— //
-// ———— Limit & Offset Part ————————————————————————————————————————————————— //
-// —————————————————————————————————————————————————————————————————————————— //
-
-pub opaque type LimitOffsetPart {
-  LimitOffset(limit: Int, offset: Int)
-  LimitNoOffset(limit: Int)
-  NoLimitOffset
-}
-
-pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
-  case lmt >= 0, offst >= 0 {
-    True, True -> LimitOffset(limit: lmt, offset: offst)
-    True, False -> LimitNoOffset(limit: lmt)
-    False, _ -> NoLimitOffset
-  }
-}
-
-pub fn limit_new(limit lmt: Int) -> LimitOffsetPart {
-  case lmt >= 0 {
-    True -> LimitNoOffset(limit: lmt)
-    False -> NoLimitOffset
-  }
-}
-
-import gleam/int
-
-pub fn limit_offset_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  limit_part lmt_prt: LimitOffsetPart,
-) -> PreparedStatement {
-  case lmt_prt {
-    LimitOffset(limit: lmt, offset: offst) ->
-      " LIMIT  " <> int.to_string(lmt) <> " OFFSET  " <> int.to_string(offst)
-    LimitNoOffset(limit: lmt) -> " LIMIT  " <> int.to_string(lmt)
-    NoLimitOffset -> ""
-  }
-  |> prepared_statement.with_sql(prp_stm, _)
-}
-
-pub fn limit_offset_get(select_query slct_qry: SelectQuery) -> LimitOffsetPart {
-  slct_qry.limit_offset
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
