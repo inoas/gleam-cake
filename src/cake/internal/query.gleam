@@ -25,8 +25,10 @@ pub type CombinedKind {
   Union
   UnionAll
   Except
+  // ExceptAll Does not work on SQLite
   ExceptAll
   Intersect
+  // IntersectAll Does not work on SQLite
   IntersectAll
 }
 
@@ -37,6 +39,7 @@ pub type CombinedQuery {
     kind: CombinedKind,
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
+    // TODO: before adding epilog to combined, fix it for selects with a custom type
     // order_by: List(OrderByPart),
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
@@ -50,67 +53,58 @@ pub type CombinedQuery {
 pub fn combined_union_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  CombinedQuery(
-    kind: Union,
-    select_queries: slct_qrys,
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-  )
+  Union |> combined_query_query(slct_qrys)
 }
 
 pub fn combined_union_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  CombinedQuery(
-    kind: UnionAll,
-    select_queries: slct_qrys,
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-  )
+  UnionAll |> combined_query_query(slct_qrys)
 }
 
 pub fn combined_except_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  CombinedQuery(
-    kind: Except,
-    select_queries: slct_qrys,
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-  )
+  Except |> combined_query_query(slct_qrys)
 }
 
 pub fn combined_except_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  CombinedQuery(
-    kind: ExceptAll,
-    select_queries: slct_qrys,
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-  )
+  ExceptAll |> combined_query_query(slct_qrys)
 }
 
 pub fn combined_intersect_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  CombinedQuery(
-    kind: Intersect,
-    select_queries: slct_qrys,
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-  )
+  Intersect |> combined_query_query(slct_qrys)
 }
 
 pub fn combined_intersect_all_query_new(
   select_queries slct_qrys: List(SelectQuery),
 ) -> CombinedQuery {
+  IntersectAll |> combined_query_query(slct_qrys)
+}
+
+fn combined_query_query(
+  kind: CombinedKind,
+  select_queries: List(SelectQuery),
+) -> CombinedQuery {
+  let select_queries =
+    combined_query_remove_order_by_from_selects(select_queries)
   CombinedQuery(
-    kind: IntersectAll,
-    select_queries: slct_qrys,
+    kind: kind,
+    select_queries: select_queries,
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
   )
+}
+
+fn combined_query_remove_order_by_from_selects(
+  select_queries slct_qrys: List(SelectQuery),
+) -> List(SelectQuery) {
+  slct_qrys
+  |> list.map(fn(slct_qry) { SelectQuery(..slct_qry, order_by: []) })
 }
 
 pub fn combined_get_select_queries(
