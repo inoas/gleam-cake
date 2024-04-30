@@ -7,8 +7,13 @@ import gleam/int
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type Query {
+  // TODO: Maybe move these to a ReadQuery wrapper type?
   Select(query: SelectQuery)
   Combined(query: CombinedQuery)
+  // TODO: Maybe move these to a WriteQuery wrapper type?
+  // Insert(query: InsertQuery
+  // Update(query: UpdateQuery)
+  // Delete(query: DeleteQuery)
 }
 
 pub fn query_select_wrap(qry: SelectQuery) -> Query {
@@ -297,11 +302,14 @@ pub type SelectQuery {
     // with: String,
     select: List(SelectPart),
     // distinct: String,
+    // TODO: TODO: NEXT NEXT
     // join: String,
     where: WherePart,
     // group_by: String,
     // having: String,
     // window: String,
+    // values: String, ?
+    // with_recursive: String, ?
     limit_offset: LimitOffsetPart,
     order_by: List(OrderByPart),
     epilog: EpilogPart,
