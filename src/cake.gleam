@@ -31,8 +31,8 @@ pub fn run_dummy_select() {
     query.from_part_from_table("cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
-      query.select_part_from_string("name"),
-      query.select_part_from_string("age"),
+      query.select_part_from("name"),
+      query.select_part_from("age"),
     ])
     |> query.select_query_set_where(where)
     |> query.select_query_order_asc("name")
@@ -68,8 +68,8 @@ pub fn run_dummy_union_all() {
     query.from_part_from_table("cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
-      query.select_part_from_string("name"),
-      query.select_part_from_string("age"),
+      query.select_part_from("name"),
+      query.select_part_from("age"),
     ])
 
   let select_query_a =

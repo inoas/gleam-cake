@@ -533,7 +533,7 @@ pub type SelectPart {
   // RawSelect(string: String, parameters: List(Param))
 }
 
-pub fn select_part_from_string(s: String) -> SelectPart {
+pub fn select_part_from(s: String) -> SelectPart {
   // TODO: check if the table does indeed exist
   SelectString(s)
 }
