@@ -78,6 +78,10 @@ pub fn run_dummy_union_all() {
       "age",
       param.IntParam(4),
     ))
+
+  let where = query.NotWhere([query.WhereColIsNotBool("is_wild", False)])
+  // let where = query.NotWhere([query.WhereColIsParam("age", param.NullParam)])
+
   let select_query_b =
     select_query
     |> query.select_query_set_where(query.WhereColGreaterOrEqualParam(
@@ -85,6 +89,7 @@ pub fn run_dummy_union_all() {
       param.IntParam(7),
     ))
     |> query.select_query_order_asc(by: "will_be_removed")
+    |> query.select_query_set_where(where)
 
   let union_query =
     query.combined_union_all_query_new([select_query_a, select_query_b])
@@ -139,9 +144,9 @@ fn drop_cats_table_if_exists() {
 }
 
 fn create_cats_table() {
-  "CREATE TABLE cats (name text, age int);"
+  "CREATE TABLE cats (name text, age int, is_wild boolean);"
 }
 
 fn insert_cats_rows() {
-  "INSERT INTO cats (name, age) VALUES ('Nubi', 4), ('Biffy', 10), ('Ginny', 6);"
+  "INSERT INTO cats (name, age, is_wild) VALUES ('Nubi', 4, TRUE), ('Biffy', 10, NULL), ('Ginny', 6, FALSE), ('Karl', 8, TRUE), ('Clara', 3, TRUE);"
 }

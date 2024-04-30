@@ -580,18 +580,26 @@ pub type WherePart {
   WhereParamGreaterCol(parameter: Param, column: String)
   WhereParamGreaterOrEqualCol(parameter: Param, column: String)
   WhereParamNotEqualCol(parameter: Param, column: String)
+  // column IS [NOT] TRUE/FALSE
+  WhereColIsBool(column: String, bool: Bool)
+  WhereColIsNotBool(column: String, bool: Bool)
   // Logical operators
   AndWhere(parts: List(WherePart))
   NotWhere(parts: List(WherePart))
   OrWhere(parts: List(WherePart))
-  // XorWhere(List(WherePart))
-  // Subquery
-  // WhereColEqualSubquery(column: String, sub_query: Query)
-  // WhereColLowerSubquery(column: String, sub_query: Query)
-  // WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
-  // WhereColGreaterSubquery(column: String, sub_query: Query)
-  // WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
-  // WhereColNotEqualSubquery(column: String, sub_query: Query)
+  // TODO: XorWhere(List(WherePart))
+  // WhereLike(column: String, parameter: String)
+  // WhereILike(column: String, parameter: String)
+  // TODO: LIKE and ILIKE
+  // TODO: LikeWhere(parameter: Param, parameter: String)
+  // TODO: ILikeWhere(parameter: Param, parameter: String)
+  // TODO: Subquery
+  // - WhereColEqualSubquery(column: String, sub_query: Query)
+  // - WhereColLowerSubquery(column: String, sub_query: Query)
+  // - WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
+  // - WhereColGreaterSubquery(column: String, sub_query: Query)
+  // - WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
+  // - WhereColNotEqualSubquery(column: String, sub_query: Query)
   // Column contains value
   WhereColInParams(column: String, parameters: List(Param))
   // WhereColInSubquery(column: String, sub_query: Query)
@@ -649,6 +657,14 @@ fn where_part_append_to_prepared_statement(
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereParamNotEqualCol(param, col) ->
       where_part_apply_comparison_param_col(prp_stm, param, "<>", col)
+    WhereColIsBool(col, True) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS TRUE")
+    WhereColIsBool(col, False) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS FALSE")
+    WhereColIsNotBool(col, True) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NOT TRUE")
+    WhereColIsNotBool(col, False) ->
+      prepared_statement.with_sql(prp_stm, col <> " IS NOT FALSE")
     AndWhere(prts) ->
       where_part_apply_logical_sql_operator("AND", prts, prp_stm)
     NotWhere(prts) ->
