@@ -72,15 +72,15 @@ pub fn run_dummy_union_all() {
       query.select_part_from("age"),
     ])
 
-  let where_a = query.WhereColLike("name", "%ara%")
-
   let select_query_a =
     select_query
-    |> query.select_query_set_where(query.WhereColLowerOrEqualParam(
-      "age",
-      param.IntParam(4),
-    ))
-    |> query.select_query_set_where(where_a)
+    |> query.select_query_set_where(
+      query.OrWhere([
+        query.WhereColLowerOrEqualParam("age", param.IntParam(4)),
+        query.WhereColLike("name", "%ara%"),
+        // query.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
+      ]),
+    )
 
   let where_b =
     query.NotWhere(query.WhereColIsNotBool("is_wild", False))

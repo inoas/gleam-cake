@@ -574,6 +574,8 @@ pub type WherePart {
   WhereColNotEqualParam(column: String, parameter: Param)
   WhereColLike(a_column: String, paramter: String)
   WhereColILike(a_column: String, parameter: String)
+  // NOTICE: Sqlite does not support `SIMILAR TO`
+  WhereColSimilarTo(a_column: String, parameter: String)
   // Parameter to column comparison
   WhereParamEqualCol(parameter: Param, column: String)
   WhereParamLowerCol(parameter: Param, column: String)
@@ -655,6 +657,15 @@ fn where_part_append_to_prepared_statement(
         "ILIKE",
         param.StringParam(param),
       )
+    WhereColSimilarTo(col, param) ->
+      where_part_apply_comparison_col_param(
+        prp_stm,
+        col,
+        "SIMILAR TO",
+        param.StringParam(param),
+      )
+      |> prepared_statement.with_sql(" ESCAPE '/'")
+
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
