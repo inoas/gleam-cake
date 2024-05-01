@@ -20,6 +20,7 @@ pub fn apply_sql(
   prp_stm
   |> apply_to_sql(maybe_add_select_sql, sq)
   |> apply_to_sql(maybe_add_from_sql, sq)
+  |> maybe_add_join(sq)
   |> maybe_add_where(sq)
   |> apply_to_sql(maybe_add_order_sql, sq)
   |> maybe_add_limit_offset(sq)
@@ -33,13 +34,6 @@ fn apply_to_sql(
   prepared_statement.with_sql(prp_stm, maybe_add_fun(qry))
 }
 
-fn maybe_add_where(
-  prepared_statement prp_stm: PreparedStatement,
-  query qry: SelectQuery,
-) -> PreparedStatement {
-  query.where_part_append_to_prepared_statement_as_clause(qry.where, prp_stm)
-}
-
 fn maybe_add_select_sql(query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
@@ -50,6 +44,20 @@ fn maybe_add_select_sql(query qry: SelectQuery) -> String {
 
 fn maybe_add_from_sql(query qry: SelectQuery) -> String {
   query.from_part_to_sql(qry.from)
+}
+
+fn maybe_add_where(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: SelectQuery,
+) -> PreparedStatement {
+  query.where_part_append_to_prepared_statement_as_clause(qry.where, prp_stm)
+}
+
+fn maybe_add_join(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: SelectQuery,
+) -> PreparedStatement {
+  query.join_parts_append_to_prepared_statement_as_clause(qry.join, prp_stm)
 }
 
 fn maybe_add_order_sql(query qry: SelectQuery) -> String {

@@ -8,7 +8,7 @@ import gleam/erlang/process
 
 pub fn main() {
   run_dummy_select()
-  run_dummy_union_all()
+  // run_dummy_union_all()
 
   Nil
 }
@@ -19,7 +19,7 @@ pub fn run_dummy_select() {
   let where =
     query.OrWhere([
       query.WhereColEqualParam("age", param.IntParam(10)),
-      query.WhereColEqualParam("name", param.StringParam("5")),
+      query.WhereColEqualParam("cats.name", param.StringParam("5")),
       query.WhereColInParams("age", [
         param.NullParam,
         param.IntParam(1),
@@ -31,19 +31,28 @@ pub fn run_dummy_select() {
     query.from_part_from_table("cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
-      query.select_part_from("name"),
+      query.select_part_from("cats.name"),
       query.select_part_from("age"),
+      query.select_part_from("owners.name AS owner_name"),
     ])
     |> query.select_query_set_where(where)
-    |> query.select_query_order_asc("name")
+    |> query.select_query_order_asc("cats.name")
     |> query.select_query_order_replace(by: "age", direction: query.Asc)
     |> query.select_query_set_limit(1)
     |> query.select_query_set_limit_and_offset(1, 0)
+    |> query.select_query_set_join([
+      query.JoinPart(
+        kind: query.InnerJoin,
+        table: "owners",
+        alias: "owners",
+        on: query.WhereColEqualCol("cats.owner_id", "owners.id"),
+      ),
+    ])
     |> query.query_select_wrap
     |> iox.dbg
 
-  let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
-
+  let query_decoder =
+    dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
   iox.print("SQLite: ")
 
   let _ =

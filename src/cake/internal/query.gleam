@@ -1,4 +1,4 @@
-// import cake/stdlib/iox
+import cake/stdlib/iox
 import cake/stdlib/listx
 import gleam/int
 
@@ -302,7 +302,7 @@ pub type SelectQuery {
     // with: String,
     select: List(SelectPart),
     // distinct: String,
-    // join: String,
+    join: List(JoinPart),
     where: WherePart,
     // group_by: String,
     // having: String,
@@ -325,6 +325,7 @@ pub fn select_query_new(
     from: from,
     select: select,
     where: NoWherePart,
+    join: [],
     order_by: [],
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
@@ -335,6 +336,7 @@ pub fn select_query_new_from(from from: FromPart) -> SelectQuery {
   SelectQuery(
     from: from,
     select: [],
+    join: [],
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitOffset,
@@ -347,6 +349,7 @@ pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
     from: NoFromPart,
     select: select,
     where: NoWherePart,
+    join: [],
     order_by: [],
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
@@ -382,9 +385,18 @@ pub fn select_query_select_replace(
 
 pub fn select_query_set_where(
   query qry: SelectQuery,
-  where where: WherePart,
+  where whr: WherePart,
 ) -> SelectQuery {
-  SelectQuery(..qry, where: where)
+  SelectQuery(..qry, where: whr)
+}
+
+// ———— JOIN ——————————————————————————————————————————————————————————————— //
+
+pub fn select_query_set_join(
+  query qry: SelectQuery,
+  join jn: List(JoinPart),
+) -> SelectQuery {
+  SelectQuery(..qry, join: jn)
 }
 
 // ———— ORDER BY ———————————————————————————————————————————————————————————— //
@@ -719,6 +731,35 @@ pub fn where_part_append_to_prepared_statement_as_clause(
   }
 }
 
+pub fn join_parts_append_to_prepared_statement_as_clause(
+  parts prts: List(JoinPart),
+  prepared_statement prp_stm: PreparedStatement,
+) -> PreparedStatement {
+  prts
+  |> list.fold(
+    prp_stm,
+    fn(acc: PreparedStatement, prt: JoinPart) -> PreparedStatement {
+      case acc == prp_stm {
+        True -> {
+          let join_command = case prt.kind {
+            InnerJoin -> "INNER JOIN"
+            LeftOuterJoin -> "LEFT JOIN"
+            RightOuterJoin -> "RIGHT JOIN"
+            FullOuterJoin -> "FULL JOIN"
+            CrossJoin -> "CROSS JOIN"
+          }
+          prp_stm
+          |> prepared_statement.with_sql(" " <> join_command <> " ")
+          |> prepared_statement.with_sql(prt.table <> " AS " <> prt.alias)
+          |> prepared_statement.with_sql(" ON ")
+          |> where_part_append_to_prepared_statement(prt.on)
+        }
+        False -> acc |> where_part_append_to_prepared_statement(prt.on)
+      }
+    },
+  )
+}
+
 fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
   prp_stm
   |> prepared_statement.with_sql(a_col <> " " <> sql_operator <> " " <> b_col)
@@ -784,6 +825,22 @@ fn where_part_apply_column_in_params(
     },
   )
   |> prepared_statement.with_sql(")")
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Join Part ——————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub type JoinKind {
+  CrossJoin
+  InnerJoin
+  LeftOuterJoin
+  RightOuterJoin
+  FullOuterJoin
+}
+
+pub type JoinPart {
+  JoinPart(kind: JoinKind, table: String, alias: String, on: WherePart)
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
