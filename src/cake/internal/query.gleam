@@ -98,10 +98,10 @@ pub type CombinedKind {
   Union
   UnionAll
   Except
-  // ExceptAll Does not work on SQLite
+  // Notice: ExceptAll Does not work on SQLite
   ExceptAll
   Intersect
-  // IntersectAll Does not work on SQLite
+  // NOTICE: IntersectAll Does not work on SQLite
   IntersectAll
 }
 
@@ -302,7 +302,6 @@ pub type SelectQuery {
     // with: String,
     select: List(SelectPart),
     // distinct: String,
-    // TODO: TODO: NEXT NEXT
     // join: String,
     where: WherePart,
     // group_by: String,
@@ -585,11 +584,14 @@ pub type WherePart {
   // column IS [NOT] TRUE/FALSE
   WhereColIsBool(column: String, bool: Bool)
   WhereColIsNotBool(column: String, bool: Bool)
+  // TODO: https://wiki.postgresql.org/wiki/Is_distinct_from
+  // - WhereColIsDistinctFromCol(a_column: String, b_column: String)
+  // - WhereColIsDistinctFromParam(column: String, parameter: Param)
   // Logical operators
   AndWhere(parts: List(WherePart))
-  NotWhere(part: WherePart)
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
+  NotWhere(part: WherePart)
   // TODO: Subquery
   // - WhereColEqualSubquery(column: String, sub_query: Query)
   // - WhereColLowerSubquery(column: String, sub_query: Query)
@@ -653,7 +655,6 @@ fn where_part_append_to_prepared_statement(
         "ILIKE",
         param.StringParam(param),
       )
-
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
@@ -680,14 +681,13 @@ fn where_part_append_to_prepared_statement(
       prepared_statement.with_sql(prp_stm, col <> " IS NOT FALSE")
     AndWhere(prts) ->
       where_part_apply_logical_sql_operator("AND", prts, prp_stm)
-    NotWhere(prt) -> {
-      let new_prep_stm =
-        prp_stm
-        |> prepared_statement.with_sql("NOT (")
-        |> where_part_append_to_prepared_statement(prt)
-        |> prepared_statement.with_sql(")")
-    }
     OrWhere(prts) -> where_part_apply_logical_sql_operator("OR", prts, prp_stm)
+    NotWhere(prt) -> {
+      prp_stm
+      |> prepared_statement.with_sql("NOT (")
+      |> where_part_append_to_prepared_statement(prt)
+      |> prepared_statement.with_sql(")")
+    }
     WhereColInParams(col, params) ->
       where_part_apply_column_in_params(col, params, prp_stm)
     NoWherePart -> prp_stm

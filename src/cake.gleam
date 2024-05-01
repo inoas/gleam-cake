@@ -124,11 +124,17 @@ pub fn run_dummy_union_all() {
 pub fn run_on_postgres(query, query_decoder) {
   use conn <- postgres_adapter.with_connection()
 
+  let _ = drop_owners_table_if_exists() |> postgres_adapter.execute(conn)
+  let _ = create_owners_table() |> postgres_adapter.execute(conn)
+  let _ = insert_owners_rows() |> postgres_adapter.execute(conn)
+
   let _ = drop_cats_table_if_exists() |> postgres_adapter.execute(conn)
-
   let _ = create_cats_table() |> postgres_adapter.execute(conn)
-
   let _ = insert_cats_rows() |> postgres_adapter.execute(conn)
+
+  let _ = drop_dogs_table_if_exists() |> postgres_adapter.execute(conn)
+  let _ = create_dogs_table() |> postgres_adapter.execute(conn)
+  let _ = insert_dogs_rows() |> postgres_adapter.execute(conn)
 
   postgres_adapter.run_query(conn, query, query_decoder)
 }
@@ -136,13 +142,38 @@ pub fn run_on_postgres(query, query_decoder) {
 fn run_on_sqlite(query, query_decoder) {
   use conn <- sqlite_adapter.with_memory_connection()
 
+  let _ = drop_owners_table_if_exists() |> sqlite_adapter.execute(conn)
+  let _ = create_owners_table() |> sqlite_adapter.execute(conn)
+  let _ = insert_owners_rows() |> sqlite_adapter.execute(conn)
+
   let _ = drop_cats_table_if_exists() |> sqlite_adapter.execute(conn)
-
   let _ = create_cats_table() |> sqlite_adapter.execute(conn)
-
   let _ = insert_cats_rows() |> sqlite_adapter.execute(conn)
 
+  let _ = drop_dogs_table_if_exists() |> sqlite_adapter.execute(conn)
+  let _ = create_dogs_table() |> sqlite_adapter.execute(conn)
+  let _ = insert_dogs_rows() |> sqlite_adapter.execute(conn)
+
   sqlite_adapter.run_query(conn, query, query_decoder)
+}
+
+fn drop_owners_table_if_exists() {
+  "DROP TABLE IF EXISTS owners;"
+}
+
+fn create_owners_table() {
+  "CREATE TABLE owners (
+    id int,
+    name text
+  );"
+}
+
+fn insert_owners_rows() {
+  "INSERT INTO owners (id, name) VALUES
+    (1, 'Alice'),
+    (2, 'Bob'),
+    (3, 'Charlie')
+  ;"
 }
 
 fn drop_cats_table_if_exists() {
@@ -150,9 +181,43 @@ fn drop_cats_table_if_exists() {
 }
 
 fn create_cats_table() {
-  "CREATE TABLE cats (name text, age int, is_wild boolean);"
+  "CREATE TABLE cats (
+    name text,
+    age int,
+    is_wild boolean,
+    owner_id int
+  );"
 }
 
 fn insert_cats_rows() {
-  "INSERT INTO cats (name, age, is_wild) VALUES ('Nubi', 4, TRUE), ('Biffy', 10, NULL), ('Ginny', 6, FALSE), ('Karl', 8, TRUE), ('Clara', 3, TRUE);"
+  "INSERT INTO cats (name, age, is_wild, owner_id) VALUES
+    ('Nubi', 4, TRUE, 1),
+    ('Biffy', 10, NULL, 2),
+    ('Ginny', 6, FALSE, 3),
+    ('Karl', 8, TRUE, NULL),
+    ('Clara', 3, TRUE, NULL)
+  ;"
+}
+
+fn drop_dogs_table_if_exists() {
+  "DROP TABLE IF EXISTS dogs;"
+}
+
+fn create_dogs_table() {
+  "CREATE TABLE dogs (
+    name text,
+    age int,
+    is_wild boolean,
+    owner_id int
+  );"
+}
+
+fn insert_dogs_rows() {
+  "INSERT INTO dogs (name, age, is_trained, owner_id) VALUES
+    ('Fubi', 1, TRUE, 1),
+    ('Diffy', 2, NULL, 2),
+    ('Tinny', 3, FALSE, 3),
+    ('Karl', 4, TRUE, NULL),
+    ('Clara', 5, TRUE, NULL)
+  ;"
 }
