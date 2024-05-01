@@ -51,18 +51,14 @@ pub fn run_dummy_select() {
     |> query.select_query_set_limit(1)
     |> query.select_query_set_limit_and_offset(1, 0)
     |> query.select_query_set_join([
-      query.JoinPart(
-        kind: query.InnerJoin,
+      query.InnerJoin(
         with: query.JoinTable("owners"),
         alias: "owners",
         on: query.WhereColEqualCol("owners.id", "cats.owner_id"),
       ),
-      query.JoinPart(
-        // kind: query.CrossJoin,
-        kind: query.LeftOuterJoin,
+      query.CrossJoin(
         with: query.JoinSubQuery(query.query_select_wrap(dogs_sub_query)),
         alias: "dogs",
-        on: query.WhereColEqualCol("dogs.owner_id", "cats.owner_id"),
       ),
     ])
     |> query.query_select_wrap

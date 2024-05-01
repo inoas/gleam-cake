@@ -7,6 +7,10 @@ pub fn dbg(v) {
   v
 }
 
+pub fn inspect(v) {
+  string.inspect(v)
+}
+
 pub fn dbg_label(v, label: String) {
   pprint.debug(#(label, v))
   v

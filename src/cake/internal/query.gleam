@@ -1,7 +1,6 @@
 import cake/param.{type Param, NullParam}
 import cake/prepared_statement.{type PreparedStatement}
-
-// import cake/stdlib/iox
+import cake/stdlib/iox
 import cake/stdlib/listx
 import cake/stdlib/stringx
 import gleam/int
@@ -779,8 +778,11 @@ pub type WherePart {
   WhereColNotEqualParam(column: String, parameter: Param)
   WhereColLike(a_column: String, paramter: String)
   WhereColILike(a_column: String, parameter: String)
-  // TODO:
-  // - WhereColBetween(a_column: String, lower: Param, upper: Param)
+  // MAYBE add:
+  // - WhereColBetweenParamAndParam(column: String, lower: Param, upper: Param)
+  // - WhereColBetweenColAndParam(column: String, lower: String, upper: Param)
+  // - WhereColBetweenParamAndCol(column: String, lower: Param, upper: String)
+  // - WhereColBetweenColAndCol(column: String, lower: String, upper: String)
   // NOTICE: Sqlite does not support `SIMILAR TO`
   WhereColSimilarTo(a_column: String, parameter: String)
   // Parameter to column comparison
@@ -790,10 +792,10 @@ pub type WherePart {
   WhereParamGreaterCol(parameter: Param, column: String)
   WhereParamGreaterOrEqualCol(parameter: Param, column: String)
   WhereParamNotEqualCol(parameter: Param, column: String)
-  // column IS [NOT] TRUE/FALSE
+  // Column IS [NOT] TRUE/FALSE
   WhereColIsBool(column: String, bool: Bool)
   WhereColIsNotBool(column: String, bool: Bool)
-  // TODO: https://wiki.postgresql.org/wiki/Is_distinct_from
+  // MAYBE add: https://wiki.postgresql.org/wiki/Is_distinct_from
   // - WhereColIsDistinctFromCol(a_column: String, b_column: String)
   // - WhereColIsDistinctFromParam(column: String, parameter: Param)
   // Logical operators
@@ -801,18 +803,16 @@ pub type WherePart {
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
   NotWhere(part: WherePart)
-  // TODO: Subquery
-  // - WhereColEqualSubquery(column: String, sub_query: Query)
-  // - WhereColLowerSubquery(column: String, sub_query: Query)
-  // - WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
-  // - WhereColGreaterSubquery(column: String, sub_query: Query)
-  // - WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
-  // - WhereColNotEqualSubquery(column: String, sub_query: Query)
+  // Sub Query
+  WhereColEqualSubquery(column: String, sub_query: Query)
+  WhereColLowerSubquery(column: String, sub_query: Query)
+  WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
+  WhereColGreaterSubquery(column: String, sub_query: Query)
+  WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
+  WhereColNotEqualSubquery(column: String, sub_query: Query)
   // Column contains value
   WhereColInParams(column: String, parameters: List(Param))
   // WhereColInSubquery(column: String, sub_query: Query)
-  // Raw SQL
-  // RawWhere(string: String, parameters: List(Param))
   NoWherePart
 }
 
@@ -849,7 +849,6 @@ fn where_part_append_to_prepared_statement(
       prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
     WhereColNotEqualParam(col, param) ->
       where_part_apply_comparison_col_param(prp_stm, col, "<>", param)
-
     WhereColLike(col, param) ->
       where_part_apply_comparison_col_param(
         prp_stm,
@@ -872,7 +871,6 @@ fn where_part_append_to_prepared_statement(
         param.StringParam(param),
       )
       |> prepared_statement.with_sql(" ESCAPE '/'")
-
     WhereParamEqualCol(NullParam, col) ->
       prepared_statement.with_sql(prp_stm, col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
@@ -908,6 +906,18 @@ fn where_part_append_to_prepared_statement(
     }
     WhereColInParams(col, params) ->
       where_part_apply_column_in_params(col, params, prp_stm)
+    WhereColEqualSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
+    WhereColLowerSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
+    WhereColLowerOrEqualSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
+    WhereColGreaterSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
+    WhereColGreaterOrEqualSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
+    WhereColNotEqualSubquery(column: col, sub_query: sb_qry) ->
+      todo as iox.inspect(#(col, sb_qry))
     NoWherePart -> prp_stm
   }
 }
@@ -934,18 +944,27 @@ pub fn join_parts_append_to_prepared_statement_as_clause(
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, prt: JoinPart) -> PreparedStatement {
-      let join_command = case prt.kind {
-        InnerJoin -> "INNER JOIN"
-        LeftOuterJoin -> "LEFT OUTER JOIN"
-        RightOuterJoin -> "RIGHT OUTER JOIN"
-        FullOuterJoin -> "FULL OUTER JOIN"
-        CrossJoin -> "CROSS JOIN"
+      let apply_join = fn(acc, join_command) {
+        acc
+        |> prepared_statement.with_sql(" " <> join_command <> " ")
+        |> join_part_to_prepared_statement(prt)
       }
-      acc
-      |> prepared_statement.with_sql(" " <> join_command <> " ")
-      |> join_part_to_prepared_statement(prt)
-      |> prepared_statement.with_sql(" ON ")
-      |> where_part_append_to_prepared_statement(prt.on)
+      let apply_on = fn(acc, on) {
+        acc
+        |> prepared_statement.with_sql(" ON ")
+        |> where_part_append_to_prepared_statement(on)
+      }
+      case prt {
+        CrossJoin(_, _) -> acc |> apply_join("CROSS JOIN")
+        InnerJoin(_, _, on: on) ->
+          acc |> apply_join("INNER JOIN") |> apply_on(on)
+        LeftOuterJoin(_, _, on: on) ->
+          acc |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+        RightOuterJoin(_, _, on: on) ->
+          acc |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+        FullOuterJoin(_, _, on: on) ->
+          acc |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+      }
     },
   )
 }
@@ -1021,22 +1040,17 @@ fn where_part_apply_column_in_params(
 // ———— Join Part ——————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-pub type JoinKind {
-  CrossJoin
-  InnerJoin
-  LeftOuterJoin
-  RightOuterJoin
-  FullOuterJoin
-}
-
 pub type Join {
   JoinTable(table: String)
   JoinSubQuery(sub_query: Query)
 }
 
 pub type JoinPart {
-  // Move JoinKind into this here to remove useless nesting
-  JoinPart(kind: JoinKind, with: Join, alias: String, on: WherePart)
+  CrossJoin(with: Join, alias: String)
+  InnerJoin(with: Join, alias: String, on: WherePart)
+  LeftOuterJoin(with: Join, alias: String, on: WherePart)
+  RightOuterJoin(with: Join, alias: String, on: WherePart)
+  FullOuterJoin(with: Join, alias: String, on: WherePart)
 }
 
 fn join_part_to_prepared_statement(
