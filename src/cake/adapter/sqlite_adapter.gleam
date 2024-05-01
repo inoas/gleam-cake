@@ -1,13 +1,12 @@
 import cake/internal/query.{type Query}
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import cake/prepared_statement.{type PreparedStatement}
-import cake/prepared_statement_builder/builder
 import cake/stdlib/iox
 import gleam/list
 import sqlight
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> builder.build("?")
+  qry |> query.builder_new("?")
 }
 
 pub fn with_memory_connection(callback_fun) {

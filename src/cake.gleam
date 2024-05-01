@@ -16,11 +16,19 @@ pub fn main() {
 pub fn run_dummy_select() {
   iox.print_dashes()
 
+  let cats_sub_query =
+    query.from_part_from_table(table_name: "cats")
+    |> query.select_query_new_from()
+
+  let dogs_sub_query =
+    query.from_part_from_table(table_name: "dogs")
+    |> query.select_query_new_from()
+
   let where =
     query.OrWhere([
-      query.WhereColEqualParam("age", param.IntParam(10)),
+      query.WhereColEqualParam("cats.age", param.IntParam(10)),
       query.WhereColEqualParam("cats.name", param.StringParam("5")),
-      query.WhereColInParams("age", [
+      query.WhereColInParams("cats.age", [
         param.NullParam,
         param.IntParam(1),
         param.IntParam(2),
@@ -28,24 +36,33 @@ pub fn run_dummy_select() {
     ])
 
   let select_query =
-    query.from_part_from_table("cats")
+    cats_sub_query
+    |> query.query_select_wrap()
+    |> query.from_part_from_sub_query(alias: "cats")
     |> query.select_query_new_from()
     |> query.select_query_select([
       query.select_part_from("cats.name"),
-      query.select_part_from("age"),
+      query.select_part_from("cats.age"),
       query.select_part_from("owners.name AS owner_name"),
     ])
     |> query.select_query_set_where(where)
     |> query.select_query_order_asc("cats.name")
-    |> query.select_query_order_replace(by: "age", direction: query.Asc)
+    |> query.select_query_order_replace(by: "cats.age", direction: query.Asc)
     |> query.select_query_set_limit(1)
     |> query.select_query_set_limit_and_offset(1, 0)
     |> query.select_query_set_join([
       query.JoinPart(
         kind: query.InnerJoin,
-        table: "owners",
+        with: query.JoinTable("owners"),
         alias: "owners",
-        on: query.WhereColEqualCol("cats.owner_id", "owners.id"),
+        on: query.WhereColEqualCol("owners.id", "cats.owner_id"),
+      ),
+      query.JoinPart(
+        // kind: query.CrossJoin,
+        kind: query.LeftOuterJoin,
+        with: query.JoinSubQuery(query.query_select_wrap(dogs_sub_query)),
+        alias: "dogs",
+        on: query.WhereColEqualCol("dogs.owner_id", "cats.owner_id"),
       ),
     ])
     |> query.query_select_wrap

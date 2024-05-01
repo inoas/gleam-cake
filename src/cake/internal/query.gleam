@@ -1,6 +1,192 @@
+import cake/param.{type Param, NullParam}
+import cake/prepared_statement.{type PreparedStatement}
+
 // import cake/stdlib/iox
 import cake/stdlib/listx
+import cake/stdlib/stringx
 import gleam/int
+import gleam/list
+import gleam/string
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Builder ————————————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn builder_new(
+  query qry: Query,
+  prepared_statement_prefix prp_stm_prfx: String,
+) -> PreparedStatement {
+  prp_stm_prfx
+  |> prepared_statement.new()
+  |> builder_apply(qry)
+}
+
+pub fn builder_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: Query,
+) -> PreparedStatement {
+  case qry {
+    Select(query: qry) -> qry |> select_builder(prp_stm)
+    Combined(query: qry) -> qry |> combined_builder(prp_stm)
+  }
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Combined Builder ———————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn combined_builder(
+  select cq: CombinedQuery,
+  prepared_statement prp_stm: PreparedStatement,
+) -> PreparedStatement {
+  // TODO: what happens if multiple select queries have different type signatures for their columns?
+  // -> In prepared statements we can already check this and return either an OK() or an Error()
+  // The error would return that the column types missmatch
+  // The user probably let assets this then?
+  prp_stm
+  |> union_builder_apply_command_sql(cq)
+  |> union_builder_apply_to_sql(union_builder_maybe_add_order_sql, cq)
+  |> limit_offset_apply(cq.limit_offset)
+  |> epilog_apply(cq.epilog)
+}
+
+pub fn union_builder_apply_command_sql(
+  prepared_statement prp_stm: PreparedStatement,
+  select cq: CombinedQuery,
+) -> PreparedStatement {
+  let combination = case cq.kind {
+    Union -> "UNION"
+    UnionAll -> "UNION ALL"
+    Except -> "EXCEPT"
+    ExceptAll -> "EXCEPT ALL"
+    Intersect -> "INTERSECT"
+    IntersectAll -> "INTERSECT ALL"
+  }
+
+  cq.select_queries
+  |> list.fold(
+    prp_stm,
+    fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
+      case acc == prp_stm {
+        True -> acc |> select_builder_apply_sql(sq)
+        False -> {
+          acc
+          |> prepared_statement.with_sql(" " <> combination <> " ")
+          |> select_builder_apply_sql(sq)
+        }
+      }
+    },
+  )
+}
+
+fn union_builder_apply_to_sql(
+  prp_stm: PreparedStatement,
+  maybe_add_fun: fn(CombinedQuery) -> String,
+  qry: CombinedQuery,
+) -> PreparedStatement {
+  prepared_statement.with_sql(prp_stm, maybe_add_fun(qry))
+}
+
+fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
+  case qry.order_by {
+    [] -> ""
+    _ -> {
+      let order_bys =
+        qry.order_by
+        |> list.map(fn(ordrb: OrderByPart) -> String {
+          ordrb.column <> " " <> order_by_part_to_sql(ordrb)
+        })
+
+      " ORDER BY " <> string.join(order_bys, ", ")
+    }
+  }
+}
+
+// —————————————————————————————————————————————————————————————————————————— //
+// ———— Select Builder —————————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————————————————————————————— //
+
+pub fn select_builder(
+  select sq: SelectQuery,
+  prepared_statement prp_stm: PreparedStatement,
+) -> PreparedStatement {
+  prp_stm |> select_builder_apply_sql(sq)
+}
+
+pub fn select_builder_apply_sql(
+  prepared_statement prp_stm: PreparedStatement,
+  select sq: SelectQuery,
+) -> PreparedStatement {
+  prp_stm
+  |> select_builder_apply_to_sql(select_builder_maybe_add_select_sql, sq)
+  |> select_builder_maybe_add_from_sql(sq)
+  |> select_builder_maybe_add_join(sq)
+  |> select_builder_maybe_add_where(sq)
+  |> select_builder_apply_to_sql(select_builder_maybe_add_order_sql, sq)
+  |> select_builder_maybe_add_limit_offset(sq)
+}
+
+fn select_builder_apply_to_sql(
+  prp_stm: PreparedStatement,
+  maybe_add_fun: fn(SelectQuery) -> String,
+  qry: SelectQuery,
+) -> PreparedStatement {
+  prepared_statement.with_sql(prp_stm, maybe_add_fun(qry))
+}
+
+fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
+  case qry.select {
+    [] -> "SELECT *"
+    _ -> "SELECT " <> stringx.map_join(qry.select, select_part_to_sql, ", ")
+  }
+}
+
+fn select_builder_maybe_add_from_sql(
+  prp_stm: PreparedStatement,
+  query qry: SelectQuery,
+) -> PreparedStatement {
+  prp_stm |> from_part_append_to_prepared_statement(qry.from)
+}
+
+fn select_builder_maybe_add_where(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: SelectQuery,
+) -> PreparedStatement {
+  prp_stm |> where_part_append_to_prepared_statement_as_clause(qry.where)
+}
+
+fn select_builder_maybe_add_join(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: SelectQuery,
+) -> PreparedStatement {
+  join_parts_append_to_prepared_statement_as_clause(qry.join, prp_stm)
+}
+
+fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
+  case qry.order_by {
+    [] -> ""
+    _ -> {
+      let order_bys =
+        qry.order_by
+        |> list.map(fn(ordrb: OrderByPart) -> String {
+          ordrb.column <> " " <> order_by_part_to_sql(ordrb)
+        })
+
+      " ORDER BY " <> string.join(order_bys, ", ")
+    }
+  }
+}
+
+fn select_builder_maybe_add_limit_offset(
+  prepared_statement prp_stm: PreparedStatement,
+  select_query slct_qry: SelectQuery,
+) -> PreparedStatement {
+  let lmt_offst = limit_offset_get(slct_qry)
+  // |> iox.dbg_label("lmt_offst")
+
+  prp_stm
+  |> limit_offset_apply(lmt_offst)
+}
 
 // —————————————————————————————————————————————————————————————————————————— //
 // ———— Query ——————————————————————————————————————————————————————————————— //
@@ -509,21 +695,35 @@ pub fn select_query_set_limit_and_offset(
 // —————————————————————————————————————————————————————————————————————————— //
 
 pub type FromPart {
-  FromString(String)
   // TODO: check if the table does indeed exist
-  FromTable(String)
+  FromTable(name: String)
+  FromSubQuery(query: Query, alias: String)
   NoFromPart
 }
 
-pub fn from_part_from_table(s: String) -> FromPart {
-  FromTable(s)
+pub fn from_part_from_table(table_name tbl_nm: String) -> FromPart {
+  FromTable(tbl_nm)
 }
 
-pub fn from_part_to_sql(part prt: FromPart) {
+pub fn from_part_from_sub_query(
+  sub_query sb_qry: Query,
+  alias als: String,
+) -> FromPart {
+  FromSubQuery(sb_qry, als)
+}
+
+pub fn from_part_append_to_prepared_statement(
+  prepared_statement prp_stm: PreparedStatement,
+  part prt: FromPart,
+) -> PreparedStatement {
   case prt {
-    FromString(s) -> " FROM " <> s
-    FromTable(s) -> " FROM " <> s
-    NoFromPart -> ""
+    FromTable(tbl) -> prepared_statement.with_sql(prp_stm, " FROM " <> tbl)
+    FromSubQuery(sb_qry, als) ->
+      prp_stm
+      |> prepared_statement.with_sql(" FROM (")
+      |> builder_apply(sb_qry)
+      |> prepared_statement.with_sql(") AS " <> als)
+    NoFromPart -> prepared_statement.with_sql(prp_stm, "")
   }
 }
 
@@ -562,13 +762,6 @@ pub fn select_part_to_sql(part prt: SelectPart) {
 // ———— Where Part —————————————————————————————————————————————————————————— //
 // —————————————————————————————————————————————————————————————————————————— //
 
-import cake/prepared_statement.{type PreparedStatement}
-
-import cake/param.{type Param, NullParam}
-
-// import cake/query.{type Query}
-import gleam/list
-
 pub type WherePart {
   // Column A to column B comparison
   WhereColEqualCol(a_column: String, b_column: String)
@@ -586,6 +779,8 @@ pub type WherePart {
   WhereColNotEqualParam(column: String, parameter: Param)
   WhereColLike(a_column: String, paramter: String)
   WhereColILike(a_column: String, parameter: String)
+  // TODO:
+  // - WhereColBetween(a_column: String, lower: Param, upper: Param)
   // NOTICE: Sqlite does not support `SIMILAR TO`
   WhereColSimilarTo(a_column: String, parameter: String)
   // Parameter to column comparison
@@ -718,8 +913,8 @@ fn where_part_append_to_prepared_statement(
 }
 
 pub fn where_part_append_to_prepared_statement_as_clause(
-  part prt: WherePart,
   prepared_statement prp_stm: PreparedStatement,
+  part prt: WherePart,
 ) -> PreparedStatement {
   case prt {
     NoWherePart -> prp_stm
@@ -739,23 +934,18 @@ pub fn join_parts_append_to_prepared_statement_as_clause(
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, prt: JoinPart) -> PreparedStatement {
-      case acc == prp_stm {
-        True -> {
-          let join_command = case prt.kind {
-            InnerJoin -> "INNER JOIN"
-            LeftOuterJoin -> "LEFT JOIN"
-            RightOuterJoin -> "RIGHT JOIN"
-            FullOuterJoin -> "FULL JOIN"
-            CrossJoin -> "CROSS JOIN"
-          }
-          prp_stm
-          |> prepared_statement.with_sql(" " <> join_command <> " ")
-          |> prepared_statement.with_sql(prt.table <> " AS " <> prt.alias)
-          |> prepared_statement.with_sql(" ON ")
-          |> where_part_append_to_prepared_statement(prt.on)
-        }
-        False -> acc |> where_part_append_to_prepared_statement(prt.on)
+      let join_command = case prt.kind {
+        InnerJoin -> "INNER JOIN"
+        LeftOuterJoin -> "LEFT OUTER JOIN"
+        RightOuterJoin -> "RIGHT OUTER JOIN"
+        FullOuterJoin -> "FULL OUTER JOIN"
+        CrossJoin -> "CROSS JOIN"
       }
+      acc
+      |> prepared_statement.with_sql(" " <> join_command <> " ")
+      |> join_part_to_prepared_statement(prt)
+      |> prepared_statement.with_sql(" ON ")
+      |> where_part_append_to_prepared_statement(prt.on)
     },
   )
 }
@@ -839,8 +1029,29 @@ pub type JoinKind {
   FullOuterJoin
 }
 
+pub type Join {
+  JoinTable(table: String)
+  JoinSubQuery(sub_query: Query)
+}
+
 pub type JoinPart {
-  JoinPart(kind: JoinKind, table: String, alias: String, on: WherePart)
+  // Move JoinKind into this here to remove useless nesting
+  JoinPart(kind: JoinKind, with: Join, alias: String, on: WherePart)
+}
+
+fn join_part_to_prepared_statement(
+  prepared_statement prp_stm: PreparedStatement,
+  join_part jp: JoinPart,
+) -> PreparedStatement {
+  case jp.with {
+    JoinTable(table: tbl) ->
+      prp_stm |> prepared_statement.with_sql(tbl <> " AS " <> jp.alias)
+    JoinSubQuery(sub_query: sb_qry) ->
+      prp_stm
+      |> prepared_statement.with_sql("(")
+      |> builder_apply(sb_qry)
+      |> prepared_statement.with_sql(") AS " <> jp.alias)
+  }
 }
 
 // —————————————————————————————————————————————————————————————————————————— //
