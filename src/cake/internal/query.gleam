@@ -1,6 +1,7 @@
 import cake/param.{type Param, NullParam}
 import cake/prepared_statement.{type PreparedStatement}
-import cake/stdlib/iox
+
+// import cake/stdlib/iox
 import cake/stdlib/listx
 import cake/stdlib/stringx
 import gleam/int
@@ -27,8 +28,8 @@ pub fn builder_apply(
   query qry: Query,
 ) -> PreparedStatement {
   case qry {
-    Select(query: qry) -> qry |> select_builder(prp_stm)
-    Combined(query: qry) -> qry |> combined_builder(prp_stm)
+    Select(query: qry) -> qry |> select_builder(prp_stm, _)
+    Combined(query: qry) -> qry |> combined_builder(prp_stm, _)
   }
 }
 
@@ -37,8 +38,8 @@ pub fn builder_apply(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn combined_builder(
-  select cq: CombinedQuery,
   prepared_statement prp_stm: PreparedStatement,
+  select cq: CombinedQuery,
 ) -> PreparedStatement {
   // TODO: what happens if multiple select queries have different type signatures for their columns?
   // -> In prepared statements we can already check this and return either an OK() or an Error()
@@ -69,11 +70,11 @@ pub fn union_builder_apply_command_sql(
     prp_stm,
     fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
       case acc == prp_stm {
-        True -> acc |> select_builder_apply_sql(sq)
+        True -> acc |> select_builder(sq)
         False -> {
           acc
           |> prepared_statement.with_sql(" " <> combination <> " ")
-          |> select_builder_apply_sql(sq)
+          |> select_builder(sq)
         }
       }
     },
@@ -108,13 +109,6 @@ fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn select_builder(
-  select sq: SelectQuery,
-  prepared_statement prp_stm: PreparedStatement,
-) -> PreparedStatement {
-  prp_stm |> select_builder_apply_sql(sq)
-}
-
-pub fn select_builder_apply_sql(
   prepared_statement prp_stm: PreparedStatement,
   select sq: SelectQuery,
 ) -> PreparedStatement {
@@ -349,11 +343,11 @@ fn combined_query_new(
   kind: CombinedKind,
   select_queries: List(SelectQuery),
 ) -> CombinedQuery {
-  let select_queries =
-    combined_query_remove_order_by_from_selects(select_queries)
-  CombinedQuery(
+  select_queries
+  |> combined_query_remove_order_by_from_selects()
+  |> CombinedQuery(
     kind: kind,
-    select_queries: select_queries,
+    select_queries: _,
     limit_offset: NoLimitOffset,
     order_by: [],
     epilog: NoEpilogPart,
@@ -557,10 +551,10 @@ pub fn select_query_set_from(
 // ▒▒▒ SELECT ▒▒▒
 
 pub fn select_query_select(
-  query qry: SelectQuery,
-  select select: List(SelectPart),
+  select_query sq: SelectQuery,
+  select_parts slct_prts: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: list.append(qry.select, select))
+  SelectQuery(..sq, select: list.append(sq.select, slct_prts))
 }
 
 pub fn select_query_select_replace(
@@ -726,13 +720,26 @@ pub fn from_part_append_to_prepared_statement(
       |> prepared_statement.with_sql(" FROM (")
       |> builder_apply(sb_qry)
       |> prepared_statement.with_sql(") AS " <> als)
-    NoFromPart -> prepared_statement.with_sql(prp_stm, "")
+    NoFromPart -> prp_stm
   }
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Select Part                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO MAYBE use something like this:
+
+// type SelectValue {
+//   SelectAggregateFunction(List(SelectValue))
+//   SelectFunction(List(SelectValue))
+//   SelectColumn(String)
+//   SelectParam(Param)
+//   // SelectCase?
+// }
+
+// Then during processing or values
+// inject prepared statement parameters.
 
 pub type SelectPart {
   // Strings are arbitrary SQL strings
@@ -764,6 +771,24 @@ pub fn select_part_to_sql(part prt: SelectPart) {
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Where Part                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO MAYBE instead of:
+//
+// `WhereColEqualCol(a_column: String, b_column: String)`
+//
+// use
+//
+// `WhereEqual(WhereValue, WhereValue)`
+//
+// then during processing or values
+// inject prepared statement parameters.
+
+// type WhereValue {
+//   WhereFunction(List(WhereValue))
+//   WhereColumn(String)
+//   WhereParam(Param)
+//   // WhereCase?
+// }
 
 pub type WherePart {
   // Column A to column B comparison
@@ -994,8 +1019,8 @@ fn where_part_apply_comparison_col_param(
 ) {
   let next_placeholder = prepared_statement.next_placeholder(prp_stm)
 
-  prepared_statement.with_sql_and_param(
-    prp_stm,
+  prp_stm
+  |> prepared_statement.with_sql_and_param(
     col <> " " <> sql_operator <> " " <> next_placeholder,
     param,
   )
@@ -1004,8 +1029,8 @@ fn where_part_apply_comparison_col_param(
 fn where_part_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
   let next_placeholder = prepared_statement.next_placeholder(prp_stm)
 
-  prepared_statement.with_sql_and_param(
-    prp_stm,
+  prp_stm
+  |> prepared_statement.with_sql_and_param(
     next_placeholder <> " " <> sql_operator <> " " <> col,
     param,
   )
@@ -1017,8 +1042,9 @@ fn where_part_apply_logical_sql_operator(
   prepared_statement prp_stm: PreparedStatement,
 ) {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
-  list.fold(
-    prts,
+
+  prts
+  |> list.fold(
     new_prep_stm,
     fn(acc: PreparedStatement, prt: WherePart) -> PreparedStatement {
       case acc == new_prep_stm {
@@ -1039,8 +1065,9 @@ fn where_part_apply_column_in_params(
   prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
-  list.fold(
-    params,
+
+  params
+  |> list.fold(
     new_prep_stm,
     fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
       let new_sql = case acc == new_prep_stm {
