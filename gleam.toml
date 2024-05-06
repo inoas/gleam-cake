@@ -48,6 +48,9 @@ version = "0.0.1"
 # tom = ">= 0.3.0 and < 2.0.0"
 # dot_env = ">= 0.5.1 and < 2.0.0"
 # envoy = ">= 1.0.1 and < 2.0.0"
+# qcheck_gleeunit_utils
+# qcheck
+#
 gleam_stdlib = ">= 0.36.0 and < 2.0.0"
 sqlight = ">= 0.9.0 and < 2.0.0"
 gleam_pgo = ">= 0.7.0 and < 1.0.0"

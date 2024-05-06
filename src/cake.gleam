@@ -186,7 +186,8 @@ fn drop_owners_table_if_exists() {
 fn create_owners_table() {
   "CREATE TABLE owners (
     id int,
-    name text
+    name text,
+    tags text[]
   );"
 }
 

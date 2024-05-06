@@ -7,6 +7,8 @@ import gleam/int
 import gleam/list
 import gleam/string
 
+// TODO: case expressions for WHERE, SELECT and others
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Builder                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
@@ -80,10 +82,10 @@ pub fn union_builder_apply_command_sql(
 
 fn union_builder_apply_to_sql(
   prp_stm: PreparedStatement,
-  maybe_add_fun: fn(CombinedQuery) -> String,
-  qry: CombinedQuery,
+  maybe_fun mb_fun: fn(CombinedQuery) -> String,
+  query qry: CombinedQuery,
 ) -> PreparedStatement {
-  prepared_statement.with_sql(prp_stm, maybe_add_fun(qry))
+  prepared_statement.with_sql(prp_stm, mb_fun(qry))
 }
 
 fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
@@ -126,11 +128,11 @@ pub fn select_builder_apply_sql(
 }
 
 fn select_builder_apply_to_sql(
-  prp_stm: PreparedStatement,
-  maybe_add_fun: fn(SelectQuery) -> String,
-  qry: SelectQuery,
+  prepared_statement prp_stm: PreparedStatement,
+  maybe_fun mb_fun: fn(SelectQuery) -> String,
+  query qry: SelectQuery,
 ) -> PreparedStatement {
-  prepared_statement.with_sql(prp_stm, maybe_add_fun(qry))
+  prepared_statement.with_sql(prp_stm, mb_fun(qry))
 }
 
 fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
@@ -204,11 +206,11 @@ pub type Query {
   // Delete(query: DeleteQuery)
 }
 
-pub fn query_select_wrap(qry: SelectQuery) -> Query {
+pub fn query_select_wrap(query qry: SelectQuery) -> Query {
   Select(qry)
 }
 
-pub fn query_combined_wrap(qry: CombinedQuery) -> Query {
+pub fn query_combined_wrap(query qry: CombinedQuery) -> Query {
   Combined(qry)
 }
 
@@ -300,7 +302,6 @@ pub type CombinedQuery {
     kind: CombinedKind,
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
-    // TODO: before adding epilog to combined, fix it for selects with a custom type
     order_by: List(OrderByPart),
     // Epilog allows you to append raw SQL to the end of queries.
     // You should never put raw user data into epilog.
@@ -806,16 +807,19 @@ pub type WherePart {
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
   NotWhere(part: WherePart)
+  // Column contains value
+  WhereColInParams(column: String, parameters: List(Param))
   // Sub Query
+  // WhereColInSubquery(column: String, sub_query: Query)
+  // WhereColAllSubquery(column: String, sub_query: Query)
+  // WhereColAnySubquery(column: String, sub_query: Query)
+  // WhereColExistsSubquery(sub_query: Query)
   WhereColEqualSubquery(column: String, sub_query: Query)
   WhereColLowerSubquery(column: String, sub_query: Query)
   WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
   WhereColGreaterSubquery(column: String, sub_query: Query)
   WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
   WhereColNotEqualSubquery(column: String, sub_query: Query)
-  // Column contains value
-  WhereColInParams(column: String, parameters: List(Param))
-  // WhereColInSubquery(column: String, sub_query: Query)
   NoWherePart
 }
 
@@ -972,27 +976,37 @@ pub fn join_parts_append_to_prepared_statement_as_clause(
   )
 }
 
-fn apply_comparison_col_col(prp_stm, a_col, sql_operator, b_col) {
+fn apply_comparison_col_col(
+  prp_stm: PreparedStatement,
+  a_col: String,
+  sql_operator: String,
+  b_col: String,
+) {
   prp_stm
   |> prepared_statement.with_sql(a_col <> " " <> sql_operator <> " " <> b_col)
 }
 
-fn where_part_apply_comparison_col_param(prp_stm, col, sql_operator, param) {
-  let next_param = prepared_statement.next_param(prp_stm)
+fn where_part_apply_comparison_col_param(
+  prp_stm: PreparedStatement,
+  col: String,
+  sql_operator: String,
+  param: Param,
+) {
+  let next_placeholder = prepared_statement.next_placeholder(prp_stm)
 
   prepared_statement.with_sql_and_param(
     prp_stm,
-    col <> " " <> sql_operator <> " " <> next_param,
+    col <> " " <> sql_operator <> " " <> next_placeholder,
     param,
   )
 }
 
 fn where_part_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
-  let next_param = prepared_statement.next_param(prp_stm)
+  let next_placeholder = prepared_statement.next_placeholder(prp_stm)
 
   prepared_statement.with_sql_and_param(
     prp_stm,
-    next_param <> " " <> sql_operator <> " " <> col,
+    next_placeholder <> " " <> sql_operator <> " " <> col,
     param,
   )
 }
@@ -1030,8 +1044,8 @@ fn where_part_apply_column_in_params(
     new_prep_stm,
     fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
       let new_sql = case acc == new_prep_stm {
-        True -> prepared_statement.next_param(prp_stm)
-        False -> ", " <> prepared_statement.next_param(acc)
+        True -> prepared_statement.next_placeholder(prp_stm)
+        False -> ", " <> prepared_statement.next_placeholder(acc)
       }
       prepared_statement.with_sql_and_param(acc, new_sql, param)
     },
