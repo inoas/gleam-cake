@@ -814,12 +814,12 @@ pub type WherePart {
   // WhereColAllSubquery(column: String, sub_query: Query)
   // WhereColAnySubquery(column: String, sub_query: Query)
   // WhereColExistsSubquery(sub_query: Query)
-  WhereColEqualSubquery(column: String, sub_query: Query)
-  WhereColLowerSubquery(column: String, sub_query: Query)
-  WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
-  WhereColGreaterSubquery(column: String, sub_query: Query)
-  WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
-  WhereColNotEqualSubquery(column: String, sub_query: Query)
+  // WhereColEqualSubquery(column: String, sub_query: Query)
+  // WhereColLowerSubquery(column: String, sub_query: Query)
+  // WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
+  // WhereColGreaterSubquery(column: String, sub_query: Query)
+  // WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
+  // WhereColNotEqualSubquery(column: String, sub_query: Query)
   NoWherePart
 }
 
@@ -913,18 +913,18 @@ fn where_part_append_to_prepared_statement(
     }
     WhereColInParams(col, params) ->
       where_part_apply_column_in_params(col, params, prp_stm)
-    WhereColEqualSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
-    WhereColLowerSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
-    WhereColLowerOrEqualSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
-    WhereColGreaterSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
-    WhereColGreaterOrEqualSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
-    WhereColNotEqualSubquery(column: col, sub_query: sb_qry) ->
-      todo as iox.inspect(#(col, sb_qry))
+    // WhereColEqualSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
+    // WhereColLowerSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
+    // WhereColLowerOrEqualSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
+    // WhereColGreaterSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
+    // WhereColGreaterOrEqualSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
+    // WhereColNotEqualSubquery(column: col, sub_query: sb_qry) ->
+    //   todo as iox.inspect(#(col, sb_qry))
     NoWherePart -> prp_stm
   }
 }
