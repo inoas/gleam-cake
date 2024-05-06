@@ -113,11 +113,11 @@ pub fn select_builder(
   select sq: SelectQuery,
 ) -> PreparedStatement {
   prp_stm
-  |> select_builder_apply_to_sql(sq, select_builder_maybe_apply_select_sql)
+  |> select_builder_apply_to_sql(sq, select_builder_maybe_add_select_sql)
   |> select_builder_maybe_apply_from_sql(sq)
   |> select_builder_maybe_apply_join(sq)
   |> select_builder_maybe_apply_where(sq)
-  |> select_builder_apply_to_sql(sq, select_builder_maybe_apply_order_sql)
+  |> select_builder_apply_to_sql(sq, select_builder_maybe_add_order_sql)
   |> select_builder_maybe_apply_limit_offset(sq)
 }
 
@@ -129,7 +129,7 @@ fn select_builder_apply_to_sql(
   prepared_statement.with_sql(prp_stm, mb_fun(qry))
 }
 
-fn select_builder_maybe_apply_select_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
     _ -> "SELECT " <> stringx.map_join(qry.select, select_part_to_sql, ", ")
@@ -157,7 +157,7 @@ fn select_builder_maybe_apply_join(
   prp_stm |> join_parts_apply_as_clause(qry.join)
 }
 
-fn select_builder_maybe_apply_order_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
@@ -980,7 +980,7 @@ pub fn join_parts_apply_as_clause(
       let apply_join = fn(acc, join_command) {
         acc
         |> prepared_statement.with_sql(" " <> join_command <> " ")
-        |> join_part_to_prepared_statement(prt)
+        |> join_part_apply(prt)
       }
       let apply_on = fn(acc, on) {
         acc
@@ -1098,7 +1098,7 @@ pub type JoinPart {
   FullOuterJoin(with: Join, alias: String, on: WherePart)
 }
 
-fn join_part_to_prepared_statement(
+fn join_part_apply(
   prepared_statement prp_stm: PreparedStatement,
   join_part jp: JoinPart,
 ) -> PreparedStatement {
