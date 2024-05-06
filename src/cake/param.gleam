@@ -1,6 +1,3 @@
-import gleam/float
-import gleam/int
-
 pub type Param {
   BoolParam(Bool)
   FloatParam(Float)
@@ -8,17 +5,19 @@ pub type Param {
   StringParam(String)
   NullParam
 }
+// import gleam/float
+// import gleam/int
 
-// TODO: Move this to prepared statements and use question marks then,
-// ... or at least optionally though.
-pub fn to_sql(param: Param) -> String {
-  case param {
-    BoolParam(True) -> "TRUE"
-    BoolParam(False) -> "FALSE"
-    FloatParam(value) -> float.to_string(value)
-    IntParam(value) -> int.to_string(value)
-    // TODO: no injection
-    StringParam(value) -> "'" <> value <> "'"
-    NullParam -> "NULL"
-  }
-}
+// // This should ONLY be used for debugging purposes
+// // not to ever run actual queries.
+// pub fn to_debug(param: Param) -> String {
+//   case param {
+//     BoolParam(True) -> "TRUE"
+//     BoolParam(False) -> "FALSE"
+//     FloatParam(value) -> float.to_string(value)
+//     IntParam(value) -> int.to_string(value)
+//     // TODO: no injection
+//     StringParam(value) -> "'" <> value <> "'"
+//     NullParam -> "NULL"
+//   }
+// }
