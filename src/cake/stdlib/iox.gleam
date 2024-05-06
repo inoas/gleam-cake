@@ -17,7 +17,7 @@ pub fn dbg_label(v, label: String) {
 }
 
 pub fn print_dashes() {
-  string.repeat("—", 80) |> io.println()
+  string.repeat("─", 80) |> io.println()
 }
 
 pub fn print_dashes_tap(v) {
