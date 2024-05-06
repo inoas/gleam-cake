@@ -47,7 +47,7 @@ pub fn combined_builder(
   // The user probably let assets this then?
   prp_stm
   |> union_builder_apply_command_sql(cq)
-  |> union_builder_apply_to_sql(union_builder_maybe_add_order_sql, cq)
+  |> union_builder_apply_to_sql(cq, union_builder_maybe_add_order_sql)
   |> limit_offset_apply(cq.limit_offset)
   |> epilog_apply(cq.epilog)
 }
@@ -82,9 +82,9 @@ pub fn union_builder_apply_command_sql(
 }
 
 fn union_builder_apply_to_sql(
-  prp_stm: PreparedStatement,
-  maybe_fun mb_fun: fn(CombinedQuery) -> String,
+  prepared_statement prp_stm: PreparedStatement,
   query qry: CombinedQuery,
+  maybe_fun mb_fun: fn(CombinedQuery) -> String,
 ) -> PreparedStatement {
   prepared_statement.with_sql(prp_stm, mb_fun(qry))
 }
@@ -113,51 +113,51 @@ pub fn select_builder(
   select sq: SelectQuery,
 ) -> PreparedStatement {
   prp_stm
-  |> select_builder_apply_to_sql(select_builder_maybe_add_select_sql, sq)
-  |> select_builder_maybe_add_from_sql(sq)
-  |> select_builder_maybe_add_join(sq)
-  |> select_builder_maybe_add_where(sq)
-  |> select_builder_apply_to_sql(select_builder_maybe_add_order_sql, sq)
-  |> select_builder_maybe_add_limit_offset(sq)
+  |> select_builder_apply_to_sql(sq, select_builder_maybe_apply_select_sql)
+  |> select_builder_maybe_apply_from_sql(sq)
+  |> select_builder_maybe_apply_join(sq)
+  |> select_builder_maybe_apply_where(sq)
+  |> select_builder_apply_to_sql(sq, select_builder_maybe_apply_order_sql)
+  |> select_builder_maybe_apply_limit_offset(sq)
 }
 
 fn select_builder_apply_to_sql(
   prepared_statement prp_stm: PreparedStatement,
-  maybe_fun mb_fun: fn(SelectQuery) -> String,
   query qry: SelectQuery,
+  maybe_fun mb_fun: fn(SelectQuery) -> String,
 ) -> PreparedStatement {
   prepared_statement.with_sql(prp_stm, mb_fun(qry))
 }
 
-fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_apply_select_sql(query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
     _ -> "SELECT " <> stringx.map_join(qry.select, select_part_to_sql, ", ")
   }
 }
 
-fn select_builder_maybe_add_from_sql(
+fn select_builder_maybe_apply_from_sql(
   prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm |> from_part_append_to_prepared_statement(qry.from)
 }
 
-fn select_builder_maybe_add_where(
+fn select_builder_maybe_apply_where(
   prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> where_part_append_to_prepared_statement_as_clause(qry.where)
+  prp_stm |> where_part_apply_clause(qry.where)
 }
 
-fn select_builder_maybe_add_join(
+fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
-  join_parts_append_to_prepared_statement_as_clause(qry.join, prp_stm)
+  prp_stm |> join_parts_apply_as_clause(qry.join)
 }
 
-fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_apply_order_sql(query qry: SelectQuery) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
@@ -172,7 +172,7 @@ fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
   }
 }
 
-fn select_builder_maybe_add_limit_offset(
+fn select_builder_maybe_apply_limit_offset(
   prepared_statement prp_stm: PreparedStatement,
   select_query slct_qry: SelectQuery,
 ) -> PreparedStatement {
@@ -848,96 +848,97 @@ pub type WherePart {
   NoWherePart
 }
 
-fn where_part_append_to_prepared_statement(
+fn where_part_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: WherePart,
 ) -> PreparedStatement {
   case prt {
     WhereColEqualCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, "=", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, "=", b_col)
     WhereColLowerCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, "<", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, "<", b_col)
     WhereColLowerOrEqualCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, "<=", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, "<=", b_col)
     WhereColGreaterCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, ">", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, ">", b_col)
     WhereColGreaterOrEqualCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, ">=", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, ">=", b_col)
     WhereColNotEqualCol(a_col, b_col) ->
-      apply_comparison_col_col(prp_stm, a_col, "<>", b_col)
+      prp_stm |> where_part_apply_comparison_col_col(a_col, "<>", b_col)
     WhereColEqualParam(col, NullParam) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NULL")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
     WhereColEqualParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, "=", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, "=", param)
     WhereColLowerParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, "<", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, "<", param)
     WhereColLowerOrEqualParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, "<=", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, "<=", param)
     WhereColGreaterParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, ">", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, ">", param)
     WhereColGreaterOrEqualParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, ">=", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, ">=", param)
     WhereColNotEqualParam(col, NullParam) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
     WhereColNotEqualParam(col, param) ->
-      where_part_apply_comparison_col_param(prp_stm, col, "<>", param)
+      prp_stm |> where_part_apply_comparison_col_param(col, "<>", param)
     WhereColLike(col, param) ->
-      where_part_apply_comparison_col_param(
-        prp_stm,
+      prp_stm
+      |> where_part_apply_comparison_col_param(
         col,
         "LIKE",
         param.StringParam(param),
       )
     WhereColILike(col, param) ->
-      where_part_apply_comparison_col_param(
-        prp_stm,
+      prp_stm
+      |> where_part_apply_comparison_col_param(
         col,
         "ILIKE",
         param.StringParam(param),
       )
     WhereColSimilarTo(col, param) ->
-      where_part_apply_comparison_col_param(
-        prp_stm,
+      prp_stm
+      |> where_part_apply_comparison_col_param(
         col,
         "SIMILAR TO",
         param.StringParam(param),
       )
       |> prepared_statement.with_sql(" ESCAPE '/'")
     WhereParamEqualCol(NullParam, col) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NULL")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
     WhereParamEqualCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, "=", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, "=", col)
     WhereParamLowerCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, "<", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, "<", col)
     WhereParamLowerOrEqualCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, "<=", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, "<=", col)
     WhereParamGreaterCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, ">", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, ">", col)
     WhereParamGreaterOrEqualCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, ">=", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, ">=", col)
     WhereParamNotEqualCol(NullParam, col) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NOT NULL")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
     WhereParamNotEqualCol(param, col) ->
-      where_part_apply_comparison_param_col(prp_stm, param, "<>", col)
+      prp_stm |> where_part_apply_comparison_param_col(param, "<>", col)
     WhereColIsBool(col, True) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS TRUE")
+      prp_stm |> prepared_statement.with_sql(col <> " IS TRUE")
     WhereColIsBool(col, False) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS FALSE")
+      prp_stm |> prepared_statement.with_sql(col <> " IS FALSE")
     WhereColIsNotBool(col, True) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NOT TRUE")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NOT TRUE")
     WhereColIsNotBool(col, False) ->
-      prepared_statement.with_sql(prp_stm, col <> " IS NOT FALSE")
+      prp_stm |> prepared_statement.with_sql(col <> " IS NOT FALSE")
     AndWhere(prts) ->
-      where_part_apply_logical_sql_operator("AND", prts, prp_stm)
-    OrWhere(prts) -> where_part_apply_logical_sql_operator("OR", prts, prp_stm)
+      prp_stm |> where_part_apply_logical_sql_operator("AND", prts)
+    OrWhere(prts) ->
+      prp_stm |> where_part_apply_logical_sql_operator("OR", prts)
     NotWhere(prt) -> {
       prp_stm
       |> prepared_statement.with_sql("NOT (")
-      |> where_part_append_to_prepared_statement(prt)
+      |> where_part_apply(prt)
       |> prepared_statement.with_sql(")")
     }
     WhereColInParams(col, params) ->
-      where_part_apply_column_in_params(col, params, prp_stm)
+      prp_stm |> where_part_apply_column_in_params(col, params)
     // WhereColEqualSubquery(column: col, sub_query: sb_qry) ->
     //   todo as iox.inspect(#(col, sb_qry))
     // WhereColLowerSubquery(column: col, sub_query: sb_qry) ->
@@ -954,7 +955,7 @@ fn where_part_append_to_prepared_statement(
   }
 }
 
-pub fn where_part_append_to_prepared_statement_as_clause(
+pub fn where_part_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
   part prt: WherePart,
 ) -> PreparedStatement {
@@ -963,14 +964,14 @@ pub fn where_part_append_to_prepared_statement_as_clause(
     _ -> {
       prp_stm
       |> prepared_statement.with_sql(" WHERE ")
-      |> where_part_append_to_prepared_statement(prt)
+      |> where_part_apply(prt)
     }
   }
 }
 
-pub fn join_parts_append_to_prepared_statement_as_clause(
-  parts prts: List(JoinPart),
+pub fn join_parts_apply_as_clause(
   prepared_statement prp_stm: PreparedStatement,
+  parts prts: List(JoinPart),
 ) -> PreparedStatement {
   prts
   |> list.fold(
@@ -984,7 +985,7 @@ pub fn join_parts_append_to_prepared_statement_as_clause(
       let apply_on = fn(acc, on) {
         acc
         |> prepared_statement.with_sql(" ON ")
-        |> where_part_append_to_prepared_statement(on)
+        |> where_part_apply(on)
       }
       case prt {
         CrossJoin(_, _) -> acc |> apply_join("CROSS JOIN")
@@ -1001,7 +1002,7 @@ pub fn join_parts_append_to_prepared_statement_as_clause(
   )
 }
 
-fn apply_comparison_col_col(
+fn where_part_apply_comparison_col_col(
   prp_stm: PreparedStatement,
   a_col: String,
   sql_operator: String,
@@ -1037,9 +1038,9 @@ fn where_part_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
 }
 
 fn where_part_apply_logical_sql_operator(
+  prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
   parts prts: List(WherePart),
-  prepared_statement prp_stm: PreparedStatement,
 ) {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
 
@@ -1048,11 +1049,11 @@ fn where_part_apply_logical_sql_operator(
     new_prep_stm,
     fn(acc: PreparedStatement, prt: WherePart) -> PreparedStatement {
       case acc == new_prep_stm {
-        True -> acc |> where_part_append_to_prepared_statement(prt)
+        True -> acc |> where_part_apply(prt)
         False ->
           acc
           |> prepared_statement.with_sql(" " <> oprtr <> " ")
-          |> where_part_append_to_prepared_statement(prt)
+          |> where_part_apply(prt)
       }
     },
   )
@@ -1060,9 +1061,9 @@ fn where_part_apply_logical_sql_operator(
 }
 
 fn where_part_apply_column_in_params(
+  prepared_statement prp_stm: PreparedStatement,
   column col: String,
   parameters params: List(Param),
-  prepared_statement prp_stm: PreparedStatement,
 ) -> PreparedStatement {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
 
