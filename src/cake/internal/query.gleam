@@ -154,7 +154,7 @@ fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
   query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> join_parts_apply_as_clause(qry.join)
+  prp_stm |> join_parts_apply_clause(qry.join)
 }
 
 fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
@@ -759,7 +759,7 @@ pub fn select_part_from(s: String) -> SelectPart {
   SelectString(s)
 }
 
-pub fn select_part_to_sql(part prt: SelectPart) {
+fn select_part_to_sql(part prt: SelectPart) -> String {
   case prt {
     SelectString(string) -> string
     SelectStringAlias(string, alias) -> string <> " AS " <> alias
@@ -969,7 +969,7 @@ pub fn where_part_apply_clause(
   }
 }
 
-pub fn join_parts_apply_as_clause(
+pub fn join_parts_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
   parts prts: List(JoinPart),
 ) -> PreparedStatement {
