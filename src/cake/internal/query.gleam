@@ -39,24 +39,24 @@ pub fn builder_apply(
 
 pub fn combined_builder(
   prepared_statement prp_stm: PreparedStatement,
-  select cq: CombinedQuery,
+  select cmbnd_qry: CombinedQuery,
 ) -> PreparedStatement {
   // TODO: what happens if multiple select queries have different type signatures for their columns?
   // -> In prepared statements we can already check this and return either an OK() or an Error()
   // The error would return that the column types missmatch
   // The user probably let assets this then?
   prp_stm
-  |> union_builder_apply_command_sql(cq)
-  |> union_builder_apply_to_sql(cq, union_builder_maybe_add_order_sql)
-  |> limit_offset_apply(cq.limit_offset)
-  |> epilog_apply(cq.epilog)
+  |> union_builder_apply_command_sql(cmbnd_qry)
+  |> union_builder_apply_to_sql(cmbnd_qry, union_builder_maybe_add_order_sql)
+  |> limit_offset_apply(cmbnd_qry.limit_offset)
+  |> epilog_apply(cmbnd_qry.epilog)
 }
 
 pub fn union_builder_apply_command_sql(
   prepared_statement prp_stm: PreparedStatement,
-  select cq: CombinedQuery,
+  combined_query cmbnd_qry: CombinedQuery,
 ) -> PreparedStatement {
-  let combination_command = case cq.kind {
+  let combination_command = case cmbnd_qry.kind {
     Union -> "UNION"
     UnionAll -> "UNION ALL"
     Except -> "EXCEPT"
@@ -65,16 +65,16 @@ pub fn union_builder_apply_command_sql(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  cq.select_queries
+  cmbnd_qry.select_queries
   |> list.fold(
     prp_stm,
-    fn(acc: PreparedStatement, sq: SelectQuery) -> PreparedStatement {
-      case acc == prp_stm {
-        True -> acc |> select_builder(sq)
+    fn(new_prep_stm: PreparedStatement, qry: SelectQuery) -> PreparedStatement {
+      case new_prep_stm == prp_stm {
+        True -> new_prep_stm |> select_builder(qry)
         False -> {
-          acc
+          new_prep_stm
           |> prepared_statement.append_sql(" " <> combination_command <> " ")
-          |> select_builder(sq)
+          |> select_builder(qry)
         }
       }
     },
@@ -110,26 +110,26 @@ fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
 
 pub fn select_builder(
   prepared_statement prp_stm: PreparedStatement,
-  select sq: SelectQuery,
+  select qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm
-  |> select_builder_apply_to_sql(sq, select_builder_maybe_add_select_sql)
-  |> select_builder_maybe_apply_from_sql(sq)
-  |> select_builder_maybe_apply_join(sq)
-  |> select_builder_maybe_apply_where(sq)
-  |> select_builder_apply_to_sql(sq, select_builder_maybe_add_order_sql)
-  |> select_builder_maybe_apply_limit_offset(sq)
+  |> select_builder_apply_to_sql(qry, select_builder_maybe_add_select_sql)
+  |> select_builder_maybe_apply_from_sql(qry)
+  |> select_builder_maybe_apply_join(qry)
+  |> select_builder_maybe_apply_where(qry)
+  |> select_builder_apply_to_sql(qry, select_builder_maybe_add_order_sql)
+  |> select_builder_maybe_apply_limit_offset(qry)
 }
 
 fn select_builder_apply_to_sql(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   maybe_fun mb_fun: fn(SelectQuery) -> String,
 ) -> PreparedStatement {
   prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
-fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_add_select_sql(select_query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
     _ -> "SELECT " <> qry.select |> stringx.map_join(select_part_to_sql, ", ")
@@ -138,26 +138,26 @@ fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
 
 fn select_builder_maybe_apply_from_sql(
   prp_stm: PreparedStatement,
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm |> from_part_append_to_prepared_statement(qry.from)
 }
 
 fn select_builder_maybe_apply_where(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm |> where_part_apply_clause(qry.where)
 }
 
 fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm |> join_parts_apply_clause(qry.join)
 }
 
-fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
+fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
@@ -174,9 +174,9 @@ fn select_builder_maybe_add_order_sql(query qry: SelectQuery) -> String {
 
 fn select_builder_maybe_apply_limit_offset(
   prepared_statement prp_stm: PreparedStatement,
-  select_query slct_qry: SelectQuery,
+  select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  slct_qry
+  qry
   |> limit_offset_get()
   |> limit_offset_apply(prp_stm, _)
 }
@@ -198,11 +198,11 @@ pub type Query {
   // Delete(query: DeleteQuery)
 }
 
-pub fn query_select_wrap(query qry: SelectQuery) -> Query {
+pub fn query_select_wrap(select_query qry: SelectQuery) -> Query {
   qry |> Select()
 }
 
-pub fn query_combined_wrap(query qry: CombinedQuery) -> Query {
+pub fn query_combined_wrap(combined_query qry: CombinedQuery) -> Query {
   qry |> Combined()
 }
 
@@ -268,8 +268,8 @@ pub fn limit_offset_apply(
   |> prepared_statement.append_sql(prp_stm, _)
 }
 
-pub fn limit_offset_get(select_query slct_qry: SelectQuery) -> LimitOffsetPart {
-  slct_qry.limit_offset
+pub fn limit_offset_get(select_query qry: SelectQuery) -> LimitOffsetPart {
+  qry.limit_offset
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -302,39 +302,39 @@ pub type CombinedQuery {
 }
 
 pub fn combined_union_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Union |> combined_query_new(slct_qrys)
+  Union |> combined_query_new(qrys)
 }
 
 pub fn combined_union_all_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  UnionAll |> combined_query_new(slct_qrys)
+  UnionAll |> combined_query_new(qrys)
 }
 
 pub fn combined_except_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Except |> combined_query_new(slct_qrys)
+  Except |> combined_query_new(qrys)
 }
 
 pub fn combined_except_all_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  ExceptAll |> combined_query_new(slct_qrys)
+  ExceptAll |> combined_query_new(qrys)
 }
 
 pub fn combined_intersect_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  Intersect |> combined_query_new(slct_qrys)
+  Intersect |> combined_query_new(qrys)
 }
 
 pub fn combined_intersect_all_query_new(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
-  IntersectAll |> combined_query_new(slct_qrys)
+  IntersectAll |> combined_query_new(qrys)
 }
 
 fn combined_query_new(
@@ -353,16 +353,16 @@ fn combined_query_new(
 }
 
 fn combined_query_remove_order_by_from_selects(
-  select_queries slct_qrys: List(SelectQuery),
+  select_queries qrys: List(SelectQuery),
 ) -> List(SelectQuery) {
-  slct_qrys
-  |> list.map(fn(slct_qry) { SelectQuery(..slct_qry, order_by: []) })
+  qrys
+  |> list.map(fn(qry) { SelectQuery(..qry, order_by: []) })
 }
 
 pub fn combined_get_select_queries(
-  combined_query cq: CombinedQuery,
+  combined_query cmbnd_qry: CombinedQuery,
 ) -> List(SelectQuery) {
-  cq.select_queries
+  cmbnd_qry.select_queries
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
@@ -540,7 +540,7 @@ pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
 // ▒▒▒ FROM ▒▒▒
 
 pub fn select_query_set_from(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   from frm: FromPart,
 ) -> SelectQuery {
   SelectQuery(..qry, from: frm)
@@ -549,15 +549,15 @@ pub fn select_query_set_from(
 // ▒▒▒ SELECT ▒▒▒
 
 pub fn select_query_select(
-  select_query sq: SelectQuery,
+  select_query qry: SelectQuery,
   select_parts slct_prts: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(..sq, select: list.append(sq.select, slct_prts))
+  SelectQuery(..qry, select: list.append(qry.select, slct_prts))
 }
 
 pub fn select_query_select_replace(
-  query qry: SelectQuery,
-  select slct_prts: List(SelectPart),
+  select_query qry: SelectQuery,
+  select_parts slct_prts: List(SelectPart),
 ) -> SelectQuery {
   SelectQuery(..qry, select: slct_prts)
 }
@@ -565,7 +565,7 @@ pub fn select_query_select_replace(
 // ▒▒▒ WHERE ▒▒▒
 
 pub fn select_query_set_where(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   where whr: WherePart,
 ) -> SelectQuery {
   SelectQuery(..qry, where: whr)
@@ -574,7 +574,7 @@ pub fn select_query_set_where(
 // ▒▒▒ JOIN ▒▒▒
 
 pub fn select_query_set_join(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   join jn: List(JoinPart),
 ) -> SelectQuery {
   SelectQuery(..qry, join: jn)
@@ -583,63 +583,63 @@ pub fn select_query_set_join(
 // ▒▒▒ ORDER BY ▒▒▒
 
 pub fn select_query_order_asc(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), True)
 }
 
 pub fn select_query_order_asc_nulls_first(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
 }
 
 pub fn select_query_order_asc_replace(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), False)
 }
 
 pub fn select_query_order_asc_nulls_first_replace(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
 }
 
 pub fn select_query_order_desc(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), True)
 }
 
 pub fn select_query_order_desc_nulls_first(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
 }
 
 pub fn select_query_order_desc_replace(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), False)
 }
 
 pub fn select_query_order_desc_nulls_first_replace(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
 }
 
 pub fn select_query_order(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
@@ -647,7 +647,7 @@ pub fn select_query_order(
 }
 
 pub fn select_query_order_replace(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
@@ -655,7 +655,7 @@ pub fn select_query_order_replace(
 }
 
 fn do_select_order_by(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   by ordb: OrderByPart,
   append appnd: Bool,
 ) -> SelectQuery {
@@ -669,7 +669,7 @@ fn do_select_order_by(
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 pub fn select_query_set_limit(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   limit lmt: Int,
 ) -> SelectQuery {
   let lmt_offst = limit_new(lmt)
@@ -677,7 +677,7 @@ pub fn select_query_set_limit(
 }
 
 pub fn select_query_set_limit_and_offset(
-  query qry: SelectQuery,
+  select_query qry: SelectQuery,
   limit lmt: Int,
   offset offst: Int,
 ) -> SelectQuery {
@@ -925,10 +925,8 @@ fn where_part_apply(
       prp_stm |> prepared_statement.append_sql(col <> " IS NOT TRUE")
     WhereColIsNotBool(col, False) ->
       prp_stm |> prepared_statement.append_sql(col <> " IS NOT FALSE")
-    AndWhere(prts) ->
-      prp_stm |> where_part_apply_logical_sql_operator("AND", prts)
-    OrWhere(prts) ->
-      prp_stm |> where_part_apply_logical_sql_operator("OR", prts)
+    AndWhere(prts) -> prp_stm |> where_part_apply_logical_operator("AND", prts)
+    OrWhere(prts) -> prp_stm |> where_part_apply_logical_operator("OR", prts)
     NotWhere(prt) -> {
       prp_stm
       |> prepared_statement.append_sql("NOT (")
@@ -974,27 +972,27 @@ pub fn join_parts_apply_clause(
   prts
   |> list.fold(
     prp_stm,
-    fn(acc: PreparedStatement, jn_prt: JoinPart) -> PreparedStatement {
-      let apply_join = fn(acc: PreparedStatement, join_command: String) -> PreparedStatement {
-        acc
+    fn(new_prep_stm: PreparedStatement, jn_prt: JoinPart) -> PreparedStatement {
+      let apply_join = fn(new_prep_stm: PreparedStatement, join_command: String) -> PreparedStatement {
+        new_prep_stm
         |> prepared_statement.append_sql(" " <> join_command <> " ")
         |> join_part_apply(jn_prt)
       }
-      let apply_on = fn(acc: PreparedStatement, on: WherePart) {
-        acc
+      let apply_on = fn(new_prep_stm: PreparedStatement, on: WherePart) {
+        new_prep_stm
         |> prepared_statement.append_sql(" ON ")
         |> where_part_apply(on)
       }
       case jn_prt {
-        CrossJoin(_, _) -> acc |> apply_join("CROSS JOIN")
+        CrossJoin(_, _) -> new_prep_stm |> apply_join("CROSS JOIN")
         InnerJoin(_, _, on: on) ->
-          acc |> apply_join("INNER JOIN") |> apply_on(on)
+          new_prep_stm |> apply_join("INNER JOIN") |> apply_on(on)
         LeftOuterJoin(_, _, on: on) ->
-          acc |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+          new_prep_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
         RightOuterJoin(_, _, on: on) ->
-          acc |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+          new_prep_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
         FullOuterJoin(_, _, on: on) ->
-          acc |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+          new_prep_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
       }
     },
   )
@@ -1003,24 +1001,24 @@ pub fn join_parts_apply_clause(
 fn where_part_apply_comparison_col_col(
   prepared_statement prp_stm: PreparedStatement,
   a_column a_col: String,
-  sql_operator sql_oprtr: String,
+  operator oprtr: String,
   b_column b_col: String,
 ) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.append_sql(a_col <> " " <> sql_oprtr <> " " <> b_col)
+  |> prepared_statement.append_sql(a_col <> " " <> oprtr <> " " <> b_col)
 }
 
 fn where_part_apply_comparison_col_param(
   prepared_statement prp_stm: PreparedStatement,
   column col: String,
-  sql_operator sql_oprtr: String,
+  operator oprtr: String,
   param prm: Param,
 ) -> PreparedStatement {
   let nxt_plcholdr = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
   |> prepared_statement.append_sql_and_param(
-    col <> " " <> sql_oprtr <> " " <> nxt_plcholdr,
+    col <> " " <> oprtr <> " " <> nxt_plcholdr,
     prm,
   )
 }
@@ -1028,33 +1026,33 @@ fn where_part_apply_comparison_col_param(
 fn where_part_apply_comparison_param_col(
   prepared_statement prp_stm: PreparedStatement,
   param prm: Param,
-  sql_operator sql_oprtr: String,
+  operator oprtr: String,
   column col: String,
 ) -> PreparedStatement {
   let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
   |> prepared_statement.append_sql_and_param(
-    nxt_plchldr <> " " <> sql_oprtr <> " " <> col,
+    nxt_plchldr <> " " <> oprtr <> " " <> col,
     prm,
   )
 }
 
-fn where_part_apply_logical_sql_operator(
+fn where_part_apply_logical_operator(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
   parts whr_prts: List(WherePart),
 ) -> PreparedStatement {
-  let new_prep_stm = prp_stm |> prepared_statement.append_sql("(")
+  let prep_stm = prp_stm |> prepared_statement.append_sql("(")
 
   whr_prts
   |> list.fold(
-    new_prep_stm,
-    fn(acc: PreparedStatement, whr_prt: WherePart) -> PreparedStatement {
-      case acc == new_prep_stm {
-        True -> acc |> where_part_apply(whr_prt)
+    prep_stm,
+    fn(new_prep_stm: PreparedStatement, whr_prt: WherePart) -> PreparedStatement {
+      case new_prep_stm == prep_stm {
+        True -> new_prep_stm |> where_part_apply(whr_prt)
         False ->
-          acc
+          new_prep_stm
           |> prepared_statement.append_sql(" " <> oprtr <> " ")
           |> where_part_apply(whr_prt)
       }
@@ -1068,17 +1066,17 @@ fn where_part_apply_column_in_params(
   column col: String,
   parameters prms: List(Param),
 ) -> PreparedStatement {
-  let new_prep_stm = prp_stm |> prepared_statement.append_sql(col <> " IN (")
+  let prep_stm = prp_stm |> prepared_statement.append_sql(col <> " IN (")
 
   prms
   |> list.fold(
-    new_prep_stm,
-    fn(acc: PreparedStatement, prm: Param) -> PreparedStatement {
-      case acc == new_prep_stm {
-        True -> acc |> prepared_statement.next_placeholder()
-        False -> ", " <> acc |> prepared_statement.next_placeholder()
+    prep_stm,
+    fn(new_prep_stm: PreparedStatement, prm: Param) -> PreparedStatement {
+      case new_prep_stm == prep_stm {
+        True -> new_prep_stm |> prepared_statement.next_placeholder()
+        False -> ", " <> new_prep_stm |> prepared_statement.next_placeholder()
       }
-      |> prepared_statement.append_sql_and_param(acc, _, prm)
+      |> prepared_statement.append_sql_and_param(new_prep_stm, _, prm)
     },
   )
   |> prepared_statement.append_sql(")")
