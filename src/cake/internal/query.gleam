@@ -382,8 +382,8 @@ pub fn combined_query_set_limit_and_offset(
   limit lmt: Int,
   offset offst: Int,
 ) -> CombinedQuery {
-  let limit_offset = limit_offset_new(limit: lmt, offset: offst)
-  CombinedQuery(..qry, limit_offset: limit_offset)
+  let lmt_offst = limit_offset_new(limit: lmt, offset: offst)
+  CombinedQuery(..qry, limit_offset: lmt_offst)
 }
 
 // ▒▒▒ ORDER BY ▒▒▒
@@ -463,9 +463,9 @@ pub fn combined_query_order_replace(
 fn do_combined_order_by(
   query qry: CombinedQuery,
   by ordb: OrderByPart,
-  append append: Bool,
+  append appnd: Bool,
 ) -> CombinedQuery {
-  case append {
+  case appnd {
     True ->
       CombinedQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
     False -> CombinedQuery(..qry, order_by: listx.wrap(ordb))
@@ -543,9 +543,9 @@ pub fn select_query_new_select(select select: List(SelectPart)) -> SelectQuery {
 
 pub fn select_query_set_from(
   query qry: SelectQuery,
-  from from: FromPart,
+  from frm: FromPart,
 ) -> SelectQuery {
-  SelectQuery(..qry, from: from)
+  SelectQuery(..qry, from: frm)
 }
 
 // ▒▒▒ SELECT ▒▒▒
@@ -559,9 +559,9 @@ pub fn select_query_select(
 
 pub fn select_query_select_replace(
   query qry: SelectQuery,
-  select select: List(SelectPart),
+  select slct_prts: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: select)
+  SelectQuery(..qry, select: slct_prts)
 }
 
 // ▒▒▒ WHERE ▒▒▒
@@ -659,9 +659,9 @@ pub fn select_query_order_replace(
 fn do_select_order_by(
   query qry: SelectQuery,
   by ordb: OrderByPart,
-  append append: Bool,
+  append appnd: Bool,
 ) -> SelectQuery {
-  case append {
+  case appnd {
     True ->
       SelectQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
     False -> SelectQuery(..qry, order_by: listx.wrap(ordb))
@@ -683,8 +683,8 @@ pub fn select_query_set_limit_and_offset(
   limit lmt: Int,
   offset offst: Int,
 ) -> SelectQuery {
-  let limit_offset = limit_offset_new(limit: lmt, offset: offst)
-  SelectQuery(..qry, limit_offset: limit_offset)
+  let lmt_offst = limit_offset_new(limit: lmt, offset: offst)
+  SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -867,58 +867,58 @@ fn where_part_apply(
       prp_stm |> where_part_apply_comparison_col_col(a_col, "<>", b_col)
     WhereColEqualParam(col, NullParam) ->
       prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
-    WhereColEqualParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "=", param)
-    WhereColLowerParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<", param)
-    WhereColLowerOrEqualParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<=", param)
-    WhereColGreaterParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, ">", param)
-    WhereColGreaterOrEqualParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, ">=", param)
+    WhereColEqualParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, "=", prm)
+    WhereColLowerParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, "<", prm)
+    WhereColLowerOrEqualParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, "<=", prm)
+    WhereColGreaterParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, ">", prm)
+    WhereColGreaterOrEqualParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, ">=", prm)
     WhereColNotEqualParam(col, NullParam) ->
       prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
-    WhereColNotEqualParam(col, param) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<>", param)
-    WhereColLike(col, param) ->
+    WhereColNotEqualParam(col, prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, "<>", prm)
+    WhereColLike(col, prm) ->
       prp_stm
       |> where_part_apply_comparison_col_param(
         col,
         "LIKE",
-        param.StringParam(param),
+        param.StringParam(prm),
       )
-    WhereColILike(col, param) ->
+    WhereColILike(col, prm) ->
       prp_stm
       |> where_part_apply_comparison_col_param(
         col,
         "ILIKE",
-        param.StringParam(param),
+        param.StringParam(prm),
       )
-    WhereColSimilarTo(col, param) ->
+    WhereColSimilarTo(col, prm) ->
       prp_stm
       |> where_part_apply_comparison_col_param(
         col,
         "SIMILAR TO",
-        param.StringParam(param),
+        param.StringParam(prm),
       )
       |> prepared_statement.with_sql(" ESCAPE '/'")
     WhereParamEqualCol(NullParam, col) ->
       prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
-    WhereParamEqualCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, "=", col)
-    WhereParamLowerCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, "<", col)
-    WhereParamLowerOrEqualCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, "<=", col)
-    WhereParamGreaterCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, ">", col)
-    WhereParamGreaterOrEqualCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, ">=", col)
+    WhereParamEqualCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, "=", col)
+    WhereParamLowerCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, "<", col)
+    WhereParamLowerOrEqualCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, "<=", col)
+    WhereParamGreaterCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, ">", col)
+    WhereParamGreaterOrEqualCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, ">=", col)
     WhereParamNotEqualCol(NullParam, col) ->
       prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
-    WhereParamNotEqualCol(param, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(param, "<>", col)
+    WhereParamNotEqualCol(prm, col) ->
+      prp_stm |> where_part_apply_comparison_param_col(prm, "<>", col)
     WhereColIsBool(col, True) ->
       prp_stm |> prepared_statement.with_sql(col <> " IS TRUE")
     WhereColIsBool(col, False) ->
@@ -937,8 +937,8 @@ fn where_part_apply(
       |> where_part_apply(prt)
       |> prepared_statement.with_sql(")")
     }
-    WhereColInParams(col, params) ->
-      prp_stm |> where_part_apply_column_in_params(col, params)
+    WhereColInParams(col, prms) ->
+      prp_stm |> where_part_apply_column_in_params(col, prms)
     // WhereColEqualSubquery(column: col, sub_query: sb_qry) ->
     //   todo as iox.inspect(#(col, sb_qry))
     // WhereColLowerSubquery(column: col, sub_query: sb_qry) ->
@@ -976,18 +976,18 @@ pub fn join_parts_apply_clause(
   prts
   |> list.fold(
     prp_stm,
-    fn(acc: PreparedStatement, prt: JoinPart) -> PreparedStatement {
+    fn(acc: PreparedStatement, jn_prt: JoinPart) -> PreparedStatement {
       let apply_join = fn(acc, join_command) {
         acc
         |> prepared_statement.with_sql(" " <> join_command <> " ")
-        |> join_part_apply(prt)
+        |> join_part_apply(jn_prt)
       }
       let apply_on = fn(acc, on) {
         acc
         |> prepared_statement.with_sql(" ON ")
         |> where_part_apply(on)
       }
-      case prt {
+      case jn_prt {
         CrossJoin(_, _) -> acc |> apply_join("CROSS JOIN")
         InnerJoin(_, _, on: on) ->
           acc |> apply_join("INNER JOIN") |> apply_on(on)
@@ -1003,57 +1003,62 @@ pub fn join_parts_apply_clause(
 }
 
 fn where_part_apply_comparison_col_col(
-  prp_stm: PreparedStatement,
-  a_col: String,
-  sql_operator: String,
-  b_col: String,
-) {
+  prepared_statement prp_stm: PreparedStatement,
+  a_column a_col: String,
+  sql_operator sql_oprtr: String,
+  b_column b_col: String,
+) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.with_sql(a_col <> " " <> sql_operator <> " " <> b_col)
+  |> prepared_statement.with_sql(a_col <> " " <> sql_oprtr <> " " <> b_col)
 }
 
 fn where_part_apply_comparison_col_param(
-  prp_stm: PreparedStatement,
-  col: String,
-  sql_operator: String,
-  param: Param,
-) {
+  prepared_statement prp_stm: PreparedStatement,
+  column col: String,
+  sql_operator sql_oprtr: String,
+  param prm: Param,
+) -> PreparedStatement {
   let next_placeholder = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
-  |> prepared_statement.with_sql_and_param(
-    col <> " " <> sql_operator <> " " <> next_placeholder,
-    param,
+  |> prepared_statement.append_sql_and_param(
+    col <> " " <> sql_oprtr <> " " <> next_placeholder,
+    prm,
   )
 }
 
-fn where_part_apply_comparison_param_col(prp_stm, param, sql_operator, col) {
-  let next_placeholder = prepared_statement.next_placeholder(prp_stm)
+fn where_part_apply_comparison_param_col(
+  prepared_statement prp_stm: PreparedStatement,
+  param prm: Param,
+  sql_operator sql_oprtr: String,
+  column col: String,
+) -> PreparedStatement {
+  let nxt_plcehldr = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
-  |> prepared_statement.with_sql_and_param(
-    next_placeholder <> " " <> sql_operator <> " " <> col,
-    param,
+  |> prepared_statement.append_sql_and_param(
+    nxt_plcehldr <> " " <> sql_oprtr <> " " <> col,
+    prm,
   )
 }
 
 fn where_part_apply_logical_sql_operator(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
-  parts prts: List(WherePart),
-) {
+  parts whr_prts: List(WherePart),
+) -> PreparedStatement {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
 
-  prts
+  whr_prts
   |> list.fold(
     new_prep_stm,
-    fn(acc: PreparedStatement, prt: WherePart) -> PreparedStatement {
+    fn(acc: PreparedStatement, whr_prt: WherePart) -> PreparedStatement {
       case acc == new_prep_stm {
-        True -> acc |> where_part_apply(prt)
+        True -> acc |> where_part_apply(whr_prt)
         False ->
           acc
           |> prepared_statement.with_sql(" " <> oprtr <> " ")
-          |> where_part_apply(prt)
+          |> where_part_apply(whr_prt)
       }
     },
   )
@@ -1063,19 +1068,19 @@ fn where_part_apply_logical_sql_operator(
 fn where_part_apply_column_in_params(
   prepared_statement prp_stm: PreparedStatement,
   column col: String,
-  parameters params: List(Param),
+  parameters prms: List(Param),
 ) -> PreparedStatement {
   let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
 
-  params
+  prms
   |> list.fold(
     new_prep_stm,
-    fn(acc: PreparedStatement, param: Param) -> PreparedStatement {
+    fn(acc: PreparedStatement, prm: Param) -> PreparedStatement {
       let new_sql = case acc == new_prep_stm {
         True -> prepared_statement.next_placeholder(prp_stm)
         False -> ", " <> prepared_statement.next_placeholder(acc)
       }
-      prepared_statement.with_sql_and_param(acc, new_sql, param)
+      prepared_statement.append_sql_and_param(acc, new_sql, prm)
     },
   )
   |> prepared_statement.with_sql(")")
@@ -1122,19 +1127,19 @@ pub opaque type EpilogPart {
   NoEpilogPart
 }
 
-pub fn epilog_new(epilog: String) -> EpilogPart {
-  case epilog {
+pub fn epilog_new(epilog eplg: String) -> EpilogPart {
+  case eplg {
     "" -> NoEpilogPart
-    _ -> Epilog(string: epilog)
+    _ -> Epilog(string: eplg)
   }
 }
 
 pub fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
-  epilog_part epl_prt: EpilogPart,
+  epilog_part eplg_prt: EpilogPart,
 ) -> PreparedStatement {
-  case epl_prt {
+  case eplg_prt {
     NoEpilogPart -> prp_stm
-    Epilog(string: epl) -> epl |> prepared_statement.with_sql(prp_stm, _)
+    Epilog(string: eplg) -> eplg |> prepared_statement.with_sql(prp_stm, _)
   }
 }

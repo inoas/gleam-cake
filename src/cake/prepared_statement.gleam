@@ -11,56 +11,55 @@ pub opaque type PreparedStatement {
   )
 }
 
-pub fn new(prefix) {
-  PreparedStatement(prefix, "", [], 0)
+pub fn new(prefix prfx: String) -> PreparedStatement {
+  prfx |> PreparedStatement("", [], 0)
 }
 
-pub fn with_sql(prepared_statement: PreparedStatement, new_sql: String) {
-  PreparedStatement(
-    ..prepared_statement,
-    sql: prepared_statement.sql <> new_sql,
-  )
+pub fn with_sql(
+  prepared_statement prp_stm: PreparedStatement,
+  new_sql nw_sql: String,
+) {
+  PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
 }
 
-pub fn with_sql_and_param(
-  prepared_statement: PreparedStatement,
-  new_sql: String,
-  new_param: Param,
+pub fn append_sql_and_param(
+  prepared_statement prp_stm: PreparedStatement,
+  new_sql nw_sql: String,
+  new_param nw_prms: Param,
 ) {
   PreparedStatement(
-    ..prepared_statement,
-    sql: prepared_statement.sql <> new_sql,
-    params: list.append(prepared_statement.params, [new_param]),
-    index: prepared_statement.index + 1,
+    ..prp_stm,
+    sql: prp_stm.sql <> nw_sql,
+    params: list.append(prp_stm.params, [nw_prms]),
+    index: prp_stm.index + 1,
   )
 }
 
-pub fn with_sql_and_params(
-  prepared_statement: PreparedStatement,
-  new_sql: String,
-  new_params: List(Param),
+pub fn append_sql_and_params(
+  prepared_statement prp_stm: PreparedStatement,
+  new_sql nw_sql: String,
+  new_params nw_prms: List(Param),
 ) {
   PreparedStatement(
-    ..prepared_statement,
-    sql: prepared_statement.sql <> new_sql,
-    params: list.append(prepared_statement.params, new_params),
-    index: prepared_statement.index + list.length(new_params),
+    ..prp_stm,
+    sql: prp_stm.sql <> nw_sql,
+    params: list.append(prp_stm.params, nw_prms),
+    index: prp_stm.index + list.length(nw_prms),
   )
 }
 
-pub fn get_prefix(prepared_statement: PreparedStatement) -> String {
-  prepared_statement.prefix
+pub fn get_prefix(prepared_statement prp_stm: PreparedStatement) -> String {
+  prp_stm.prefix
 }
 
-pub fn get_sql(prepared_statement: PreparedStatement) -> String {
-  prepared_statement.sql
+pub fn get_sql(prepared_statement prp_stm: PreparedStatement) -> String {
+  prp_stm.sql
 }
 
-pub fn get_params(prepared_statement: PreparedStatement) -> List(Param) {
-  prepared_statement.params
+pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) {
+  prp_stm.params
 }
 
-pub fn next_placeholder(prepared_statement: PreparedStatement) -> String {
-  prepared_statement.prefix
-  <> prepared_statement.index |> int.add(1) |> int.to_string
+pub fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
+  prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
 }
