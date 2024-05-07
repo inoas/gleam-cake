@@ -15,7 +15,7 @@ pub fn new(prefix prfx: String) -> PreparedStatement {
   prfx |> PreparedStatement("", [], 0)
 }
 
-pub fn with_sql(
+pub fn append_sql(
   prepared_statement prp_stm: PreparedStatement,
   new_sql nw_sql: String,
 ) {

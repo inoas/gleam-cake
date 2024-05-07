@@ -56,7 +56,7 @@ pub fn union_builder_apply_command_sql(
   prepared_statement prp_stm: PreparedStatement,
   select cq: CombinedQuery,
 ) -> PreparedStatement {
-  let combination = case cq.kind {
+  let combination_command = case cq.kind {
     Union -> "UNION"
     UnionAll -> "UNION ALL"
     Except -> "EXCEPT"
@@ -73,7 +73,7 @@ pub fn union_builder_apply_command_sql(
         True -> acc |> select_builder(sq)
         False -> {
           acc
-          |> prepared_statement.with_sql(" " <> combination <> " ")
+          |> prepared_statement.append_sql(" " <> combination_command <> " ")
           |> select_builder(sq)
         }
       }
@@ -86,7 +86,7 @@ fn union_builder_apply_to_sql(
   query qry: CombinedQuery,
   maybe_fun mb_fun: fn(CombinedQuery) -> String,
 ) -> PreparedStatement {
-  prepared_statement.with_sql(prp_stm, mb_fun(qry))
+  prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
 fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
@@ -126,13 +126,13 @@ fn select_builder_apply_to_sql(
   query qry: SelectQuery,
   maybe_fun mb_fun: fn(SelectQuery) -> String,
 ) -> PreparedStatement {
-  prepared_statement.with_sql(prp_stm, mb_fun(qry))
+  prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
 fn select_builder_maybe_add_select_sql(query qry: SelectQuery) -> String {
   case qry.select {
     [] -> "SELECT *"
-    _ -> "SELECT " <> stringx.map_join(qry.select, select_part_to_sql, ", ")
+    _ -> "SELECT " <> qry.select |> stringx.map_join(select_part_to_sql, ", ")
   }
 }
 
@@ -176,11 +176,9 @@ fn select_builder_maybe_apply_limit_offset(
   prepared_statement prp_stm: PreparedStatement,
   select_query slct_qry: SelectQuery,
 ) -> PreparedStatement {
-  let lmt_offst = limit_offset_get(slct_qry)
-  // |> iox.dbg_label("lmt_offst")
-
-  prp_stm
-  |> limit_offset_apply(lmt_offst)
+  slct_qry
+  |> limit_offset_get()
+  |> limit_offset_apply(prp_stm, _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -201,11 +199,11 @@ pub type Query {
 }
 
 pub fn query_select_wrap(query qry: SelectQuery) -> Query {
-  Select(qry)
+  qry |> Select()
 }
 
 pub fn query_combined_wrap(query qry: CombinedQuery) -> Query {
-  Combined(qry)
+  qry |> Combined()
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -267,7 +265,7 @@ pub fn limit_offset_apply(
     LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
     NoLimitOffset -> ""
   }
-  |> prepared_statement.with_sql(prp_stm, _)
+  |> prepared_statement.append_sql(prp_stm, _)
 }
 
 pub fn limit_offset_get(select_query slct_qry: SelectQuery) -> LimitOffsetPart {
@@ -373,8 +371,8 @@ pub fn combined_query_set_limit(
   query qry: CombinedQuery,
   limit lmt: Int,
 ) -> CombinedQuery {
-  let limit_offset = limit_new(lmt)
-  CombinedQuery(..qry, limit_offset: limit_offset)
+  let lmt_offst = limit_new(lmt)
+  CombinedQuery(..qry, limit_offset: lmt_offst)
 }
 
 pub fn combined_query_set_limit_and_offset(
@@ -392,56 +390,56 @@ pub fn combined_query_order_asc(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, Asc), True)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, Asc), True)
 }
 
 pub fn combined_query_order_asc_nulls_first(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
 }
 
 pub fn combined_query_order_asc_replace(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, Asc), False)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, Asc), False)
 }
 
 pub fn combined_query_order_asc_nulls_first_replace(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
 }
 
 pub fn combined_query_order_desc(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, Desc), True)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, Desc), True)
 }
 
 pub fn combined_query_order_desc_nulls_first(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
 }
 
 pub fn combined_query_order_desc_replace(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, Desc), False)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, Desc), False)
 }
 
 pub fn combined_query_order_desc_nulls_first_replace(
   query qry: CombinedQuery,
   by ordb: String,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
 }
 
 pub fn combined_query_order(
@@ -449,7 +447,7 @@ pub fn combined_query_order(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, dir), True)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, dir), True)
 }
 
 pub fn combined_query_order_replace(
@@ -457,7 +455,7 @@ pub fn combined_query_order_replace(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> CombinedQuery {
-  do_combined_order_by(qry, OrderByColumnPart(ordb, dir), False)
+  qry |> do_combined_order_by(OrderByColumnPart(ordb, dir), False)
 }
 
 fn do_combined_order_by(
@@ -588,56 +586,56 @@ pub fn select_query_order_asc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, Asc), True)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), True)
 }
 
 pub fn select_query_order_asc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), True)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
 }
 
 pub fn select_query_order_asc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, Asc), False)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), False)
 }
 
 pub fn select_query_order_asc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, AscNullsFirst), False)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
 }
 
 pub fn select_query_order_desc(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, Desc), True)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), True)
 }
 
 pub fn select_query_order_desc_nulls_first(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), True)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
 }
 
 pub fn select_query_order_desc_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, Desc), False)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), False)
 }
 
 pub fn select_query_order_desc_nulls_first_replace(
   query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, DescNullsFirst), False)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
 }
 
 pub fn select_query_order(
@@ -645,7 +643,7 @@ pub fn select_query_order(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, dir), True)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, dir), True)
 }
 
 pub fn select_query_order_replace(
@@ -653,7 +651,7 @@ pub fn select_query_order_replace(
   by ordb: String,
   direction dir: OrderByDirectionPart,
 ) -> SelectQuery {
-  do_select_order_by(qry, OrderByColumnPart(ordb, dir), False)
+  qry |> do_select_order_by(OrderByColumnPart(ordb, dir), False)
 }
 
 fn do_select_order_by(
@@ -674,8 +672,8 @@ pub fn select_query_set_limit(
   query qry: SelectQuery,
   limit lmt: Int,
 ) -> SelectQuery {
-  let limit_offset = limit_new(lmt)
-  SelectQuery(..qry, limit_offset: limit_offset)
+  let lmt_offst = limit_new(lmt)
+  SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
 pub fn select_query_set_limit_and_offset(
@@ -694,19 +692,19 @@ pub fn select_query_set_limit_and_offset(
 pub type FromPart {
   // TODO: check if the table does indeed exist
   FromTable(name: String)
-  FromSubQuery(query: Query, alias: String)
+  FromSubQuery(sub_query: Query, alias: String)
   NoFromPart
 }
 
 pub fn from_part_from_table(table_name tbl_nm: String) -> FromPart {
-  FromTable(tbl_nm)
+  FromTable(name: tbl_nm)
 }
 
 pub fn from_part_from_sub_query(
   sub_query sb_qry: Query,
   alias als: String,
 ) -> FromPart {
-  FromSubQuery(sb_qry, als)
+  FromSubQuery(sub_query: sb_qry, alias: als)
 }
 
 pub fn from_part_append_to_prepared_statement(
@@ -714,12 +712,12 @@ pub fn from_part_append_to_prepared_statement(
   part prt: FromPart,
 ) -> PreparedStatement {
   case prt {
-    FromTable(tbl) -> prepared_statement.with_sql(prp_stm, " FROM " <> tbl)
+    FromTable(tbl) -> prp_stm |> prepared_statement.append_sql(" FROM " <> tbl)
     FromSubQuery(sb_qry, als) ->
       prp_stm
-      |> prepared_statement.with_sql(" FROM (")
+      |> prepared_statement.append_sql(" FROM (")
       |> builder_apply(sb_qry)
-      |> prepared_statement.with_sql(") AS " <> als)
+      |> prepared_statement.append_sql(") AS " <> als)
     NoFromPart -> prp_stm
   }
 }
@@ -759,8 +757,8 @@ pub fn select_part_from(s: String) -> SelectPart {
   SelectString(s)
 }
 
-fn select_part_to_sql(part prt: SelectPart) -> String {
-  case prt {
+fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
+  case slct_prt {
     SelectString(string) -> string
     SelectStringAlias(string, alias) -> string <> " AS " <> alias
     SelectColumn(column) -> column
@@ -866,7 +864,7 @@ fn where_part_apply(
     WhereColNotEqualCol(a_col, b_col) ->
       prp_stm |> where_part_apply_comparison_col_col(a_col, "<>", b_col)
     WhereColEqualParam(col, NullParam) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
     WhereColEqualParam(col, prm) ->
       prp_stm |> where_part_apply_comparison_col_param(col, "=", prm)
     WhereColLowerParam(col, prm) ->
@@ -878,7 +876,7 @@ fn where_part_apply(
     WhereColGreaterOrEqualParam(col, prm) ->
       prp_stm |> where_part_apply_comparison_col_param(col, ">=", prm)
     WhereColNotEqualParam(col, NullParam) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NOT NULL")
     WhereColNotEqualParam(col, prm) ->
       prp_stm |> where_part_apply_comparison_col_param(col, "<>", prm)
     WhereColLike(col, prm) ->
@@ -902,9 +900,9 @@ fn where_part_apply(
         "SIMILAR TO",
         param.StringParam(prm),
       )
-      |> prepared_statement.with_sql(" ESCAPE '/'")
+      |> prepared_statement.append_sql(" ESCAPE '/'")
     WhereParamEqualCol(NullParam, col) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NULL")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
     WhereParamEqualCol(prm, col) ->
       prp_stm |> where_part_apply_comparison_param_col(prm, "=", col)
     WhereParamLowerCol(prm, col) ->
@@ -916,26 +914,26 @@ fn where_part_apply(
     WhereParamGreaterOrEqualCol(prm, col) ->
       prp_stm |> where_part_apply_comparison_param_col(prm, ">=", col)
     WhereParamNotEqualCol(NullParam, col) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NOT NULL")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NOT NULL")
     WhereParamNotEqualCol(prm, col) ->
       prp_stm |> where_part_apply_comparison_param_col(prm, "<>", col)
     WhereColIsBool(col, True) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS TRUE")
+      prp_stm |> prepared_statement.append_sql(col <> " IS TRUE")
     WhereColIsBool(col, False) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS FALSE")
+      prp_stm |> prepared_statement.append_sql(col <> " IS FALSE")
     WhereColIsNotBool(col, True) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NOT TRUE")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NOT TRUE")
     WhereColIsNotBool(col, False) ->
-      prp_stm |> prepared_statement.with_sql(col <> " IS NOT FALSE")
+      prp_stm |> prepared_statement.append_sql(col <> " IS NOT FALSE")
     AndWhere(prts) ->
       prp_stm |> where_part_apply_logical_sql_operator("AND", prts)
     OrWhere(prts) ->
       prp_stm |> where_part_apply_logical_sql_operator("OR", prts)
     NotWhere(prt) -> {
       prp_stm
-      |> prepared_statement.with_sql("NOT (")
+      |> prepared_statement.append_sql("NOT (")
       |> where_part_apply(prt)
-      |> prepared_statement.with_sql(")")
+      |> prepared_statement.append_sql(")")
     }
     WhereColInParams(col, prms) ->
       prp_stm |> where_part_apply_column_in_params(col, prms)
@@ -963,7 +961,7 @@ pub fn where_part_apply_clause(
     NoWherePart -> prp_stm
     _ -> {
       prp_stm
-      |> prepared_statement.with_sql(" WHERE ")
+      |> prepared_statement.append_sql(" WHERE ")
       |> where_part_apply(prt)
     }
   }
@@ -977,14 +975,14 @@ pub fn join_parts_apply_clause(
   |> list.fold(
     prp_stm,
     fn(acc: PreparedStatement, jn_prt: JoinPart) -> PreparedStatement {
-      let apply_join = fn(acc, join_command) {
+      let apply_join = fn(acc: PreparedStatement, join_command: String) -> PreparedStatement {
         acc
-        |> prepared_statement.with_sql(" " <> join_command <> " ")
+        |> prepared_statement.append_sql(" " <> join_command <> " ")
         |> join_part_apply(jn_prt)
       }
-      let apply_on = fn(acc, on) {
+      let apply_on = fn(acc: PreparedStatement, on: WherePart) {
         acc
-        |> prepared_statement.with_sql(" ON ")
+        |> prepared_statement.append_sql(" ON ")
         |> where_part_apply(on)
       }
       case jn_prt {
@@ -1009,7 +1007,7 @@ fn where_part_apply_comparison_col_col(
   b_column b_col: String,
 ) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.with_sql(a_col <> " " <> sql_oprtr <> " " <> b_col)
+  |> prepared_statement.append_sql(a_col <> " " <> sql_oprtr <> " " <> b_col)
 }
 
 fn where_part_apply_comparison_col_param(
@@ -1018,11 +1016,11 @@ fn where_part_apply_comparison_col_param(
   sql_operator sql_oprtr: String,
   param prm: Param,
 ) -> PreparedStatement {
-  let next_placeholder = prepared_statement.next_placeholder(prp_stm)
+  let nxt_plcholdr = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
   |> prepared_statement.append_sql_and_param(
-    col <> " " <> sql_oprtr <> " " <> next_placeholder,
+    col <> " " <> sql_oprtr <> " " <> nxt_plcholdr,
     prm,
   )
 }
@@ -1033,11 +1031,11 @@ fn where_part_apply_comparison_param_col(
   sql_operator sql_oprtr: String,
   column col: String,
 ) -> PreparedStatement {
-  let nxt_plcehldr = prepared_statement.next_placeholder(prp_stm)
+  let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
 
   prp_stm
   |> prepared_statement.append_sql_and_param(
-    nxt_plcehldr <> " " <> sql_oprtr <> " " <> col,
+    nxt_plchldr <> " " <> sql_oprtr <> " " <> col,
     prm,
   )
 }
@@ -1047,7 +1045,7 @@ fn where_part_apply_logical_sql_operator(
   operator oprtr: String,
   parts whr_prts: List(WherePart),
 ) -> PreparedStatement {
-  let new_prep_stm = prp_stm |> prepared_statement.with_sql("(")
+  let new_prep_stm = prp_stm |> prepared_statement.append_sql("(")
 
   whr_prts
   |> list.fold(
@@ -1057,12 +1055,12 @@ fn where_part_apply_logical_sql_operator(
         True -> acc |> where_part_apply(whr_prt)
         False ->
           acc
-          |> prepared_statement.with_sql(" " <> oprtr <> " ")
+          |> prepared_statement.append_sql(" " <> oprtr <> " ")
           |> where_part_apply(whr_prt)
       }
     },
   )
-  |> prepared_statement.with_sql(")")
+  |> prepared_statement.append_sql(")")
 }
 
 fn where_part_apply_column_in_params(
@@ -1070,20 +1068,20 @@ fn where_part_apply_column_in_params(
   column col: String,
   parameters prms: List(Param),
 ) -> PreparedStatement {
-  let new_prep_stm = prp_stm |> prepared_statement.with_sql(col <> " IN (")
+  let new_prep_stm = prp_stm |> prepared_statement.append_sql(col <> " IN (")
 
   prms
   |> list.fold(
     new_prep_stm,
     fn(acc: PreparedStatement, prm: Param) -> PreparedStatement {
-      let new_sql = case acc == new_prep_stm {
-        True -> prepared_statement.next_placeholder(prp_stm)
-        False -> ", " <> prepared_statement.next_placeholder(acc)
+      case acc == new_prep_stm {
+        True -> acc |> prepared_statement.next_placeholder()
+        False -> ", " <> acc |> prepared_statement.next_placeholder()
       }
-      prepared_statement.append_sql_and_param(acc, new_sql, prm)
+      |> prepared_statement.append_sql_and_param(acc, _, prm)
     },
   )
-  |> prepared_statement.with_sql(")")
+  |> prepared_statement.append_sql(")")
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1109,12 +1107,12 @@ fn join_part_apply(
 ) -> PreparedStatement {
   case jp.with {
     JoinTable(table: tbl) ->
-      prp_stm |> prepared_statement.with_sql(tbl <> " AS " <> jp.alias)
+      prp_stm |> prepared_statement.append_sql(tbl <> " AS " <> jp.alias)
     JoinSubQuery(sub_query: sb_qry) ->
       prp_stm
-      |> prepared_statement.with_sql("(")
+      |> prepared_statement.append_sql("(")
       |> builder_apply(sb_qry)
-      |> prepared_statement.with_sql(") AS " <> jp.alias)
+      |> prepared_statement.append_sql(") AS " <> jp.alias)
   }
 }
 
@@ -1140,6 +1138,6 @@ pub fn epilog_apply(
 ) -> PreparedStatement {
   case eplg_prt {
     NoEpilogPart -> prp_stm
-    Epilog(string: eplg) -> eplg |> prepared_statement.with_sql(prp_stm, _)
+    Epilog(string: eplg) -> eplg |> prepared_statement.append_sql(prp_stm, _)
   }
 }
