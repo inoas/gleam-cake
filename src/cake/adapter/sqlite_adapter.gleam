@@ -1,9 +1,11 @@
 import cake/internal/query.{type Query}
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/iox
 import gleam/list
-import sqlight
+import sqlight.{type Value}
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry |> query.builder_new("?")
@@ -13,7 +15,7 @@ pub fn with_memory_connection(callback_fun) {
   sqlight.with_connection(":memory:", callback_fun)
 }
 
-pub fn run_query(db_connection db_conn, query qry: Query, decoder decoder) {
+pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
   // |> iox.dbg_label("prp_stm")
 
@@ -25,7 +27,7 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder decoder) {
 
   let db_params =
     params
-    |> list.map(fn(param) {
+    |> list.map(fn(param: Param) -> Value {
       case param {
         BoolParam(param) -> sqlight.bool(param)
         FloatParam(param) -> sqlight.float(param)
@@ -38,9 +40,9 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder decoder) {
 
   sql
   |> iox.dbg_label("sql")
-  |> sqlight.query(on: db_conn, with: db_params, expecting: decoder)
+  |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
-pub fn execute(query, conn) {
+pub fn execute(query: String, conn) {
   query |> sqlight.exec(conn)
 }
