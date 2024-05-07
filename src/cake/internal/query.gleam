@@ -34,7 +34,7 @@ pub fn builder_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Combined Builder                                                         │
+// │  Combined Query Builder                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn combined_builder(
@@ -105,7 +105,7 @@ fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Select Builder                                                           │
+// │  Select Query Builder                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn select_builder(
