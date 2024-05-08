@@ -187,16 +187,17 @@ fn create_owners_table() {
   "CREATE TABLE owners (
     id int,
     name text,
+    last_name text,
     age int,
     tags text[]
   );"
 }
 
 fn insert_owners_rows() {
-  "INSERT INTO owners (id, name, age) VALUES
-    (1, 'Alice', 5),
-    (2, 'Bob', 8),
-    (3, 'Charlie', 13)
+  "INSERT INTO owners (id, name, last_name, age) VALUES
+    (1, 'Alice', 'Foo', 5),
+    (2, 'bob', 'BOB', 8),
+    (3, 'Charlie', 'Quux', 13)
   ;"
 }
 
