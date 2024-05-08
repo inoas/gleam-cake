@@ -774,7 +774,7 @@ fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
 
 // TODO MAYBE instead of:
 //
-// `WhereColEqualCol(a_column: String, b_column: String)`
+// `WhereColEqualCol(column_a: String, column_b: String)`
 //
 // use
 //
@@ -783,57 +783,36 @@ fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
 // then during processing or values
 // inject prepared statement parameters.
 
-// type WhereValue {
-//   WhereFunction(List(WhereValue))
-//   WhereColumn(String)
-//   WhereParam(Param)
-//   // WhereCase?
-// }
+pub type WhereValue {
+  // WhereFunction(List(WhereValue))
+  WhereColumn(String)
+  WhereParam(Param)
+  // WhereCase?
+}
 
 pub type WherePart {
-  // Column A to column B comparison
-  WhereColEqualCol(a_column: String, b_column: String)
-  WhereColLowerCol(a_column: String, b_column: String)
-  WhereColLowerOrEqualCol(a_column: String, b_column: String)
-  WhereColGreaterCol(a_column: String, b_column: String)
-  WhereColGreaterOrEqualCol(a_column: String, b_column: String)
-  WhereColNotEqualCol(a_column: String, b_column: String)
-  // Column to parameter comparison
-  WhereColEqualParam(column: String, parameter: Param)
-  WhereColLowerParam(column: String, parameter: Param)
-  WhereColLowerOrEqualParam(column: String, parameter: Param)
-  WhereColGreaterParam(column: String, parameter: Param)
-  WhereColGreaterOrEqualParam(column: String, parameter: Param)
-  WhereColNotEqualParam(column: String, parameter: Param)
-  WhereColLike(a_column: String, paramter: String)
-  WhereColILike(a_column: String, parameter: String)
+  WhereEqual(value_a: WhereValue, value_b: WhereValue)
+  WhereLower(value_a: WhereValue, value_b: WhereValue)
+  WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
+  WhereGreater(value_a: WhereValue, value_b: WhereValue)
+  WhereGreaterOrEqual(value_a: WhereValue, value_b: WhereValue)
+  WhereUnequal(value_a: WhereValue, value_b: WhereValue)
+  WhereIsNot(value_a: WhereValue, value_b: WhereValue)
+  WhereLike(value_a: WhereValue, string: String)
+  WhereILike(value_a: WhereValue, string: String)
+  // NOTICE: Sqlite does not support `SIMILAR TO`:
+  WhereSimilar(value_a: WhereValue, string: String)
+  // WhereIn(value_a: WhereValue, values: List(WhereValue))
+  // AndWhere(parts: List(WherePart))
+  // OrWhere(parts: List(WherePart))
+  // // TODO: XorWhere(List(WherePart))
+  // NotWhere(part: WherePart)
+  //
   // MAYBE add:
   // - WhereColBetweenParamAndParam(column: String, lower: Param, upper: Param)
   // - WhereColBetweenColAndParam(column: String, lower: String, upper: Param)
   // - WhereColBetweenParamAndCol(column: String, lower: Param, upper: String)
   // - WhereColBetweenColAndCol(column: String, lower: String, upper: String)
-  // NOTICE: Sqlite does not support `SIMILAR TO`
-  WhereColSimilarTo(a_column: String, parameter: String)
-  // Parameter to column comparison
-  WhereParamEqualCol(parameter: Param, column: String)
-  WhereParamLowerCol(parameter: Param, column: String)
-  WhereParamLowerOrEqualCol(parameter: Param, column: String)
-  WhereParamGreaterCol(parameter: Param, column: String)
-  WhereParamGreaterOrEqualCol(parameter: Param, column: String)
-  WhereParamNotEqualCol(parameter: Param, column: String)
-  // Column IS [NOT] TRUE/FALSE
-  WhereColIsBool(column: String, bool: Bool)
-  WhereColIsNotBool(column: String, bool: Bool)
-  // MAYBE add: https://wiki.postgresql.org/wiki/Is_distinct_from
-  // - WhereColIsDistinctFromCol(a_column: String, b_column: String)
-  // - WhereColIsDistinctFromParam(column: String, parameter: Param)
-  // Logical operators
-  AndWhere(parts: List(WherePart))
-  OrWhere(parts: List(WherePart))
-  // TODO: XorWhere(List(WherePart))
-  NotWhere(part: WherePart)
-  // Column contains value
-  WhereColInParams(column: String, parameters: List(Param))
   // Sub Query
   // WhereColInSubquery(column: String, sub_query: Query)
   // WhereColAllSubquery(column: String, sub_query: Query)
@@ -853,90 +832,50 @@ fn where_part_apply(
   part prt: WherePart,
 ) -> PreparedStatement {
   case prt {
-    WhereColEqualCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, "=", b_col)
-    WhereColLowerCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, "<", b_col)
-    WhereColLowerOrEqualCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, "<=", b_col)
-    WhereColGreaterCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, ">", b_col)
-    WhereColGreaterOrEqualCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, ">=", b_col)
-    WhereColNotEqualCol(a_col, b_col) ->
-      prp_stm |> where_part_apply_comparison_col_col(a_col, "<>", b_col)
-    WhereColEqualParam(col, NullParam) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
-    WhereColEqualParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "=", prm)
-    WhereColLowerParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<", prm)
-    WhereColLowerOrEqualParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<=", prm)
-    WhereColGreaterParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, ">", prm)
-    WhereColGreaterOrEqualParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, ">=", prm)
-    WhereColNotEqualParam(col, NullParam) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NOT NULL")
-    WhereColNotEqualParam(col, prm) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, "<>", prm)
-    WhereColLike(col, prm) ->
+    WhereEqual(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, "=", value_b)
+    WhereLower(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, "<", value_b)
+    WhereLowerOrEqual(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, "<=", value_b)
+    WhereGreater(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, ">", value_b)
+    WhereGreaterOrEqual(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, ">=", value_b)
+    WhereUnequal(value_a, value_b) ->
+      prp_stm |> where_part_apply_comparison(value_a, "<>", value_b)
+
+    WhereLike(col, prm) ->
       prp_stm
-      |> where_part_apply_comparison_col_param(
+      |> where_part_apply_comparison(
         col,
         "LIKE",
-        param.StringParam(prm),
+        WhereParam(param.StringParam(prm)),
       )
-    WhereColILike(col, prm) ->
+    WhereILike(col, prm) ->
       prp_stm
-      |> where_part_apply_comparison_col_param(
+      |> where_part_apply_comparison(
         col,
         "ILIKE",
-        param.StringParam(prm),
+        WhereParam(param.StringParam(prm)),
       )
-    WhereColSimilarTo(col, prm) ->
+    WhereSimilar(col, prm) ->
       prp_stm
-      |> where_part_apply_comparison_col_param(
+      |> where_part_apply_comparison(
         col,
         "SIMILAR TO",
-        param.StringParam(prm),
+        WhereParam(param.StringParam(prm)),
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    WhereParamEqualCol(NullParam, col) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
-    WhereParamEqualCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, "=", col)
-    WhereParamLowerCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, "<", col)
-    WhereParamLowerOrEqualCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, "<=", col)
-    WhereParamGreaterCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, ">", col)
-    WhereParamGreaterOrEqualCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, ">=", col)
-    WhereParamNotEqualCol(NullParam, col) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NOT NULL")
-    WhereParamNotEqualCol(prm, col) ->
-      prp_stm |> where_part_apply_comparison_param_col(prm, "<>", col)
-    WhereColIsBool(col, True) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS TRUE")
-    WhereColIsBool(col, False) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS FALSE")
-    WhereColIsNotBool(col, True) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NOT TRUE")
-    WhereColIsNotBool(col, False) ->
-      prp_stm |> prepared_statement.append_sql(col <> " IS NOT FALSE")
-    AndWhere(prts) -> prp_stm |> where_part_apply_logical_operator("AND", prts)
-    OrWhere(prts) -> prp_stm |> where_part_apply_logical_operator("OR", prts)
-    NotWhere(prt) -> {
-      prp_stm
-      |> prepared_statement.append_sql("NOT (")
-      |> where_part_apply(prt)
-      |> prepared_statement.append_sql(")")
-    }
-    WhereColInParams(col, prms) ->
-      prp_stm |> where_part_apply_column_in_params(col, prms)
+
+    // WhereColIsBool(col, True) ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS TRUE")
+    // WhereColIsBool(col, False) ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS FALSE")
+    // WhereColIsNotBool(col, True) ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS NOT TRUE")
+    // WhereColIsNotBool(col, False) ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS NOT FALSE")
     // WhereColEqualSubquery(column: col, sub_query: qry) ->
     //   todo as iox.inspect(#(col, qry))
     // WhereColLowerSubquery(column: col, sub_query: qry) ->
@@ -1000,14 +939,36 @@ pub fn join_parts_apply_clause(
   )
 }
 
+fn where_part_apply_comparison(
+  prepared_statement prp_stm: PreparedStatement,
+  value_a v1: WhereValue,
+  operator oprtr: String,
+  value_b v2: WhereValue,
+) {
+  case v1, v2 {
+    // WhereColumn(col), WhereParam(prm) if prm == NullParam ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
+    // WhereParam(prm), WhereColumn(col) if prm == NullParam ->
+    //   prp_stm |> prepared_statement.append_sql(col <> " IS NULL")
+    WhereColumn(col_a), WhereColumn(b_col) ->
+      prp_stm |> where_part_apply_comparison_col_col(col_a, oprtr, b_col)
+    WhereColumn(col), WhereParam(prm) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, oprtr, prm)
+    WhereParam(prm), WhereColumn(col) ->
+      prp_stm |> where_part_apply_comparison_col_param(col, oprtr, prm)
+    WhereParam(prm), WhereParam(col) ->
+      prp_stm |> where_part_apply_comparison_param_param(col, oprtr, prm)
+  }
+}
+
 fn where_part_apply_comparison_col_col(
   prepared_statement prp_stm: PreparedStatement,
-  a_column a_col: String,
+  column_a col_a: String,
   operator oprtr: String,
-  b_column b_col: String,
+  column_b b_col: String,
 ) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.append_sql(a_col <> " " <> oprtr <> " " <> b_col)
+  |> prepared_statement.append_sql(col_a <> " " <> oprtr <> " " <> b_col)
 }
 
 fn where_part_apply_comparison_col_param(
@@ -1038,6 +999,29 @@ fn where_part_apply_comparison_param_col(
     nxt_plchldr <> " " <> oprtr <> " " <> col,
     prm,
   )
+}
+
+fn where_part_apply_comparison_param_param(
+  prepared_statement prp_stm: PreparedStatement,
+  param_a prm_a: Param,
+  operator oprtr: String,
+  param_b prm_b: Param,
+) -> PreparedStatement {
+  let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder()
+
+  let prp_stm =
+    prp_stm
+    |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm_a)
+
+  let prp_stm = prp_stm |> prepared_statement.append_sql(" " <> oprtr <> " ")
+
+  let nxt_plchldr_b = prp_stm |> prepared_statement.next_placeholder()
+
+  let prp_stm =
+    prp_stm
+    |> prepared_statement.append_sql_and_param(nxt_plchldr_b, prm_b)
+
+  prp_stm
 }
 
 fn where_part_apply_logical_operator(
