@@ -772,22 +772,11 @@ fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
 // │  Where Part                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO MAYBE instead of:
-//
-// `WhereColEqualCol(column_a: String, column_b: String)`
-//
-// use
-//
-// `WhereEqual(WhereValue, WhereValue)`
-//
-// then during processing or values
-// inject prepared statement parameters.
-
 pub type WhereValue {
-  // WhereFunction(List(WhereValue))
   WhereColumn(String)
   WhereParam(Param)
-  // WhereQuery(Query) <- Subqueryies?
+  // WhereFunction(List(WhereValue))
+  // WhereQuery(Query) <- Subqueries, in this case returning only a row and col?
   // WhereCase?
 }
 

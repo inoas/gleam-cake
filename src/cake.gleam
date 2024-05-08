@@ -60,10 +60,16 @@ pub fn run_dummy_select() {
       query.InnerJoin(
         with: query.JoinTable("owners"),
         alias: "owners",
-        on: query.WhereEqual(
-          query.WhereColumn("owners.id"),
-          query.WhereColumn("cats.owner_id"),
-        ),
+        on: query.OrWhere([
+          query.WhereEqual(
+            query.WhereColumn("owners.id"),
+            query.WhereColumn("cats.owner_id"),
+          ),
+          query.WhereLower(
+            query.WhereColumn("owners.id"),
+            query.WhereParam(param.IntParam(20)),
+          ),
+        ]),
       ),
       query.CrossJoin(
         with: query.JoinSubQuery(query.query_select_wrap(dogs_sub_query)),
@@ -75,6 +81,7 @@ pub fn run_dummy_select() {
 
   let query_decoder =
     dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
+
   iox.print("SQLite: ")
 
   let _ =
