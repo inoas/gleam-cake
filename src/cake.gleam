@@ -232,7 +232,7 @@ fn create_dogs_table() {
   "CREATE TABLE dogs (
     name text,
     age int,
-    is_wild boolean,
+    is_trained boolean,
     owner_id int
   );"
 }
