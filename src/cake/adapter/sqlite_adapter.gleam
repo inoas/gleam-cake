@@ -1,7 +1,5 @@
 import cake/internal/query.{type Query}
-import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
-}
+import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/iox
 import gleam/list
@@ -33,7 +31,7 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)
         StringParam(param) -> sqlight.text(param)
-        NullParam -> sqlight.null()
+        // NullParam -> sqlight.null()
       }
     })
     |> iox.dbg_label("db_params")

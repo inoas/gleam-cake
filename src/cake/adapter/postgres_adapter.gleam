@@ -1,7 +1,5 @@
 import cake/internal/query.{type Query}
-import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
-}
+import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/iox
 import gleam/dynamic
@@ -46,7 +44,7 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
         StringParam(param) -> pgo.text(param)
-        NullParam -> pgo.null()
+        // NullParam -> pgo.null()
       }
     })
     |> iox.dbg_label("db_params")

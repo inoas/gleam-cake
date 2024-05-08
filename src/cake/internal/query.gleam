@@ -797,16 +797,19 @@ pub type WherePart {
   WhereGreater(value_a: WhereValue, value_b: WhereValue)
   WhereGreaterOrEqual(value_a: WhereValue, value_b: WhereValue)
   WhereUnequal(value_a: WhereValue, value_b: WhereValue)
-  WhereIsNot(value_a: WhereValue, value_b: WhereValue)
+  WhereIsBool(value: WhereValue, bool: Bool)
+  WhereIsNotBool(value: WhereValue, bool: Bool)
+  WhereIsNull(value: WhereValue)
+  WhereIsNotNull(value: WhereValue)
   WhereLike(value_a: WhereValue, string: String)
   WhereILike(value_a: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO`:
   WhereSimilar(value_a: WhereValue, string: String)
-  // WhereIn(value_a: WhereValue, values: List(WhereValue))
-  // AndWhere(parts: List(WherePart))
-  // OrWhere(parts: List(WherePart))
+  WhereIn(value_a: WhereValue, values: List(WhereValue))
+  AndWhere(parts: List(WherePart))
+  OrWhere(parts: List(WherePart))
   // // TODO: XorWhere(List(WherePart))
-  // NotWhere(part: WherePart)
+  NotWhere(part: WherePart)
   //
   // MAYBE add:
   // - WhereColBetweenParamAndParam(column: String, lower: Param, upper: Param)
@@ -832,23 +835,34 @@ fn where_part_apply(
   part prt: WherePart,
 ) -> PreparedStatement {
   case prt {
-    WhereEqual(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, "=", value_b)
-    WhereLower(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, "<", value_b)
-    WhereLowerOrEqual(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, "<=", value_b)
-    WhereGreater(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, ">", value_b)
-    WhereGreaterOrEqual(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, ">=", value_b)
-    WhereUnequal(value_a, value_b) ->
-      prp_stm |> where_part_apply_comparison(value_a, "<>", value_b)
+    WhereEqual(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, "=", val_b)
+    WhereLower(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, "<", val_b)
+    WhereLowerOrEqual(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, "<=", val_b)
+    WhereGreater(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, ">", val_b)
+    WhereGreaterOrEqual(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, ">=", val_b)
+    WhereUnequal(val_a, val_b) ->
+      prp_stm |> where_part_apply_comparison(val_a, "<>", val_b)
+    WhereIsBool(val, True) ->
+      prp_stm |> where_part_apply_literal(val, "IS TRUE")
+    WhereIsBool(val, False) ->
+      prp_stm |> where_part_apply_literal(val, "IS FALSE")
+    WhereIsNotBool(val, True) ->
+      prp_stm |> where_part_apply_literal(val, "IS NOT TRUE")
+    WhereIsNotBool(val, False) ->
+      prp_stm |> where_part_apply_literal(val, "IS NOT FALSE")
+    WhereIsNull(val) -> prp_stm |> where_part_apply_literal(val, "IS NULL")
+    WhereIsNotNull(val) ->
+      prp_stm |> where_part_apply_literal(val, "IS NOT NULL")
 
-    WhereLike(col, prm) ->
+    WhereLike(val, prm) ->
       prp_stm
       |> where_part_apply_comparison(
-        col,
+        val,
         "LIKE",
         WhereParam(param.StringParam(prm)),
       )
@@ -868,14 +882,6 @@ fn where_part_apply(
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
 
-    // WhereColIsBool(col, True) ->
-    //   prp_stm |> prepared_statement.append_sql(col <> " IS TRUE")
-    // WhereColIsBool(col, False) ->
-    //   prp_stm |> prepared_statement.append_sql(col <> " IS FALSE")
-    // WhereColIsNotBool(col, True) ->
-    //   prp_stm |> prepared_statement.append_sql(col <> " IS NOT TRUE")
-    // WhereColIsNotBool(col, False) ->
-    //   prp_stm |> prepared_statement.append_sql(col <> " IS NOT FALSE")
     // WhereColEqualSubquery(column: col, sub_query: qry) ->
     //   todo as iox.inspect(#(col, qry))
     // WhereColLowerSubquery(column: col, sub_query: qry) ->
@@ -937,6 +943,25 @@ pub fn join_parts_apply_clause(
       }
     },
   )
+}
+
+fn where_part_apply_literal(
+  prepared_statement prp_stm: PreparedStatement,
+  value v: WhereValue,
+  literal lt: String,
+) {
+  case v {
+    WhereColumn(col) ->
+      prp_stm
+      |> prepared_statement.append_sql(col <> " " <> lt)
+
+    WhereParam(prm) -> {
+      let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
+
+      prp_stm
+      |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
+    }
+  }
 }
 
 fn where_part_apply_comparison(
