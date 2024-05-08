@@ -1,4 +1,4 @@
-import cake/param.{type Param, NullParam}
+import cake/param.{type Param}
 import cake/prepared_statement.{type PreparedStatement}
 
 // import cake/stdlib/iox
@@ -882,6 +882,16 @@ fn where_part_apply(
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
 
+    AndWhere(prts) -> prp_stm |> where_part_apply_logical_operator("AND", prts)
+    OrWhere(prts) -> prp_stm |> where_part_apply_logical_operator("OR", prts)
+    NotWhere(prt) -> {
+      prp_stm
+      |> prepared_statement.append_sql("NOT (")
+      |> where_part_apply(prt)
+      |> prepared_statement.append_sql(")")
+    }
+    WhereIn(val, vals) -> prp_stm |> where_part_apply_value_in_values(val, vals)
+
     // WhereColEqualSubquery(column: col, sub_query: qry) ->
     //   todo as iox.inspect(#(col, qry))
     // WhereColLowerSubquery(column: col, sub_query: qry) ->
@@ -980,7 +990,7 @@ fn where_part_apply_comparison(
     WhereColumn(col), WhereParam(prm) ->
       prp_stm |> where_part_apply_comparison_col_param(col, oprtr, prm)
     WhereParam(prm), WhereColumn(col) ->
-      prp_stm |> where_part_apply_comparison_col_param(col, oprtr, prm)
+      prp_stm |> where_part_apply_comparison_param_col(prm, oprtr, col)
     WhereParam(prm), WhereParam(col) ->
       prp_stm |> where_part_apply_comparison_param_param(col, oprtr, prm)
   }
@@ -1072,22 +1082,40 @@ fn where_part_apply_logical_operator(
   |> prepared_statement.append_sql(")")
 }
 
-fn where_part_apply_column_in_params(
+fn where_part_apply_value_in_values(
   prepared_statement prp_stm: PreparedStatement,
-  column col: String,
-  parameters prms: List(Param),
+  value val: WhereValue,
+  parameters prms: List(WhereValue),
 ) -> PreparedStatement {
-  let prep_stm = prp_stm |> prepared_statement.append_sql(col <> " IN (")
+  let prep_stm =
+    case val {
+      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParam(prm) -> {
+        let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder()
+        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
+      }
+    }
+    |> prepared_statement.append_sql(" IN (")
 
   prms
   |> list.fold(
     prep_stm,
-    fn(new_prep_stm: PreparedStatement, prm: Param) -> PreparedStatement {
-      case new_prep_stm == prep_stm {
-        True -> new_prep_stm |> prepared_statement.next_placeholder()
-        False -> ", " <> new_prep_stm |> prepared_statement.next_placeholder()
+    fn(new_prep_stm: PreparedStatement, v: WhereValue) -> PreparedStatement {
+      case v {
+        WhereColumn(col) ->
+          case new_prep_stm == prep_stm {
+            True -> prp_stm |> prepared_statement.append_sql(col)
+            False -> new_prep_stm |> prepared_statement.append_sql(", " <> col)
+          }
+        WhereParam(prm) -> {
+          case new_prep_stm == prep_stm {
+            True -> new_prep_stm |> prepared_statement.next_placeholder()
+            False ->
+              ", " <> new_prep_stm |> prepared_statement.next_placeholder()
+          }
+          |> prepared_statement.append_sql_and_param(new_prep_stm, _, prm)
+        }
       }
-      |> prepared_statement.append_sql_and_param(new_prep_stm, _, prm)
     },
   )
   |> prepared_statement.append_sql(")")

@@ -3,10 +3,7 @@ pub type Param {
   FloatParam(Float)
   IntParam(Int)
   StringParam(String)
-}
-
-pub type NullParam {
-  NullParam
+  // NullParam
 }
 // import gleam/float
 // import gleam/int

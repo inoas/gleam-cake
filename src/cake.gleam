@@ -8,7 +8,7 @@ import gleam/erlang/process
 
 pub fn main() {
   run_dummy_select()
-  // run_dummy_union_all()
+  run_dummy_union_all()
 
   Nil
 }
@@ -26,12 +26,18 @@ pub fn run_dummy_select() {
 
   let where =
     query.OrWhere([
-      query.WhereColEqualParam("cats.age", param.IntParam(10)),
-      query.WhereColEqualParam("cats.name", param.StringParam("5")),
-      query.WhereColInParams("cats.age", [
-        param.NullParam,
-        param.IntParam(1),
-        param.IntParam(2),
+      query.WhereEqual(
+        query.WhereColumn("cats.age"),
+        query.WhereParam(param.IntParam(10)),
+      ),
+      query.WhereEqual(
+        query.WhereColumn("cats.name"),
+        query.WhereParam(param.StringParam("5")),
+      ),
+      query.WhereIn(query.WhereColumn("cats.age"), [
+        // query.WhereParam(param.NullParam), // this is bullshit anyway
+        query.WhereParam(param.IntParam(1)),
+        query.WhereParam(param.IntParam(2)),
       ]),
     ])
 
@@ -54,7 +60,10 @@ pub fn run_dummy_select() {
       query.InnerJoin(
         with: query.JoinTable("owners"),
         alias: "owners",
-        on: query.WhereColEqualCol("owners.id", "cats.owner_id"),
+        on: query.WhereEqual(
+          query.WhereColumn("owners.id"),
+          query.WhereColumn("cats.owner_id"),
+        ),
       ),
       query.CrossJoin(
         with: query.JoinSubQuery(query.query_select_wrap(dogs_sub_query)),
@@ -98,23 +107,24 @@ pub fn run_dummy_union_all() {
     select_query
     |> query.select_query_set_where(
       query.OrWhere([
-        query.WhereColLowerOrEqualParam("age", param.IntParam(4)),
-        query.WhereColLike("name", "%ara%"),
+        query.WhereLowerOrEqual(
+          query.WhereColumn("age"),
+          query.WhereParam(param.IntParam(4)),
+        ),
+        query.WhereLike(query.WhereColumn("name"), "%ara%"),
         // query.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
       ]),
     )
 
   let where_b =
-    query.NotWhere(query.WhereColIsNotBool("is_wild", False))
+    query.NotWhere(query.WhereIsNotBool(query.WhereColumn("is_wild"), False))
     |> iox.dbg_label("where_b")
-  // FIXME
-  // let where = query.NotWhere([query.WhereColIsParam("age", param.NullParam)])
 
   let select_query_b =
     select_query
-    |> query.select_query_set_where(query.WhereColGreaterOrEqualParam(
-      "age",
-      param.IntParam(7),
+    |> query.select_query_set_where(query.WhereGreaterOrEqual(
+      query.WhereColumn("age"),
+      query.WhereParam(param.IntParam(7)),
     ))
     |> query.select_query_order_asc(by: "will_be_removed")
     |> query.select_query_set_where(where_b)
@@ -232,7 +242,7 @@ fn create_dogs_table() {
   "CREATE TABLE dogs (
     name text,
     age int,
-    is_wild boolean,
+    is_trained boolean,
     owner_id int
   );"
 }
