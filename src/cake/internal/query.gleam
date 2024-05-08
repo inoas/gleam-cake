@@ -787,6 +787,7 @@ pub type WhereValue {
   // WhereFunction(List(WhereValue))
   WhereColumn(String)
   WhereParam(Param)
+  // WhereQuery(Query) <- Subqueryies?
   // WhereCase?
 }
 
@@ -808,25 +809,20 @@ pub type WherePart {
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   AndWhere(parts: List(WherePart))
   OrWhere(parts: List(WherePart))
-  // // TODO: XorWhere(List(WherePart))
+  // TODO: XorWhere(List(WherePart))
   NotWhere(part: WherePart)
-  //
   // MAYBE add:
-  // - WhereColBetweenParamAndParam(column: String, lower: Param, upper: Param)
-  // - WhereColBetweenColAndParam(column: String, lower: String, upper: Param)
-  // - WhereColBetweenParamAndCol(column: String, lower: Param, upper: String)
-  // - WhereColBetweenColAndCol(column: String, lower: String, upper: String)
-  // Sub Query
-  // WhereColInSubquery(column: String, sub_query: Query)
-  // WhereColAllSubquery(column: String, sub_query: Query)
-  // WhereColAnySubquery(column: String, sub_query: Query)
-  // WhereColExistsSubquery(sub_query: Query)
-  // WhereColEqualSubquery(column: String, sub_query: Query)
-  // WhereColLowerSubquery(column: String, sub_query: Query)
-  // WhereColLowerOrEqualSubquery(column: String, sub_query: Query)
-  // WhereColGreaterSubquery(column: String, sub_query: Query)
-  // WhereColGreaterOrEqualSubquery(column: String, sub_query: Query)
-  // WhereColNotEqualSubquery(column: String, sub_query: Query)
+  // WhereBetween(value_a: WhereValue, value_b: WhereValue)
+  // WhereInSubquery(value: WhereValue, sub_query: Query)
+  // WhereAllSubquery(value: WhereValue, sub_query: Query)
+  // WhereAnySubquery(value: WhereValue, sub_query: Query)
+  // WhereExistsSubquery(sub_query: Query)
+  // WhereEqualSubquery(value: WhereValue, sub_query: Query)
+  // WhereLowerSubquery(value: WhereValue, sub_query: Query)
+  // WhereLowerOrEqualSubquery(value: WhereValue, sub_query: Query)
+  // WhereGreaterSubquery(value: WhereValue, sub_query: Query)
+  // WhereGreaterOrEqualSubquery(value: WhereValue, sub_query: Query)
+  // WhereNotEqualSubquery(value: WhereValue, sub_query: Query)
   NoWherePart
 }
 
