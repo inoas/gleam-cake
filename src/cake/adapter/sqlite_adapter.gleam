@@ -15,13 +15,12 @@ pub fn with_memory_connection(callback_fun) {
 
 pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
-  // |> iox.dbg_label("prp_stm")
 
-  let sql = prepared_statement.get_sql(prp_stm)
-  // |> iox.dbg_label("sql")
+  let sql =
+    prepared_statement.get_sql(prp_stm)
+    |> iox.dbg
 
   let params = prepared_statement.get_params(prp_stm)
-  // |> iox.dbg_label("params")
 
   let db_params =
     params
@@ -31,13 +30,12 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)
         StringParam(param) -> sqlight.text(param)
-        // NullParam -> sqlight.null()
       }
     })
-    |> iox.dbg_label("db_params")
+    |> iox.print_tap("Params: ")
+    |> iox.dbg
 
   sql
-  |> iox.dbg_label("sql")
   |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 

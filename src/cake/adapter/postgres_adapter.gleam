@@ -28,13 +28,12 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 
 pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
-  // |> iox.dbg_label("prp_stm")
 
-  let sql = prepared_statement.get_sql(prp_stm)
-  // |> iox.dbg_label("sql")
+  let sql =
+    prepared_statement.get_sql(prp_stm)
+    |> iox.dbg
 
   let params = prepared_statement.get_params(prp_stm)
-  // |> iox.dbg_label("params")
 
   let db_params =
     params
@@ -47,11 +46,11 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
         // NullParam -> pgo.null()
       }
     })
-    |> iox.dbg_label("db_params")
+    |> iox.print_tap("Params: ")
+    |> iox.dbg
 
   let result =
     sql
-    |> iox.dbg_label("sql")
     |> pgo.execute(on: db_conn, with: db_params, expecting: dcdr)
 
   case result {

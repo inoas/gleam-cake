@@ -69,6 +69,19 @@ pub fn run_dummy_select() {
             query.WhereColumn("owners.id"),
             query.WhereParam(param.IntParam(20)),
           ),
+          query.WhereEqual(
+            query.WhereFragments(
+              query.FragmentLiteral("LOWER(owners.name)"),
+              fragments: [],
+            ),
+            query.WhereFragments(
+              query.FragmentPrepared(
+                "LOWER(" <> query.fragment_placeholder <> ")",
+                param.StringParam("Timmy"),
+              ),
+              fragments: [],
+            ),
+          ),
         ]),
       ),
       query.CrossJoin(
@@ -79,21 +92,25 @@ pub fn run_dummy_select() {
     |> query.query_select_wrap
     |> iox.dbg
 
+  process.sleep(100)
+
   let query_decoder =
     dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
 
-  iox.print("SQLite: ")
+  iox.println("SQLite")
 
   let _ =
     run_on_sqlite(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
   process.sleep(100)
 
-  iox.print("Postgres: ")
+  iox.println("Postgres")
 
   let _ =
     run_on_postgres(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
   process.sleep(100)
@@ -145,16 +162,22 @@ pub fn run_dummy_union_all() {
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  iox.print("SQLite: ")
+  process.sleep(100)
+
+  iox.println("SQLite")
 
   let _ =
     run_on_sqlite(union_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
-  iox.print("Postgres: ")
+  process.sleep(100)
+
+  iox.println("Postgres")
 
   let _ =
     run_on_postgres(union_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
   process.sleep(100)
