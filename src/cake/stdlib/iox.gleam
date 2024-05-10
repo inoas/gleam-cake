@@ -32,3 +32,8 @@ pub fn println(s: String) -> Nil {
 pub fn print(s: String) -> Nil {
   s |> io.print()
 }
+
+pub fn print_tap(v: a, s: String) -> a {
+  s |> io.print()
+  v
+}

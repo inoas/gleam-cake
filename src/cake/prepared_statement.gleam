@@ -5,6 +5,7 @@ import gleam/list
 pub opaque type PreparedStatement {
   PreparedStatement(
     prefix: String,
+    // use a string builder here?
     sql: String,
     params: List(Param),
     index: Int,

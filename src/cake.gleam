@@ -1,14 +1,17 @@
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
-import cake/internal/query
-import cake/param
+import cake/internal/query as q
+import cake/param as p
+import cake/query/comparison.{EQ, GT, GTE, LT, LTE}
+import cake/query/fragment as f
+import cake/query/where as w
 import cake/stdlib/iox
 import gleam/dynamic
 import gleam/erlang/process
 
 pub fn main() {
   run_dummy_select()
-  // run_dummy_union_all()
+  run_dummy_union_all()
 
   Nil
 }
@@ -17,67 +20,81 @@ pub fn run_dummy_select() {
   iox.print_dashes()
 
   let cats_sub_query =
-    query.from_part_from_table(table_name: "cats")
-    |> query.select_query_new_from()
+    q.from_part_from_table(table_name: "cats")
+    |> q.select_query_new_from()
 
   let dogs_sub_query =
-    query.from_part_from_table(table_name: "dogs")
-    |> query.select_query_new_from()
+    q.from_part_from_table(table_name: "dogs")
+    |> q.select_query_new_from()
+
+  // let cats = column.Column("cats", _)
 
   let where =
-    query.OrWhere([
-      query.WhereColEqualParam("cats.age", param.IntParam(10)),
-      query.WhereColEqualParam("cats.name", param.StringParam("5")),
-      query.WhereColInParams("cats.age", [
-        param.NullParam,
-        param.IntParam(1),
-        param.IntParam(2),
-      ]),
+    w.or([
+      w.cond(w.col("cats.age"), EQ, w.int(10)),
+      w.cond(w.col("cats.name"), EQ, w.string("foo")),
+      w.in(w.col("cats.age"), [w.int(1), w.int(2)]),
     ])
 
   let select_query =
     cats_sub_query
-    |> query.query_select_wrap()
-    |> query.from_part_from_sub_query(alias: "cats")
-    |> query.select_query_new_from()
-    |> query.select_query_select([
-      query.select_part_from("cats.name"),
-      query.select_part_from("cats.age"),
-      query.select_part_from("owners.name AS owner_name"),
+    |> q.query_select_wrap()
+    |> q.from_part_from_sub_query(alias: "cats")
+    |> q.select_query_new_from()
+    |> q.select_query_select([
+      q.select_part_from("cats.name"),
+      q.select_part_from("cats.age"),
+      q.select_part_from("owners.name AS owner_name"),
     ])
-    |> query.select_query_set_where(where)
-    |> query.select_query_order_asc("cats.name")
-    |> query.select_query_order_replace(by: "cats.age", direction: query.Asc)
-    |> query.select_query_set_limit(1)
-    |> query.select_query_set_limit_and_offset(1, 0)
-    |> query.select_query_set_join([
-      query.InnerJoin(
-        with: query.JoinTable("owners"),
+    |> q.select_query_set_where(where)
+    |> q.select_query_order_asc("cats.name")
+    |> q.select_query_order_replace(by: "cats.age", direction: q.Asc)
+    |> q.select_query_set_limit(1)
+    |> q.select_query_set_limit_and_offset(1, 0)
+    |> q.select_query_set_join([
+      q.InnerJoin(
+        with: q.JoinTable("owners"),
         alias: "owners",
-        on: query.WhereColEqualCol("owners.id", "cats.owner_id"),
+        on: w.or([
+          w.eq(w.col("owners.id"), w.col("cats.owner_id")),
+          w.lt(w.col("owners.id"), w.int(20)),
+          w.is_not_null(w.col("owners.id")),
+          w.eq(
+            w.fragment(f.literal("LOWER(owners.name)")),
+            w.fragment(f.prepared(
+              "LOWER(" <> f.placeholder <> ")",
+              p.string("Timmy"),
+            )),
+          ),
+        ]),
       ),
-      query.CrossJoin(
-        with: query.JoinSubQuery(query.query_select_wrap(dogs_sub_query)),
+      q.CrossJoin(
+        with: q.JoinSubQuery(q.query_select_wrap(dogs_sub_query)),
         alias: "dogs",
       ),
     ])
-    |> query.query_select_wrap
-    |> iox.dbg
-
-  let query_decoder =
-    dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
-  iox.print("SQLite: ")
-
-  let _ =
-    run_on_sqlite(select_query, query_decoder)
+    |> q.query_select_wrap
     |> iox.dbg
 
   process.sleep(100)
 
-  iox.print("Postgres: ")
+  let query_decoder =
+    dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
+
+  iox.println("SQLite")
+
+  let _ =
+    run_on_sqlite(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+
+  process.sleep(100)
+
+  iox.println("Postgres")
 
   let _ =
     run_on_postgres(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
   process.sleep(100)
@@ -87,57 +104,58 @@ pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
-    query.from_part_from_table("cats")
-    |> query.select_query_new_from()
-    |> query.select_query_select([
-      query.select_part_from("name"),
-      query.select_part_from("age"),
+    q.from_part_from_table("cats")
+    |> q.select_query_new_from()
+    |> q.select_query_select([
+      q.select_part_from("name"),
+      q.select_part_from("age"),
     ])
 
   let select_query_a =
     select_query
-    |> query.select_query_set_where(
-      query.OrWhere([
-        query.WhereColLowerOrEqualParam("age", param.IntParam(4)),
-        query.WhereColLike("name", "%ara%"),
-        // query.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
+    |> q.select_query_set_where(
+      w.or([
+        w.lte(w.col("age"), w.int(4)),
+        w.like(w.col("name"), "%ara%"),
+        // q.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
       ]),
     )
 
   let where_b =
-    query.NotWhere(query.WhereColIsNotBool("is_wild", False))
+    q.NotWhere(q.WhereIsNotBool(w.col("is_wild"), False))
     |> iox.dbg_label("where_b")
-  // FIXME
-  // let where = query.NotWhere([query.WhereColIsParam("age", param.NullParam)])
 
   let select_query_b =
     select_query
-    |> query.select_query_set_where(query.WhereColGreaterOrEqualParam(
-      "age",
-      param.IntParam(7),
-    ))
-    |> query.select_query_order_asc(by: "will_be_removed")
-    |> query.select_query_set_where(where_b)
+    |> q.select_query_set_where(q.WhereGreaterOrEqual(w.col("age"), w.int(7)))
+    |> q.select_query_order_asc(by: "will_be_removed")
+    |> q.select_query_set_where(where_b)
 
   let union_query =
-    query.combined_union_all_query_new([select_query_a, select_query_b])
-    |> query.combined_query_set_limit(1)
-    |> query.combined_query_order_replace(by: "age", direction: query.Asc)
-    |> query.query_combined_wrap
+    q.combined_union_all_query_new([select_query_a, select_query_b])
+    |> q.combined_query_set_limit(1)
+    |> q.combined_query_order_replace(by: "age", direction: q.Asc)
+    |> q.query_combined_wrap
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
 
-  iox.print("SQLite: ")
+  process.sleep(100)
+
+  iox.println("SQLite")
 
   let _ =
     run_on_sqlite(union_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
-  iox.print("Postgres: ")
+  process.sleep(100)
+
+  iox.println("Postgres")
 
   let _ =
     run_on_postgres(union_query, query_decoder)
+    |> iox.print_tap("Result: ")
     |> iox.dbg
 
   process.sleep(100)
