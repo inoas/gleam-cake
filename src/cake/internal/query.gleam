@@ -742,92 +742,6 @@ pub fn from_part_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Fragment                                                                 │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-pub type Fragment {
-  FragmentLiteral(fragment: String)
-  FragmentPrepared(fragment: String, param: Param)
-}
-
-import gleam/regex
-
-pub const fragment_placeholder = "???"
-
-const fragment_placeholder_regex_string = "(.*)(\\?\\?\\?)(.*)"
-
-fn apply_fragment(
-  prepared_statement prp_stm: PreparedStatement,
-  fragment frgmt: Fragment,
-) -> PreparedStatement {
-  let assert Ok(frgmt_placeholder_regex) =
-    regex.from_string(fragment_placeholder_regex_string)
-
-  case frgmt {
-    FragmentLiteral(fragment: frgmt) ->
-      prp_stm |> prepared_statement.append_sql(frgmt)
-    FragmentPrepared(fragment: frgmt, param: prm) -> {
-      // Alternative implementation might be faster, but *shrug*:
-      // frgmt |> string.to_graphemes() |> list.fold(
-      let frgmt_parts =
-        regex.split(with: frgmt_placeholder_regex, content: frgmt)
-        |> list.filter(fn(s) { s != "" })
-
-      frgmt_parts
-      |> list.fold(
-        prp_stm,
-        fn(new_prep_stm: PreparedStatement, frgmnt_part: String) -> PreparedStatement {
-          case frgmnt_part == fragment_placeholder {
-            True -> {
-              let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-              new_prep_stm
-              |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
-            }
-            False -> {
-              new_prep_stm |> prepared_statement.append_sql(frgmnt_part)
-            }
-          }
-        },
-      )
-      // let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-      // // TODO: FIXME:
-      // // 1. detect if the fragment has a placeholder
-      // // 2. if it has or even has multiple, replace those with the next placeholders
-      // // else append a single next placeholder
-      // //
-      // //
-      // //
-      // frgmt |> string.to_graphemes() |> list.fold(
-      //   prp_stm,
-      //   fn(new_prep_stm: PreparedStatement, grapheme: String) -> PreparedStatement {
-      //     case grapheme {
-      //       "?" -> {
-      //         new_prep_stm |> prepared_statement.append_sql_and_param(nxt_plchldr)
-      //         let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-
-      //       }
-      //       _ -> new_prep_stm |> prepared_statement.append_sql(grapheme)
-      //     }
-      //   }
-      // )
-    }
-  }
-}
-
-fn apply_fragments(
-  prepared_statement prp_stm: PreparedStatement,
-  fragments frgmts: List(Fragment),
-) -> PreparedStatement {
-  frgmts
-  |> list.fold(
-    prp_stm,
-    fn(new_prep_stm: PreparedStatement, frgmt: Fragment) -> PreparedStatement {
-      new_prep_stm |> apply_fragment(frgmt)
-    },
-  )
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Select Part                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
 
@@ -1243,4 +1157,92 @@ pub fn epilog_apply(
     NoEpilogPart -> prp_stm
     Epilog(string: eplg) -> prp_stm |> prepared_statement.append_sql(eplg)
   }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Fragment                                                                 │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Fragment {
+  FragmentLiteral(fragment: String)
+  FragmentPrepared(fragment: String, param: Param)
+}
+
+import gleam/regex
+
+/// Use to mark the position where a parameter should be inserted into
+/// for a fragment with a prepared parameter.
+pub const fragment_placeholder = "$"
+
+const fragment_placeholder_regex_string = "^(.*)(\\$)(.*)$"
+
+fn apply_fragment(
+  prepared_statement prp_stm: PreparedStatement,
+  fragment frgmt: Fragment,
+) -> PreparedStatement {
+  let assert Ok(frgmt_placeholder_regex) =
+    regex.from_string(fragment_placeholder_regex_string)
+
+  case frgmt {
+    FragmentLiteral(fragment: frgmt) ->
+      prp_stm |> prepared_statement.append_sql(frgmt)
+    FragmentPrepared(fragment: frgmt, param: prm) -> {
+      // Alternative implementation might be faster, but *shrug*:
+      // frgmt |> string.to_graphemes() |> list.fold(
+      let frgmt_parts =
+        regex.split(with: frgmt_placeholder_regex, content: frgmt)
+        |> list.filter(fn(s) { s != "" })
+
+      frgmt_parts
+      |> list.fold(
+        prp_stm,
+        fn(new_prep_stm: PreparedStatement, frgmnt_part: String) -> PreparedStatement {
+          case frgmnt_part == fragment_placeholder {
+            True -> {
+              let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
+              new_prep_stm
+              |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+            }
+            False -> {
+              new_prep_stm |> prepared_statement.append_sql(frgmnt_part)
+            }
+          }
+        },
+      )
+      // let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
+      // // TODO: FIXME:
+      // // 1. detect if the fragment has a placeholder
+      // // 2. if it has or even has multiple, replace those with the next placeholders
+      // // else append a single next placeholder
+      // //
+      // //
+      // //
+      // frgmt |> string.to_graphemes() |> list.fold(
+      //   prp_stm,
+      //   fn(new_prep_stm: PreparedStatement, grapheme: String) -> PreparedStatement {
+      //     case grapheme {
+      //       "?" -> {
+      //         new_prep_stm |> prepared_statement.append_sql_and_param(nxt_plchldr)
+      //         let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
+
+      //       }
+      //       _ -> new_prep_stm |> prepared_statement.append_sql(grapheme)
+      //     }
+      //   }
+      // )
+    }
+  }
+}
+
+fn apply_fragments(
+  prepared_statement prp_stm: PreparedStatement,
+  fragments frgmts: List(Fragment),
+) -> PreparedStatement {
+  frgmts
+  |> list.fold(
+    prp_stm,
+    fn(new_prep_stm: PreparedStatement, frgmt: Fragment) -> PreparedStatement {
+      new_prep_stm |> apply_fragment(frgmt)
+    },
+  )
 }
