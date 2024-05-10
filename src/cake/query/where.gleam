@@ -48,36 +48,36 @@ pub fn cond(
   }
 }
 
-pub fn eq(value_a: WhereValue, value_b: WhereValue) -> WherePart {
-  value_a |> query.WhereEqual(value_b)
+pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+  val_a |> query.WhereEqual(val_b)
 }
 
-pub fn lt(value_a: WhereValue, value_b: WhereValue) -> WherePart {
-  value_a |> query.WhereLower(value_b)
+pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+  val_a |> query.WhereLower(val_b)
 }
 
-pub fn lte(value_a: WhereValue, value_b: WhereValue) -> WherePart {
-  value_a |> query.WhereLowerOrEqual(value_b)
+pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+  val_a |> query.WhereLowerOrEqual(val_b)
 }
 
-pub fn gt(value_a: WhereValue, value_b: WhereValue) -> WherePart {
-  value_a |> query.WhereGreater(value_b)
+pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+  val_a |> query.WhereGreater(val_b)
 }
 
-pub fn gte(value_a: WhereValue, value_b: WhereValue) -> WherePart {
-  value_a |> query.WhereGreaterOrEqual(value_b)
+pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+  val_a |> query.WhereGreaterOrEqual(val_b)
 }
 
-pub fn in(value: WhereValue, values: List(WhereValue)) -> WherePart {
-  value |> query.WhereIn(values)
+pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> WherePart {
+  val |> query.WhereIn(vals)
 }
 
-pub fn like(value: WhereValue, pattern: String) -> WherePart {
-  query.WhereLike(value, pattern)
+pub fn like(value val: WhereValue, pattern pttrn: String) -> WherePart {
+  val |> query.WhereLike(pttrn)
 }
 
-pub fn ilike(value: WhereValue, pattern: String) -> WherePart {
-  query.WhereILike(value, pattern)
+pub fn ilike(value val: WhereValue, pattern pttrn: String) -> WherePart {
+  val |> query.WhereILike(pttrn)
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> WhereValue {

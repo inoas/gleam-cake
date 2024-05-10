@@ -5,8 +5,10 @@ import cake/stdlib/iox
 import gleam/list
 import sqlight.{type Value}
 
+const prepared_statement_placeholder_prefix = "?"
+
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> query.builder_new("?")
+  qry |> query.builder_new(prepared_statement_placeholder_prefix)
 }
 
 pub fn with_memory_connection(callback_fun) {
