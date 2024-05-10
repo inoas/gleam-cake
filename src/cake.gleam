@@ -58,6 +58,7 @@ pub fn run_dummy_select() {
         on: w.or([
           w.eq(w.col("owners.id"), w.col("cats.owner_id")),
           w.lt(w.col("owners.id"), w.int(20)),
+          w.is_not_null(w.col("owners.id")),
           w.eq(
             w.fragment(f.literal("LOWER(owners.name)")),
             w.fragment(f.prepared(

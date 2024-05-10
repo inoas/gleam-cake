@@ -72,6 +72,22 @@ pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> WherePart {
   val |> query.WhereIn(vals)
 }
 
+pub fn is_bool(value val: WhereValue, bool b: Bool) -> WherePart {
+  val |> query.WhereIsBool(b)
+}
+
+pub fn is_not(value val: WhereValue, bool b: Bool) -> WherePart {
+  val |> query.WhereIsNotBool(b)
+}
+
+pub fn is_null(value val: WhereValue) -> WherePart {
+  val |> query.WhereIsNull
+}
+
+pub fn is_not_null(value val: WhereValue) -> WherePart {
+  val |> query.WhereIsNotNull
+}
+
 pub fn like(value val: WhereValue, pattern pttrn: String) -> WherePart {
   val |> query.WhereLike(pttrn)
 }
