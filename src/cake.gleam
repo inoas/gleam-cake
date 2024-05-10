@@ -20,20 +20,21 @@ pub fn run_dummy_select() {
   iox.print_dashes()
 
   let cats_sub_query =
-    q.from_part_from_table(table_name: "cats")
+    q.from_part_from_table(name: "cats")
     |> q.select_query_new_from()
 
   let dogs_sub_query =
-    q.from_part_from_table(table_name: "dogs")
+    q.from_part_from_table(name: "dogs")
     |> q.select_query_new_from()
 
-  // let cats = column.Column("cats", _)
+  let cats_t = q.scoped_identifier("cats")
+  let owners_t = q.scoped_identifier("owners")
 
   let where =
     w.or([
-      w.cond(w.col("cats.age"), EQ, w.int(10)),
-      w.cond(w.col("cats.name"), EQ, w.string("foo")),
-      w.in(w.col("cats.age"), [w.int(1), w.int(2)]),
+      w.cond(w.col(cats_t("age")), EQ, w.int(10)),
+      w.cond(w.col(cats_t("name")), EQ, w.string("foo")),
+      w.in(w.col(cats_t("age")), [w.int(1), w.int(2)]),
     ])
 
   let select_query =
@@ -42,13 +43,14 @@ pub fn run_dummy_select() {
     |> q.from_part_from_sub_query(alias: "cats")
     |> q.select_query_new_from()
     |> q.select_query_select([
-      q.select_part_from("cats.name"),
-      q.select_part_from("cats.age"),
+      q.select_part_from(cats_t("name")),
+      q.select_part_from(cats_t("age")),
+      // TODO: this is bad:
       q.select_part_from("owners.name AS owner_name"),
     ])
     |> q.select_query_set_where(where)
-    |> q.select_query_order_asc("cats.name")
-    |> q.select_query_order_replace(by: "cats.age", direction: q.Asc)
+    |> q.select_query_order_asc(cats_t("name"))
+    |> q.select_query_order_replace(by: cats_t("age"), direction: q.Asc)
     |> q.select_query_set_limit(1)
     |> q.select_query_set_limit_and_offset(1, 0)
     |> q.select_query_set_join([
@@ -56,11 +58,11 @@ pub fn run_dummy_select() {
         with: q.JoinTable("owners"),
         alias: "owners",
         on: w.or([
-          w.eq(w.col("owners.id"), w.col("cats.owner_id")),
-          w.lt(w.col("owners.id"), w.int(20)),
-          w.is_not_null(w.col("owners.id")),
+          w.eq(w.col(owners_t("id")), w.col(cats_t("owner_id"))),
+          w.lt(w.col(owners_t("id")), w.int(20)),
+          w.is_not_null(w.col(owners_t("id"))),
           w.eq(
-            w.fragment(f.literal("LOWER(owners.name)")),
+            w.fragment(f.literal("LOWER(" <> owners_t("name") <> ")")),
             w.fragment(f.prepared(
               "LOWER(" <> f.placeholder <> ")",
               p.string("Timmy"),

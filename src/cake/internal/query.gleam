@@ -715,7 +715,7 @@ pub type FromPart {
   NoFromPart
 }
 
-pub fn from_part_from_table(table_name tbl_nm: String) -> FromPart {
+pub fn from_part_from_table(name tbl_nm: String) -> FromPart {
   FromTable(name: tbl_nm)
 }
 
@@ -1245,4 +1245,12 @@ fn apply_fragments(
       new_prep_stm |> apply_fragment(frgmt)
     },
   )
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Helpers                                                                  │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub fn scoped_identifier(scope scp: String) -> fn(String) -> String {
+  fn(identifier) -> String { scp <> "." <> identifier }
 }
