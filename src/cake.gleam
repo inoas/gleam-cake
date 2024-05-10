@@ -32,9 +32,10 @@ pub fn run_dummy_select() {
 
   let where =
     w.or([
-      w.cond(w.col(cats_t("age")), EQ, w.int(10)),
-      w.cond(w.col(cats_t("name")), EQ, w.string("foo")),
-      w.in(w.col(cats_t("age")), [w.int(1), w.int(2)]),
+      w.col(cats_t("age")) |> w.cond(EQ, w.int(10)),
+      w.col(cats_t("name")) |> w.cond(EQ, w.string("foo")),
+      w.col(cats_t("name")) |> w.eq(w.string("foo")),
+      w.col(cats_t("age")) |> w.in([w.int(1), w.int(2)]),
     ])
 
   let select_query =
@@ -58,9 +59,9 @@ pub fn run_dummy_select() {
         with: q.JoinTable("owners"),
         alias: "owners",
         on: w.or([
-          w.eq(w.col(owners_t("id")), w.col(cats_t("owner_id"))),
-          w.lt(w.col(owners_t("id")), w.int(20)),
-          w.is_not_null(w.col(owners_t("id"))),
+          w.col(owners_t("id")) |> w.eq(w.col(cats_t("owner_id"))),
+          w.col(owners_t("id")) |> w.lt(w.int(20)),
+          w.col(owners_t("id")) |> w.is_not_null(),
           w.eq(
             w.fragment(f.literal("LOWER(" <> owners_t("name") <> ")")),
             w.fragment(f.prepared(
@@ -106,7 +107,7 @@ pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
-    q.from_part_from_table("cats")
+    q.from_part_from_table(name: "cats")
     |> q.select_query_new_from()
     |> q.select_query_select([
       q.select_part_from("name"),
@@ -117,8 +118,8 @@ pub fn run_dummy_union_all() {
     select_query
     |> q.select_query_set_where(
       w.or([
-        w.lte(w.col("age"), w.int(4)),
-        w.like(w.col("name"), "%ara%"),
+        w.col("age") |> w.lte(w.int(4)),
+        w.col("name") |> w.like("%ara%"),
         // q.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
       ]),
     )
