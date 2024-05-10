@@ -27,8 +27,8 @@ pub fn run_dummy_select() {
     q.from_part_from_table(name: "dogs")
     |> q.select_query_new_from()
 
-  let cats_t = q.scoped_identifier("cats")
-  let owners_t = q.scoped_identifier("owners")
+  let cats_t = q.qualified_identifier("cats")
+  let owners_t = q.qualified_identifier("owners")
 
   let where =
     w.or([

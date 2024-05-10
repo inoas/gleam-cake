@@ -1251,6 +1251,6 @@ fn apply_fragments(
 // │  Helpers                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub fn scoped_identifier(scope scp: String) -> fn(String) -> String {
+pub fn qualified_identifier(scope scp: String) -> fn(String) -> String {
   fn(identifier) -> String { scp <> "." <> identifier }
 }
