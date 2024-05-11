@@ -71,6 +71,10 @@ pub fn select_replace(
   SelectQuery(..qry, select: slct_prts)
 }
 
+pub fn get_select(select_query qry: SelectQuery) -> List(SelectPart) {
+  qry.select
+}
+
 // ▒▒▒ WHERE ▒▒▒
 
 pub fn set_where(
@@ -80,6 +84,28 @@ pub fn set_where(
   SelectQuery(..qry, where: whr)
 }
 
+pub fn and_where(
+  select_query qry: SelectQuery,
+  where whr: WherePart,
+) -> SelectQuery {
+  let new_where = query.AndWhere([qry.where, ..[whr]])
+  SelectQuery(..qry, where: new_where)
+}
+
+pub fn or_where(
+  select_query qry: SelectQuery,
+  where whr: WherePart,
+) -> SelectQuery {
+  let new_where = query.OrWhere([qry.where, ..[whr]])
+  SelectQuery(..qry, where: new_where)
+}
+
+// TODO: pub fn xor_where
+
+pub fn get_where(select_query qry: SelectQuery) -> WherePart {
+  qry.where
+}
+
 // ▒▒▒ JOIN ▒▒▒
 
 pub fn set_join(
@@ -87,4 +113,16 @@ pub fn set_join(
   join_parts prts: List(JoinPart),
 ) -> SelectQuery {
   SelectQuery(..qry, join: prts)
+}
+
+pub fn add_join(
+  select_query qry: SelectQuery,
+  join_parts prts: JoinPart,
+) -> SelectQuery {
+  let new_joins = [prts, ..qry.join]
+  SelectQuery(..qry, join: new_joins)
+}
+
+pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
+  qry.join
 }

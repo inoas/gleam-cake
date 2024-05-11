@@ -29,6 +29,10 @@ pub fn or(parts: List(WherePart)) -> WherePart {
   parts |> query.OrWhere
 }
 
+// pub fn xor(parts: List(WherePart)) -> WherePart {
+//   parts |> query.XorWhere
+// }
+
 pub fn not(part: WherePart) -> WherePart {
   part |> query.NotWhere
 }
