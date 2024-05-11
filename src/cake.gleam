@@ -4,17 +4,15 @@ import cake/internal/query as q
 import cake/param as p
 import cake/query/fragment as frgmt
 import cake/query/from as f
-
-// import cake/query/having as h
-// import cake/query/join as j
-// import cake/query/limit as l
-// import cake/query/order as o
-// import cake/query/select as s
-// import cake/query/union as u
+import cake/query/having as h
+import cake/query/join as j
+import cake/query/limit as l
+import cake/query/order as o
+import cake/query/select as s
+import cake/query/union as u
 import cake/query/where as w
-
-// import cake/query/window as window
-// import cake/query/with as with
+import cake/query/window as win
+import cake/query/with as wit
 import cake/stdlib/iox
 import gleam/dynamic
 import gleam/erlang/process
