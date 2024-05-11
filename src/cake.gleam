@@ -2,9 +2,19 @@ import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
 import cake/internal/query as q
 import cake/param as p
-import cake/query/comparison.{EQ, GT, GTE, LT, LTE}
-import cake/query/fragment as f
+import cake/query/fragment as frgmt
+import cake/query/from as f
+
+// import cake/query/having as h
+// import cake/query/join as j
+// import cake/query/limit as l
+// import cake/query/order as o
+// import cake/query/select as s
+// import cake/query/union as u
 import cake/query/where as w
+
+// import cake/query/window as window
+// import cake/query/with as with
 import cake/stdlib/iox
 import gleam/dynamic
 import gleam/erlang/process
@@ -20,11 +30,11 @@ pub fn run_dummy_select() {
   iox.print_dashes()
 
   let cats_sub_query =
-    q.from_part_from_table(name: "cats")
+    f.table(name: "cats")
     |> q.select_query_new_from()
 
   let dogs_sub_query =
-    q.from_part_from_table(name: "dogs")
+    f.table(name: "dogs")
     |> q.select_query_new_from()
 
   let cats_t = q.qualified_identifier("cats")
@@ -32,8 +42,8 @@ pub fn run_dummy_select() {
 
   let where =
     w.or([
-      w.col(cats_t("age")) |> w.cond(EQ, w.int(10)),
-      w.col(cats_t("name")) |> w.cond(EQ, w.string("foo")),
+      w.col(cats_t("age")) |> w.eq(w.int(10)),
+      w.col(cats_t("name")) |> w.eq(w.string("foo")),
       w.col(cats_t("name")) |> w.eq(w.string("foo")),
       w.col(cats_t("age")) |> w.in([w.int(1), w.int(2)]),
     ])
@@ -41,7 +51,7 @@ pub fn run_dummy_select() {
   let select_query =
     cats_sub_query
     |> q.query_select_wrap()
-    |> q.from_part_from_sub_query(alias: "cats")
+    |> f.sub_query(alias: "cats")
     |> q.select_query_new_from()
     |> q.select_query_select([
       q.select_part_from(cats_t("name")),
@@ -63,9 +73,9 @@ pub fn run_dummy_select() {
           w.col(owners_t("id")) |> w.lt(w.int(20)),
           w.col(owners_t("id")) |> w.is_not_null(),
           w.eq(
-            w.fragment(f.literal("LOWER(" <> owners_t("name") <> ")")),
-            w.fragment(f.prepared(
-              "LOWER(" <> f.placeholder <> ")",
+            w.fragment(frgmt.literal("LOWER(" <> owners_t("name") <> ")")),
+            w.fragment(frgmt.prepared(
+              "LOWER(" <> frgmt.placeholder <> ")",
               p.string("Timmy"),
             )),
           ),
@@ -107,7 +117,7 @@ pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
-    q.from_part_from_table(name: "cats")
+    f.table(name: "cats")
     |> q.select_query_new_from()
     |> q.select_query_select([
       q.select_part_from("name"),

@@ -1,6 +1,5 @@
 import cake/internal/query.{type Fragment, type WherePart, type WhereValue}
 import cake/param
-import cake/query/comparison.{type Comparison}
 
 pub fn col(name: String) -> WhereValue {
   name |> query.WhereColumn
@@ -32,20 +31,6 @@ pub fn or(parts: List(WherePart)) -> WherePart {
 
 pub fn not(part: WherePart) -> WherePart {
   part |> query.NotWhere
-}
-
-pub fn cond(
-  value_a val_a: WhereValue,
-  operator oprtr: Comparison,
-  value_b val_b: WhereValue,
-) -> WherePart {
-  case oprtr {
-    comparison.EQ -> eq(val_a, val_b)
-    comparison.GT -> gt(val_a, val_b)
-    comparison.GTE -> gte(val_a, val_b)
-    comparison.LT -> lt(val_a, val_b)
-    comparison.LTE -> lte(val_a, val_b)
-  }
 }
 
 pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {

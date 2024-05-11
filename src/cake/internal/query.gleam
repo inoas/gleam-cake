@@ -715,17 +715,6 @@ pub type FromPart {
   NoFromPart
 }
 
-pub fn from_part_from_table(name tbl_nm: String) -> FromPart {
-  FromTable(name: tbl_nm)
-}
-
-pub fn from_part_from_sub_query(
-  sub_query qry: Query,
-  alias als: String,
-) -> FromPart {
-  FromSubQuery(sub_query: qry, alias: als)
-}
-
 pub fn from_part_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: FromPart,
@@ -1168,30 +1157,61 @@ pub type Fragment {
   FragmentPrepared(fragment: String, param: Param)
 }
 
-import gleam/regex
-
 /// Use to mark the position where a parameter should be inserted into
 /// for a fragment with a prepared parameter.
+///
 pub const fragment_placeholder = "$"
 
-const fragment_placeholder_regex_string = "^(.*)(\\$)(.*)$"
+/// Splits something like `GREATER($, $)` into `["GREATER(", "$", ", ", "$", ")"]`.
+///
+pub fn fragment_prepared_split_string(
+  string_fragment str_frgmt: String,
+) -> List(String) {
+  str_frgmt
+  |> string.to_graphemes()
+  |> list.fold([], fn(acc: List(String), grapheme: String) -> List(String) {
+    case grapheme == fragment_placeholder, acc {
+      // If encountering a placeholder, we want to add it as a single item.
+      True, _acc -> [fragment_placeholder, ..acc]
+      // If Encountering anything else but there isn't anything yet,
+      // we want to add it as a single item.
+      False, [] -> [grapheme]
+      // If the previous item matches a placeholder, we don't want to append
+      // to it, because we want placeholders to exist as separat single items.
+      False, [first, ..] if first == fragment_placeholder -> {
+        [grapheme, ..acc]
+      }
+      // In any other case we can just append to the previous item
+      False, [first, ..rest] -> {
+        [first <> grapheme, ..rest]
+      }
+    }
+  })
+  |> list.reverse()
+}
+
+pub fn fragment_prepared_count_placeholders(
+  string_fragments s_frgmts: List(String),
+) -> Int {
+  s_frgmts
+  |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
+    iox.dbg(s_frgmt)
+    case s_frgmt == fragment_placeholder {
+      True -> count + 1
+      False -> count
+    }
+  })
+}
 
 fn apply_fragment(
   prepared_statement prp_stm: PreparedStatement,
   fragment frgmt: Fragment,
 ) -> PreparedStatement {
-  let assert Ok(frgmt_placeholder_regex) =
-    regex.from_string(fragment_placeholder_regex_string)
-
   case frgmt {
     FragmentLiteral(fragment: frgmt) ->
       prp_stm |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, param: prm) -> {
-      // Alternative implementation might be faster, but *shrug*:
-      // frgmt |> string.to_graphemes() |> list.fold(
-      let frgmt_parts =
-        regex.split(with: frgmt_placeholder_regex, content: frgmt)
-        |> list.filter(fn(s) { s != "" })
+      let frgmt_parts = fragment_prepared_split_string(frgmt)
 
       frgmt_parts
       |> list.fold(
@@ -1209,27 +1229,6 @@ fn apply_fragment(
           }
         },
       )
-      // let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-      // // TODO: FIXME:
-      // // 1. detect if the fragment has a placeholder
-      // // 2. if it has or even has multiple, replace those with the next placeholders
-      // // else append a single next placeholder
-      // //
-      // //
-      // //
-      // frgmt |> string.to_graphemes() |> list.fold(
-      //   prp_stm,
-      //   fn(new_prep_stm: PreparedStatement, grapheme: String) -> PreparedStatement {
-      //     case grapheme {
-      //       "?" -> {
-      //         new_prep_stm |> prepared_statement.append_sql_and_param(nxt_plchldr)
-      //         let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-
-      //       }
-      //       _ -> new_prep_stm |> prepared_statement.append_sql(grapheme)
-      //     }
-      //   }
-      // )
     }
   }
 }
