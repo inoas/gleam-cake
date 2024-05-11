@@ -20,10 +20,70 @@ import gleam/dynamic
 import gleam/erlang/process
 
 pub fn main() {
-  run_dummy_select()
-  run_dummy_union_all()
+  process.sleep(100)
+
+  let _ = run_dummy_fragment()
+
+  process.sleep(100)
+
+  let _ = run_dummy_select()
+
+  process.sleep(100)
+
+  let _ = run_dummy_union_all()
+
+  process.sleep(100)
 
   Nil
+}
+
+pub fn run_dummy_fragment() {
+  iox.print_dashes()
+
+  let cats_query =
+    f.table(name: "cats")
+    |> q.select_query_new_from()
+
+  let select_query =
+    cats_query
+    |> q.select_query_set_where(
+      w.eq(
+        w.col("name"),
+        w.fragment(
+          frgmt.prepared(
+            "LOWER("
+              <> frgmt.placeholder
+              <> ") OR name = LOWER("
+              <> frgmt.placeholder
+              <> ")",
+            [p.string("Timmy"), p.string("Jimmy")],
+          ),
+        ),
+      )
+      |> iox.dbg,
+    )
+    |> q.query_select_wrap
+
+  process.sleep(100)
+
+  let query_decoder =
+    dynamic.tuple3(dynamic.string, dynamic.int, dynamic.string)
+
+  iox.println("SQLite")
+
+  let _ =
+    run_on_sqlite(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+
+  process.sleep(100)
+
+  iox.println("Postgres")
+
+  let _ =
+    run_on_postgres(select_query, query_decoder)
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
 }
 
 pub fn run_dummy_select() {
@@ -74,10 +134,16 @@ pub fn run_dummy_select() {
           w.col(owners_t("id")) |> w.is_not_null(),
           w.eq(
             w.fragment(frgmt.literal("LOWER(" <> owners_t("name") <> ")")),
-            w.fragment(frgmt.prepared(
-              "LOWER(" <> frgmt.placeholder <> ")",
-              p.string("Timmy"),
-            )),
+            w.fragment(
+              frgmt.prepared(
+                "GREATER("
+                  <> frgmt.placeholder
+                  <> ", "
+                  <> frgmt.placeholder
+                  <> ")",
+                [p.string("Timmy"), p.string("Jimmy")],
+              ),
+            ),
           ),
         ]),
       ),

@@ -1,4 +1,4 @@
-// TODO find and replace prep_stm to prp_stm
+// TODO find and replace prp_stm to prp_stm
 //
 import cake/param.{type Param}
 import cake/prepared_statement.{type PreparedStatement}
@@ -7,6 +7,7 @@ import cake/stdlib/listx
 import cake/stdlib/stringx
 import gleam/int
 import gleam/list
+import gleam/order
 import gleam/string
 
 // TODO: CASE expressions for WHERE, SELECT and others?
@@ -69,11 +70,11 @@ pub fn union_builder_apply_command_sql(
   cmbnd_qry.select_queries
   |> list.fold(
     prp_stm,
-    fn(new_prep_stm: PreparedStatement, qry: SelectQuery) -> PreparedStatement {
-      case new_prep_stm == prp_stm {
-        True -> new_prep_stm |> select_builder(qry)
+    fn(new_prp_stm: PreparedStatement, qry: SelectQuery) -> PreparedStatement {
+      case new_prp_stm == prp_stm {
+        True -> new_prp_stm |> select_builder(qry)
         False -> {
-          new_prep_stm
+          new_prp_stm
           |> prepared_statement.append_sql(" " <> sql_command <> " ")
           |> select_builder(qry)
         }
@@ -781,7 +782,7 @@ fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
 pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
-  WhereFragments(fragment: Fragment, fragments: List(Fragment))
+  WhereFragment(fragment: Fragment)
   // WhereQuery(ScalarSelectQuery):
   // NOTICE: Return value must be scalar: Set LIMIT to 1,
   // If there are multiple, take the list of select parts
@@ -910,27 +911,27 @@ pub fn join_parts_apply_clause(
   prts
   |> list.fold(
     prp_stm,
-    fn(new_prep_stm: PreparedStatement, prt: JoinPart) -> PreparedStatement {
-      let apply_join = fn(new_prep_stm: PreparedStatement, sql_command: String) -> PreparedStatement {
-        new_prep_stm
+    fn(new_prp_stm: PreparedStatement, prt: JoinPart) -> PreparedStatement {
+      let apply_join = fn(new_prp_stm: PreparedStatement, sql_command: String) -> PreparedStatement {
+        new_prp_stm
         |> prepared_statement.append_sql(" " <> sql_command <> " ")
         |> join_part_apply(prt)
       }
-      let apply_on = fn(new_prep_stm: PreparedStatement, on: WherePart) {
-        new_prep_stm
+      let apply_on = fn(new_prp_stm: PreparedStatement, on: WherePart) {
+        new_prp_stm
         |> prepared_statement.append_sql(" ON ")
         |> where_part_apply(on)
       }
       case prt {
-        CrossJoin(_, _) -> new_prep_stm |> apply_join("CROSS JOIN")
+        CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
         InnerJoin(_, _, on: on) ->
-          new_prep_stm |> apply_join("INNER JOIN") |> apply_on(on)
+          new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
         LeftOuterJoin(_, _, on: on) ->
-          new_prep_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+          new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
         RightOuterJoin(_, _, on: on) ->
-          new_prep_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+          new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
         FullOuterJoin(_, _, on: on) ->
-          new_prep_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+          new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
       }
     },
   )
@@ -947,13 +948,13 @@ fn where_part_apply_literal(
       |> prepared_statement.append_sql(col <> " " <> lt)
 
     WhereParam(prm) -> {
-      let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
+      let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
 
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
-    WhereFragments(fragment: frgmt, fragments: frgmts) -> {
-      prp_stm |> apply_fragments([frgmt, ..frgmts])
+    WhereFragment(fragment: frgmt) -> {
+      prp_stm |> apply_fragment(frgmt)
     }
   }
 }
@@ -981,29 +982,29 @@ fn where_part_apply_comparison(
       |> where_part_apply_param(prm_a)
       |> where_part_apply_string(" " <> oprtr <> " ")
       |> where_part_apply_param(prm_b)
-    WhereFragments(frgmt, frgmts), WhereColumn(col) ->
+    WhereFragment(frgmt), WhereColumn(col) ->
       prp_stm
-      |> apply_fragments([frgmt, ..frgmts])
+      |> apply_fragment(frgmt)
       |> where_part_apply_string(" " <> oprtr <> " " <> col)
-    WhereColumn(col), WhereFragments(frgmt, frgmts) ->
+    WhereColumn(col), WhereFragment(frgmt) ->
       prp_stm
       |> where_part_apply_string(col <> " " <> oprtr <> " ")
-      |> apply_fragments([frgmt, ..frgmts])
-    WhereFragments(frgmt, frgmts), WhereParam(prm) ->
+      |> apply_fragment(frgmt)
+    WhereFragment(frgmt), WhereParam(prm) ->
       prp_stm
-      |> apply_fragments([frgmt, ..frgmts])
+      |> apply_fragment(frgmt)
       |> where_part_apply_string(" " <> oprtr <> " ")
       |> where_part_apply_param(prm)
-    WhereParam(prm), WhereFragments(frgmt, frgmts) ->
+    WhereParam(prm), WhereFragment(frgmt) ->
       prp_stm
       |> where_part_apply_param(prm)
       |> where_part_apply_string(" " <> oprtr <> " ")
-      |> apply_fragments([frgmt, ..frgmts])
-    WhereFragments(frgmt_a, frgmts_a), WhereFragments(frgmt_b, frgmts_b) ->
+      |> apply_fragment(frgmt)
+    WhereFragment(frgmt_a), WhereFragment(frgmt_b) ->
       prp_stm
-      |> apply_fragments([frgmt_a, ..frgmts_a])
+      |> apply_fragment(frgmt_a)
       |> where_part_apply_string(" " <> oprtr <> " ")
-      |> apply_fragments([frgmt_b, ..frgmts_b])
+      |> apply_fragment(frgmt_b)
   }
 }
 
@@ -1018,7 +1019,7 @@ fn where_part_apply_param(
   prepared_statement prp_stm: PreparedStatement,
   param prm: Param,
 ) -> PreparedStatement {
-  let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder()
+  let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
 
   prp_stm
   |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
@@ -1029,16 +1030,16 @@ fn where_part_apply_logical_operator(
   operator oprtr: String,
   parts prts: List(WherePart),
 ) -> PreparedStatement {
-  let prep_stm = prp_stm |> prepared_statement.append_sql("(")
+  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
   prts
   |> list.fold(
-    prep_stm,
-    fn(new_prep_stm: PreparedStatement, prt: WherePart) -> PreparedStatement {
-      case new_prep_stm == prep_stm {
-        True -> new_prep_stm |> where_part_apply(prt)
+    prp_stm,
+    fn(new_prp_stm: PreparedStatement, prt: WherePart) -> PreparedStatement {
+      case new_prp_stm == prp_stm {
+        True -> new_prp_stm |> where_part_apply(prt)
         False ->
-          new_prep_stm
+          new_prp_stm
           |> prepared_statement.append_sql(" " <> oprtr <> " ")
           |> where_part_apply(prt)
       }
@@ -1052,38 +1053,35 @@ fn where_part_apply_value_in_values(
   value val: WhereValue,
   parameters prms: List(WhereValue),
 ) -> PreparedStatement {
-  let prep_stm =
+  let prp_stm =
     case val {
       WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
       WhereParam(prm) -> {
-        let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder()
+        let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
       }
-      WhereFragments(frgmt, frgmts) ->
-        prp_stm |> apply_fragments([frgmt, ..frgmts])
+      WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
     }
     |> prepared_statement.append_sql(" IN (")
 
   prms
   |> list.fold(
-    prep_stm,
-    fn(new_prep_stm: PreparedStatement, v: WhereValue) -> PreparedStatement {
+    prp_stm,
+    fn(new_prp_stm: PreparedStatement, v: WhereValue) -> PreparedStatement {
       case v {
         WhereColumn(col) ->
-          case new_prep_stm == prep_stm {
+          case new_prp_stm == prp_stm {
             True -> prp_stm |> prepared_statement.append_sql(col)
-            False -> new_prep_stm |> prepared_statement.append_sql(", " <> col)
+            False -> new_prp_stm |> prepared_statement.append_sql(", " <> col)
           }
         WhereParam(prm) -> {
-          case new_prep_stm == prep_stm {
-            True -> new_prep_stm |> prepared_statement.next_placeholder()
-            False ->
-              ", " <> new_prep_stm |> prepared_statement.next_placeholder()
+          case new_prp_stm == prp_stm {
+            True -> new_prp_stm |> prepared_statement.next_placeholder
+            False -> ", " <> new_prp_stm |> prepared_statement.next_placeholder
           }
-          |> prepared_statement.append_sql_and_param(new_prep_stm, _, prm)
+          |> prepared_statement.append_sql_and_param(new_prp_stm, _, prm)
         }
-        WhereFragments(frgmt, frgmts) ->
-          prp_stm |> apply_fragments([frgmt, ..frgmts])
+        WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
       }
     },
   )
@@ -1154,7 +1152,7 @@ pub fn epilog_apply(
 
 pub type Fragment {
   FragmentLiteral(fragment: String)
-  FragmentPrepared(fragment: String, param: Param)
+  FragmentPrepared(fragment: String, params: List(Param))
 }
 
 /// Use to mark the position where a parameter should be inserted into
@@ -1190,7 +1188,7 @@ pub fn fragment_prepared_split_string(
   |> list.reverse()
 }
 
-pub fn fragment_prepared_count_placeholders(
+pub fn fragment_count_placeholders(
   string_fragments s_frgmts: List(String),
 ) -> Int {
   s_frgmts
@@ -1210,40 +1208,78 @@ fn apply_fragment(
   case frgmt {
     FragmentLiteral(fragment: frgmt) ->
       prp_stm |> prepared_statement.append_sql(frgmt)
-    FragmentPrepared(fragment: frgmt, param: prm) -> {
-      let frgmt_parts = fragment_prepared_split_string(frgmt)
+    FragmentPrepared(fragment: frgmt, params: prms) -> {
+      let frgmt_parts = frgmt |> fragment_prepared_split_string
+      let frgmt_plchldr_count = frgmt_parts |> fragment_count_placeholders
+      let prms_count = prms |> list.length()
 
-      frgmt_parts
-      |> list.fold(
-        prp_stm,
-        fn(new_prep_stm: PreparedStatement, frgmnt_part: String) -> PreparedStatement {
-          case frgmnt_part == fragment_placeholder {
-            True -> {
-              let nxt_plchldr = prepared_statement.next_placeholder(prp_stm)
-              new_prep_stm
-              |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+      // Fill up or reduce params to match the given number of placeholders
+      // This is likely a user error that cannot be catched by
+      // the type system, but instead of crashing we do the best we can.
+      // ´fragment.prepared()` should be used with caution and will
+      // warn about the mismatch.
+      let prms = case frgmt_plchldr_count |> int.compare(with: prms_count) {
+        order.Eq -> prms
+        order.Lt -> {
+          // If there are more params than placeholders, we take the first
+          // n params where n is the number of placeholders, and discard the
+          // rest.
+          let missing_placeholders = prms_count - frgmt_plchldr_count
+          prms |> list.take(missing_placeholders + 1)
+        }
+        order.Gt -> {
+          // If there are more placeholders than params, we repeat the last
+          // param until the number of placeholders is reached.
+          let missing_params = frgmt_plchldr_count - prms_count
+          // At this point one can assume a non-empty-list for the params
+          // because `fragment.prepared()` converts a call with 0
+          // placeholders andor 0 params to `FragmentLiteral` which needs
+          // neither placeholders nor params.
+          let assert Ok(last_item) = list.last(prms)
+          let repeated_last_item = last_item |> list.repeat(missing_params)
+          prms |> list.append(repeated_last_item)
+        }
+      }
+
+      let #(new_prp_stm, empty_param_rest) =
+        frgmt_parts
+        |> list.fold(
+          #(prp_stm, prms),
+          fn(acc: #(PreparedStatement, List(Param)), frgmnt_prt: String) -> #(
+            PreparedStatement,
+            List(Param),
+          ) {
+            let new_prp_stm = acc.0
+            case frgmnt_prt == fragment_placeholder {
+              True -> {
+                let nxt_plchldr =
+                  new_prp_stm |> prepared_statement.next_placeholder
+                // Pop one of the list, and use it as the next parameter value.
+                // This is safe because we have already checked that the list
+                // is not empty.
+                let assert [prm, ..rest_prms] = acc.1
+                let new_prp_stm =
+                  new_prp_stm
+                  |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+
+                #(new_prp_stm, rest_prms)
+              }
+              False -> {
+                #(
+                  new_prp_stm |> prepared_statement.append_sql(frgmnt_prt),
+                  acc.1,
+                )
+              }
             }
-            False -> {
-              new_prep_stm |> prepared_statement.append_sql(frgmnt_part)
-            }
-          }
-        },
-      )
+          },
+        )
+
+      // Sanity check that all parameters have been used.
+      let assert [] = empty_param_rest
+
+      new_prp_stm
     }
   }
-}
-
-fn apply_fragments(
-  prepared_statement prp_stm: PreparedStatement,
-  fragments frgmts: List(Fragment),
-) -> PreparedStatement {
-  frgmts
-  |> list.fold(
-    prp_stm,
-    fn(new_prep_stm: PreparedStatement, frgmt: Fragment) -> PreparedStatement {
-      new_prep_stm |> apply_fragment(frgmt)
-    },
-  )
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

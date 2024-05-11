@@ -82,12 +82,5 @@ pub fn ilike(value val: WhereValue, pattern pttrn: String) -> WherePart {
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> WhereValue {
-  frgmt |> query.WhereFragments([])
-}
-
-pub fn fragments(
-  fragment frgmt: Fragment,
-  fragments frgmts: List(Fragment),
-) -> WhereValue {
-  query.WhereFragments(frgmt, frgmts)
+  frgmt |> query.WhereFragment()
 }
