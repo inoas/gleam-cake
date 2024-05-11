@@ -174,14 +174,12 @@ pub fn run_dummy_union_all() {
     |> s.set_where(
       w.or([
         w.col("age") |> w.lte(w.int(4)),
-        w.col("name") |> w.like("%ara%"),
-        // q.WhereColSimilarTo("name", "%(y|a)%"), // NOTICE: Does not run on Sqlite
+        w.col("name") |> w.like(pattern: "%ara%"),
+        // w.similar("name", to: "%(y|a)%"), // NOTICE: Does not run on Sqlite
       ]),
     )
 
-  let where_b =
-    q.NotWhere(q.WhereIsNotBool(w.col("is_wild"), False))
-    |> iox.dbg_label("where_b")
+  let where_b = w.not(w.is_not_bool(w.col("is_wild"), False))
 
   let select_query_b =
     select_query

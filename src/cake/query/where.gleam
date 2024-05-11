@@ -65,6 +65,10 @@ pub fn is_bool(value val: WhereValue, bool b: Bool) -> WherePart {
   val |> query.WhereIsBool(b)
 }
 
+pub fn is_not_bool(value val: WhereValue, bool b: Bool) -> WherePart {
+  val |> query.WhereIsNotBool(b)
+}
+
 pub fn is_not(value val: WhereValue, bool b: Bool) -> WherePart {
   val |> query.WhereIsNotBool(b)
 }
@@ -83,6 +87,10 @@ pub fn like(value val: WhereValue, pattern pttrn: String) -> WherePart {
 
 pub fn ilike(value val: WhereValue, pattern pttrn: String) -> WherePart {
   val |> query.WhereILike(pttrn)
+}
+
+pub fn similar(value val: WhereValue, to pttrn: String) -> WherePart {
+  val |> query.WhereSimilar(pttrn)
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> WhereValue {
