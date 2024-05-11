@@ -706,7 +706,7 @@ pub type WhereValue {
   // If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
   // FIXME: (for unions need to wrap into a select with the unions as a sub select and a single field extracted and limit 1)
-  //        Supply a wrapper function for this
+  // Supply a wrapper function for this
   // WhereQuery(ScalarSelectQuery)
 }
 
@@ -1042,6 +1042,8 @@ fn join_part_apply(
 // │  Epilog Part                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Used to add a trailing SQL statement to the query.
+///
 pub type EpilogPart {
   Epilog(string: String)
   NoEpilogPart
