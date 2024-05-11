@@ -55,20 +55,24 @@ pub fn set_from(
   SelectQuery(..qry, from: frm)
 }
 
+pub fn get_from(select_query qry: SelectQuery) -> FromPart {
+  qry.from
+}
+
 // ▒▒▒ SELECT ▒▒▒
 
 pub fn select(
   select_query qry: SelectQuery,
-  select_parts slct_prts: List(SelectPart),
+  select_parts prts: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: list.append(qry.select, slct_prts))
+  SelectQuery(..qry, select: list.append(qry.select, prts))
 }
 
 pub fn select_replace(
   select_query qry: SelectQuery,
-  select_parts slct_prts: List(SelectPart),
+  select_parts prts: List(SelectPart),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: slct_prts)
+  SelectQuery(..qry, select: prts)
 }
 
 pub fn get_select(select_query qry: SelectQuery) -> List(SelectPart) {
@@ -77,18 +81,8 @@ pub fn get_select(select_query qry: SelectQuery) -> List(SelectPart) {
 
 // ▒▒▒ WHERE ▒▒▒
 
-pub fn set_where(
-  select_query qry: SelectQuery,
-  where whr: WherePart,
-) -> SelectQuery {
-  SelectQuery(..qry, where: whr)
-}
-
-pub fn and_where(
-  select_query qry: SelectQuery,
-  where whr: WherePart,
-) -> SelectQuery {
-  let new_where = query.AndWhere([qry.where, ..[whr]])
+pub fn where(select_query qry: SelectQuery, where whr: WherePart) -> SelectQuery {
+  let new_where = query.AndWhere([qry.where, whr])
   SelectQuery(..qry, where: new_where)
 }
 
@@ -96,8 +90,15 @@ pub fn or_where(
   select_query qry: SelectQuery,
   where whr: WherePart,
 ) -> SelectQuery {
-  let new_where = query.OrWhere([qry.where, ..[whr]])
+  let new_where = query.OrWhere([qry.where, whr])
   SelectQuery(..qry, where: new_where)
+}
+
+pub fn where_replace(
+  select_query qry: SelectQuery,
+  where whr: WherePart,
+) -> SelectQuery {
+  SelectQuery(..qry, where: whr)
 }
 
 // TODO: pub fn xor_where
@@ -108,19 +109,32 @@ pub fn get_where(select_query qry: SelectQuery) -> WherePart {
 
 // ▒▒▒ JOIN ▒▒▒
 
-pub fn set_join(
+pub fn join(
+  select_query qry: SelectQuery,
+  join_part prt: JoinPart,
+) -> SelectQuery {
+  SelectQuery(..qry, join: list.append(qry.join, [prt]))
+}
+
+pub fn joins(
+  select_query qry: SelectQuery,
+  join_parts prts: List(JoinPart),
+) -> SelectQuery {
+  SelectQuery(..qry, join: list.append(qry.join, prts))
+}
+
+pub fn join_replace(
+  select_query qry: SelectQuery,
+  join_part prt: JoinPart,
+) -> SelectQuery {
+  SelectQuery(..qry, join: [prt])
+}
+
+pub fn joins_replace(
   select_query qry: SelectQuery,
   join_parts prts: List(JoinPart),
 ) -> SelectQuery {
   SelectQuery(..qry, join: prts)
-}
-
-pub fn add_join(
-  select_query qry: SelectQuery,
-  join_parts prts: JoinPart,
-) -> SelectQuery {
-  let new_joins = [prts, ..qry.join]
-  SelectQuery(..qry, join: new_joins)
 }
 
 pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {

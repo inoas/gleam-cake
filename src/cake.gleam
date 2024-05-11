@@ -44,7 +44,7 @@ pub fn run_dummy_fragment() {
 
   let select_query =
     cats_query
-    |> s.set_where(
+    |> s.where(
       w.eq(
         w.col("name"),
         w.fragment(
@@ -114,12 +114,12 @@ pub fn run_dummy_select() {
       // TODO: this is bad:
       q.select_part_from("owners.name AS owner_name"),
     ])
-    |> s.set_where(where)
+    |> s.where(where)
     |> q.select_query_order_asc(cats_t("name"))
     |> q.select_query_order_replace(by: cats_t("age"), direction: q.Asc)
     |> q.select_query_set_limit(1)
     |> q.select_query_set_limit_and_offset(1, 0)
-    |> s.set_join([
+    |> s.joins([
       q.InnerJoin(
         with: q.JoinTable("owners"),
         alias: "owners",
@@ -171,7 +171,7 @@ pub fn run_dummy_union_all() {
 
   let select_query_a =
     select_query
-    |> s.set_where(
+    |> s.where(
       w.or([
         w.col("age") |> w.lte(w.int(4)),
         w.col("name") |> w.like(pattern: "%ara%"),
@@ -183,9 +183,9 @@ pub fn run_dummy_union_all() {
 
   let select_query_b =
     select_query
-    |> s.set_where(w.gte(w.col("age"), w.int(7)))
+    |> s.where(w.gte(w.col("age"), w.int(7)))
     |> q.select_query_order_asc(by: "will_be_removed")
-    |> s.set_where(where_b)
+    |> s.where(where_b)
 
   let union_query =
     q.combined_union_all_query_new([select_query_a, select_query_b])
