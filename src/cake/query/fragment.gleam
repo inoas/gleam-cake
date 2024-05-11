@@ -14,18 +14,13 @@ pub fn literal(string str: String) -> Fragment {
 }
 
 pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
-  let placeholder_count =
+  let plchldr_count =
     str
     |> query.fragment_prepared_split_string
     |> query.fragment_count_placeholders
   let param_count = prms |> list.length
 
-  case
-    placeholder_count,
-    param_count,
-    placeholder_count
-    |> int.compare(param_count)
-  {
+  case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {
     0, 0, order.Eq -> {
       str |> query.FragmentLiteral()
     }
@@ -45,7 +40,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
     _n, 0, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> int.to_string(placeholder_count)
+        <> int.to_string(plchldr_count)
         <> " "
         <> placeholder
         <> "-placeholders, but there were 0 params given!",
@@ -55,7 +50,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
     _n, _m, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> int.to_string(placeholder_count)
+        <> int.to_string(plchldr_count)
         <> " "
         <> placeholder
         <> "-placeholders, but there were "

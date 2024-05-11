@@ -236,7 +236,7 @@ pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) -> String {
 // │  Limit & Offset Part                                                      │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub opaque type LimitOffsetPart {
+pub type LimitOffsetPart {
   LimitOffset(limit: Int, offset: Int)
   LimitNoOffset(limit: Int)
   NoLimitOffset
@@ -513,92 +513,8 @@ pub type SelectQuery {
   // StarSelect
 }
 
-// ▒▒▒ NEW ▒▒▒
-
-pub fn select_query_new(
-  from frm: FromPart,
-  select slct: List(SelectPart),
-) -> SelectQuery {
-  SelectQuery(
-    select: slct,
-    from: frm,
-    where: NoWherePart,
-    join: [],
-    order_by: [],
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-    // kind: RegularSelect,
-  )
-}
-
-pub fn select_query_new_from(from frm: FromPart) -> SelectQuery {
-  SelectQuery(
-    select: [],
-    from: frm,
-    join: [],
-    where: NoWherePart,
-    order_by: [],
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-    // kind: RegularSelect,
-  )
-}
-
-pub fn select_query_new_select(select slct: List(SelectPart)) -> SelectQuery {
-  SelectQuery(
-    select: slct,
-    from: NoFromPart,
-    where: NoWherePart,
-    join: [],
-    order_by: [],
-    limit_offset: NoLimitOffset,
-    epilog: NoEpilogPart,
-    // kind: RegularSelect,
-  )
-}
-
-// ▒▒▒ FROM ▒▒▒
-
-pub fn select_query_set_from(
-  select_query qry: SelectQuery,
-  from frm: FromPart,
-) -> SelectQuery {
-  SelectQuery(..qry, from: frm)
-}
-
-// ▒▒▒ SELECT ▒▒▒
-
-pub fn select_query_select(
-  select_query qry: SelectQuery,
-  select_parts slct_prts: List(SelectPart),
-) -> SelectQuery {
-  SelectQuery(..qry, select: list.append(qry.select, slct_prts))
-}
-
-pub fn select_query_select_replace(
-  select_query qry: SelectQuery,
-  select_parts slct_prts: List(SelectPart),
-) -> SelectQuery {
-  SelectQuery(..qry, select: slct_prts)
-}
-
-// ▒▒▒ WHERE ▒▒▒
-
-pub fn select_query_set_where(
-  select_query qry: SelectQuery,
-  where whr: WherePart,
-) -> SelectQuery {
-  SelectQuery(..qry, where: whr)
-}
-
-// ▒▒▒ JOIN ▒▒▒
-
-pub fn select_query_set_join(
-  select_query qry: SelectQuery,
-  join_parts prts: List(JoinPart),
-) -> SelectQuery {
-  SelectQuery(..qry, join: prts)
-}
+// TODO: abstract ORDER BY away to be reused by UNION:
+//
 
 // ▒▒▒ ORDER BY ▒▒▒
 
@@ -686,6 +602,8 @@ fn do_select_order_by(
   }
 }
 
+// TODO: abstract LIMIT and OFFSET away to be reused by UNION:
+//
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 pub fn select_query_set_limit(
@@ -1124,7 +1042,7 @@ fn join_part_apply(
 // │  Epilog Part                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub opaque type EpilogPart {
+pub type EpilogPart {
   Epilog(string: String)
   NoEpilogPart
 }
@@ -1150,6 +1068,13 @@ pub fn epilog_apply(
 // │  Fragment                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Fragments are used to insert raw SQL into the query.
+///
+/// NOTICE: Injecting input data into fragments is only safe when using
+///         `FragmentPrepared` and only using literal strings in the
+///         `fragment` field. To enforce this policy, it is recommended
+///          to use module constants for any `fragment`-field string.
+///
 pub type Fragment {
   FragmentLiteral(fragment: String)
   FragmentPrepared(fragment: String, params: List(Param))

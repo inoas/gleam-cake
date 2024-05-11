@@ -40,11 +40,11 @@ pub fn run_dummy_fragment() {
 
   let cats_query =
     f.table(name: "cats")
-    |> q.select_query_new_from()
+    |> s.new_from()
 
   let select_query =
     cats_query
-    |> q.select_query_set_where(
+    |> s.set_where(
       w.eq(
         w.col("name"),
         w.fragment(
@@ -89,11 +89,11 @@ pub fn run_dummy_select() {
 
   let cats_sub_query =
     f.table(name: "cats")
-    |> q.select_query_new_from()
+    |> s.new_from()
 
   let dogs_sub_query =
     f.table(name: "dogs")
-    |> q.select_query_new_from()
+    |> s.new_from()
 
   let cats_t = q.qualified_identifier("cats")
   let owners_t = q.qualified_identifier("owners")
@@ -107,22 +107,19 @@ pub fn run_dummy_select() {
     ])
 
   let select_query =
-    cats_sub_query
-    |> q.query_select_wrap()
-    |> f.sub_query(alias: "cats")
-    |> q.select_query_new_from()
-    |> q.select_query_select([
+    s.new_from(f.sub_query(q.query_select_wrap(cats_sub_query), alias: "cats"))
+    |> s.select([
       q.select_part_from(cats_t("name")),
       q.select_part_from(cats_t("age")),
       // TODO: this is bad:
       q.select_part_from("owners.name AS owner_name"),
     ])
-    |> q.select_query_set_where(where)
+    |> s.set_where(where)
     |> q.select_query_order_asc(cats_t("name"))
     |> q.select_query_order_replace(by: cats_t("age"), direction: q.Asc)
     |> q.select_query_set_limit(1)
     |> q.select_query_set_limit_and_offset(1, 0)
-    |> q.select_query_set_join([
+    |> s.set_join([
       q.InnerJoin(
         with: q.JoinTable("owners"),
         alias: "owners",
@@ -169,15 +166,12 @@ pub fn run_dummy_union_all() {
 
   let select_query =
     f.table(name: "cats")
-    |> q.select_query_new_from()
-    |> q.select_query_select([
-      q.select_part_from("name"),
-      q.select_part_from("age"),
-    ])
+    |> s.new_from()
+    |> s.select([q.select_part_from("name"), q.select_part_from("age")])
 
   let select_query_a =
     select_query
-    |> q.select_query_set_where(
+    |> s.set_where(
       w.or([
         w.col("age") |> w.lte(w.int(4)),
         w.col("name") |> w.like("%ara%"),
@@ -191,9 +185,9 @@ pub fn run_dummy_union_all() {
 
   let select_query_b =
     select_query
-    |> q.select_query_set_where(q.WhereGreaterOrEqual(w.col("age"), w.int(7)))
+    |> s.set_where(w.gte(w.col("age"), w.int(7)))
     |> q.select_query_order_asc(by: "will_be_removed")
-    |> q.select_query_set_where(where_b)
+    |> s.set_where(where_b)
 
   let union_query =
     q.combined_union_all_query_new([select_query_a, select_query_b])
