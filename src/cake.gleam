@@ -132,19 +132,6 @@ pub fn run_dummy_select() {
           w.col(owners_t("id")) |> w.eq(w.col(cats_t("owner_id"))),
           w.col(owners_t("id")) |> w.lt(w.int(20)),
           w.col(owners_t("id")) |> w.is_not_null(),
-          w.eq(
-            w.fragment(frgmt.literal("LOWER(" <> owners_t("name") <> ")")),
-            w.fragment(
-              frgmt.prepared(
-                "GREATER("
-                  <> frgmt.placeholder
-                  <> ", "
-                  <> frgmt.placeholder
-                  <> ")",
-                [p.string("Timmy"), p.string("Jimmy")],
-              ),
-            ),
-          ),
         ]),
       ),
       q.CrossJoin(
