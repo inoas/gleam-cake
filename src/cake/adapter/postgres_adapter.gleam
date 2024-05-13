@@ -1,6 +1,6 @@
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
-import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/iox
 import gleam/dynamic
 import gleam/list

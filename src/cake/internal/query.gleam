@@ -1,7 +1,7 @@
 // TODO find and replace prp_stm to prp_stm
 //
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
-import cake/prepared_statement.{type PreparedStatement}
 import cake/stdlib/iox
 import cake/stdlib/listx
 import cake/stdlib/stringx
@@ -879,11 +879,11 @@ fn where_part_apply_literal(
 
 fn where_part_apply_comparison(
   prepared_statement prp_stm: PreparedStatement,
-  value_a v1: WhereValue,
+  value_a val_a: WhereValue,
   operator oprtr: String,
-  value_b v2: WhereValue,
+  value_b val_b: WhereValue,
 ) {
-  case v1, v2 {
+  case val_a, val_b {
     WhereColumn(col_a), WhereColumn(col_b) ->
       prp_stm
       |> where_part_apply_string(col_a <> " " <> oprtr <> " " <> col_b)
