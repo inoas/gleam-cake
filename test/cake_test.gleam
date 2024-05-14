@@ -1,12 +1,15 @@
+import birdie
 import glacier
-import glacier/should
+
+// import glacier/should
+
+import pprint
 
 pub fn main() {
   glacier.main()
 }
 
-// gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  1
-  |> should.equal(1)
+pub fn assert_snap(value v: any, title t: String) -> any {
+  v |> pprint.format |> birdie.snap(title: t)
+  v
 }

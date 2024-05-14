@@ -1,0 +1,13 @@
+---
+version: 1.1.5
+title: query_select_snap_test_cats_sub_query
+---
+SelectQuery(
+  FromTable("cats"),
+  [],
+  [],
+  NoWherePart,
+  NoLimitOffset,
+  [],
+  NoEpilogPart,
+)

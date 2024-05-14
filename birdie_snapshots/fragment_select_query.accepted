@@ -1,0 +1,25 @@
+---
+version: 1.1.5
+title: fragment_select_query
+---
+SelectQuery(
+  FromTable("cats"),
+  [],
+  [],
+  AndWhere([
+    NoWherePart,
+    WhereEqual(
+      WhereColumn("name"),
+      WhereFragment(FragmentPrepared(
+        "LOWER($) OR name = LOWER($)",
+        [
+          StringParam("Timmy"),
+          StringParam("Jimmy"),
+        ],
+      )),
+    ),
+  ]),
+  NoLimitOffset,
+  [],
+  NoEpilogPart,
+)

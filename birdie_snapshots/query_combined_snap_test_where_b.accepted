@@ -1,0 +1,8 @@
+---
+version: 1.1.5
+title: query_combined_snap_test_where_b
+---
+NotWhere(WhereIsNotBool(
+  WhereColumn("is_wild"),
+  False,
+))

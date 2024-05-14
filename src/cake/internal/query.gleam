@@ -1120,7 +1120,6 @@ pub fn fragment_count_placeholders(
 ) -> Int {
   s_frgmts
   |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
-    iox.dbg(s_frgmt)
     case s_frgmt == fragment_placeholder {
       True -> count + 1
       False -> count

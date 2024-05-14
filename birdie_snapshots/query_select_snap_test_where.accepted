@@ -1,0 +1,25 @@
+---
+version: 1.1.5
+title: query_select_snap_test_where
+---
+OrWhere([
+  WhereEqual(
+    WhereColumn("cats.age"),
+    WhereParam(IntParam(10)),
+  ),
+  WhereEqual(
+    WhereColumn("cats.name"),
+    WhereParam(StringParam("foo")),
+  ),
+  WhereEqual(
+    WhereColumn("cats.name"),
+    WhereParam(StringParam("foo")),
+  ),
+  WhereIn(
+    WhereColumn("cats.age"),
+    [
+      WhereParam(IntParam(1)),
+      WhereParam(IntParam(2)),
+    ],
+  ),
+])
