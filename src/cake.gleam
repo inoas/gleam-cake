@@ -323,3 +323,6 @@ fn insert_dogs_rows() {
     ('Clara', 5, TRUE, NULL)
   ;"
 }
+
+@external(erlang, "cake_ffi", "stacky")
+pub fn stacky() -> a
