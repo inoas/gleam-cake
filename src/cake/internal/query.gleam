@@ -46,13 +46,13 @@ pub fn combined_builder(
   // The error would return that the column types missmatch
   // The user probably let assets this then?
   prp_stm
-  |> union_builder_apply_command_sql(cmbnd_qry)
-  |> union_builder_apply_to_sql(cmbnd_qry, union_builder_maybe_add_order_sql)
+  |> combined_builder_apply_command_sql(cmbnd_qry)
+  |> combined_builder_apply_to_sql(cmbnd_qry, combined_builder_maybe_add_order_sql)
   |> limit_offset_apply(cmbnd_qry.limit_offset)
   |> epilog_apply(cmbnd_qry.epilog)
 }
 
-pub fn union_builder_apply_command_sql(
+pub fn combined_builder_apply_command_sql(
   prepared_statement prp_stm: PreparedStatement,
   combined_query cmbnd_qry: CombinedQuery,
 ) -> PreparedStatement {
@@ -81,7 +81,7 @@ pub fn union_builder_apply_command_sql(
   )
 }
 
-fn union_builder_apply_to_sql(
+fn combined_builder_apply_to_sql(
   prepared_statement prp_stm: PreparedStatement,
   combined_query qry: CombinedQuery,
   maybe_fun mb_fun: fn(CombinedQuery) -> String,
@@ -89,7 +89,7 @@ fn union_builder_apply_to_sql(
   prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
-fn union_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
+fn combined_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
