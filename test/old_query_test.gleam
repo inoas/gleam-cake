@@ -120,7 +120,7 @@ pub fn query_combined_snap_test() {
       w.or([
         w.col("age") |> w.lte(w.int(4)),
         w.col("name") |> w.like(pattern: "%ara%"),
-        // w.similar("name", to: "%(y|a)%"), // NOTICE: Does not run on Sqlite
+        // w.similar("name", to: "%(y|a)%"), // NOTICE: SIMILAR TO does not run on Sqlite
       ]),
     )
     |> tap(fn(v) {

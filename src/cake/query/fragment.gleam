@@ -16,6 +16,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
     str
     |> query.fragment_prepared_split_string
     |> query.fragment_count_placeholders
+
   let param_count = prms |> list.length
 
   case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {

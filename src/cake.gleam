@@ -13,7 +13,6 @@ import gleam/dynamic
 import gleam/erlang/process
 
 // import cake/query/having as h
-
 // import cake/query/limit as l
 // import cake/query/order as o
 // import cake/query/window as win
@@ -113,7 +112,7 @@ pub fn run_dummy_select() {
     |> s.select([
       q.select_part_from(cats_t("name")),
       q.select_part_from(cats_t("age")),
-      // TODO: this is bad:
+      // TODO: this is bad?
       q.select_part_from("owners.name AS owner_name"),
     ])
     |> s.where(where)
@@ -174,7 +173,7 @@ pub fn run_dummy_union_all() {
       w.or([
         w.col("age") |> w.lte(w.int(4)),
         w.col("name") |> w.like(pattern: "%ara%"),
-        // w.similar("name", to: "%(y|a)%"), // NOTICE: Does not run on Sqlite
+        // w.similar("name", to: "%(y|a)%"), // NOTICE: SIMILAR TO does not run on Sqlite
       ]),
     )
 

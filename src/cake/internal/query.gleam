@@ -281,7 +281,7 @@ pub type CombinedQuery {
     limit_offset: LimitOffsetPart,
     order_by: List(OrderByPart),
     // Epilog allows you to append raw SQL to the end of queries.
-    // You should never put raw user data into epilog.
+    // One should NEVER put raw user data into the epilog.
     epilog: EpilogPart,
   )
 }
@@ -291,6 +291,8 @@ pub fn combined_query_new(
   select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
   qrys
+  // ORDER BY is not allowed for queries
+  // that are part of combined queries.
   |> combined_query_remove_order_by_from_selects()
   |> CombinedQuery(
     kind: knd,
@@ -839,13 +841,6 @@ fn join_part_apply(
 pub type EpilogPart {
   Epilog(string: String)
   NoEpilogPart
-}
-
-pub fn epilog_new(epilog eplg: String) -> EpilogPart {
-  case eplg {
-    "" -> NoEpilogPart
-    _ -> Epilog(string: eplg)
-  }
 }
 
 pub fn epilog_apply(
