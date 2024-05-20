@@ -4,17 +4,18 @@ import cake/param as p
 import cake/query/combined as c
 import cake/query/fragment as frgmt
 import cake/query/from as f
+import cake/query/join as j
 import cake/query/select as s
 import cake/query/where as w
-import gleam/function
-import pprint
+import gleam/function.{tap as tap}
+import pprint.{format as to_string}
 
 pub fn query_fragment_snap_test() {
   let cats_query =
     f.table(name: "cats")
     |> s.new_from()
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("cats_query")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("cats_query")
       v
     })
   cats_query
@@ -33,8 +34,8 @@ pub fn query_fragment_snap_test() {
       ),
     ),
   )
-  |> function.tap(fn(v) {
-    v |> pprint.format |> birdie.snap("cats_query_2")
+  |> tap(fn(v) {
+    v |> to_string |> birdie.snap("cats_query_2")
     v
   })
 }
@@ -43,16 +44,16 @@ pub fn query_select_snap_test() {
   let cats_sub_query =
     f.table(name: "cats")
     |> s.new_from()
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("cats_sub_query")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("cats_sub_query")
       v
     })
 
   let dogs_sub_query =
     f.table(name: "dogs")
     |> s.new_from()
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("dogs_sub_query")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("dogs_sub_query")
       v
     })
 
@@ -66,8 +67,8 @@ pub fn query_select_snap_test() {
       w.col(cats_t("name")) |> w.eq(w.string("foo")),
       w.col(cats_t("age")) |> w.in([w.int(1), w.int(2)]),
     ])
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("where")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("where")
       v
     })
 
@@ -84,8 +85,8 @@ pub fn query_select_snap_test() {
   |> s.set_limit(1)
   |> s.set_limit_and_offset(1, 0)
   |> s.joins([
-    q.InnerJoin(
-      with: q.JoinTable("owners"),
+    j.inner(
+      with: j.table("owners"),
       alias: "owners",
       on: w.or([
         w.col(owners_t("id")) |> w.eq(w.col(cats_t("owner_id"))),
@@ -93,10 +94,10 @@ pub fn query_select_snap_test() {
         w.col(owners_t("id")) |> w.is_not_null(),
       ]),
     ),
-    q.CrossJoin(with: q.JoinSubQuery(s.to_query(dogs_sub_query)), alias: "dogs"),
+    j.cross(with: j.sub_query(s.to_query(dogs_sub_query)), alias: "dogs"),
   ])
-  |> function.tap(fn(v) {
-    v |> pprint.format |> birdie.snap("composed")
+  |> tap(fn(v) {
+    v |> to_string |> birdie.snap("composed")
     v
   })
 }
@@ -106,9 +107,9 @@ pub fn query_combined_snap_test() {
     f.table(name: "cats")
     |> s.new_from()
     |> s.select([q.select_part_from("name"), q.select_part_from("age")])
-    |> function.tap(fn(v) {
+    |> tap(fn(v) {
       v
-      |> pprint.format
+      |> to_string
       |> birdie.snap("base_select_query")
       v
     })
@@ -122,15 +123,15 @@ pub fn query_combined_snap_test() {
         // w.similar("name", to: "%(y|a)%"), // NOTICE: Does not run on Sqlite
       ]),
     )
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("select_query_a")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("select_query_a")
       v
     })
 
   let where_b =
     w.not(w.is_not_bool(w.col("is_wild"), False))
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("where_b")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("where_b")
       v
     })
 
@@ -139,8 +140,8 @@ pub fn query_combined_snap_test() {
     |> s.where(w.gte(w.col("age"), w.int(7)))
     |> s.order_asc(by: "will_be_removed")
     |> s.where(where_b)
-    |> function.tap(fn(v) {
-      v |> pprint.format |> birdie.snap("select_query_b")
+    |> tap(fn(v) {
+      v |> to_string |> birdie.snap("select_query_b")
       v
     })
 
@@ -149,9 +150,9 @@ pub fn query_combined_snap_test() {
   |> c.set_limit(1)
   |> c.order_replace(by: "age", direction: q.Asc)
   |> c.to_query
-  |> function.tap(fn(v) {
+  |> tap(fn(v) {
     v
-    |> pprint.format
+    |> to_string
     |> birdie.snap("combined_query")
     v
   })

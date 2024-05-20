@@ -5,6 +5,7 @@ import cake/param as p
 import cake/query/combined as c
 import cake/query/fragment as frgmt
 import cake/query/from as f
+import cake/query/join as j
 import cake/query/select as s
 import cake/query/where as w
 import cake/stdlib/iox
@@ -12,7 +13,7 @@ import gleam/dynamic
 import gleam/erlang/process
 
 // import cake/query/having as h
-// import cake/query/join as j
+
 // import cake/query/limit as l
 // import cake/query/order as o
 // import cake/query/window as win
@@ -121,8 +122,8 @@ pub fn run_dummy_select() {
     |> s.set_limit(1)
     |> s.set_limit_and_offset(1, 0)
     |> s.joins([
-      q.InnerJoin(
-        with: q.JoinTable("owners"),
+      j.inner(
+        with: j.table("owners"),
         alias: "owners",
         on: w.or([
           w.col(owners_t("id")) |> w.eq(w.col(cats_t("owner_id"))),
@@ -130,10 +131,7 @@ pub fn run_dummy_select() {
           w.col(owners_t("id")) |> w.is_not_null(),
         ]),
       ),
-      q.CrossJoin(
-        with: q.JoinSubQuery(s.to_query(dogs_sub_query)),
-        alias: "dogs",
-      ),
+      j.cross(with: j.sub_query(s.to_query(dogs_sub_query)), alias: "dogs"),
     ])
     |> s.to_query
     |> iox.dbg
