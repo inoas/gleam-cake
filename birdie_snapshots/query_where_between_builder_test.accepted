@@ -1,0 +1,22 @@
+---
+version: 1.1.5
+title: query_where_between_builder_test
+file: ./test/query_test.gleam
+test_name: query_where_between_builder_test
+---
+SelectQuery(
+  FromTable("cats"),
+  [],
+  [],
+  AndWhere([
+    NoWherePart,
+    WhereBetween(
+      WhereColumn("age"),
+      WhereParam(IntParam(10)),
+      WhereParam(IntParam(20)),
+    ),
+  ]),
+  NoLimitOffset,
+  [],
+  NoEpilogPart,
+)

@@ -1,14 +1,13 @@
+// TODO: CASE expressions for WHERE, SELECT and others?
+
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
-import cake/stdlib/iox
 import cake/stdlib/listx
 import cake/stdlib/stringx
 import gleam/int
 import gleam/list
 import gleam/order
 import gleam/string
-
-// TODO: CASE expressions for WHERE, SELECT and others?
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Builder                                                                  │
@@ -41,13 +40,12 @@ pub fn combined_builder(
   prepared_statement prp_stm: PreparedStatement,
   combined_query cmbnd_qry: CombinedQuery,
 ) -> PreparedStatement {
-  // TODO: what happens if multiple select queries have different type signatures for their columns?
-  // -> In prepared statements we can already check this and return either an OK() or an Error()
-  // The error would return that the column types missmatch
-  // The user probably let assets this then?
   prp_stm
   |> combined_builder_apply_command_sql(cmbnd_qry)
-  |> combined_builder_apply_to_sql(cmbnd_qry, combined_builder_maybe_add_order_sql)
+  |> combined_builder_apply_to_sql(
+    cmbnd_qry,
+    combined_builder_maybe_add_order_sql,
+  )
   |> limit_offset_apply(cmbnd_qry.limit_offset)
   |> epilog_apply(cmbnd_qry.epilog)
 }
@@ -186,13 +184,8 @@ fn select_builder_maybe_apply_limit_offset(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Query {
-  // TODO: Maybe move these to a ReadQuery wrapper type?
-  // And then maybe have all the constructors right here?
-  // ReadQuery -> SelectQuery | CombinedQuery
   Select(query: SelectQuery)
   Combined(query: CombinedQuery)
-  // TODO: Maybe move these to a WriteQuery wrapper type?
-  // TODO: ... but then have them there directly?
   // Insert(query: InsertQuery
   // Update(query: UpdateQuery)
   // Delete(query: DeleteQuery)
@@ -511,9 +504,6 @@ pub type SelectQuery {
   // StarSelect
 }
 
-// TODO: abstract ORDER BY away to be reused by UNION:
-//
-
 // ▒▒▒ ORDER BY ▒▒▒
 
 pub fn select_query_order_asc(
@@ -661,9 +651,6 @@ pub fn from_part_apply(
 //   // SelectCase?
 // }
 
-// Then during processing or values
-// inject prepared statement parameters.
-
 pub type SelectPart {
   // Strings are arbitrary SQL strings
   // Aliases rename fields
@@ -724,12 +711,12 @@ pub type WherePart {
   // NOTICE: Sqlite does not support `SIMILAR TO`:
   WhereSimilar(value_a: WhereValue, string: String)
   WhereIn(value_a: WhereValue, values: List(WhereValue))
+  WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   AndWhere(parts: List(WherePart))
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
   NotWhere(part: WherePart)
   // MAYBE add:
-  // WhereBetween(value_a: WhereValue, value_b: WhereValue)
   // WhereInSubquery(value: WhereValue, sub_query: Query)
   // WhereAllSubquery(value: WhereValue, sub_query: Query)
   // WhereAnySubquery(value: WhereValue, sub_query: Query)
@@ -802,6 +789,8 @@ fn where_part_apply(
       |> prepared_statement.append_sql(")")
     }
     WhereIn(val, vals) -> prp_stm |> where_part_apply_value_in_values(val, vals)
+    WhereBetween(val_a, val_b, val_c) ->
+      prp_stm |> where_part_apply_between(val_a, val_b, val_c)
     NoWherePart -> prp_stm
   }
 }
@@ -1002,6 +991,43 @@ fn where_part_apply_value_in_values(
     },
   )
   |> prepared_statement.append_sql(")")
+}
+
+fn where_part_apply_between(
+  prepared_statement prp_stm: PreparedStatement,
+  value_a val_a: WhereValue,
+  value_b val_b: WhereValue,
+  value_c val_c: WhereValue,
+) -> PreparedStatement {
+  let prp_stm =
+    case val_a {
+      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParam(prm) -> {
+        let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
+        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+      }
+      WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
+    }
+    |> prepared_statement.append_sql(" BETWEEN ")
+  let prp_stm =
+    case val_b {
+      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParam(prm) -> {
+        let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
+        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+      }
+      WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
+    }
+    |> prepared_statement.append_sql(" AND ")
+  let prp_stm = case val_c {
+    WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
+    WhereParam(prm) -> {
+      let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
+      prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
+    }
+    WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
+  }
+  prp_stm
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

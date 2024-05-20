@@ -61,6 +61,14 @@ pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> WherePart {
   val |> query.WhereIn(vals)
 }
 
+pub fn between(
+  value_a val_a: WhereValue,
+  value_b val_b: WhereValue,
+  value_c val_c: WhereValue,
+) -> WherePart {
+  val_a |> query.WhereBetween(val_b, val_c)
+}
+
 pub fn is_bool(value val: WhereValue, bool b: Bool) -> WherePart {
   val |> query.WhereIsBool(b)
 }
