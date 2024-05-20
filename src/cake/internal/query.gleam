@@ -1,5 +1,3 @@
-// TODO find and replace prp_stm to prp_stm
-//
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import cake/stdlib/iox
