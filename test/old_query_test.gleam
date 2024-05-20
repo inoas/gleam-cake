@@ -1,10 +1,10 @@
 import birdie
 import cake/internal/query as q
 import cake/param as p
+import cake/query/combined as c
 import cake/query/fragment as frgmt
 import cake/query/from as f
 import cake/query/select as s
-import cake/query/union as u
 import cake/query/where as w
 import gleam/function
 import pprint
@@ -18,19 +18,21 @@ pub fn query_fragment_snap_test() {
       v
     })
   cats_query
-  |> s.where(w.eq(
-    w.col("name"),
-    w.fragment(
-      frgmt.prepared(
-        "LOWER("
-          <> frgmt.placeholder
-          <> ") OR name = LOWER("
-          <> frgmt.placeholder
-          <> ")",
-        [p.string("Timmy"), p.string("Jimmy")],
+  |> s.where(
+    w.col("name")
+    |> w.eq(
+      w.fragment(
+        frgmt.prepared(
+          "LOWER("
+            <> frgmt.placeholder
+            <> ") OR name = LOWER("
+            <> frgmt.placeholder
+            <> ")",
+          [p.string("Timmy"), p.string("Jimmy")],
+        ),
       ),
     ),
-  ))
+  )
   |> function.tap(fn(v) {
     v |> pprint.format |> birdie.snap("cats_query_2")
     v
@@ -142,10 +144,11 @@ pub fn query_combined_snap_test() {
       v
     })
 
-  q.combined_union_all_query_new([select_query_a, select_query_b])
-  |> q.combined_query_set_limit(1)
-  |> q.combined_query_order_replace(by: "age", direction: q.Asc)
-  |> u.to_query
+  [select_query_a, select_query_b]
+  |> c.union_all()
+  |> c.set_limit(1)
+  |> c.order_replace(by: "age", direction: q.Asc)
+  |> c.to_query
   |> function.tap(fn(v) {
     v
     |> pprint.format

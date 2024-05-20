@@ -6,7 +6,7 @@ test_name: query_where_between_sqlite_test
 ---
 PreparedStatement(
   "?",
-  "SELECT * FROM cats WHERE (age BETWEEN ?1 AND ?2)",
+  "SELECT * FROM cats WHERE age BETWEEN ?1 AND ?2",
   [IntParam(10), IntParam(20)],
   2,
 )

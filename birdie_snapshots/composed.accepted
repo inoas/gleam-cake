@@ -1,7 +1,7 @@
 ---
 version: 1.1.5
 title: composed
-file: ./test/query_test.gleam
+file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
 SelectQuery(
@@ -51,29 +51,26 @@ SelectQuery(
       "dogs",
     ),
   ],
-  AndWhere([
-    NoWherePart,
-    OrWhere([
-      WhereEqual(
-        WhereColumn("cats.age"),
-        WhereParam(IntParam(10)),
-      ),
-      WhereEqual(
-        WhereColumn("cats.name"),
-        WhereParam(StringParam("foo")),
-      ),
-      WhereEqual(
-        WhereColumn("cats.name"),
-        WhereParam(StringParam("foo")),
-      ),
-      WhereIn(
-        WhereColumn("cats.age"),
-        [
-          WhereParam(IntParam(1)),
-          WhereParam(IntParam(2)),
-        ],
-      ),
-    ]),
+  OrWhere([
+    WhereEqual(
+      WhereColumn("cats.age"),
+      WhereParam(IntParam(10)),
+    ),
+    WhereEqual(
+      WhereColumn("cats.name"),
+      WhereParam(StringParam("foo")),
+    ),
+    WhereEqual(
+      WhereColumn("cats.name"),
+      WhereParam(StringParam("foo")),
+    ),
+    WhereIn(
+      WhereColumn("cats.age"),
+      [
+        WhereParam(IntParam(1)),
+        WhereParam(IntParam(2)),
+      ],
+    ),
   ]),
   LimitOffset(1, 0),
   [OrderByColumnPart("cats.age", Asc)],

@@ -8,14 +8,11 @@ SelectQuery(
   FromTable("cats"),
   [],
   [],
-  AndWhere([
-    NoWherePart,
-    WhereBetween(
-      WhereColumn("age"),
-      WhereParam(IntParam(10)),
-      WhereParam(IntParam(20)),
-    ),
-  ]),
+  WhereBetween(
+    WhereColumn("age"),
+    WhereParam(IntParam(10)),
+    WhereParam(IntParam(20)),
+  ),
   NoLimitOffset,
   [],
   NoEpilogPart,

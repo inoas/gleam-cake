@@ -2,23 +2,21 @@ import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
 import cake/internal/query as q
 import cake/param as p
+import cake/query/combined as c
 import cake/query/fragment as frgmt
 import cake/query/from as f
-import cake/query/union as u
+import cake/query/select as s
+import cake/query/where as w
+import cake/stdlib/iox
+import gleam/dynamic
+import gleam/erlang/process
 
 // import cake/query/having as h
 // import cake/query/join as j
 // import cake/query/limit as l
 // import cake/query/order as o
-import cake/query/select as s
-
-import cake/query/where as w
-
 // import cake/query/window as win
 // import cake/query/with as wit
-import cake/stdlib/iox
-import gleam/dynamic
-import gleam/erlang/process
 
 pub fn main() {
   process.sleep(100)
@@ -48,8 +46,8 @@ pub fn run_dummy_fragment() {
   let select_query =
     cats_query
     |> s.where(
-      w.eq(
-        w.col("name"),
+      w.col("name")
+      |> w.eq(
         w.fragment(
           frgmt.prepared(
             "LOWER("
@@ -182,7 +180,7 @@ pub fn run_dummy_union_all() {
       ]),
     )
 
-  let where_b = w.not(w.is_not_bool(w.col("is_wild"), False))
+  let where_b = w.not(w.col("is_wild") |> w.is_not_bool(False))
 
   let select_query_b =
     select_query
@@ -191,10 +189,11 @@ pub fn run_dummy_union_all() {
     |> s.where(where_b)
 
   let union_query =
-    q.combined_union_all_query_new([select_query_a, select_query_b])
-    |> q.combined_query_set_limit(1)
-    |> q.combined_query_order_replace(by: "age", direction: q.Asc)
-    |> u.to_query
+    [select_query_a, select_query_b]
+    |> c.union_all()
+    |> c.set_limit(1)
+    |> c.order_replace(by: "age", direction: q.Asc)
+    |> c.to_query
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)

@@ -6,6 +6,10 @@ import cake/internal/query.{
 }
 import gleam/list
 
+pub fn to_query(select_query qry: SelectQuery) -> Query {
+  qry |> Select()
+}
+
 // ▒▒▒ NEW ▒▒▒
 
 pub fn new(from frm: FromPart, select slct: List(SelectPart)) -> SelectQuery {
@@ -17,7 +21,6 @@ pub fn new(from frm: FromPart, select slct: List(SelectPart)) -> SelectQuery {
     order_by: [],
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
-    // kind: RegularSelect,
   )
 }
 
@@ -30,7 +33,6 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
     order_by: [],
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
-    // kind: RegularSelect,
   )
 }
 
@@ -43,7 +45,6 @@ pub fn new_select(select slct: List(SelectPart)) -> SelectQuery {
     order_by: [],
     limit_offset: NoLimitOffset,
     epilog: NoEpilogPart,
-    // kind: RegularSelect,
   )
 }
 
@@ -83,8 +84,7 @@ pub fn get_select(select_query qry: SelectQuery) -> List(SelectPart) {
 // ▒▒▒ WHERE ▒▒▒
 
 pub fn where(select_query qry: SelectQuery, where whr: WherePart) -> SelectQuery {
-  let new_where = query.AndWhere([qry.where, whr])
-  SelectQuery(..qry, where: new_where)
+  SelectQuery(..qry, where: whr)
 }
 
 pub fn or_where(
@@ -95,14 +95,21 @@ pub fn or_where(
   SelectQuery(..qry, where: new_where)
 }
 
+// TODO
+// pub fn xor_where(
+//   select_query qry: SelectQuery,
+//   where whr: WherePart,
+// ) -> SelectQuery {
+//   let new_where = query.XorWhere([qry.where, whr])
+//   SelectQuery(..qry, where: new_where)
+// }
+
 pub fn where_replace(
   select_query qry: SelectQuery,
   where whr: WherePart,
 ) -> SelectQuery {
   SelectQuery(..qry, where: whr)
 }
-
-// TODO: pub fn xor_where
 
 pub fn get_where(select_query qry: SelectQuery) -> WherePart {
   qry.where
@@ -117,18 +124,18 @@ pub fn join(
   SelectQuery(..qry, join: list.append(qry.join, [prt]))
 }
 
-pub fn joins(
-  select_query qry: SelectQuery,
-  join_parts prts: List(JoinPart),
-) -> SelectQuery {
-  SelectQuery(..qry, join: list.append(qry.join, prts))
-}
-
 pub fn join_replace(
   select_query qry: SelectQuery,
   join_part prt: JoinPart,
 ) -> SelectQuery {
   SelectQuery(..qry, join: [prt])
+}
+
+pub fn joins(
+  select_query qry: SelectQuery,
+  join_parts prts: List(JoinPart),
+) -> SelectQuery {
+  SelectQuery(..qry, join: list.append(qry.join, prts))
 }
 
 pub fn joins_replace(
@@ -140,10 +147,6 @@ pub fn joins_replace(
 
 pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
   qry.join
-}
-
-pub fn to_query(select_query qry: SelectQuery) -> Query {
-  qry |> Select()
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒

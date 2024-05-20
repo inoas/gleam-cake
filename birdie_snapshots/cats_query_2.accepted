@@ -1,26 +1,23 @@
 ---
 version: 1.1.5
 title: cats_query_2
-file: ./test/query_test.gleam
+file: ./test/old_query_test.gleam
 test_name: query_fragment_snap_test
 ---
 SelectQuery(
   FromTable("cats"),
   [],
   [],
-  AndWhere([
-    NoWherePart,
-    WhereEqual(
-      WhereColumn("name"),
-      WhereFragment(FragmentPrepared(
-        "LOWER($) OR name = LOWER($)",
-        [
-          StringParam("Timmy"),
-          StringParam("Jimmy"),
-        ],
-      )),
-    ),
-  ]),
+  WhereEqual(
+    WhereColumn("name"),
+    WhereFragment(FragmentPrepared(
+      "LOWER($) OR name = LOWER($)",
+      [
+        StringParam("Timmy"),
+        StringParam("Jimmy"),
+      ],
+    )),
+  ),
   NoLimitOffset,
   [],
   NoEpilogPart,

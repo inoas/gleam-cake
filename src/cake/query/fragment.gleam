@@ -1,13 +1,11 @@
 import cake/internal/query.{type Fragment}
 import cake/param.{type Param}
-
-// import cake/stdlib/iox
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/order
 
-pub const placeholder = query.fragment_placeholder
+pub const placeholder = query.fragment_placeholder_grapheme
 
 pub fn literal(string str: String) -> Fragment {
   str |> query.FragmentLiteral()

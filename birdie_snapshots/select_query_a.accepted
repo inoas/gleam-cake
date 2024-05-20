@@ -1,7 +1,7 @@
 ---
 version: 1.1.5
 title: select_query_a
-file: ./test/query_test.gleam
+file: ./test/old_query_test.gleam
 test_name: query_combined_snap_test
 ---
 SelectQuery(
@@ -11,18 +11,15 @@ SelectQuery(
     SelectString("age"),
   ],
   [],
-  AndWhere([
-    NoWherePart,
-    OrWhere([
-      WhereLowerOrEqual(
-        WhereColumn("age"),
-        WhereParam(IntParam(4)),
-      ),
-      WhereLike(
-        WhereColumn("name"),
-        "%ara%",
-      ),
-    ]),
+  OrWhere([
+    WhereLowerOrEqual(
+      WhereColumn("age"),
+      WhereParam(IntParam(4)),
+    ),
+    WhereLike(
+      WhereColumn("name"),
+      "%ara%",
+    ),
   ]),
   NoLimitOffset,
   [],

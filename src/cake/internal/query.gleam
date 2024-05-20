@@ -286,43 +286,7 @@ pub type CombinedQuery {
   )
 }
 
-pub fn combined_union_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  Union |> combined_query_new(qrys)
-}
-
-pub fn combined_union_all_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  UnionAll |> combined_query_new(qrys)
-}
-
-pub fn combined_except_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  Except |> combined_query_new(qrys)
-}
-
-pub fn combined_except_all_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  ExceptAll |> combined_query_new(qrys)
-}
-
-pub fn combined_intersect_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  Intersect |> combined_query_new(qrys)
-}
-
-pub fn combined_intersect_all_query_new(
-  select_queries qrys: List(SelectQuery),
-) -> CombinedQuery {
-  IntersectAll |> combined_query_new(qrys)
-}
-
-fn combined_query_new(
+pub fn combined_query_new(
   kind knd: CombinedKind,
   select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
@@ -352,100 +316,7 @@ pub fn combined_get_select_queries(
   cmbnd_qry.select_queries
 }
 
-// ▒▒▒ LIMIT & OFFSET ▒▒▒
-
-pub fn combined_query_set_limit(
-  query qry: CombinedQuery,
-  limit lmt: Int,
-) -> CombinedQuery {
-  let lmt_offst = limit_new(lmt)
-  CombinedQuery(..qry, limit_offset: lmt_offst)
-}
-
-pub fn combined_query_set_limit_and_offset(
-  query qry: CombinedQuery,
-  limit lmt: Int,
-  offset offst: Int,
-) -> CombinedQuery {
-  let lmt_offst = limit_offset_new(limit: lmt, offset: offst)
-  CombinedQuery(..qry, limit_offset: lmt_offst)
-}
-
-// ▒▒▒ ORDER BY ▒▒▒
-
-pub fn combined_query_order_asc(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, Asc), True)
-}
-
-pub fn combined_query_order_asc_nulls_first(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
-}
-
-pub fn combined_query_order_asc_replace(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, Asc), False)
-}
-
-pub fn combined_query_order_asc_nulls_first_replace(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
-}
-
-pub fn combined_query_order_desc(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, Desc), True)
-}
-
-pub fn combined_query_order_desc_nulls_first(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
-}
-
-pub fn combined_query_order_desc_replace(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, Desc), False)
-}
-
-pub fn combined_query_order_desc_nulls_first_replace(
-  query qry: CombinedQuery,
-  by ordb: String,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
-}
-
-pub fn combined_query_order(
-  query qry: CombinedQuery,
-  by ordb: String,
-  direction dir: OrderByDirectionPart,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, dir), True)
-}
-
-pub fn combined_query_order_replace(
-  query qry: CombinedQuery,
-  by ordb: String,
-  direction dir: OrderByDirectionPart,
-) -> CombinedQuery {
-  qry |> do_combined_order_by(OrderByColumnPart(ordb, dir), False)
-}
-
-fn do_combined_order_by(
+pub fn combined_order_by(
   query qry: CombinedQuery,
   by ordb: OrderByPart,
   append appnd: Bool,
@@ -1006,7 +877,7 @@ pub type Fragment {
 /// Use to mark the position where a parameter should be inserted into
 /// for a fragment with a prepared parameter.
 ///
-pub const fragment_placeholder = "$"
+pub const fragment_placeholder_grapheme = "$"
 
 /// Splits something like `GREATER($, $)` into `["GREATER(", "$", ", ", "$", ")"]`.
 ///
@@ -1016,15 +887,15 @@ pub fn fragment_prepared_split_string(
   str_frgmt
   |> string.to_graphemes()
   |> list.fold([], fn(acc: List(String), grapheme: String) -> List(String) {
-    case grapheme == fragment_placeholder, acc {
+    case grapheme == fragment_placeholder_grapheme, acc {
       // If encountering a placeholder, we want to add it as a single item.
-      True, _acc -> [fragment_placeholder, ..acc]
+      True, _acc -> [fragment_placeholder_grapheme, ..acc]
       // If Encountering anything else but there isn't anything yet,
       // we want to add it as a single item.
       False, [] -> [grapheme]
       // If the previous item matches a placeholder, we don't want to append
       // to it, because we want placeholders to exist as separat single items.
-      False, [first, ..] if first == fragment_placeholder -> {
+      False, [first, ..] if first == fragment_placeholder_grapheme -> {
         [grapheme, ..acc]
       }
       // In any other case we can just append to the previous item
@@ -1041,7 +912,7 @@ pub fn fragment_count_placeholders(
 ) -> Int {
   s_frgmts
   |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
-    case s_frgmt == fragment_placeholder {
+    case s_frgmt == fragment_placeholder_grapheme {
       True -> count + 1
       False -> count
     }
@@ -1097,7 +968,7 @@ fn apply_fragment(
             List(Param),
           ) {
             let new_prp_stm = acc.0
-            case frgmnt_prt == fragment_placeholder {
+            case frgmnt_prt == fragment_placeholder_grapheme {
               True -> {
                 let nxt_plchldr =
                   new_prp_stm |> prepared_statement.next_placeholder
