@@ -1,6 +1,6 @@
 import cake/internal/query.{
-  type FromPart, type JoinPart, type SelectPart, type SelectQuery,
-  type WherePart, NoEpilogPart, NoFromPart, NoLimitOffset, NoWherePart,
+  type FromPart, type JoinPart, type Query, type SelectPart, type SelectQuery,
+  type WherePart, NoEpilogPart, NoFromPart, NoLimitOffset, NoWherePart, Select,
   SelectQuery,
 }
 import gleam/list
@@ -139,4 +139,8 @@ pub fn joins_replace(
 
 pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
   qry.join
+}
+
+pub fn to_query(select_query qry: SelectQuery) -> Query {
+  qry |> Select()
 }

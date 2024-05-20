@@ -191,14 +191,6 @@ pub type Query {
   // Delete(query: DeleteQuery)
 }
 
-pub fn query_select_wrap(select_query qry: SelectQuery) -> Query {
-  qry |> Select()
-}
-
-pub fn query_combined_wrap(combined_query qry: CombinedQuery) -> Query {
-  qry |> Combined()
-}
-
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Order By Direction Part                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘

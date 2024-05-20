@@ -4,6 +4,7 @@ import cake/param as p
 import cake/query/fragment as frgmt
 import cake/query/from as f
 import cake/query/select as s
+import cake/query/union as u
 import cake/query/where as w
 import gleam/function
 import pprint
@@ -68,7 +69,7 @@ pub fn query_select_snap_test() {
       v
     })
 
-  s.new_from(f.sub_query(q.query_select_wrap(cats_sub_query), alias: "cats"))
+  s.new_from(f.sub_query(s.to_query(cats_sub_query), alias: "cats"))
   |> s.select([
     q.select_part_from(cats_t("name")),
     q.select_part_from(cats_t("age")),
@@ -90,10 +91,7 @@ pub fn query_select_snap_test() {
         w.col(owners_t("id")) |> w.is_not_null(),
       ]),
     ),
-    q.CrossJoin(
-      with: q.JoinSubQuery(q.query_select_wrap(dogs_sub_query)),
-      alias: "dogs",
-    ),
+    q.CrossJoin(with: q.JoinSubQuery(s.to_query(dogs_sub_query)), alias: "dogs"),
   ])
   |> function.tap(fn(v) {
     v |> pprint.format |> birdie.snap("composed")
@@ -147,7 +145,7 @@ pub fn query_combined_snap_test() {
   q.combined_union_all_query_new([select_query_a, select_query_b])
   |> q.combined_query_set_limit(1)
   |> q.combined_query_order_replace(by: "age", direction: q.Asc)
-  |> q.query_combined_wrap
+  |> u.to_query
   |> function.tap(fn(v) {
     v
     |> pprint.format

@@ -4,6 +4,7 @@ import cake/internal/query as q
 import cake/param as p
 import cake/query/fragment as frgmt
 import cake/query/from as f
+import cake/query/union as u
 
 // import cake/query/having as h
 // import cake/query/join as j
@@ -11,7 +12,6 @@ import cake/query/from as f
 // import cake/query/order as o
 import cake/query/select as s
 
-// import cake/query/union as u
 import cake/query/where as w
 
 // import cake/query/window as win
@@ -63,7 +63,7 @@ pub fn run_dummy_fragment() {
       )
       |> iox.dbg,
     )
-    |> q.query_select_wrap
+    |> s.to_query
 
   process.sleep(100)
 
@@ -110,7 +110,7 @@ pub fn run_dummy_select() {
     ])
 
   let select_query =
-    s.new_from(f.sub_query(q.query_select_wrap(cats_sub_query), alias: "cats"))
+    s.new_from(f.sub_query(s.to_query(cats_sub_query), alias: "cats"))
     |> s.select([
       q.select_part_from(cats_t("name")),
       q.select_part_from(cats_t("age")),
@@ -133,11 +133,11 @@ pub fn run_dummy_select() {
         ]),
       ),
       q.CrossJoin(
-        with: q.JoinSubQuery(q.query_select_wrap(dogs_sub_query)),
+        with: q.JoinSubQuery(s.to_query(dogs_sub_query)),
         alias: "dogs",
       ),
     ])
-    |> q.query_select_wrap
+    |> s.to_query
     |> iox.dbg
 
   process.sleep(100)
@@ -194,7 +194,7 @@ pub fn run_dummy_union_all() {
     q.combined_union_all_query_new([select_query_a, select_query_b])
     |> q.combined_query_set_limit(1)
     |> q.combined_query_order_replace(by: "age", direction: q.Asc)
-    |> q.query_combined_wrap
+    |> u.to_query
     |> iox.dbg
 
   let query_decoder = dynamic.tuple2(dynamic.string, dynamic.int)
