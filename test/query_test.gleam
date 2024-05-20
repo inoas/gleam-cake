@@ -5,15 +5,10 @@ import cake/query/fragment as frgmt
 import cake/query/from as f
 import cake/query/select as s
 import cake/query/where as w
-import cake/stdlib/iox
 import gleam/function
 import pprint
-import stacky
 
 pub fn query_fragment_snap_test() {
-  stacky.trace() |> stacky.frame(0) |> iox.dbg
-  stacky.trace() |> stacky.frame(0) |> stacky.erlang_module_name |> iox.dbg
-
   let cats_query =
     f.table(name: "cats")
     |> s.new_from()
