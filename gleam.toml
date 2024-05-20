@@ -47,10 +47,10 @@ version = "0.0.1"
 # tom = ">= 0.3.0 and < 2.0.0"
 # dot_env = ">= 0.5.1 and < 2.0.0"
 # envoy = ">= 1.0.1 and < 2.0.0"
-# qcheck_gleeunit_utils
-# qcheck
-# non_empty_list = ">= 1.1.1 and < 2.0.0"
-#
+# phony = ">= 1.1.9 and < 2.0.0"
+# valid = ">= 0.4.0 and < 1.0.0"
+# formal = ">= 1.0.0 and < 2.0.0"
+# glemo = ">= 1.0.0 and < 2.0.0"
 gleam_erlang = ">= 0.25.0 and < 1.0.0"
 gleam_pgo = ">= 0.7.0 and < 1.0.0"
 gleam_stdlib = ">= 0.36.0 and < 2.0.0"
@@ -62,4 +62,7 @@ glacier = ">= 1.0.0 and < 2.0.0"
 # glychee = ">= 1.1.0 and < 2.0.0"
 pprint = ">= 1.0.1 and < 2.0.0"
 # qcheck = ">= 0.0.3 and < 1.0.0"
-stacky = ">= 1.0.3 and < 2.0.0"
+stacky = ">= 1.3.0 and < 2.0.0"
+# testbldr = ">= 1.1.0 and < 2.0.0"
+# qcheck_gleeunit_utils
+# qcheck
