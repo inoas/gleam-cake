@@ -110,6 +110,7 @@ pub fn run_dummy_select() {
   let select_query =
     s.new_from(f.sub_query(s.to_query(cats_sub_query), alias: "cats"))
     |> s.select([
+      // TODO: FIXME: This API is shit:
       q.select_part_from(cats_t("name")),
       q.select_part_from(cats_t("age")),
       // TODO: this is bad?
