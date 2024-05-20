@@ -118,10 +118,10 @@ pub fn run_dummy_select() {
       q.select_part_from("owners.name AS owner_name"),
     ])
     |> s.where(where)
-    |> q.select_query_order_asc(cats_t("name"))
-    |> q.select_query_order_replace(by: cats_t("age"), direction: q.Asc)
-    |> q.select_query_set_limit(1)
-    |> q.select_query_set_limit_and_offset(1, 0)
+    |> s.order_asc(cats_t("name"))
+    |> s.order_replace(by: cats_t("age"), direction: q.Asc)
+    |> s.set_limit(1)
+    |> s.set_limit_and_offset(1, 0)
     |> s.joins([
       q.InnerJoin(
         with: q.JoinTable("owners"),
@@ -187,7 +187,7 @@ pub fn run_dummy_union_all() {
   let select_query_b =
     select_query
     |> s.where(w.gte(w.col("age"), w.int(7)))
-    |> q.select_query_order_asc(by: "will_be_removed")
+    |> s.order_asc(by: "will_be_removed")
     |> s.where(where_b)
 
   let union_query =

@@ -1,7 +1,8 @@
 import cake/internal/query.{
-  type FromPart, type JoinPart, type Query, type SelectPart, type SelectQuery,
-  type WherePart, NoEpilogPart, NoFromPart, NoLimitOffset, NoWherePart, Select,
-  SelectQuery,
+  type FromPart, type JoinPart, type OrderByDirectionPart, type Query,
+  type SelectPart, type SelectQuery, type WherePart, Asc, AscNullsFirst, Desc,
+  DescNullsFirst, NoEpilogPart, NoFromPart, NoLimitOffset, NoWherePart,
+  OrderByColumnPart, Select, SelectQuery,
 }
 import gleam/list
 
@@ -143,4 +144,88 @@ pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
 
 pub fn to_query(select_query qry: SelectQuery) -> Query {
   qry |> Select()
+}
+
+// ▒▒▒ LIMIT & OFFSET ▒▒▒
+
+pub fn set_limit(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+  let lmt_offst = query.limit_new(lmt)
+  SelectQuery(..qry, limit_offset: lmt_offst)
+}
+
+pub fn set_limit_and_offset(
+  select_query qry: SelectQuery,
+  limit lmt: Int,
+  offset offst: Int,
+) -> SelectQuery {
+  let lmt_offst = query.limit_offset_new(limit: lmt, offset: offst)
+  SelectQuery(..qry, limit_offset: lmt_offst)
+}
+
+// ▒▒▒ ORDER BY ▒▒▒
+
+pub fn order_asc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, Asc), True)
+}
+
+pub fn order_asc_nulls_first(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
+}
+
+pub fn order_asc_replace(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, Asc), False)
+}
+
+pub fn order_asc_nulls_first_replace(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
+}
+
+pub fn order_desc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, Desc), True)
+}
+
+pub fn order_desc_nulls_first(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
+}
+
+pub fn order_desc_replace(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, Desc), False)
+}
+
+pub fn order_desc_nulls_first_replace(
+  select_query qry: SelectQuery,
+  by ordb: String,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
+}
+
+pub fn order(
+  select_query qry: SelectQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionPart,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, dir), True)
+}
+
+pub fn order_replace(
+  select_query qry: SelectQuery,
+  by ordb: String,
+  direction dir: OrderByDirectionPart,
+) -> SelectQuery {
+  qry |> query.select_order_by(OrderByColumnPart(ordb, dir), False)
 }

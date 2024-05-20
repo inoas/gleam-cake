@@ -496,81 +496,7 @@ pub type SelectQuery {
   // StarSelect
 }
 
-// ▒▒▒ ORDER BY ▒▒▒
-
-pub fn select_query_order_asc(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), True)
-}
-
-pub fn select_query_order_asc_nulls_first(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
-}
-
-pub fn select_query_order_asc_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, Asc), False)
-}
-
-pub fn select_query_order_asc_nulls_first_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
-}
-
-pub fn select_query_order_desc(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), True)
-}
-
-pub fn select_query_order_desc_nulls_first(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
-}
-
-pub fn select_query_order_desc_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, Desc), False)
-}
-
-pub fn select_query_order_desc_nulls_first_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
-}
-
-pub fn select_query_order(
-  select_query qry: SelectQuery,
-  by ordb: String,
-  direction dir: OrderByDirectionPart,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, dir), True)
-}
-
-pub fn select_query_order_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-  direction dir: OrderByDirectionPart,
-) -> SelectQuery {
-  qry |> do_select_order_by(OrderByColumnPart(ordb, dir), False)
-}
-
-fn do_select_order_by(
+pub fn select_order_by(
   select_query qry: SelectQuery,
   by ordb: OrderByPart,
   append appnd: Bool,
@@ -580,27 +506,6 @@ fn do_select_order_by(
       SelectQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
     False -> SelectQuery(..qry, order_by: listx.wrap(ordb))
   }
-}
-
-// TODO: abstract LIMIT and OFFSET away to be reused by UNION:
-//
-// ▒▒▒ LIMIT & OFFSET ▒▒▒
-
-pub fn select_query_set_limit(
-  select_query qry: SelectQuery,
-  limit lmt: Int,
-) -> SelectQuery {
-  let lmt_offst = limit_new(lmt)
-  SelectQuery(..qry, limit_offset: lmt_offst)
-}
-
-pub fn select_query_set_limit_and_offset(
-  select_query qry: SelectQuery,
-  limit lmt: Int,
-  offset offst: Int,
-) -> SelectQuery {
-  let lmt_offst = limit_offset_new(limit: lmt, offset: offst)
-  SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
