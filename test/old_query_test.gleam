@@ -81,7 +81,7 @@ pub fn query_select_snap_test() {
   ])
   |> s.where(where)
   |> s.order_asc(cats_t("name"))
-  |> s.order_replace(by: cats_t("age"), direction: q.Asc)
+  |> s.order_replace(by: cats_t("age"), direction: s.Asc)
   |> s.set_limit(1)
   |> s.set_limit_and_offset(1, 0)
   |> s.joins([
@@ -148,7 +148,7 @@ pub fn query_combined_snap_test() {
   [select_query_a, select_query_b]
   |> c.union_all()
   |> c.set_limit(1)
-  |> c.order_replace(by: "age", direction: q.Asc)
+  |> c.order_replace(by: "age", direction: c.Asc)
   |> c.to_query
   |> tap(fn(v) {
     v

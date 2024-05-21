@@ -222,21 +222,29 @@ pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) -> String {
 pub type LimitOffsetPart {
   LimitOffset(limit: Int, offset: Int)
   LimitNoOffset(limit: Int)
-  NoLimitOffset
+  NoLimitOffset(offset: Int)
+  NoLimitNoOffset
 }
 
 pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
   case lmt >= 0, offst >= 0 {
     True, True -> LimitOffset(limit: lmt, offset: offst)
     True, False -> LimitNoOffset(limit: lmt)
-    False, _ -> NoLimitOffset
+    False, _ -> NoLimitNoOffset
   }
 }
 
 pub fn limit_new(limit lmt: Int) -> LimitOffsetPart {
   case lmt >= 0 {
     True -> LimitNoOffset(limit: lmt)
-    False -> NoLimitOffset
+    False -> NoLimitNoOffset
+  }
+}
+
+pub fn offset_new(offset offst: Int) -> LimitOffsetPart {
+  case offst >= 0 {
+    True -> NoLimitOffset(offset: offst)
+    False -> NoLimitNoOffset
   }
 }
 
@@ -248,7 +256,8 @@ pub fn limit_offset_apply(
     LimitOffset(limit: lmt, offset: offst) ->
       " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
     LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
-    NoLimitOffset -> ""
+    NoLimitOffset(offset: offst) -> " OFFSET " <> int.to_string(offst)
+    NoLimitNoOffset -> ""
   }
   |> prepared_statement.append_sql(prp_stm, _)
 }
@@ -297,7 +306,7 @@ pub fn combined_query_new(
   |> CombinedQuery(
     kind: knd,
     select_queries: _,
-    limit_offset: NoLimitOffset,
+    limit_offset: NoLimitNoOffset,
     order_by: [],
     epilog: NoEpilogPart,
   )

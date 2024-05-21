@@ -1,8 +1,8 @@
 import cake/internal/query.{
-  type FromPart, type JoinPart, type OrderByDirectionPart, type Query,
-  type SelectPart, type SelectQuery, type WherePart, Asc, AscNullsFirst, Desc,
-  DescNullsFirst, NoEpilogPart, NoFromPart, NoLimitOffset, NoWherePart,
-  OrderByColumnPart, Select, SelectQuery,
+  type FromPart, type JoinPart, type LimitOffsetPart, type OrderByDirectionPart,
+  type Query, type SelectPart, type SelectQuery, type WherePart, NoEpilogPart,
+  NoFromPart, NoLimitNoOffset, NoWherePart, OrderByColumnPart, Select,
+  SelectQuery,
 }
 import gleam/list
 
@@ -19,7 +19,7 @@ pub fn new(from frm: FromPart, select slct: List(SelectPart)) -> SelectQuery {
     where: NoWherePart,
     join: [],
     order_by: [],
-    limit_offset: NoLimitOffset,
+    limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
   )
 }
@@ -31,7 +31,7 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
     join: [],
     where: NoWherePart,
     order_by: [],
-    limit_offset: NoLimitOffset,
+    limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
   )
 }
@@ -43,7 +43,7 @@ pub fn new_select(select slct: List(SelectPart)) -> SelectQuery {
     where: NoWherePart,
     join: [],
     order_by: [],
-    limit_offset: NoLimitOffset,
+    limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
   )
 }
@@ -151,13 +151,8 @@ pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
-pub fn set_limit(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
-  let lmt_offst = query.limit_new(lmt)
-  SelectQuery(..qry, limit_offset: lmt_offst)
-}
-
 pub fn set_limit_and_offset(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   limit lmt: Int,
   offset offst: Int,
 ) -> SelectQuery {
@@ -165,70 +160,104 @@ pub fn set_limit_and_offset(
   SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
+pub fn set_limit(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+  let lmt_offst = query.limit_new(lmt)
+  SelectQuery(..qry, limit_offset: lmt_offst)
+}
+
+pub fn set_offset(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+  let lmt_offst = query.offset_new(lmt)
+  SelectQuery(..qry, limit_offset: lmt_offst)
+}
+
+pub fn get_limit_and_offset(select_query qry: SelectQuery) -> LimitOffsetPart {
+  qry.limit_offset
+}
+
 // ▒▒▒ ORDER BY ▒▒▒
 
+pub type SelectOrderByDirectionPart {
+  Asc
+  Desc
+}
+
+fn map_order_by_direction_part_constructor(
+  in: SelectOrderByDirectionPart,
+) -> OrderByDirectionPart {
+  case in {
+    Asc -> query.Asc
+    Desc -> query.Desc
+  }
+}
+
 pub fn order_asc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, Asc), True)
+  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Asc), True)
 }
 
 pub fn order_asc_nulls_first(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, AscNullsFirst), True)
+  qry
+  |> query.select_order_by(OrderByColumnPart(ordb, query.AscNullsFirst), True)
 }
 
 pub fn order_asc_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, Asc), False)
+  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Asc), False)
 }
 
 pub fn order_asc_nulls_first_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, AscNullsFirst), False)
+  qry
+  |> query.select_order_by(OrderByColumnPart(ordb, query.AscNullsFirst), False)
 }
 
 pub fn order_desc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, Desc), True)
+  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Desc), True)
 }
 
 pub fn order_desc_nulls_first(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, DescNullsFirst), True)
+  qry
+  |> query.select_order_by(OrderByColumnPart(ordb, query.DescNullsFirst), True)
 }
 
 pub fn order_desc_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, Desc), False)
+  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Desc), False)
 }
 
 pub fn order_desc_nulls_first_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, DescNullsFirst), False)
+  qry
+  |> query.select_order_by(OrderByColumnPart(ordb, query.DescNullsFirst), False)
 }
 
 pub fn order(
   select_query qry: SelectQuery,
   by ordb: String,
-  direction dir: OrderByDirectionPart,
+  direction dir: SelectOrderByDirectionPart,
 ) -> SelectQuery {
+  let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumnPart(ordb, dir), True)
 }
 
 pub fn order_replace(
   select_query qry: SelectQuery,
   by ordb: String,
-  direction dir: OrderByDirectionPart,
+  direction dir: SelectOrderByDirectionPart,
 ) -> SelectQuery {
+  let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumnPart(ordb, dir), False)
 }

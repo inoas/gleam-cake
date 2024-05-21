@@ -1,7 +1,7 @@
 ---
 version: 1.1.5
 title: dogs_sub_query
-file: ./test/query_test.gleam
+file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
 SelectQuery(
@@ -9,7 +9,7 @@ SelectQuery(
   [],
   [],
   NoWherePart,
-  NoLimitOffset,
+  NoLimitNoOffset,
   [],
   NoEpilogPart,
 )

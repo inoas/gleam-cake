@@ -15,7 +15,7 @@ SelectQuery(
     WhereColumn("is_wild"),
     False,
   )),
-  NoLimitOffset,
+  NoLimitNoOffset,
   [
     OrderByColumnPart(
       "will_be_removed",

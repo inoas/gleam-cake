@@ -13,7 +13,7 @@ SelectQuery(
     WhereParam(IntParam(10)),
     WhereParam(IntParam(20)),
   ),
-  NoLimitOffset,
+  NoLimitNoOffset,
   [],
   NoEpilogPart,
 )
