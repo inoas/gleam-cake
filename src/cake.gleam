@@ -16,7 +16,7 @@ import gleam/erlang/process
 // import cake/query/limit as l
 // import cake/query/order as o
 // import cake/query/window as win
-// import cake/query/with as wit
+// import cake/query/with as with
 
 pub fn main() {
   process.sleep(100)
@@ -113,7 +113,7 @@ pub fn run_dummy_select() {
       // TODO: FIXME: This API is shit:
       q.select_part_from(cats_t("name")),
       q.select_part_from(cats_t("age")),
-      // TODO: this is bad?
+      // TODO: This is bad?
       q.select_part_from("owners.name AS owner_name"),
     ])
     |> s.where(where)
@@ -182,7 +182,7 @@ pub fn run_dummy_union_all() {
 
   let select_query_b =
     select_query
-    |> s.where(w.gte(w.col("age"), w.int(7)))
+    |> s.where(w.col("age") |> w.gte(w.int(7)))
     |> s.order_asc(by: "will_be_removed")
     |> s.where(where_b)
 
