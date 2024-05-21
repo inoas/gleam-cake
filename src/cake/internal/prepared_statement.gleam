@@ -12,7 +12,7 @@ pub opaque type PreparedStatement {
 }
 
 pub fn new(prefix prfx: String) -> PreparedStatement {
-  prfx |> PreparedStatement("", [], 0)
+  prfx |> PreparedStatement(sql: "", params: [], index: 0)
 }
 
 pub fn append_sql(
