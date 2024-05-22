@@ -36,8 +36,8 @@ packages = [
 [requirements]
 birdie = { version = ">= 1.1.5 and < 2.0.0" }
 glacier = { version = ">= 1.0.0 and < 2.0.0" }
-gleam_erlang = { version = ">= 0.25.0 and < 1.0.0" }
-gleam_pgo = { version = ">= 0.7.0 and < 1.0.0" }
-gleam_stdlib = { version = ">= 0.36.0 and < 2.0.0" }
-pprint = { version = ">= 1.0.1 and < 2.0.0" }
+gleam_erlang = { version = ">= 0.25.0 and < 2.0.0" }
+gleam_pgo = { version = ">= 0.9.0 and < 2.0.0" }
+gleam_stdlib = { version = ">= 0.37.0 and < 2.0.0" }
+pprint = { version = ">= 1.0.3 and < 2.0.0" }
 sqlight = { version = ">= 0.9.0 and < 2.0.0" }

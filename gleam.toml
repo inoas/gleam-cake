@@ -13,54 +13,59 @@ version = "0.0.1"
 # https://gleam.run/writing-gleam/gleam-toml/.
 
 [dependencies]
-# act = ">= 0.3.0 and < 2.0.0"
+# act
 # bigben
 # blah
-# carpenter = ">= 0.3.1 and < 2.0.0"
+# carpenter
 # cleam
-# dot_env = ">= 0.5.1 and < 2.0.0"
+# dot_env
 # dotenv_gleam
-# envoy = ">= 1.0.1 and < 2.0.0"
-# exception = ">= 2.0.0 and < 3.0.0"
-# fmt = ">= 0.1.0 and < 2.0.0"
-# formal = ">= 1.0.0 and < 2.0.0"
+# envoy
+# exception
+# fmt
+# formal
 # glam
-# gleam_erlang = ">= 0.25.0 and < 2.0.0"
-# gleam_json = ">= 1.0.0 and < 2.0.0"
-# gleamy_structures = ">= 0.4.1 and < 2.0.0"
-# glearray = ">= 0.2.1 and < 2.0.0"
-# glemo = ">= 1.0.0 and < 2.0.0"
+# gleam_json
+# gleamy_structures
+# glearray
+# glemo
 # glenvy
 # gluid
-# gsv = ">= 1.4.0 and < 2.0.0"
+# gsv
+# html_lustre_converter
+# kielet
 # libsql
+# lustre
+# lustre_dev_tools
+# lustre_ssg
 # migrant
+# mist
 # nibble
 # non_empty_list
-# parallel_map = ">= 1.0.0 and < 2.0.0"
-# phony = ">= 1.1.9 and < 2.0.0"
+# parallel_map
+# phony
 # prequel
-# prng = ">= 3.0.2 and < 4.0.0"
-# ranged_int = ">= 2.0.0 and < 3.0.0"
-# ranger = ">= 1.2.0 and < 2.0.0"
-# rank = ">= 1.0.0 and < 2.0.0"
-# shellout = ">= 1.6.0 and < 2.0.0"
-# spinner = ">= 1.1.0 and < 2.0.0"
-# stacky = ">= 1.3.0 and < 2.0.0"
-# tom = ">= 0.3.0 and < 2.0.0"
-# valid = ">= 0.4.0 and < 1.0.0"
-# youid = ">= 1.0.0 and < 2.0.0"
-gleam_erlang = ">= 0.25.0 and < 1.0.0"
-gleam_pgo = ">= 0.7.0 and < 1.0.0"
-gleam_stdlib = ">= 0.36.0 and < 2.0.0"
+# prng
+# ranged_int
+# ranger
+# rank
+# shellout
+# spinner
+# stacky
+# tom
+# valid
+# wisp
+# youid
+gleam_erlang = ">= 0.25.0 and < 2.0.0"
+gleam_pgo = ">= 0.9.0 and < 2.0.0"
+gleam_stdlib = ">= 0.37.0 and < 2.0.0"
 sqlight = ">= 0.9.0 and < 2.0.0"
 
 [dev-dependencies]
 birdie = ">= 1.1.5 and < 2.0.0"
 glacier = ">= 1.0.0 and < 2.0.0"
-# glychee = ">= 1.1.0 and < 2.0.0"
-pprint = ">= 1.0.1 and < 2.0.0"
+# glychee
+pprint = ">= 1.0.3 and < 2.0.0"
 # qcheck
-# qcheck = ">= 0.0.3 and < 1.0.0"
 # qcheck_gleeunit_utils
-# testbldr = ">= 1.1.0 and < 2.0.0"
+# testbldr
