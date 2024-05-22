@@ -108,7 +108,10 @@ pub fn run_dummy_select() {
     ])
 
   let select_query =
-    s.new_from(f.sub_query(s.to_query(cats_sub_query), alias: "cats"))
+    cats_sub_query
+    |> s.to_query
+    |> f.sub_query(alias: "cats")
+    |> s.new_from
     |> s.select([
       // TODO: FIXME: This API is shit:
       q.select_part_from(cats_t("name")),

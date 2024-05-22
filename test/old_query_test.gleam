@@ -72,7 +72,10 @@ pub fn query_select_snap_test() {
       v
     })
 
-  s.new_from(f.sub_query(s.to_query(cats_sub_query), alias: "cats"))
+  cats_sub_query
+  |> s.to_query
+  |> f.sub_query(alias: "cats")
+  |> s.new_from
   |> s.select([
     q.select_part_from(cats_t("name")),
     q.select_part_from(cats_t("age")),
