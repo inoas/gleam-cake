@@ -10,8 +10,8 @@ Combined(CombinedQuery(
     SelectQuery(
       FromTable("cats"),
       [
-        SelectString("name"),
-        SelectString("age"),
+        SelectColumn("name"),
+        SelectColumn("age"),
       ],
       [],
       OrWhere([
@@ -31,8 +31,8 @@ Combined(CombinedQuery(
     SelectQuery(
       FromTable("cats"),
       [
-        SelectString("name"),
-        SelectString("age"),
+        SelectColumn("name"),
+        SelectColumn("age"),
       ],
       [],
       NotWhere(WhereIsNotBool(

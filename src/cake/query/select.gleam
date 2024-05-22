@@ -1,18 +1,47 @@
 import cake/internal/query.{
-  type FromPart, type JoinPart, type LimitOffsetPart, type OrderByDirectionPart,
-  type Query, type SelectPart, type SelectQuery, type WherePart, NoEpilogPart,
-  NoFromPart, NoLimitNoOffset, NoWherePart, OrderByColumnPart, Select,
-  SelectQuery,
+  type Fragment, type FromPart, type JoinPart, type LimitOffsetPart,
+  type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
+  type WherePart, NoEpilogPart, NoFromPart, NoLimitNoOffset, NoWherePart,
+  OrderByColumnPart, Select, SelectQuery,
 }
+import cake/param
 import gleam/list
 
 pub fn to_query(select_query qry: SelectQuery) -> Query {
-  qry |> Select()
+  qry |> Select
+}
+
+pub fn col(name: String) -> SelectValue {
+  name |> query.SelectColumn
+}
+
+pub fn bool(value: Bool) -> SelectValue {
+  value |> param.bool |> query.SelectParam
+}
+
+pub fn float(value: Float) -> SelectValue {
+  value |> param.float |> query.SelectParam
+}
+
+pub fn int(value: Int) -> SelectValue {
+  value |> param.int |> query.SelectParam
+}
+
+pub fn string(value: String) -> SelectValue {
+  value |> param.string |> query.SelectParam
+}
+
+pub fn fragment(fragment frgmt: Fragment) -> SelectValue {
+  frgmt |> query.SelectFragment
+}
+
+pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
+  v |> query.SelectAlias(alias: als)
 }
 
 // ▒▒▒ NEW ▒▒▒
 
-pub fn new(from frm: FromPart, select slct: List(SelectPart)) -> SelectQuery {
+pub fn new(from frm: FromPart, select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
     from: frm,
@@ -36,7 +65,7 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
   )
 }
 
-pub fn new_select(select slct: List(SelectPart)) -> SelectQuery {
+pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
     from: NoFromPart,
@@ -65,19 +94,19 @@ pub fn get_from(select_query qry: SelectQuery) -> FromPart {
 
 pub fn select(
   select_query qry: SelectQuery,
-  select_parts prts: List(SelectPart),
+  select_parts prts: List(SelectValue),
 ) -> SelectQuery {
   SelectQuery(..qry, select: list.append(qry.select, prts))
 }
 
 pub fn select_replace(
   select_query qry: SelectQuery,
-  select_parts prts: List(SelectPart),
+  select_parts prts: List(SelectValue),
 ) -> SelectQuery {
   SelectQuery(..qry, select: prts)
 }
 
-pub fn get_select(select_query qry: SelectQuery) -> List(SelectPart) {
+pub fn get_select(select_query qry: SelectQuery) -> List(SelectValue) {
   qry.select
 }
 

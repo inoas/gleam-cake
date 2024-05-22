@@ -7,8 +7,8 @@ test_name: query_combined_snap_test
 SelectQuery(
   FromTable("cats"),
   [
-    SelectString("name"),
-    SelectString("age"),
+    SelectColumn("name"),
+    SelectColumn("age"),
   ],
   [],
   NoWherePart,

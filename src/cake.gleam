@@ -113,11 +113,9 @@ pub fn run_dummy_select() {
     |> f.sub_query(alias: "cats")
     |> s.new_from
     |> s.select([
-      // TODO: FIXME: This API is shit:
-      q.select_part_from(cats_t("name")),
-      q.select_part_from(cats_t("age")),
-      // TODO: This is bad?
-      q.select_part_from("owners.name AS owner_name"),
+      s.col(cats_t("name")),
+      s.col(cats_t("age")),
+      s.col(owners_t("name")) |> s.alias("owner_name"),
     ])
     |> s.where(where)
     |> s.order_asc(cats_t("name"))
@@ -169,7 +167,7 @@ pub fn run_dummy_union_all() {
   let select_query =
     f.table(name: "cats")
     |> s.new_from()
-    |> s.select([q.select_part_from("name"), q.select_part_from("age")])
+    |> s.select([s.col("name"), s.col("age")])
 
   let select_query_a =
     select_query

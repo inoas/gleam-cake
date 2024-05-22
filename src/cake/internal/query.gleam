@@ -3,14 +3,15 @@
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import cake/stdlib/listx
-import cake/stdlib/stringx
+
+// import cake/stdlib/stringx
 import gleam/int
 import gleam/list
 import gleam/order
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Builder                                                                  │
+// │  Query Builder                                                            │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn builder_new(
@@ -111,8 +112,8 @@ pub fn select_builder(
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
   prp_stm
-  |> select_builder_apply_to_sql(qry, select_builder_maybe_add_select_sql)
-  |> select_builder_maybe_apply_from_sql(qry)
+  |> select_builder_maybe_apply_select(qry)
+  |> select_builder_maybe_apply_from(qry)
   |> select_builder_maybe_apply_join(qry)
   |> select_builder_maybe_apply_where(qry)
   |> select_builder_apply_to_sql(qry, select_builder_maybe_add_order_sql)
@@ -127,14 +128,14 @@ fn select_builder_apply_to_sql(
   prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
-fn select_builder_maybe_add_select_sql(select_query qry: SelectQuery) -> String {
-  case qry.select {
-    [] -> "SELECT *"
-    _ -> "SELECT " <> qry.select |> stringx.map_join(select_part_to_sql, ", ")
-  }
+fn select_builder_maybe_apply_select(
+  prepared_statement prp_stm: PreparedStatement,
+  select_query qry: SelectQuery,
+) -> PreparedStatement {
+  prp_stm |> select_part_apply_clause(qry.select)
 }
 
-fn select_builder_maybe_apply_from_sql(
+fn select_builder_maybe_apply_from(
   prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
@@ -274,15 +275,15 @@ pub type CombinedKind {
   Union
   UnionAll
   Except
-  // NOTICE: ExceptAll Does not work on SQLite
+  // NOTICE: ExceptAll Does not work on SQLite, TODO: add to query builder validator
   ExceptAll
   Intersect
-  // NOTICE: IntersectAll Does not work on SQLite
+  // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator
   IntersectAll
 }
 
-// List of SQL parts that will be used to build a combined query
-// such as UNION queries.
+/// SQL parts that will be used to build a combined query
+/// such as a UNION query.
 pub type CombinedQuery {
   CombinedQuery(
     kind: CombinedKind,
@@ -300,7 +301,7 @@ pub fn combined_query_new(
   select_queries qrys: List(SelectQuery),
 ) -> CombinedQuery {
   qrys
-  // ORDER BY is not allowed for queries
+  // ORDER BY is not allowed for queries,
   // that are part of combined queries.
   |> combined_query_remove_order_by_from_selects()
   |> CombinedQuery(
@@ -343,12 +344,6 @@ pub fn combined_order_by(
 // │  Select Query                                                             │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// pub type SelectQueryKind {
-//   RegularSelect
-//   // ScalarSelect
-//   // StarSelect
-// }
-
 // List of SQL parts that will be used to build a select query.
 pub type SelectQuery {
   SelectQuery(
@@ -356,10 +351,7 @@ pub type SelectQuery {
     // comment: String,
     // modifier: String,
     // with: String,
-    // TODO: for ScalarSelect, only ever have one element in the SelectPart
-    // A ScalarSelect can be crafted FROM a RegularSelect,
-    // but a ScalarSelect can't be crafted FROM a StarSelect
-    select: List(SelectPart),
+    select: List(SelectValue),
     // distinct: String,
     join: List(JoinPart),
     where: WherePart,
@@ -373,9 +365,6 @@ pub type SelectQuery {
     // kind: SelectQueryKind,
     epilog: EpilogPart,
   )
-  // RegularSelect
-  // ScalarSelect
-  // StarSelect
 }
 
 pub fn select_order_by(
@@ -391,11 +380,62 @@ pub fn select_order_by(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Select Value                                                             │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type SelectValue {
+  SelectColumn(column: String)
+  SelectParam(param: Param)
+  SelectFragment(fragment: Fragment)
+  SelectAlias(value: SelectValue, alias: String)
+}
+
+fn select_part_apply_clause(
+  prepared_statement prp_stm: PreparedStatement,
+  values vs: List(SelectValue),
+) -> PreparedStatement {
+  let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
+  case vs {
+    [] -> prp_stm |> prepared_statement.append_sql("*")
+    vs -> {
+      vs
+      |> list.fold(
+        prp_stm,
+        fn(new_prp_stm: PreparedStatement, v: SelectValue) -> PreparedStatement {
+          case new_prp_stm == prp_stm {
+            True -> new_prp_stm |> select_value_apply(v)
+            False ->
+              new_prp_stm
+              |> prepared_statement.append_sql(", ")
+              |> select_value_apply(v)
+          }
+        },
+      )
+    }
+  }
+}
+
+fn select_value_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  value v: SelectValue,
+) -> PreparedStatement {
+  case v {
+    SelectColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
+    SelectParam(param) -> prp_stm |> prepared_statement.append_param(param)
+    SelectFragment(frgmnt) -> prp_stm |> apply_fragment(frgmnt)
+    SelectAlias(v, als) ->
+      prp_stm
+      |> select_value_apply(v)
+      |> prepared_statement.append_sql(" AS " <> als)
+  }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
 // │  From Part                                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type FromPart {
-  // TODO: check if the table does indeed exist
+  // TODO: Check if the table or view does indeed exist
   FromTable(name: String)
   FromSubQuery(sub_query: Query, alias: String)
   NoFromPart
@@ -417,62 +457,8 @@ pub fn from_part_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Select Part                                                              │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-// TODO MAYBE use something like this:
-
-// type SelectValue {
-//   SelectAggregateFunction(List(SelectValue))
-//   SelectFunction(List(SelectValue))
-//   SelectColumn(String)
-//   SelectParam(Param)
-//   // SelectCase?
-// }
-
-pub type SelectPart {
-  // Strings are arbitrary SQL strings
-  // Aliases rename fields
-  SelectString(string: String)
-  SelectStringAlias(string: String, alias: String)
-  // Columns are:
-  // - auto prefixed? by their corresponding tables if not given
-  // - checked if they exist
-  SelectColumn(column: String)
-  SelectColumnAlias(column: String, alias: String)
-  // RawSelect(string: String, parameters: List(Param))
-}
-
-pub fn select_part_from(s: String) -> SelectPart {
-  // TODO: check if the table does indeed exist
-  SelectString(s)
-}
-
-fn select_part_to_sql(select_part slct_prt: SelectPart) -> String {
-  case slct_prt {
-    SelectString(string) -> string
-    SelectStringAlias(string, alias) -> string <> " AS " <> alias
-    SelectColumn(column) -> column
-    SelectColumnAlias(column, alias) -> column <> " AS " <> alias
-  }
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Where Part                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
-
-pub type WhereValue {
-  WhereColumn(column: String)
-  WhereParam(param: Param)
-  WhereFragment(fragment: Fragment)
-  // WhereQuery(ScalarSelectQuery):
-  // NOTICE: Return value must be scalar: Set LIMIT to 1,
-  // If there are multiple, take the list of select parts
-  // and return the last one, if there is none, return NULL
-  // FIXME: (for unions need to wrap into a select with the unions as a sub select and a single field extracted and limit 1)
-  // Supply a wrapper function for this
-  // WhereQuery(ScalarSelectQuery)
-}
 
 pub type WherePart {
   WhereEqual(value_a: WhereValue, value_b: WhereValue)
@@ -487,7 +473,7 @@ pub type WherePart {
   WhereIsNotNull(value: WhereValue)
   WhereLike(value_a: WhereValue, string: String)
   WhereILike(value_a: WhereValue, string: String)
-  // NOTICE: Sqlite does not support `SIMILAR TO`:
+  // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilar(value_a: WhereValue, string: String)
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
@@ -495,18 +481,32 @@ pub type WherePart {
   OrWhere(parts: List(WherePart))
   // TODO: XorWhere(List(WherePart))
   NotWhere(part: WherePart)
-  // MAYBE add:
-  // WhereInSubquery(value: WhereValue, sub_query: Query)
-  // WhereAllSubquery(value: WhereValue, sub_query: Query)
-  // WhereAnySubquery(value: WhereValue, sub_query: Query)
-  // WhereExistsSubquery(sub_query: Query)
-  // WhereEqualSubquery(value: WhereValue, sub_query: Query)
-  // WhereLowerSubquery(value: WhereValue, sub_query: Query)
-  // WhereLowerOrEqualSubquery(value: WhereValue, sub_query: Query)
-  // WhereGreaterSubquery(value: WhereValue, sub_query: Query)
-  // WhereGreaterOrEqualSubquery(value: WhereValue, sub_query: Query)
-  // WhereNotEqualSubquery(value: WhereValue, sub_query: Query)
+  // NOTICE: Where with subqueries requires scalar queries
+  // We will use let assert here?!
+  // WhereInSubQuery(value: WhereValue, sub_query: Query)
+  // WhereAllSubQuery(value: WhereValue, sub_query: Query)
+  // WhereAnySubQuery(value: WhereValue, sub_query: Query)
+  // WhereExistsSubQuery(sub_query: Query)
+  // WhereEqualSubQuery(value: WhereValue, sub_query: Query)
+  // WhereLowerSubQuery(value: WhereValue, sub_query: Query)
+  // WhereLowerOrEqualSubQuery(value: WhereValue, sub_query: Query)
+  // WhereGreaterSubQuery(value: WhereValue, sub_query: Query)
+  // WhereGreaterOrEqualSubQuery(value: WhereValue, sub_query: Query)
+  // WhereNotEqualSubQuery(value: WhereValue, sub_query: Query)
   NoWherePart
+}
+
+pub type WhereValue {
+  WhereColumn(column: String)
+  WhereParam(param: Param)
+  WhereFragment(fragment: Fragment)
+  // WhereQuery(ScalarSelectQuery):
+  // NOTICE: Return value must be scalar: Set LIMIT to 1,
+  // If there are multiple, take the list of select parts
+  // and return the last one, if there is none, return NULL
+  // FIXME: (for unions need to wrap into a select with the unions as a sub select and a single field extracted and limit 1)
+  // Supply a wrapper function for this
+  // WhereQuery(ScalarSelectQuery)
 }
 
 fn where_part_apply(

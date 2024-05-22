@@ -22,6 +22,17 @@ pub fn append_sql(
   PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
 }
 
+pub fn append_param(
+  prepared_statement prp_stm: PreparedStatement,
+  new_param nw_prms: Param,
+) {
+  PreparedStatement(
+    ..prp_stm,
+    params: list.append(prp_stm.params, [nw_prms]),
+    index: prp_stm.index + 1,
+  )
+}
+
 pub fn append_sql_and_param(
   prepared_statement prp_stm: PreparedStatement,
   new_sql nw_sql: String,

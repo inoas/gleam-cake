@@ -18,9 +18,12 @@ SelectQuery(
     "cats",
   ),
   [
-    SelectString("cats.name"),
-    SelectString("cats.age"),
-    SelectString("owners.name AS owner_name"),
+    SelectColumn("cats.name"),
+    SelectColumn("cats.age"),
+    SelectAlias(
+      SelectColumn("owners.name"),
+      "owner_name",
+    ),
   ],
   [
     InnerJoin(

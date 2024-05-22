@@ -77,10 +77,9 @@ pub fn query_select_snap_test() {
   |> f.sub_query(alias: "cats")
   |> s.new_from
   |> s.select([
-    q.select_part_from(cats_t("name")),
-    q.select_part_from(cats_t("age")),
-    // TODO: this is bad:
-    q.select_part_from("owners.name AS owner_name"),
+    s.col(cats_t("name")),
+    s.col(cats_t("age")),
+    s.col(owners_t("name")) |> s.alias("owner_name"),
   ])
   |> s.where(where)
   |> s.order_asc(cats_t("name"))
@@ -109,7 +108,7 @@ pub fn query_combined_snap_test() {
   let base_select_query =
     f.table(name: "cats")
     |> s.new_from()
-    |> s.select([q.select_part_from("name"), q.select_part_from("age")])
+    |> s.select([s.col("name"), s.col("age")])
     |> tap(fn(v) {
       v
       |> to_string

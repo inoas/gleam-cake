@@ -102,5 +102,5 @@ pub fn similar(value val: WhereValue, to pttrn: String) -> WherePart {
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> WhereValue {
-  frgmt |> query.WhereFragment()
+  frgmt |> query.WhereFragment
 }
