@@ -1,5 +1,7 @@
 # Cake Query Builder
 
+An SQL query builder for Gleam targeting Postgres and SQLite - a preview
+
 [![Package
 <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a>
 <a href="https://discord.gg/Fm8Pwmy"><img src="https://img.shields.io/discord/768594524158427167?color=blue" alt="Discord chat"></a>
