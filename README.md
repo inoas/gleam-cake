@@ -1,4 +1,4 @@
-# cake
+# Cake Query Builder
 
 [![Package
 <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a>
@@ -8,16 +8,23 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
 ![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)
 
-```sh
+```shell
 gleam add cake
 ```
 
-<!--
 Further documentation can be found at <https://hexdocs.pm/cake>.
--->
 
 ## Development
 
-```sh
+Helper commands:
+
+```shell
 bin/run-watchexec
+
+bin/test
+bin/glacier
+
+bin/birdie/interactive-review
+bin/birdie/accept-all
+bin/birdie/reject-all
 ```
