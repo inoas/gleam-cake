@@ -1,1 +1,8 @@
-watchexec --restart --clear --quiet --no-process-group --stop-signal SIGKILL -- gleam run
+#!/usr/bin/env bash
+
+if [ -z $@ ]
+then
+    watchexec --restart --clear --quiet --no-process-group --stop-signal SIGKILL -- gleam run
+else
+    watchexec --restart --clear --quiet --no-process-group --stop-signal SIGKILL -- gleam run --module "$@"
+fi
