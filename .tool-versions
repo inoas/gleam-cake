@@ -1,3 +1,4 @@
-# gleam 1.2.0
-gleam nightly
-erlang 26.2.5
+gleam 1.2.0-rc1
+# gleam nightly
+# erlang 26.2.5
+erlang 27.0
