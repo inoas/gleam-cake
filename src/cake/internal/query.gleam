@@ -351,12 +351,17 @@ pub type SelectQuery {
   SelectQuery(
     // with: String,
     // with_recursive: String, ?
+    // TODO: wrap this in Select?
+    // and rename property rename select to selects
     select: List(SelectValue),
     // modifier: String,
     // distinct: String,
     // window: String,
     from: FromPart,
-    join: List(JoinPart),
+    // TODO: wrap this in Joins
+    // rename property from join to joins
+    join: List(Join),
+    // TODO: Maybe rename WherePart to Where
     where: WherePart,
     // group_by: String,
     // having: String,
@@ -591,12 +596,12 @@ pub fn where_part_apply_clause(
 
 pub fn join_parts_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
-  parts prts: List(JoinPart),
+  parts prts: List(Join),
 ) -> PreparedStatement {
   prts
   |> list.fold(
     prp_stm,
-    fn(new_prp_stm: PreparedStatement, prt: JoinPart) -> PreparedStatement {
+    fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
       let apply_join = fn(new_prp_stm: PreparedStatement, sql_command: String) -> PreparedStatement {
         new_prp_stm
         |> prepared_statement.append_sql(" " <> sql_command <> " ")
@@ -811,25 +816,31 @@ fn where_part_apply_between(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Join Part                                                                │
+// │  Joins                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub type Join {
+// TODO Use this type to wrap a List of Joins or set it to NoJoins
+pub type Joins {
+  NoJoins
+  Joins(List(Join))
+}
+
+pub type JoinKind {
   JoinTable(table: String)
   JoinSubQuery(sub_query: Query)
 }
 
-pub type JoinPart {
-  CrossJoin(with: Join, alias: String)
-  InnerJoin(with: Join, alias: String, on: WherePart)
-  LeftOuterJoin(with: Join, alias: String, on: WherePart)
-  RightOuterJoin(with: Join, alias: String, on: WherePart)
-  FullOuterJoin(with: Join, alias: String, on: WherePart)
+pub type Join {
+  CrossJoin(with: JoinKind, alias: String)
+  InnerJoin(with: JoinKind, alias: String, on: WherePart)
+  LeftOuterJoin(with: JoinKind, alias: String, on: WherePart)
+  RightOuterJoin(with: JoinKind, alias: String, on: WherePart)
+  FullOuterJoin(with: JoinKind, alias: String, on: WherePart)
 }
 
 fn join_part_apply(
   prepared_statement prp_stm: PreparedStatement,
-  join_part prt: JoinPart,
+  join_part prt: Join,
 ) -> PreparedStatement {
   case prt.with {
     JoinTable(table: tbl) ->

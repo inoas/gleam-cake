@@ -1,5 +1,5 @@
 import cake/internal/query.{
-  type Fragment, type FromPart, type JoinPart, type LimitOffsetPart,
+  type Fragment, type FromPart, type Join, type LimitOffsetPart,
   type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
   type WherePart, NoEpilogPart, NoFromPart, NoLimitNoOffset, NoWherePart,
   OrderByColumnPart, Select, SelectQuery,
@@ -146,35 +146,32 @@ pub fn get_where(select_query qry: SelectQuery) -> WherePart {
 
 // ▒▒▒ JOIN ▒▒▒
 
-pub fn join(
-  select_query qry: SelectQuery,
-  join_part prt: JoinPart,
-) -> SelectQuery {
+pub fn join(select_query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
   SelectQuery(..qry, join: list.append(qry.join, [prt]))
 }
 
 pub fn join_replace(
   select_query qry: SelectQuery,
-  join_part prt: JoinPart,
+  join_part prt: Join,
 ) -> SelectQuery {
   SelectQuery(..qry, join: [prt])
 }
 
 pub fn joins(
   select_query qry: SelectQuery,
-  join_parts prts: List(JoinPart),
+  join_parts prts: List(Join),
 ) -> SelectQuery {
   SelectQuery(..qry, join: list.append(qry.join, prts))
 }
 
 pub fn joins_replace(
   select_query qry: SelectQuery,
-  join_parts prts: List(JoinPart),
+  join_parts prts: List(Join),
 ) -> SelectQuery {
   SelectQuery(..qry, join: prts)
 }
 
-pub fn get_joins(select_query qry: SelectQuery) -> List(JoinPart) {
+pub fn get_joins(select_query qry: SelectQuery) -> List(Join) {
   qry.join
 }
 
