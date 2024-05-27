@@ -8,6 +8,7 @@ description = "An SQL query builder for Gleam targeting Postgres and SQLite - a 
 licences = ["AGPL-3.0-or-later"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 # links = [{ title = "Website", href = "https://gleam.run" }]
+gleam = ">= 1.2.0 and < 2.0.0"
 
 [dependencies]
 # act

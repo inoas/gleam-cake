@@ -5,11 +5,11 @@ file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
 SelectQuery(
+  [],
   FromTable("dogs"),
   [],
-  [],
   NoWherePart,
-  NoLimitNoOffset,
   [],
+  NoLimitNoOffset,
   NoEpilogPart,
 )

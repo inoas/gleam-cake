@@ -220,6 +220,8 @@ pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) -> String {
 // │  Limit & Offset Part                                                      │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+// TODO: split limit and offset into separate types and separate functions
+//       then add one combination function to set both limit and offset.
 pub type LimitOffsetPart {
   LimitOffset(limit: Int, offset: Int)
   LimitNoOffset(limit: Int)
@@ -347,23 +349,22 @@ pub fn combined_order_by(
 // List of SQL parts that will be used to build a select query.
 pub type SelectQuery {
   SelectQuery(
-    from: FromPart,
-    // comment: String,
-    // modifier: String,
     // with: String,
+    // with_recursive: String, ?
     select: List(SelectValue),
+    // modifier: String,
     // distinct: String,
+    // window: String,
+    from: FromPart,
     join: List(JoinPart),
     where: WherePart,
     // group_by: String,
     // having: String,
-    // window: String,
-    // values: String, ?
-    // with_recursive: String, ?
-    limit_offset: LimitOffsetPart,
     order_by: List(OrderByPart),
-    // kind: SelectQueryKind,
+    limit_offset: LimitOffsetPart,
     epilog: EpilogPart,
+    // comment: String,
+    // values: String, ?
   )
 }
 

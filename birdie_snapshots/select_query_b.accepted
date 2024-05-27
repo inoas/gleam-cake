@@ -5,22 +5,22 @@ file: ./test/old_query_test.gleam
 test_name: query_combined_snap_test
 ---
 SelectQuery(
-  FromTable("cats"),
   [
     SelectColumn("name"),
     SelectColumn("age"),
   ],
+  FromTable("cats"),
   [],
   NotWhere(WhereIsNotBool(
     WhereColumn("is_wild"),
     False,
   )),
-  NoLimitNoOffset,
   [
     OrderByColumnPart(
       "will_be_removed",
       Asc,
     ),
   ],
+  NoLimitNoOffset,
   NoEpilogPart,
 )

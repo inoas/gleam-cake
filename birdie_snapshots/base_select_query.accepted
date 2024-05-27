@@ -5,14 +5,14 @@ file: ./test/old_query_test.gleam
 test_name: query_combined_snap_test
 ---
 SelectQuery(
-  FromTable("cats"),
   [
     SelectColumn("name"),
     SelectColumn("age"),
   ],
+  FromTable("cats"),
   [],
   NoWherePart,
-  NoLimitNoOffset,
   [],
+  NoLimitNoOffset,
   NoEpilogPart,
 )

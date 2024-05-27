@@ -5,18 +5,6 @@ file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
 SelectQuery(
-  FromSubQuery(
-    Select(SelectQuery(
-      FromTable("cats"),
-      [],
-      [],
-      NoWherePart,
-      NoLimitNoOffset,
-      [],
-      NoEpilogPart,
-    )),
-    "cats",
-  ),
   [
     SelectColumn("cats.name"),
     SelectColumn("cats.age"),
@@ -25,6 +13,18 @@ SelectQuery(
       "owner_name",
     ),
   ],
+  FromSubQuery(
+    Select(SelectQuery(
+      [],
+      FromTable("cats"),
+      [],
+      NoWherePart,
+      [],
+      NoLimitNoOffset,
+      NoEpilogPart,
+    )),
+    "cats",
+  ),
   [
     InnerJoin(
       JoinTable("owners"),
@@ -43,12 +43,12 @@ SelectQuery(
     ),
     CrossJoin(
       JoinSubQuery(Select(SelectQuery(
+        [],
         FromTable("dogs"),
         [],
-        [],
         NoWherePart,
-        NoLimitNoOffset,
         [],
+        NoLimitNoOffset,
         NoEpilogPart,
       ))),
       "dogs",
@@ -75,7 +75,7 @@ SelectQuery(
       ],
     ),
   ]),
-  LimitOffset(1, 0),
   [OrderByColumnPart("cats.age", Asc)],
+  LimitOffset(1, 0),
   NoEpilogPart,
 )

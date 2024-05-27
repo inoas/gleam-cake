@@ -5,8 +5,8 @@ file: ./test/old_query_test.gleam
 test_name: query_fragment_snap_test
 ---
 SelectQuery(
-  FromTable("cats"),
   [],
+  FromTable("cats"),
   [],
   WhereEqual(
     WhereColumn("name"),
@@ -18,7 +18,7 @@ SelectQuery(
       ],
     )),
   ),
-  NoLimitNoOffset,
   [],
+  NoLimitNoOffset,
   NoEpilogPart,
 )

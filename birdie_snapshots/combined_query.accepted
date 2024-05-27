@@ -8,11 +8,11 @@ Combined(CombinedQuery(
   UnionAll,
   [
     SelectQuery(
-      FromTable("cats"),
       [
         SelectColumn("name"),
         SelectColumn("age"),
       ],
+      FromTable("cats"),
       [],
       OrWhere([
         WhereLowerOrEqual(
@@ -24,23 +24,23 @@ Combined(CombinedQuery(
           "%ara%",
         ),
       ]),
-      NoLimitNoOffset,
       [],
+      NoLimitNoOffset,
       NoEpilogPart,
     ),
     SelectQuery(
-      FromTable("cats"),
       [
         SelectColumn("name"),
         SelectColumn("age"),
       ],
+      FromTable("cats"),
       [],
       NotWhere(WhereIsNotBool(
         WhereColumn("is_wild"),
         False,
       )),
-      NoLimitNoOffset,
       [],
+      NoLimitNoOffset,
       NoEpilogPart,
     ),
   ],
