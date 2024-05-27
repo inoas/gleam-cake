@@ -53,6 +53,7 @@ repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 # valid
 # wisp
 # youid
+# mysql-otp maybe, but needs a gleam wrapper first
 gleam_erlang = ">= 0.25.0 and < 2.0.0"
 gleam_pgo = ">= 0.9.0 and < 2.0.0"
 gleam_stdlib = ">= 0.37.0 and < 2.0.0"
