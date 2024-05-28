@@ -7,7 +7,7 @@ test_name: query_fragment_snap_test
 SelectQuery(
   [],
   FromTable("cats"),
-  [],
+  NoJoins,
   WhereEqual(
     WhereColumn("name"),
     WhereFragment(FragmentPrepared(

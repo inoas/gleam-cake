@@ -13,7 +13,7 @@ Combined(CombinedQuery(
         SelectColumn("age"),
       ],
       FromTable("cats"),
-      [],
+      NoJoins,
       OrWhere([
         WhereLowerOrEqual(
           WhereColumn("age"),
@@ -34,7 +34,7 @@ Combined(CombinedQuery(
         SelectColumn("age"),
       ],
       FromTable("cats"),
-      [],
+      NoJoins,
       NotWhere(WhereIsNotBool(
         WhereColumn("is_wild"),
         False,

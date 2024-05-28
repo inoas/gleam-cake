@@ -10,7 +10,7 @@ SelectQuery(
     SelectColumn("age"),
   ],
   FromTable("cats"),
-  [],
+  NoJoins,
   NoWherePart,
   [],
   NoLimitNoOffset,

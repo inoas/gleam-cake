@@ -1,8 +1,8 @@
 import cake/internal/query.{
-  type Fragment, type FromPart, type Join, type LimitOffsetPart,
+  type Fragment, type FromPart, type Join, type Joins, type LimitOffsetPart,
   type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
-  type WherePart, NoEpilogPart, NoFromPart, NoLimitNoOffset, NoWherePart,
-  OrderByColumnPart, Select, SelectQuery,
+  type WherePart, Joins, NoEpilogPart, NoFromPart, NoJoins, NoLimitNoOffset,
+  NoWherePart, OrderByColumnPart, Select, SelectQuery,
 }
 import cake/param
 import gleam/list
@@ -46,7 +46,7 @@ pub fn new(from frm: FromPart, select slct: List(SelectValue)) -> SelectQuery {
     select: slct,
     from: frm,
     where: NoWherePart,
-    joins: [],
+    joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
@@ -57,7 +57,7 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
   SelectQuery(
     select: [],
     from: frm,
-    joins: [],
+    joins: NoJoins,
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitNoOffset,
@@ -70,7 +70,7 @@ pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
     select: slct,
     from: NoFromPart,
     where: NoWherePart,
-    joins: [],
+    joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
@@ -147,31 +147,41 @@ pub fn get_where(select_query qry: SelectQuery) -> WherePart {
 // ▒▒▒ JOIN ▒▒▒
 
 pub fn join(select_query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
-  SelectQuery(..qry, joins: list.append(qry.joins, [prt]))
+  case qry.joins {
+    NoJoins -> SelectQuery(..qry, joins: Joins([prt]))
+    Joins(prts) -> SelectQuery(..qry, joins: Joins(prts |> list.append([prt])))
+  }
 }
 
 pub fn join_replace(
   select_query qry: SelectQuery,
   join_part prt: Join,
 ) -> SelectQuery {
-  SelectQuery(..qry, joins: [prt])
+  SelectQuery(..qry, joins: Joins([prt]))
 }
 
 pub fn joins(
   select_query qry: SelectQuery,
   join_parts prts: List(Join),
 ) -> SelectQuery {
-  SelectQuery(..qry, joins: list.append(qry.joins, prts))
+  case qry.joins {
+    NoJoins -> SelectQuery(..qry, joins: Joins(prts))
+    Joins(prts) -> SelectQuery(..qry, joins: Joins(prts |> list.append(prts)))
+  }
 }
 
 pub fn joins_replace(
   select_query qry: SelectQuery,
   join_parts prts: List(Join),
 ) -> SelectQuery {
-  SelectQuery(..qry, joins: prts)
+  SelectQuery(..qry, joins: Joins(prts))
 }
 
-pub fn get_joins(select_query qry: SelectQuery) -> List(Join) {
+pub fn joins_remove(select_query qry: SelectQuery) -> SelectQuery {
+  SelectQuery(..qry, joins: NoJoins)
+}
+
+pub fn get_joins(select_query qry: SelectQuery) -> Joins {
   qry.joins
 }
 

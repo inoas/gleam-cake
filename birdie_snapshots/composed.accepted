@@ -17,7 +17,7 @@ SelectQuery(
     Select(SelectQuery(
       [],
       FromTable("cats"),
-      [],
+      NoJoins,
       NoWherePart,
       [],
       NoLimitNoOffset,
@@ -25,7 +25,7 @@ SelectQuery(
     )),
     "cats",
   ),
-  [
+  Joins([
     InnerJoin(
       JoinTable("owners"),
       "owners",
@@ -45,7 +45,7 @@ SelectQuery(
       JoinSubQuery(Select(SelectQuery(
         [],
         FromTable("dogs"),
-        [],
+        NoJoins,
         NoWherePart,
         [],
         NoLimitNoOffset,
@@ -53,7 +53,7 @@ SelectQuery(
       ))),
       "dogs",
     ),
-  ],
+  ]),
   OrWhere([
     WhereEqual(
       WhereColumn("cats.age"),

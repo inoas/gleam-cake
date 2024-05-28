@@ -10,7 +10,7 @@ SelectQuery(
     SelectColumn("age"),
   ],
   FromTable("cats"),
-  [],
+  NoJoins,
   NotWhere(WhereIsNotBool(
     WhereColumn("is_wild"),
     False,

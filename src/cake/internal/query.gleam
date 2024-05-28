@@ -360,7 +360,7 @@ pub type SelectQuery {
     from: FromPart,
     // TODO: wrap this in Joins
     // rename property from join to joins
-    joins: List(Join),
+    joins: Joins,
     // TODO: Maybe rename WherePart to Where
     where: WherePart,
     // group_by: String,
@@ -596,35 +596,43 @@ pub fn where_part_apply_clause(
 
 pub fn join_parts_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
-  parts prts: List(Join),
+  joins jns: Joins,
 ) -> PreparedStatement {
-  prts
-  |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
-      let apply_join = fn(new_prp_stm: PreparedStatement, sql_command: String) -> PreparedStatement {
-        new_prp_stm
-        |> prepared_statement.append_sql(" " <> sql_command <> " ")
-        |> join_part_apply(prt)
-      }
-      let apply_on = fn(new_prp_stm: PreparedStatement, on: WherePart) {
-        new_prp_stm
-        |> prepared_statement.append_sql(" ON ")
-        |> where_part_apply(on)
-      }
-      case prt {
-        CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
-        InnerJoin(_, _, on: on) ->
-          new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
-        LeftOuterJoin(_, _, on: on) ->
-          new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
-        RightOuterJoin(_, _, on: on) ->
-          new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
-        FullOuterJoin(_, _, on: on) ->
-          new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
-      }
-    },
-  )
+  case jns {
+    NoJoins -> prp_stm
+    Joins(parts) -> {
+      parts
+      |> list.fold(
+        prp_stm,
+        fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
+          let apply_join = fn(
+            new_prp_stm: PreparedStatement,
+            sql_command: String,
+          ) -> PreparedStatement {
+            new_prp_stm
+            |> prepared_statement.append_sql(" " <> sql_command <> " ")
+            |> join_part_apply(prt)
+          }
+          let apply_on = fn(new_prp_stm: PreparedStatement, on: WherePart) {
+            new_prp_stm
+            |> prepared_statement.append_sql(" ON ")
+            |> where_part_apply(on)
+          }
+          case prt {
+            CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
+            InnerJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
+            LeftOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+            RightOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+            FullOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+          }
+        },
+      )
+    }
+  }
 }
 
 fn where_part_apply_literal(
