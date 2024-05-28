@@ -1,14 +1,14 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type LimitOffset,
-  type OrderByDirection, type Query, type SelectQuery, type SelectValue,
-  type Selects, type Where, Joins, NoEpilog, NoFrom, NoJoins, NoLimitNoOffset,
-  NoSelects, NoWhere, OrderByColumn, Select, SelectQuery, Selects,
+  type OrderByDirection, type Query, type Select, type SelectValue, type Selects,
+  type Where, Joins, NoEpilog, NoFrom, NoJoins, NoLimitNoOffset, NoSelects,
+  NoWhere, OrderByColumn, Select, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
 
-pub fn to_query(query qry: SelectQuery) -> Query {
-  qry |> Select
+pub fn to_query(query qry: Select) -> Query {
+  qry |> SelectQuery
 }
 
 pub fn col(name: String) -> SelectValue {
@@ -41,12 +41,12 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 // ▒▒▒ NEW ▒▒▒
 
-pub fn new(from frm: From, selects slcts: List(SelectValue)) -> SelectQuery {
+pub fn new(from frm: From, selects slcts: List(SelectValue)) -> Select {
   let slcts = case slcts {
     [] -> NoSelects
     _ -> slcts |> Selects
   }
-  SelectQuery(
+  Select(
     selects: slcts,
     from: frm,
     where: NoWhere,
@@ -57,8 +57,8 @@ pub fn new(from frm: From, selects slcts: List(SelectValue)) -> SelectQuery {
   )
 }
 
-pub fn new_from(from frm: From) -> SelectQuery {
-  SelectQuery(
+pub fn new_from(from frm: From) -> Select {
+  Select(
     selects: NoSelects,
     from: frm,
     joins: NoJoins,
@@ -69,12 +69,12 @@ pub fn new_from(from frm: From) -> SelectQuery {
   )
 }
 
-pub fn new_select(selects slcts: List(SelectValue)) -> SelectQuery {
+pub fn new_select(selects slcts: List(SelectValue)) -> Select {
   let slcts = case slcts {
     [] -> NoSelects
     _ -> slcts |> Selects
   }
-  SelectQuery(
+  Select(
     selects: slcts,
     from: NoFrom,
     where: NoWhere,
@@ -87,132 +87,125 @@ pub fn new_select(selects slcts: List(SelectValue)) -> SelectQuery {
 
 // ▒▒▒ FROM ▒▒▒
 
-pub fn set_from(query qry: SelectQuery, from frm: From) -> SelectQuery {
-  SelectQuery(..qry, from: frm)
+pub fn set_from(query qry: Select, from frm: From) -> Select {
+  Select(..qry, from: frm)
 }
 
-pub fn get_from(query qry: SelectQuery) -> From {
+pub fn get_from(query qry: Select) -> From {
   qry.from
 }
 
 // ▒▒▒ SELECT ▒▒▒
 
-pub fn selects(
-  query qry: SelectQuery,
-  select_values sv: List(SelectValue),
-) -> SelectQuery {
+pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select {
   case sv, qry.selects {
     [], _ -> qry
-    sv, NoSelects -> SelectQuery(..qry, selects: Selects(sv))
+    sv, NoSelects -> Select(..qry, selects: Selects(sv))
     sv, Selects(qry_slcts) ->
-      SelectQuery(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
+      Select(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
 pub fn selects_replace(
-  query qry: SelectQuery,
+  query qry: Select,
   select_values sv: List(SelectValue),
-) -> SelectQuery {
+) -> Select {
   case sv, qry.selects {
     [], _ -> qry
-    sv, NoSelects -> SelectQuery(..qry, selects: Selects(sv))
+    sv, NoSelects -> Select(..qry, selects: Selects(sv))
     sv, Selects(qry_slcts) ->
-      SelectQuery(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
+      Select(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
-pub fn get_selects(query qry: SelectQuery) -> Selects {
+pub fn get_selects(query qry: Select) -> Selects {
   qry.selects
 }
 
 // ▒▒▒ WHERE ▒▒▒
 
-pub fn where(query qry: SelectQuery, where whr: Where) -> SelectQuery {
-  SelectQuery(..qry, where: whr)
+pub fn where(query qry: Select, where whr: Where) -> Select {
+  Select(..qry, where: whr)
 }
 
-pub fn or_where(query qry: SelectQuery, where whr: Where) -> SelectQuery {
+pub fn or_where(query qry: Select, where whr: Where) -> Select {
   let new_where = query.OrWhere([qry.where, whr])
-  SelectQuery(..qry, where: new_where)
+  Select(..qry, where: new_where)
 }
 
 // TODO
 // pub fn xor_where(
-//   query qry: SelectQuery,
+//   query qry: Select,
 //   where whr: Where,
-// ) -> SelectQuery {
+// ) -> Select {
 //   let new_where = query.XorWhere([qry.where, whr])
-//   SelectQuery(..qry, where: new_where)
+//   Select(..qry, where: new_where)
 // }
 
-pub fn where_replace(query qry: SelectQuery, where whr: Where) -> SelectQuery {
-  SelectQuery(..qry, where: whr)
+pub fn where_replace(query qry: Select, where whr: Where) -> Select {
+  Select(..qry, where: whr)
 }
 
-pub fn get_where(query qry: SelectQuery) -> Where {
+pub fn get_where(query qry: Select) -> Where {
   qry.where
 }
 
 // ▒▒▒ JOIN ▒▒▒
 
-pub fn join(query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
+pub fn join(query qry: Select, join_part prt: Join) -> Select {
   case qry.joins {
-    Joins(prts) ->
-      SelectQuery(..qry, joins: prts |> list.append([prt]) |> Joins)
-    NoJoins -> SelectQuery(..qry, joins: [prt] |> Joins)
+    Joins(prts) -> Select(..qry, joins: prts |> list.append([prt]) |> Joins)
+    NoJoins -> Select(..qry, joins: [prt] |> Joins)
   }
 }
 
-pub fn join_replace(query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
-  SelectQuery(..qry, joins: [prt] |> Joins)
+pub fn join_replace(query qry: Select, join_part prt: Join) -> Select {
+  Select(..qry, joins: [prt] |> Joins)
 }
 
-pub fn joins(query qry: SelectQuery, joins jns: List(Join)) -> SelectQuery {
+pub fn joins(query qry: Select, joins jns: List(Join)) -> Select {
   case jns, qry.joins {
-    [], _ -> SelectQuery(..qry, joins: Joins(jns))
+    [], _ -> Select(..qry, joins: Joins(jns))
     jns, Joins(qry_joins) ->
-      SelectQuery(..qry, joins: qry_joins |> list.append(jns) |> Joins)
-    jns, NoJoins -> SelectQuery(..qry, joins: jns |> Joins)
+      Select(..qry, joins: qry_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> Select(..qry, joins: jns |> Joins)
   }
 }
 
-pub fn joins_replace(
-  query qry: SelectQuery,
-  join_parts prts: List(Join),
-) -> SelectQuery {
-  SelectQuery(..qry, joins: prts |> Joins)
+pub fn joins_replace(query qry: Select, join_parts prts: List(Join)) -> Select {
+  Select(..qry, joins: prts |> Joins)
 }
 
-pub fn joins_remove(query qry: SelectQuery) -> SelectQuery {
-  SelectQuery(..qry, joins: NoJoins)
+pub fn joins_remove(query qry: Select) -> Select {
+  Select(..qry, joins: NoJoins)
 }
 
-pub fn get_joins(query qry: SelectQuery) -> Joins {
+pub fn get_joins(query qry: Select) -> Joins {
   qry.joins
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 pub fn set_limit_and_offset(
-  query qry: SelectQuery,
+  query qry: Select,
   limit lmt: Int,
   offset offst: Int,
-) -> SelectQuery {
+) -> Select {
   let lmt_offst = query.limit_offset_new(limit: lmt, offset: offst)
-  SelectQuery(..qry, limit_offset: lmt_offst)
+  Select(..qry, limit_offset: lmt_offst)
 }
 
-pub fn set_limit(query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+pub fn set_limit(query qry: Select, limit lmt: Int) -> Select {
   let lmt_offst = query.limit_new(lmt)
-  SelectQuery(..qry, limit_offset: lmt_offst)
+  Select(..qry, limit_offset: lmt_offst)
 }
 
-pub fn set_offset(query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+pub fn set_offset(query qry: Select, limit lmt: Int) -> Select {
   let lmt_offst = query.offset_new(lmt)
-  SelectQuery(..qry, limit_offset: lmt_offst)
+  Select(..qry, limit_offset: lmt_offst)
 }
 
-pub fn get_limit_and_offset(query qry: SelectQuery) -> LimitOffset {
+pub fn get_limit_and_offset(query qry: Select) -> LimitOffset {
   qry.limit_offset
 }
 
@@ -232,71 +225,62 @@ fn map_order_by_direction_part_constructor(
   }
 }
 
-pub fn order_asc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn order_asc(query qry: Select, by ordb: String) -> Select {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), True)
 }
 
-pub fn order_asc_nulls_first(
-  query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
+pub fn order_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), True)
 }
 
-pub fn order_asc_replace(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn order_asc_replace(query qry: Select, by ordb: String) -> Select {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), False)
 }
 
 pub fn order_asc_nulls_first_replace(
-  query qry: SelectQuery,
+  query qry: Select,
   by ordb: String,
-) -> SelectQuery {
+) -> Select {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), False)
 }
 
-pub fn order_desc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn order_desc(query qry: Select, by ordb: String) -> Select {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), True)
 }
 
-pub fn order_desc_nulls_first(
-  query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
+pub fn order_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.DescNullsFirst), True)
 }
 
-pub fn order_desc_replace(
-  query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
+pub fn order_desc_replace(query qry: Select, by ordb: String) -> Select {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), False)
 }
 
 pub fn order_desc_nulls_first_replace(
-  query qry: SelectQuery,
+  query qry: Select,
   by ordb: String,
-) -> SelectQuery {
+) -> Select {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.DescNullsFirst), False)
 }
 
 pub fn order(
-  query qry: SelectQuery,
+  query qry: Select,
   by ordb: String,
   direction dir: SelectOrderByDirection,
-) -> SelectQuery {
+) -> Select {
   let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumn(ordb, dir), True)
 }
 
 pub fn order_replace(
-  query qry: SelectQuery,
+  query qry: Select,
   by ordb: String,
   direction dir: SelectOrderByDirection,
-) -> SelectQuery {
+) -> Select {
   let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumn(ordb, dir), False)
 }

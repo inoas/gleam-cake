@@ -28,7 +28,7 @@ pub fn builder_apply(
   query qry: Query,
 ) -> PreparedStatement {
   case qry {
-    Select(query: qry) -> prp_stm |> select_builder(qry)
+    SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
     Combined(query: qry) -> prp_stm |> combined_builder(qry)
   }
 }
@@ -67,7 +67,7 @@ pub fn combined_builder_apply_command_sql(
   cmbnd_qry.select_queries
   |> list.fold(
     prp_stm,
-    fn(new_prp_stm: PreparedStatement, qry: SelectQuery) -> PreparedStatement {
+    fn(new_prp_stm: PreparedStatement, qry: Select) -> PreparedStatement {
       case new_prp_stm == prp_stm {
         True -> new_prp_stm |> select_builder(qry)
         False -> {
@@ -109,7 +109,7 @@ fn combined_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
 
 pub fn select_builder(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm
   |> select_builder_maybe_apply_select(qry)
@@ -122,41 +122,41 @@ pub fn select_builder(
 
 fn select_builder_apply_to_sql(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
-  maybe_fun mb_fun: fn(SelectQuery) -> String,
+  select_query qry: Select,
+  maybe_fun mb_fun: fn(Select) -> String,
 ) -> PreparedStatement {
   prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
 fn select_builder_maybe_apply_select(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> select_apply_clause(qry.selects)
 }
 
 fn select_builder_maybe_apply_from(
   prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> from_apply(qry.from)
 }
 
 fn select_builder_maybe_apply_where(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> where_apply_clause(qry.where)
 }
 
 fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> joins_apply_clause(qry.joins)
 }
 
-fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
+fn select_builder_maybe_add_order_sql(select_query qry: Select) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
@@ -173,7 +173,7 @@ fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
 
 fn select_builder_maybe_apply_limit_offset(
   prepared_statement prp_stm: PreparedStatement,
-  select_query qry: SelectQuery,
+  select_query qry: Select,
 ) -> PreparedStatement {
   qry
   |> limit_offset_get()
@@ -185,7 +185,7 @@ fn select_builder_maybe_apply_limit_offset(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Query {
-  Select(query: SelectQuery)
+  SelectQuery(query: Select)
   Combined(query: CombinedQuery)
   // Insert(query: InsertQuery
   // Update(query: UpdateQuery)
@@ -265,7 +265,7 @@ pub fn limit_offset_apply(
   |> prepared_statement.append_sql(prp_stm, _)
 }
 
-pub fn limit_offset_get(select_query qry: SelectQuery) -> LimitOffset {
+pub fn limit_offset_get(select_query qry: Select) -> LimitOffset {
   qry.limit_offset
 }
 
@@ -289,7 +289,7 @@ pub type CombinedKind {
 pub type CombinedQuery {
   CombinedQuery(
     kind: CombinedKind,
-    select_queries: List(SelectQuery),
+    select_queries: List(Select),
     limit_offset: LimitOffset,
     order_by: List(OrderBy),
     // Epilog allows you to append raw SQL to the end of queries.
@@ -300,7 +300,7 @@ pub type CombinedQuery {
 
 pub fn combined_query_new(
   kind knd: CombinedKind,
-  select_queries qrys: List(SelectQuery),
+  select_queries qrys: List(Select),
 ) -> CombinedQuery {
   qrys
   // ORDER BY is not allowed for queries,
@@ -316,17 +316,15 @@ pub fn combined_query_new(
 }
 
 fn combined_query_remove_order_by_from_selects(
-  select_queries qrys: List(SelectQuery),
-) -> List(SelectQuery) {
+  select_queries qrys: List(Select),
+) -> List(Select) {
   qrys
-  |> list.map(fn(qry: SelectQuery) -> SelectQuery {
-    SelectQuery(..qry, order_by: [])
-  })
+  |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: []) })
 }
 
 pub fn combined_get_select_queries(
   combined_query cmbnd_qry: CombinedQuery,
-) -> List(SelectQuery) {
+) -> List(Select) {
   cmbnd_qry.select_queries
 }
 
@@ -347,8 +345,8 @@ pub fn combined_order_by(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 // List of SQL parts that will be used to build a select query.
-pub type SelectQuery {
-  SelectQuery(
+pub type Select {
+  Select(
     // with: String,
     // with_recursive: String, ?
     // TODO: wrap this in Select?
@@ -375,14 +373,13 @@ pub type SelectQuery {
 }
 
 pub fn select_order_by(
-  select_query qry: SelectQuery,
+  select_query qry: Select,
   by ordb: OrderBy,
   append appnd: Bool,
-) -> SelectQuery {
+) -> Select {
   case appnd {
-    True ->
-      SelectQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
-    False -> SelectQuery(..qry, order_by: listx.wrap(ordb))
+    True -> Select(..qry, order_by: qry.order_by |> listx.append_item(ordb))
+    False -> Select(..qry, order_by: listx.wrap(ordb))
   }
 }
 
@@ -517,7 +514,7 @@ pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
-  // WhereQuery(SelectQuery):
+  // WhereQuery(Select):
   // NOTICE: Return value must be scalar: Set LIMIT to 1,
   // If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
