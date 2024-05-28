@@ -5,17 +5,17 @@ file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
 SelectQuery(
-  [
+  Selects([
     SelectColumn("cats.name"),
     SelectColumn("cats.age"),
     SelectAlias(
       SelectColumn("owners.name"),
       "owner_name",
     ),
-  ],
+  ]),
   FromSubQuery(
     Select(SelectQuery(
-      [],
+      NoSelects,
       FromTable("cats"),
       NoJoins,
       NoWhere,
@@ -43,7 +43,7 @@ SelectQuery(
     ),
     CrossJoin(
       JoinSubQuery(Select(SelectQuery(
-        [],
+        NoSelects,
         FromTable("dogs"),
         NoJoins,
         NoWhere,

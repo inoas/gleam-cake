@@ -5,7 +5,7 @@ file: ./test/old_query_test.gleam
 test_name: query_fragment_snap_test
 ---
 SelectQuery(
-  [],
+  NoSelects,
   FromTable("cats"),
   NoJoins,
   WhereEqual(

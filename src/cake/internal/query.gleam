@@ -354,7 +354,7 @@ pub type SelectQuery {
     // TODO: wrap this in Select?
     // and rename property rename select to selects
     // or rename it to Projection
-    selects: List(SelectValue),
+    selects: Selects,
     // modifier: String,
     // distinct: String,
     // window: String,
@@ -390,6 +390,11 @@ pub fn select_order_by(
 // │  Select Value                                                             │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+pub type Selects {
+  Selects(List(SelectValue))
+  NoSelects
+}
+
 pub type SelectValue {
   SelectColumn(column: String)
   SelectParam(param: Param)
@@ -399,25 +404,31 @@ pub type SelectValue {
 
 fn select_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
-  values vs: List(SelectValue),
+  selects slcts: Selects,
 ) -> PreparedStatement {
-  let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
-  case vs {
-    [] -> prp_stm |> prepared_statement.append_sql("*")
-    vs -> {
-      vs
-      |> list.fold(
-        prp_stm,
-        fn(new_prp_stm: PreparedStatement, v: SelectValue) -> PreparedStatement {
-          case new_prp_stm == prp_stm {
-            True -> new_prp_stm |> select_value_apply(v)
-            False ->
-              new_prp_stm
-              |> prepared_statement.append_sql(", ")
-              |> select_value_apply(v)
-          }
-        },
-      )
+  case slcts {
+    NoSelects -> prp_stm |> prepared_statement.append_sql("SELECT *")
+    Selects(slct_vs) -> {
+      let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
+      case slct_vs {
+        [] -> prp_stm
+        vs -> {
+          let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
+          vs
+          |> list.fold(
+            prp_stm,
+            fn(new_prp_stm: PreparedStatement, v: SelectValue) -> PreparedStatement {
+              case new_prp_stm == prp_stm {
+                True -> new_prp_stm |> select_value_apply(v)
+                False ->
+                  new_prp_stm
+                  |> prepared_statement.append_sql(", ")
+                  |> select_value_apply(v)
+              }
+            },
+          )
+        }
+      }
     }
   }
 }
@@ -593,7 +604,6 @@ pub fn joins_apply_clause(
   joins jns: Joins,
 ) -> PreparedStatement {
   case jns {
-    NoJoins -> prp_stm
     Joins(parts) -> {
       parts
       |> list.fold(
@@ -626,6 +636,7 @@ pub fn joins_apply_clause(
         },
       )
     }
+    NoJoins -> prp_stm
   }
 }
 
@@ -638,10 +649,8 @@ fn where_apply_literal(
     WhereColumn(col) ->
       prp_stm
       |> prepared_statement.append_sql(col <> " " <> lt)
-
     WhereParam(prm) -> {
       let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
@@ -821,10 +830,9 @@ fn where_apply_between(
 // │  Joins                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO Use this type to wrap a List of Joins or set it to NoJoins
 pub type Joins {
-  NoJoins
   Joins(List(Join))
+  NoJoins
 }
 
 pub type JoinKind {

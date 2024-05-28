@@ -5,7 +5,7 @@ file: ./test/query_test.gleam
 test_name: query_where_between_builder_test
 ---
 SelectQuery(
-  [],
+  NoSelects,
   FromTable("cats"),
   NoJoins,
   WhereBetween(

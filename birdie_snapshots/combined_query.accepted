@@ -8,10 +8,10 @@ Combined(CombinedQuery(
   UnionAll,
   [
     SelectQuery(
-      [
+      Selects([
         SelectColumn("name"),
         SelectColumn("age"),
-      ],
+      ]),
       FromTable("cats"),
       NoJoins,
       OrWhere([
@@ -29,10 +29,10 @@ Combined(CombinedQuery(
       NoEpilog,
     ),
     SelectQuery(
-      [
+      Selects([
         SelectColumn("name"),
         SelectColumn("age"),
-      ],
+      ]),
       FromTable("cats"),
       NoJoins,
       NotWhere(WhereIsNotBool(

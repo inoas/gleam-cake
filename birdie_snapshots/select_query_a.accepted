@@ -5,10 +5,10 @@ file: ./test/old_query_test.gleam
 test_name: query_combined_snap_test
 ---
 SelectQuery(
-  [
+  Selects([
     SelectColumn("name"),
     SelectColumn("age"),
-  ],
+  ]),
   FromTable("cats"),
   NoJoins,
   OrWhere([
