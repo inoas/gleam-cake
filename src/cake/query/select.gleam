@@ -7,7 +7,7 @@ import cake/internal/query.{
 import cake/param
 import gleam/list
 
-pub fn to_query(select_query qry: SelectQuery) -> Query {
+pub fn to_query(query qry: SelectQuery) -> Query {
   qry |> Select
 }
 
@@ -44,7 +44,7 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 pub fn new(from frm: From, selects slcts: List(SelectValue)) -> SelectQuery {
   let slcts = case slcts {
     [] -> NoSelects
-    _ -> Selects(slcts)
+    _ -> slcts |> Selects
   }
   SelectQuery(
     selects: slcts,
@@ -72,7 +72,7 @@ pub fn new_from(from frm: From) -> SelectQuery {
 pub fn new_select(selects slcts: List(SelectValue)) -> SelectQuery {
   let slcts = case slcts {
     [] -> NoSelects
-    _ -> Selects(slcts)
+    _ -> slcts |> Selects
   }
   SelectQuery(
     selects: slcts,
@@ -87,115 +87,107 @@ pub fn new_select(selects slcts: List(SelectValue)) -> SelectQuery {
 
 // ▒▒▒ FROM ▒▒▒
 
-pub fn set_from(select_query qry: SelectQuery, from frm: From) -> SelectQuery {
+pub fn set_from(query qry: SelectQuery, from frm: From) -> SelectQuery {
   SelectQuery(..qry, from: frm)
 }
 
-pub fn get_from(select_query qry: SelectQuery) -> From {
+pub fn get_from(query qry: SelectQuery) -> From {
   qry.from
 }
 
 // ▒▒▒ SELECT ▒▒▒
 
 pub fn selects(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   select_values sv: List(SelectValue),
 ) -> SelectQuery {
   case sv, qry.selects {
     [], _ -> qry
     sv, NoSelects -> SelectQuery(..qry, selects: Selects(sv))
     sv, Selects(qry_slcts) ->
-      SelectQuery(..qry, selects: Selects(qry_slcts |> list.append(sv)))
+      SelectQuery(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
 pub fn selects_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   select_values sv: List(SelectValue),
 ) -> SelectQuery {
   case sv, qry.selects {
     [], _ -> qry
     sv, NoSelects -> SelectQuery(..qry, selects: Selects(sv))
     sv, Selects(qry_slcts) ->
-      SelectQuery(..qry, selects: Selects(qry_slcts |> list.append(sv)))
+      SelectQuery(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
-pub fn get_selects(select_query qry: SelectQuery) -> Selects {
+pub fn get_selects(query qry: SelectQuery) -> Selects {
   qry.selects
 }
 
 // ▒▒▒ WHERE ▒▒▒
 
-pub fn where(select_query qry: SelectQuery, where whr: Where) -> SelectQuery {
+pub fn where(query qry: SelectQuery, where whr: Where) -> SelectQuery {
   SelectQuery(..qry, where: whr)
 }
 
-pub fn or_where(select_query qry: SelectQuery, where whr: Where) -> SelectQuery {
+pub fn or_where(query qry: SelectQuery, where whr: Where) -> SelectQuery {
   let new_where = query.OrWhere([qry.where, whr])
   SelectQuery(..qry, where: new_where)
 }
 
 // TODO
 // pub fn xor_where(
-//   select_query qry: SelectQuery,
+//   query qry: SelectQuery,
 //   where whr: Where,
 // ) -> SelectQuery {
 //   let new_where = query.XorWhere([qry.where, whr])
 //   SelectQuery(..qry, where: new_where)
 // }
 
-pub fn where_replace(
-  select_query qry: SelectQuery,
-  where whr: Where,
-) -> SelectQuery {
+pub fn where_replace(query qry: SelectQuery, where whr: Where) -> SelectQuery {
   SelectQuery(..qry, where: whr)
 }
 
-pub fn get_where(select_query qry: SelectQuery) -> Where {
+pub fn get_where(query qry: SelectQuery) -> Where {
   qry.where
 }
 
 // ▒▒▒ JOIN ▒▒▒
 
-pub fn join(select_query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
+pub fn join(query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
   case qry.joins {
-    Joins(prts) -> SelectQuery(..qry, joins: Joins(prts |> list.append([prt])))
-    NoJoins -> SelectQuery(..qry, joins: Joins([prt]))
+    Joins(prts) ->
+      SelectQuery(..qry, joins: prts |> list.append([prt]) |> Joins)
+    NoJoins -> SelectQuery(..qry, joins: [prt] |> Joins)
   }
 }
 
-pub fn join_replace(
-  select_query qry: SelectQuery,
-  join_part prt: Join,
-) -> SelectQuery {
-  SelectQuery(..qry, joins: Joins([prt]))
+pub fn join_replace(query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
+  SelectQuery(..qry, joins: [prt] |> Joins)
 }
 
-pub fn joins(
-  select_query qry: SelectQuery,
-  joins jns: List(Join),
-) -> SelectQuery {
+pub fn joins(query qry: SelectQuery, joins jns: List(Join)) -> SelectQuery {
   case jns, qry.joins {
     [], _ -> SelectQuery(..qry, joins: Joins(jns))
     jns, Joins(qry_joins) ->
-      SelectQuery(..qry, joins: Joins(qry_joins |> list.append(jns)))
-    jns, NoJoins -> SelectQuery(..qry, joins: Joins(jns))
+      SelectQuery(..qry, joins: qry_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> SelectQuery(..qry, joins: jns |> Joins)
   }
 }
 
 pub fn joins_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   join_parts prts: List(Join),
 ) -> SelectQuery {
-  SelectQuery(..qry, joins: Joins(prts))
+  SelectQuery(..qry, joins: prts |> Joins)
 }
 
-pub fn joins_remove(select_query qry: SelectQuery) -> SelectQuery {
+pub fn joins_remove(query qry: SelectQuery) -> SelectQuery {
   SelectQuery(..qry, joins: NoJoins)
 }
 
-pub fn get_joins(select_query qry: SelectQuery) -> Joins {
+pub fn get_joins(query qry: SelectQuery) -> Joins {
   qry.joins
 }
 
@@ -210,17 +202,17 @@ pub fn set_limit_and_offset(
   SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
-pub fn set_limit(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+pub fn set_limit(query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
   let lmt_offst = query.limit_new(lmt)
   SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
-pub fn set_offset(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
+pub fn set_offset(query qry: SelectQuery, limit lmt: Int) -> SelectQuery {
   let lmt_offst = query.offset_new(lmt)
   SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
-pub fn get_limit_and_offset(select_query qry: SelectQuery) -> LimitOffset {
+pub fn get_limit_and_offset(query qry: SelectQuery) -> LimitOffset {
   qry.limit_offset
 }
 
@@ -240,39 +232,36 @@ fn map_order_by_direction_part_constructor(
   }
 }
 
-pub fn order_asc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn order_asc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), True)
 }
 
 pub fn order_asc_nulls_first(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), True)
 }
 
-pub fn order_asc_replace(
-  select_query qry: SelectQuery,
-  by ordb: String,
-) -> SelectQuery {
+pub fn order_asc_replace(query qry: SelectQuery, by ordb: String) -> SelectQuery {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), False)
 }
 
 pub fn order_asc_nulls_first_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry
   |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), False)
 }
 
-pub fn order_desc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
+pub fn order_desc(query qry: SelectQuery, by ordb: String) -> SelectQuery {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), True)
 }
 
 pub fn order_desc_nulls_first(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry
@@ -280,14 +269,14 @@ pub fn order_desc_nulls_first(
 }
 
 pub fn order_desc_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), False)
 }
 
 pub fn order_desc_nulls_first_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
   qry
@@ -295,7 +284,7 @@ pub fn order_desc_nulls_first_replace(
 }
 
 pub fn order(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
   direction dir: SelectOrderByDirection,
 ) -> SelectQuery {
@@ -304,7 +293,7 @@ pub fn order(
 }
 
 pub fn order_replace(
-  select_query qry: SelectQuery,
+  query qry: SelectQuery,
   by ordb: String,
   direction dir: SelectOrderByDirection,
 ) -> SelectQuery {

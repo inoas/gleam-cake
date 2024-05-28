@@ -391,8 +391,8 @@ pub fn select_order_by(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Selects {
-  Selects(List(SelectValue))
   NoSelects
+  Selects(List(SelectValue))
 }
 
 pub type SelectValue {
@@ -409,7 +409,6 @@ fn select_apply_clause(
   case slcts {
     NoSelects -> prp_stm |> prepared_statement.append_sql("SELECT *")
     Selects(slct_vs) -> {
-      let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
       case slct_vs {
         [] -> prp_stm
         vs -> {
@@ -453,10 +452,10 @@ fn select_value_apply(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type From {
+  NoFrom
   // TODO: Check if the table or view does indeed exist
   FromTable(name: String)
   FromSubQuery(sub_query: Query, alias: String)
-  NoFrom
 }
 
 pub fn from_apply(
@@ -464,13 +463,13 @@ pub fn from_apply(
   part prt: From,
 ) -> PreparedStatement {
   case prt {
+    NoFrom -> prp_stm
     FromTable(tbl) -> prp_stm |> prepared_statement.append_sql(" FROM " <> tbl)
     FromSubQuery(qry, als) ->
       prp_stm
       |> prepared_statement.append_sql(" FROM (")
       |> builder_apply(qry)
       |> prepared_statement.append_sql(") AS " <> als)
-    NoFrom -> prp_stm
   }
 }
 
@@ -479,6 +478,7 @@ pub fn from_apply(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Where {
+  NoWhere
   WhereEqual(value_a: WhereValue, value_b: WhereValue)
   WhereLower(value_a: WhereValue, value_b: WhereValue)
   WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
@@ -511,20 +511,18 @@ pub type Where {
   // WhereGreaterSubQuery(value: WhereValue, sub_query: Query)
   // WhereGreaterOrEqualSubQuery(value: WhereValue, sub_query: Query)
   // WhereNotEqualSubQuery(value: WhereValue, sub_query: Query)
-  NoWhere
 }
 
 pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
-  // WhereQuery(ScalarSelectQuery):
+  // WhereQuery(SelectQuery):
   // NOTICE: Return value must be scalar: Set LIMIT to 1,
   // If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
   // FIXME: (for unions need to wrap into a select with the unions as a sub select and a single field extracted and limit 1)
   // Supply a wrapper function for this
-  // WhereQuery(ScalarSelectQuery)
 }
 
 fn where_apply(
@@ -532,6 +530,7 @@ fn where_apply(
   part prt: Where,
 ) -> PreparedStatement {
   case prt {
+    NoWhere -> prp_stm
     WhereEqual(val_a, val_b) ->
       prp_stm |> where_apply_comparison(val_a, "=", val_b)
     WhereLower(val_a, val_b) ->
@@ -581,7 +580,6 @@ fn where_apply(
     WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_apply_between(val_a, val_b, val_c)
-    NoWhere -> prp_stm
   }
 }
 
@@ -591,11 +589,8 @@ pub fn where_apply_clause(
 ) -> PreparedStatement {
   case prt {
     NoWhere -> prp_stm
-    prt -> {
-      prp_stm
-      |> prepared_statement.append_sql(" WHERE ")
-      |> where_apply(prt)
-    }
+    prt ->
+      prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(prt)
   }
 }
 
@@ -617,11 +612,13 @@ pub fn joins_apply_clause(
             |> prepared_statement.append_sql(" " <> sql_command <> " ")
             |> join_apply(prt)
           }
+
           let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
             new_prp_stm
             |> prepared_statement.append_sql(" ON ")
             |> where_apply(on)
           }
+
           case prt {
             CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
             InnerJoin(_, _, on: on) ->
@@ -647,16 +644,14 @@ fn where_apply_literal(
 ) {
   case v {
     WhereColumn(col) ->
-      prp_stm
-      |> prepared_statement.append_sql(col <> " " <> lt)
+      prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
     WhereParam(prm) -> {
       let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
+
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
-    WhereFragment(fragment: frgmt) -> {
-      prp_stm |> apply_fragment(frgmt)
-    }
+    WhereFragment(fragment: frgmt) -> prp_stm |> apply_fragment(frgmt)
   }
 }
 
@@ -722,8 +717,7 @@ fn where_apply_param(
 ) -> PreparedStatement {
   let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
 
-  prp_stm
-  |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+  prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
 }
 
 fn where_apply_logical_operator(
@@ -805,6 +799,7 @@ fn where_apply_between(
       WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
     }
     |> prepared_statement.append_sql(" BETWEEN ")
+
   let prp_stm =
     case val_b {
       WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
@@ -815,6 +810,7 @@ fn where_apply_between(
       WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
     }
     |> prepared_statement.append_sql(" AND ")
+
   let prp_stm = case val_c {
     WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
     WhereParam(prm) -> {
@@ -823,6 +819,7 @@ fn where_apply_between(
     }
     WhereFragment(frgmt) -> prp_stm |> apply_fragment(frgmt)
   }
+
   prp_stm
 }
 
@@ -831,8 +828,8 @@ fn where_apply_between(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Joins {
-  Joins(List(Join))
   NoJoins
+  Joins(List(Join))
 }
 
 pub type JoinKind {
@@ -870,8 +867,8 @@ fn join_apply(
 /// Used to add a trailing SQL statement to the query.
 ///
 pub type Epilog {
-  Epilog(string: String)
   NoEpilog
+  Epilog(string: String)
 }
 
 pub fn epilog_apply(
@@ -985,7 +982,7 @@ fn apply_fragment(
         }
       }
 
-      let #(new_prp_stm, empty_param_rest) =
+      let #(new_prp_stm, param_rest_should_be_empty) =
         frgmts
         |> list.fold(
           #(prp_stm, prms),
@@ -994,14 +991,17 @@ fn apply_fragment(
             List(Param),
           ) {
             let new_prp_stm = acc.0
+
             case frgmnt == fragment_placeholder_grapheme {
               True -> {
                 let nxt_plchldr =
                   new_prp_stm |> prepared_statement.next_placeholder
+
                 // Pop one of the list, and use it as the next parameter value.
                 // This is safe because we have already checked that the list
                 // is not empty.
                 let assert [prm, ..rest_prms] = acc.1
+
                 let new_prp_stm =
                   new_prp_stm
                   |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
@@ -1016,7 +1016,7 @@ fn apply_fragment(
         )
 
       // Sanity check that all parameters have been used.
-      let assert [] = empty_param_rest
+      let assert [] = param_rest_should_be_empty
 
       new_prp_stm
     }
