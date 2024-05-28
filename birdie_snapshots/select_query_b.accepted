@@ -16,11 +16,11 @@ SelectQuery(
     False,
   )),
   [
-    OrderByColumnPart(
+    OrderByColumn(
       "will_be_removed",
       Asc,
     ),
   ],
   NoLimitNoOffset,
-  NoEpilogPart,
+  NoEpilog,
 )

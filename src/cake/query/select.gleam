@@ -1,8 +1,8 @@
 import cake/internal/query.{
-  type Fragment, type From, type Join, type Joins, type LimitOffsetPart,
+  type Fragment, type From, type Join, type Joins, type LimitOffset,
   type OrderByDirection, type Query, type SelectQuery, type SelectValue,
-  type Where, Joins, NoEpilogPart, NoFrom, NoJoins, NoLimitNoOffset, NoWhere,
-  OrderByColumnPart, Select, SelectQuery,
+  type Where, Joins, NoEpilog, NoFrom, NoJoins, NoLimitNoOffset, NoWhere,
+  OrderByColumn, Select, SelectQuery,
 }
 import cake/param
 import gleam/list
@@ -49,7 +49,7 @@ pub fn new(from frm: From, select slct: List(SelectValue)) -> SelectQuery {
     joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
-    epilog: NoEpilogPart,
+    epilog: NoEpilog,
   )
 }
 
@@ -61,7 +61,7 @@ pub fn new_from(from frm: From) -> SelectQuery {
     where: NoWhere,
     order_by: [],
     limit_offset: NoLimitNoOffset,
-    epilog: NoEpilogPart,
+    epilog: NoEpilog,
   )
 }
 
@@ -73,7 +73,7 @@ pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
     joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
-    epilog: NoEpilogPart,
+    epilog: NoEpilog,
   )
 }
 
@@ -200,7 +200,7 @@ pub fn set_offset(select_query qry: SelectQuery, limit lmt: Int) -> SelectQuery 
   SelectQuery(..qry, limit_offset: lmt_offst)
 }
 
-pub fn get_limit_and_offset(select_query qry: SelectQuery) -> LimitOffsetPart {
+pub fn get_limit_and_offset(select_query qry: SelectQuery) -> LimitOffset {
   qry.limit_offset
 }
 
@@ -221,7 +221,7 @@ fn map_order_by_direction_part_constructor(
 }
 
 pub fn order_asc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Asc), True)
+  qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), True)
 }
 
 pub fn order_asc_nulls_first(
@@ -229,14 +229,14 @@ pub fn order_asc_nulls_first(
   by ordb: String,
 ) -> SelectQuery {
   qry
-  |> query.select_order_by(OrderByColumnPart(ordb, query.AscNullsFirst), True)
+  |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), True)
 }
 
 pub fn order_asc_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Asc), False)
+  qry |> query.select_order_by(OrderByColumn(ordb, query.Asc), False)
 }
 
 pub fn order_asc_nulls_first_replace(
@@ -244,11 +244,11 @@ pub fn order_asc_nulls_first_replace(
   by ordb: String,
 ) -> SelectQuery {
   qry
-  |> query.select_order_by(OrderByColumnPart(ordb, query.AscNullsFirst), False)
+  |> query.select_order_by(OrderByColumn(ordb, query.AscNullsFirst), False)
 }
 
 pub fn order_desc(select_query qry: SelectQuery, by ordb: String) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Desc), True)
+  qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), True)
 }
 
 pub fn order_desc_nulls_first(
@@ -256,14 +256,14 @@ pub fn order_desc_nulls_first(
   by ordb: String,
 ) -> SelectQuery {
   qry
-  |> query.select_order_by(OrderByColumnPart(ordb, query.DescNullsFirst), True)
+  |> query.select_order_by(OrderByColumn(ordb, query.DescNullsFirst), True)
 }
 
 pub fn order_desc_replace(
   select_query qry: SelectQuery,
   by ordb: String,
 ) -> SelectQuery {
-  qry |> query.select_order_by(OrderByColumnPart(ordb, query.Desc), False)
+  qry |> query.select_order_by(OrderByColumn(ordb, query.Desc), False)
 }
 
 pub fn order_desc_nulls_first_replace(
@@ -271,7 +271,7 @@ pub fn order_desc_nulls_first_replace(
   by ordb: String,
 ) -> SelectQuery {
   qry
-  |> query.select_order_by(OrderByColumnPart(ordb, query.DescNullsFirst), False)
+  |> query.select_order_by(OrderByColumn(ordb, query.DescNullsFirst), False)
 }
 
 pub fn order(
@@ -280,7 +280,7 @@ pub fn order(
   direction dir: SelectOrderByDirection,
 ) -> SelectQuery {
   let dir = dir |> map_order_by_direction_part_constructor
-  qry |> query.select_order_by(OrderByColumnPart(ordb, dir), True)
+  qry |> query.select_order_by(OrderByColumn(ordb, dir), True)
 }
 
 pub fn order_replace(
@@ -289,5 +289,5 @@ pub fn order_replace(
   direction dir: SelectOrderByDirection,
 ) -> SelectQuery {
   let dir = dir |> map_order_by_direction_part_constructor
-  qry |> query.select_order_by(OrderByColumnPart(ordb, dir), False)
+  qry |> query.select_order_by(OrderByColumn(ordb, dir), False)
 }

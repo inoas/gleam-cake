@@ -11,5 +11,5 @@ SelectQuery(
   NoWhere,
   [],
   NoLimitNoOffset,
-  NoEpilogPart,
+  NoEpilog,
 )

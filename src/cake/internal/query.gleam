@@ -95,7 +95,7 @@ fn combined_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
       let order_bys =
         qry.order_by
         |> list.map(fn(ordrb: OrderBy) -> String {
-          ordrb.column <> " " <> order_by_part_to_sql(ordrb)
+          ordrb.column <> " " <> order_by_to_sql(ordrb)
         })
 
       " ORDER BY " <> string.join(order_bys, ", ")
@@ -132,28 +132,28 @@ fn select_builder_maybe_apply_select(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> select_part_apply_clause(qry.select)
+  prp_stm |> select_apply_clause(qry.select)
 }
 
 fn select_builder_maybe_apply_from(
   prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> from_part_apply(qry.from)
+  prp_stm |> from_apply(qry.from)
 }
 
 fn select_builder_maybe_apply_where(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> where_part_apply_clause(qry.where)
+  prp_stm |> where_apply_clause(qry.where)
 }
 
 fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> join_parts_apply_clause(qry.joins)
+  prp_stm |> joins_apply_clause(qry.joins)
 }
 
 fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
@@ -163,7 +163,7 @@ fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
       let order_bys =
         qry.order_by
         |> list.map(fn(ordrb: OrderBy) -> String {
-          ordrb.column <> " " <> order_by_part_to_sql(ordrb)
+          ordrb.column <> " " <> order_by_to_sql(ordrb)
         })
 
       " ORDER BY " <> string.join(order_bys, ", ")
@@ -197,7 +197,7 @@ pub type Query {
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type OrderBy {
-  OrderByColumnPart(column: String, direction: OrderByDirection)
+  OrderByColumn(column: String, direction: OrderByDirection)
 }
 
 pub type OrderByDirection {
@@ -207,7 +207,7 @@ pub type OrderByDirection {
   DescNullsFirst
 }
 
-pub fn order_by_part_to_sql(order_by_part ordbpt: OrderBy) -> String {
+pub fn order_by_to_sql(order_by ordbpt: OrderBy) -> String {
   case ordbpt.direction {
     Asc -> "ASC NULLS LAST"
     Desc -> "DESC NULLS LAST"
@@ -217,19 +217,19 @@ pub fn order_by_part_to_sql(order_by_part ordbpt: OrderBy) -> String {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Limit & Offset Part                                                      │
+// │  Limit & Offset                                                       │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 // TODO: split limit and offset into separate types and separate functions
 //       then add one combination function to set both limit and offset.
-pub type LimitOffsetPart {
+pub type LimitOffset {
   LimitOffset(limit: Int, offset: Int)
   LimitNoOffset(limit: Int)
   NoLimitOffset(offset: Int)
   NoLimitNoOffset
 }
 
-pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
+pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffset {
   case lmt >= 0, offst >= 0 {
     True, True -> LimitOffset(limit: lmt, offset: offst)
     True, False -> LimitNoOffset(limit: lmt)
@@ -237,14 +237,14 @@ pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffsetPart {
   }
 }
 
-pub fn limit_new(limit lmt: Int) -> LimitOffsetPart {
+pub fn limit_new(limit lmt: Int) -> LimitOffset {
   case lmt >= 0 {
     True -> LimitNoOffset(limit: lmt)
     False -> NoLimitNoOffset
   }
 }
 
-pub fn offset_new(offset offst: Int) -> LimitOffsetPart {
+pub fn offset_new(offset offst: Int) -> LimitOffset {
   case offst >= 0 {
     True -> NoLimitOffset(offset: offst)
     False -> NoLimitNoOffset
@@ -253,9 +253,9 @@ pub fn offset_new(offset offst: Int) -> LimitOffsetPart {
 
 pub fn limit_offset_apply(
   prepared_statement prp_stm: PreparedStatement,
-  limit_part lmt_prt: LimitOffsetPart,
+  limit lmt: LimitOffset,
 ) -> PreparedStatement {
-  case lmt_prt {
+  case lmt {
     LimitOffset(limit: lmt, offset: offst) ->
       " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
     LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
@@ -265,7 +265,7 @@ pub fn limit_offset_apply(
   |> prepared_statement.append_sql(prp_stm, _)
 }
 
-pub fn limit_offset_get(select_query qry: SelectQuery) -> LimitOffsetPart {
+pub fn limit_offset_get(select_query qry: SelectQuery) -> LimitOffset {
   qry.limit_offset
 }
 
@@ -290,11 +290,11 @@ pub type CombinedQuery {
   CombinedQuery(
     kind: CombinedKind,
     select_queries: List(SelectQuery),
-    limit_offset: LimitOffsetPart,
+    limit_offset: LimitOffset,
     order_by: List(OrderBy),
     // Epilog allows you to append raw SQL to the end of queries.
     // One should NEVER put raw user data into the epilog.
-    epilog: EpilogPart,
+    epilog: Epilog,
   )
 }
 
@@ -311,7 +311,7 @@ pub fn combined_query_new(
     select_queries: _,
     limit_offset: NoLimitNoOffset,
     order_by: [],
-    epilog: NoEpilogPart,
+    epilog: NoEpilog,
   )
 }
 
@@ -363,8 +363,8 @@ pub type SelectQuery {
     // group_by: String,
     // having: String,
     order_by: List(OrderBy),
-    limit_offset: LimitOffsetPart,
-    epilog: EpilogPart,
+    limit_offset: LimitOffset,
+    epilog: Epilog,
     // comment: String,
     // values: String, ?
   )
@@ -393,7 +393,7 @@ pub type SelectValue {
   SelectAlias(value: SelectValue, alias: String)
 }
 
-fn select_part_apply_clause(
+fn select_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
   values vs: List(SelectValue),
 ) -> PreparedStatement {
@@ -444,7 +444,7 @@ pub type From {
   NoFrom
 }
 
-pub fn from_part_apply(
+pub fn from_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: From,
 ) -> PreparedStatement {
@@ -460,7 +460,7 @@ pub fn from_part_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Where Part                                                               │
+// │  Where                                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Where {
@@ -512,72 +512,65 @@ pub type WhereValue {
   // WhereQuery(ScalarSelectQuery)
 }
 
-fn where_part_apply(
+fn where_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: Where,
 ) -> PreparedStatement {
   case prt {
     WhereEqual(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, "=", val_b)
+      prp_stm |> where_apply_comparison(val_a, "=", val_b)
     WhereLower(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, "<", val_b)
+      prp_stm |> where_apply_comparison(val_a, "<", val_b)
     WhereLowerOrEqual(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, "<=", val_b)
+      prp_stm |> where_apply_comparison(val_a, "<=", val_b)
     WhereGreater(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, ">", val_b)
+      prp_stm |> where_apply_comparison(val_a, ">", val_b)
     WhereGreaterOrEqual(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, ">=", val_b)
+      prp_stm |> where_apply_comparison(val_a, ">=", val_b)
     WhereUnequal(val_a, val_b) ->
-      prp_stm |> where_part_apply_comparison(val_a, "<>", val_b)
-    WhereIsBool(val, True) ->
-      prp_stm |> where_part_apply_literal(val, "IS TRUE")
-    WhereIsBool(val, False) ->
-      prp_stm |> where_part_apply_literal(val, "IS FALSE")
+      prp_stm |> where_apply_comparison(val_a, "<>", val_b)
+    WhereIsBool(val, True) -> prp_stm |> where_apply_literal(val, "IS TRUE")
+    WhereIsBool(val, False) -> prp_stm |> where_apply_literal(val, "IS FALSE")
     WhereIsNotBool(val, True) ->
-      prp_stm |> where_part_apply_literal(val, "IS NOT TRUE")
+      prp_stm |> where_apply_literal(val, "IS NOT TRUE")
     WhereIsNotBool(val, False) ->
-      prp_stm |> where_part_apply_literal(val, "IS NOT FALSE")
-    WhereIsNull(val) -> prp_stm |> where_part_apply_literal(val, "IS NULL")
-    WhereIsNotNull(val) ->
-      prp_stm |> where_part_apply_literal(val, "IS NOT NULL")
+      prp_stm |> where_apply_literal(val, "IS NOT FALSE")
+    WhereIsNull(val) -> prp_stm |> where_apply_literal(val, "IS NULL")
+    WhereIsNotNull(val) -> prp_stm |> where_apply_literal(val, "IS NOT NULL")
     WhereLike(val, prm) ->
       prp_stm
-      |> where_part_apply_comparison(
-        val,
-        "LIKE",
-        WhereParam(param.StringParam(prm)),
-      )
+      |> where_apply_comparison(val, "LIKE", WhereParam(param.StringParam(prm)))
     WhereILike(col, prm) ->
       prp_stm
-      |> where_part_apply_comparison(
+      |> where_apply_comparison(
         col,
         "ILIKE",
         WhereParam(param.StringParam(prm)),
       )
     WhereSimilar(col, prm) ->
       prp_stm
-      |> where_part_apply_comparison(
+      |> where_apply_comparison(
         col,
         "SIMILAR TO",
         WhereParam(param.StringParam(prm)),
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    AndWhere(prts) -> prp_stm |> where_part_apply_logical_operator("AND", prts)
-    OrWhere(prts) -> prp_stm |> where_part_apply_logical_operator("OR", prts)
+    AndWhere(prts) -> prp_stm |> where_apply_logical_operator("AND", prts)
+    OrWhere(prts) -> prp_stm |> where_apply_logical_operator("OR", prts)
     NotWhere(prt) -> {
       prp_stm
       |> prepared_statement.append_sql("NOT (")
-      |> where_part_apply(prt)
+      |> where_apply(prt)
       |> prepared_statement.append_sql(")")
     }
-    WhereIn(val, vals) -> prp_stm |> where_part_apply_value_in_values(val, vals)
+    WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
-      prp_stm |> where_part_apply_between(val_a, val_b, val_c)
+      prp_stm |> where_apply_between(val_a, val_b, val_c)
     NoWhere -> prp_stm
   }
 }
 
-pub fn where_part_apply_clause(
+pub fn where_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
   part prt: Where,
 ) -> PreparedStatement {
@@ -586,12 +579,12 @@ pub fn where_part_apply_clause(
     prt -> {
       prp_stm
       |> prepared_statement.append_sql(" WHERE ")
-      |> where_part_apply(prt)
+      |> where_apply(prt)
     }
   }
 }
 
-pub fn join_parts_apply_clause(
+pub fn joins_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
   joins jns: Joins,
 ) -> PreparedStatement {
@@ -608,12 +601,12 @@ pub fn join_parts_apply_clause(
           ) -> PreparedStatement {
             new_prp_stm
             |> prepared_statement.append_sql(" " <> sql_command <> " ")
-            |> join_part_apply(prt)
+            |> join_apply(prt)
           }
           let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
             new_prp_stm
             |> prepared_statement.append_sql(" ON ")
-            |> where_part_apply(on)
+            |> where_apply(on)
           }
           case prt {
             CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
@@ -632,7 +625,7 @@ pub fn join_parts_apply_clause(
   }
 }
 
-fn where_part_apply_literal(
+fn where_apply_literal(
   prepared_statement prp_stm: PreparedStatement,
   value v: WhereValue,
   literal lt: String,
@@ -654,7 +647,7 @@ fn where_part_apply_literal(
   }
 }
 
-fn where_part_apply_comparison(
+fn where_apply_comparison(
   prepared_statement prp_stm: PreparedStatement,
   value_a val_a: WhereValue,
   operator oprtr: String,
@@ -663,54 +656,54 @@ fn where_part_apply_comparison(
   case val_a, val_b {
     WhereColumn(col_a), WhereColumn(col_b) ->
       prp_stm
-      |> where_part_apply_string(col_a <> " " <> oprtr <> " " <> col_b)
+      |> where_apply_string(col_a <> " " <> oprtr <> " " <> col_b)
     WhereColumn(col), WhereParam(prm) ->
       prp_stm
-      |> where_part_apply_string(col <> " " <> oprtr <> " ")
-      |> where_part_apply_param(prm)
+      |> where_apply_string(col <> " " <> oprtr <> " ")
+      |> where_apply_param(prm)
     WhereParam(prm), WhereColumn(col) ->
       prp_stm
-      |> where_part_apply_param(prm)
-      |> where_part_apply_string(" " <> oprtr <> " " <> col)
+      |> where_apply_param(prm)
+      |> where_apply_string(" " <> oprtr <> " " <> col)
     WhereParam(prm_a), WhereParam(prm_b) ->
       prp_stm
-      |> where_part_apply_param(prm_a)
-      |> where_part_apply_string(" " <> oprtr <> " ")
-      |> where_part_apply_param(prm_b)
+      |> where_apply_param(prm_a)
+      |> where_apply_string(" " <> oprtr <> " ")
+      |> where_apply_param(prm_b)
     WhereFragment(frgmt), WhereColumn(col) ->
       prp_stm
       |> apply_fragment(frgmt)
-      |> where_part_apply_string(" " <> oprtr <> " " <> col)
+      |> where_apply_string(" " <> oprtr <> " " <> col)
     WhereColumn(col), WhereFragment(frgmt) ->
       prp_stm
-      |> where_part_apply_string(col <> " " <> oprtr <> " ")
+      |> where_apply_string(col <> " " <> oprtr <> " ")
       |> apply_fragment(frgmt)
     WhereFragment(frgmt), WhereParam(prm) ->
       prp_stm
       |> apply_fragment(frgmt)
-      |> where_part_apply_string(" " <> oprtr <> " ")
-      |> where_part_apply_param(prm)
+      |> where_apply_string(" " <> oprtr <> " ")
+      |> where_apply_param(prm)
     WhereParam(prm), WhereFragment(frgmt) ->
       prp_stm
-      |> where_part_apply_param(prm)
-      |> where_part_apply_string(" " <> oprtr <> " ")
+      |> where_apply_param(prm)
+      |> where_apply_string(" " <> oprtr <> " ")
       |> apply_fragment(frgmt)
     WhereFragment(frgmt_a), WhereFragment(frgmt_b) ->
       prp_stm
       |> apply_fragment(frgmt_a)
-      |> where_part_apply_string(" " <> oprtr <> " ")
+      |> where_apply_string(" " <> oprtr <> " ")
       |> apply_fragment(frgmt_b)
   }
 }
 
-fn where_part_apply_string(
+fn where_apply_string(
   prepared_statement prp_stm: PreparedStatement,
   string s: String,
 ) -> PreparedStatement {
   prp_stm |> prepared_statement.append_sql(s)
 }
 
-fn where_part_apply_param(
+fn where_apply_param(
   prepared_statement prp_stm: PreparedStatement,
   param prm: Param,
 ) -> PreparedStatement {
@@ -720,7 +713,7 @@ fn where_part_apply_param(
   |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
 }
 
-fn where_part_apply_logical_operator(
+fn where_apply_logical_operator(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
   parts prts: List(Where),
@@ -732,18 +725,18 @@ fn where_part_apply_logical_operator(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, prt: Where) -> PreparedStatement {
       case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> where_part_apply(prt)
+        True -> new_prp_stm |> where_apply(prt)
         False ->
           new_prp_stm
           |> prepared_statement.append_sql(" " <> oprtr <> " ")
-          |> where_part_apply(prt)
+          |> where_apply(prt)
       }
     },
   )
   |> prepared_statement.append_sql(")")
 }
 
-fn where_part_apply_value_in_values(
+fn where_apply_value_in_values(
   prepared_statement prp_stm: PreparedStatement,
   value val: WhereValue,
   parameters prms: List(WhereValue),
@@ -783,7 +776,7 @@ fn where_part_apply_value_in_values(
   |> prepared_statement.append_sql(")")
 }
 
-fn where_part_apply_between(
+fn where_apply_between(
   prepared_statement prp_stm: PreparedStatement,
   value_a val_a: WhereValue,
   value_b val_b: WhereValue,
@@ -843,9 +836,9 @@ pub type Join {
   FullOuterJoin(with: JoinKind, alias: String, on: Where)
 }
 
-fn join_part_apply(
+fn join_apply(
   prepared_statement prp_stm: PreparedStatement,
-  join_part prt: Join,
+  join prt: Join,
 ) -> PreparedStatement {
   case prt.with {
     JoinTable(table: tbl) ->
@@ -859,22 +852,22 @@ fn join_part_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Epilog Part                                                              │
+// │  Epilog                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Used to add a trailing SQL statement to the query.
 ///
-pub type EpilogPart {
+pub type Epilog {
   Epilog(string: String)
-  NoEpilogPart
+  NoEpilog
 }
 
 pub fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
-  epilog_part prt: EpilogPart,
+  epilog prt: Epilog,
 ) -> PreparedStatement {
   case prt {
-    NoEpilogPart -> prp_stm
+    NoEpilog -> prp_stm
     Epilog(string: eplg) -> prp_stm |> prepared_statement.append_sql(eplg)
   }
 }
@@ -948,8 +941,8 @@ fn apply_fragment(
     FragmentLiteral(fragment: frgmt) ->
       prp_stm |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: prms) -> {
-      let frgmt_parts = frgmt |> fragment_prepared_split_string
-      let frgmt_plchldr_count = frgmt_parts |> fragment_count_placeholders
+      let frgmts = frgmt |> fragment_prepared_split_string
+      let frgmt_plchldr_count = frgmts |> fragment_count_placeholders
       let prms_count = prms |> list.length()
 
       // Fill up or reduce params to match the given number of placeholders
@@ -981,15 +974,15 @@ fn apply_fragment(
       }
 
       let #(new_prp_stm, empty_param_rest) =
-        frgmt_parts
+        frgmts
         |> list.fold(
           #(prp_stm, prms),
-          fn(acc: #(PreparedStatement, List(Param)), frgmnt_prt: String) -> #(
+          fn(acc: #(PreparedStatement, List(Param)), frgmnt: String) -> #(
             PreparedStatement,
             List(Param),
           ) {
             let new_prp_stm = acc.0
-            case frgmnt_prt == fragment_placeholder_grapheme {
+            case frgmnt == fragment_placeholder_grapheme {
               True -> {
                 let nxt_plchldr =
                   new_prp_stm |> prepared_statement.next_placeholder
@@ -1004,10 +997,7 @@ fn apply_fragment(
                 #(new_prp_stm, rest_prms)
               }
               False -> {
-                #(
-                  new_prp_stm |> prepared_statement.append_sql(frgmnt_prt),
-                  acc.1,
-                )
+                #(new_prp_stm |> prepared_statement.append_sql(frgmnt), acc.1)
               }
             }
           },

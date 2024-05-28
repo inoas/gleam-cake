@@ -21,16 +21,16 @@ pub fn string(value: String) -> WhereValue {
   value |> param.string |> query.WhereParam
 }
 
-pub fn and(parts: List(Where)) -> Where {
-  parts |> query.AndWhere
+pub fn and(wheres whs: List(Where)) -> Where {
+  whs |> query.AndWhere
 }
 
-pub fn or(parts: List(Where)) -> Where {
-  parts |> query.OrWhere
+pub fn or(wheres whs: List(Where)) -> Where {
+  whs |> query.OrWhere
 }
 
-// pub fn xor(parts: List(Where)) -> Where {
-//   parts |> query.XorWhere
+// pub fn xor(wheres whs: List(Where)) -> Where {
+//   whs |> query.XorWhere
 // }
 
 pub fn not(part: Where) -> Where {

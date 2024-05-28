@@ -15,5 +15,5 @@ SelectQuery(
   ),
   [],
   NoLimitNoOffset,
-  NoEpilogPart,
+  NoEpilog,
 )

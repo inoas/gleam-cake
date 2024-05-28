@@ -26,7 +26,7 @@ Combined(CombinedQuery(
       ]),
       [],
       NoLimitNoOffset,
-      NoEpilogPart,
+      NoEpilog,
     ),
     SelectQuery(
       [
@@ -41,10 +41,10 @@ Combined(CombinedQuery(
       )),
       [],
       NoLimitNoOffset,
-      NoEpilogPart,
+      NoEpilog,
     ),
   ],
   LimitNoOffset(1),
-  [OrderByColumnPart("age", Asc)],
-  NoEpilogPart,
+  [OrderByColumn("age", Asc)],
+  NoEpilog,
 ))
