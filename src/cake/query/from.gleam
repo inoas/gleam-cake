@@ -1,9 +1,9 @@
-import cake/internal/query.{type FromPart, type Query, FromSubQuery, FromTable}
+import cake/internal/query.{type From, type Query, FromSubQuery, FromTable}
 
-pub fn table(name tbl_nm: String) -> FromPart {
+pub fn table(name tbl_nm: String) -> From {
   FromTable(name: tbl_nm)
 }
 
-pub fn sub_query(sub_query qry: Query, alias als: String) -> FromPart {
+pub fn sub_query(sub_query qry: Query, alias als: String) -> From {
   FromSubQuery(sub_query: qry, alias: als)
 }

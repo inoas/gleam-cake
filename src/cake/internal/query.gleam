@@ -357,9 +357,7 @@ pub type SelectQuery {
     // modifier: String,
     // distinct: String,
     // window: String,
-    from: FromPart,
-    // TODO: wrap this in Joins
-    // rename property from join to joins
+    from: From,
     joins: Joins,
     // TODO: Maybe rename WherePart to Where
     where: WherePart,
@@ -437,19 +435,19 @@ fn select_value_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  From Part                                                                │
+// │  From                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub type FromPart {
+pub type From {
   // TODO: Check if the table or view does indeed exist
   FromTable(name: String)
   FromSubQuery(sub_query: Query, alias: String)
-  NoFromPart
+  NoFrom
 }
 
 pub fn from_part_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: FromPart,
+  part prt: From,
 ) -> PreparedStatement {
   case prt {
     FromTable(tbl) -> prp_stm |> prepared_statement.append_sql(" FROM " <> tbl)
@@ -458,7 +456,7 @@ pub fn from_part_apply(
       |> prepared_statement.append_sql(" FROM (")
       |> builder_apply(qry)
       |> prepared_statement.append_sql(") AS " <> als)
-    NoFromPart -> prp_stm
+    NoFrom -> prp_stm
   }
 }
 

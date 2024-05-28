@@ -1,7 +1,7 @@
 import cake/internal/query.{
-  type Fragment, type FromPart, type Join, type Joins, type LimitOffsetPart,
+  type Fragment, type From, type Join, type Joins, type LimitOffsetPart,
   type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
-  type WherePart, Joins, NoEpilogPart, NoFromPart, NoJoins, NoLimitNoOffset,
+  type WherePart, Joins, NoEpilogPart, NoFrom, NoJoins, NoLimitNoOffset,
   NoWherePart, OrderByColumnPart, Select, SelectQuery,
 }
 import cake/param
@@ -41,7 +41,7 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 // ▒▒▒ NEW ▒▒▒
 
-pub fn new(from frm: FromPart, select slct: List(SelectValue)) -> SelectQuery {
+pub fn new(from frm: From, select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
     from: frm,
@@ -53,7 +53,7 @@ pub fn new(from frm: FromPart, select slct: List(SelectValue)) -> SelectQuery {
   )
 }
 
-pub fn new_from(from frm: FromPart) -> SelectQuery {
+pub fn new_from(from frm: From) -> SelectQuery {
   SelectQuery(
     select: [],
     from: frm,
@@ -68,7 +68,7 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
 pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
-    from: NoFromPart,
+    from: NoFrom,
     where: NoWherePart,
     joins: NoJoins,
     order_by: [],
@@ -79,14 +79,11 @@ pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
 
 // ▒▒▒ FROM ▒▒▒
 
-pub fn set_from(
-  select_query qry: SelectQuery,
-  from frm: FromPart,
-) -> SelectQuery {
+pub fn set_from(select_query qry: SelectQuery, from frm: From) -> SelectQuery {
   SelectQuery(..qry, from: frm)
 }
 
-pub fn get_from(select_query qry: SelectQuery) -> FromPart {
+pub fn get_from(select_query qry: SelectQuery) -> From {
   qry.from
 }
 
