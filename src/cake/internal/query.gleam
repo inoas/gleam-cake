@@ -94,7 +94,7 @@ fn combined_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
     _ -> {
       let order_bys =
         qry.order_by
-        |> list.map(fn(ordrb: OrderByPart) -> String {
+        |> list.map(fn(ordrb: OrderBy) -> String {
           ordrb.column <> " " <> order_by_part_to_sql(ordrb)
         })
 
@@ -162,7 +162,7 @@ fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
     _ -> {
       let order_bys =
         qry.order_by
-        |> list.map(fn(ordrb: OrderByPart) -> String {
+        |> list.map(fn(ordrb: OrderBy) -> String {
           ordrb.column <> " " <> order_by_part_to_sql(ordrb)
         })
 
@@ -193,21 +193,21 @@ pub type Query {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Order By Direction Part                                                  │
+// │  Order By Direction                                                       │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub type OrderByPart {
-  OrderByColumnPart(column: String, direction: OrderByDirectionPart)
+pub type OrderBy {
+  OrderByColumnPart(column: String, direction: OrderByDirection)
 }
 
-pub type OrderByDirectionPart {
+pub type OrderByDirection {
   Asc
   Desc
   AscNullsFirst
   DescNullsFirst
 }
 
-pub fn order_by_part_to_sql(order_by_part ordbpt: OrderByPart) -> String {
+pub fn order_by_part_to_sql(order_by_part ordbpt: OrderBy) -> String {
   case ordbpt.direction {
     Asc -> "ASC NULLS LAST"
     Desc -> "DESC NULLS LAST"
@@ -291,7 +291,7 @@ pub type CombinedQuery {
     kind: CombinedKind,
     select_queries: List(SelectQuery),
     limit_offset: LimitOffsetPart,
-    order_by: List(OrderByPart),
+    order_by: List(OrderBy),
     // Epilog allows you to append raw SQL to the end of queries.
     // One should NEVER put raw user data into the epilog.
     epilog: EpilogPart,
@@ -332,7 +332,7 @@ pub fn combined_get_select_queries(
 
 pub fn combined_order_by(
   query qry: CombinedQuery,
-  by ordb: OrderByPart,
+  by ordb: OrderBy,
   append appnd: Bool,
 ) -> CombinedQuery {
   case appnd {
@@ -362,7 +362,7 @@ pub type SelectQuery {
     where: Where,
     // group_by: String,
     // having: String,
-    order_by: List(OrderByPart),
+    order_by: List(OrderBy),
     limit_offset: LimitOffsetPart,
     epilog: EpilogPart,
     // comment: String,
@@ -372,7 +372,7 @@ pub type SelectQuery {
 
 pub fn select_order_by(
   select_query qry: SelectQuery,
-  by ordb: OrderByPart,
+  by ordb: OrderBy,
   append appnd: Bool,
 ) -> SelectQuery {
   case appnd {

@@ -1,7 +1,7 @@
 import cake/internal/query.{
-  type CombinedQuery, type LimitOffsetPart, type OrderByDirectionPart,
-  type Query, type SelectQuery, Combined, CombinedQuery, Except, ExceptAll,
-  Intersect, IntersectAll, OrderByColumnPart, Union, UnionAll,
+  type CombinedQuery, type LimitOffsetPart, type OrderByDirection, type Query,
+  type SelectQuery, Combined, CombinedQuery, Except, ExceptAll, Intersect,
+  IntersectAll, OrderByColumnPart, Union, UnionAll,
 }
 
 pub fn to_query(combined_query qry: CombinedQuery) -> Query {
@@ -68,7 +68,7 @@ pub type CombinedOrderByDirectionPart {
 
 fn map_order_by_direction_part_constructor(
   in: CombinedOrderByDirectionPart,
-) -> OrderByDirectionPart {
+) -> OrderByDirection {
   case in {
     Asc -> query.Asc
     Desc -> query.Desc

@@ -1,6 +1,6 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type LimitOffsetPart,
-  type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
+  type OrderByDirection, type Query, type SelectQuery, type SelectValue,
   type Where, Joins, NoEpilogPart, NoFrom, NoJoins, NoLimitNoOffset, NoWhere,
   OrderByColumnPart, Select, SelectQuery,
 }
@@ -206,14 +206,14 @@ pub fn get_limit_and_offset(select_query qry: SelectQuery) -> LimitOffsetPart {
 
 // ▒▒▒ ORDER BY ▒▒▒
 
-pub type SelectOrderByDirectionPart {
+pub type SelectOrderByDirection {
   Asc
   Desc
 }
 
 fn map_order_by_direction_part_constructor(
-  in: SelectOrderByDirectionPart,
-) -> OrderByDirectionPart {
+  in: SelectOrderByDirection,
+) -> OrderByDirection {
   case in {
     Asc -> query.Asc
     Desc -> query.Desc
@@ -277,7 +277,7 @@ pub fn order_desc_nulls_first_replace(
 pub fn order(
   select_query qry: SelectQuery,
   by ordb: String,
-  direction dir: SelectOrderByDirectionPart,
+  direction dir: SelectOrderByDirection,
 ) -> SelectQuery {
   let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumnPart(ordb, dir), True)
@@ -286,7 +286,7 @@ pub fn order(
 pub fn order_replace(
   select_query qry: SelectQuery,
   by ordb: String,
-  direction dir: SelectOrderByDirectionPart,
+  direction dir: SelectOrderByDirection,
 ) -> SelectQuery {
   let dir = dir |> map_order_by_direction_part_constructor
   qry |> query.select_order_by(OrderByColumnPart(ordb, dir), False)
