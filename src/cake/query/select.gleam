@@ -46,7 +46,7 @@ pub fn new(from frm: FromPart, select slct: List(SelectValue)) -> SelectQuery {
     select: slct,
     from: frm,
     where: NoWherePart,
-    join: [],
+    joins: [],
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
@@ -57,7 +57,7 @@ pub fn new_from(from frm: FromPart) -> SelectQuery {
   SelectQuery(
     select: [],
     from: frm,
-    join: [],
+    joins: [],
     where: NoWherePart,
     order_by: [],
     limit_offset: NoLimitNoOffset,
@@ -70,7 +70,7 @@ pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
     select: slct,
     from: NoFromPart,
     where: NoWherePart,
-    join: [],
+    joins: [],
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
@@ -147,32 +147,32 @@ pub fn get_where(select_query qry: SelectQuery) -> WherePart {
 // ▒▒▒ JOIN ▒▒▒
 
 pub fn join(select_query qry: SelectQuery, join_part prt: Join) -> SelectQuery {
-  SelectQuery(..qry, join: list.append(qry.join, [prt]))
+  SelectQuery(..qry, joins: list.append(qry.joins, [prt]))
 }
 
 pub fn join_replace(
   select_query qry: SelectQuery,
   join_part prt: Join,
 ) -> SelectQuery {
-  SelectQuery(..qry, join: [prt])
+  SelectQuery(..qry, joins: [prt])
 }
 
 pub fn joins(
   select_query qry: SelectQuery,
   join_parts prts: List(Join),
 ) -> SelectQuery {
-  SelectQuery(..qry, join: list.append(qry.join, prts))
+  SelectQuery(..qry, joins: list.append(qry.joins, prts))
 }
 
 pub fn joins_replace(
   select_query qry: SelectQuery,
   join_parts prts: List(Join),
 ) -> SelectQuery {
-  SelectQuery(..qry, join: prts)
+  SelectQuery(..qry, joins: prts)
 }
 
 pub fn get_joins(select_query qry: SelectQuery) -> List(Join) {
-  qry.join
+  qry.joins
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒

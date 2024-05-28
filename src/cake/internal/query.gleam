@@ -153,7 +153,7 @@ fn select_builder_maybe_apply_join(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> join_parts_apply_clause(qry.join)
+  prp_stm |> join_parts_apply_clause(qry.joins)
 }
 
 fn select_builder_maybe_add_order_sql(select_query qry: SelectQuery) -> String {
@@ -360,7 +360,7 @@ pub type SelectQuery {
     from: FromPart,
     // TODO: wrap this in Joins
     // rename property from join to joins
-    join: List(Join),
+    joins: List(Join),
     // TODO: Maybe rename WherePart to Where
     where: WherePart,
     // group_by: String,
