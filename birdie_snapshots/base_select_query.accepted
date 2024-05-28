@@ -11,7 +11,7 @@ SelectQuery(
   ],
   FromTable("cats"),
   NoJoins,
-  NoWherePart,
+  NoWhere,
   [],
   NoLimitNoOffset,
   NoEpilogPart,

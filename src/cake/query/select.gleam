@@ -1,8 +1,8 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type LimitOffsetPart,
   type OrderByDirectionPart, type Query, type SelectQuery, type SelectValue,
-  type WherePart, Joins, NoEpilogPart, NoFrom, NoJoins, NoLimitNoOffset,
-  NoWherePart, OrderByColumnPart, Select, SelectQuery,
+  type Where, Joins, NoEpilogPart, NoFrom, NoJoins, NoLimitNoOffset, NoWhere,
+  OrderByColumnPart, Select, SelectQuery,
 }
 import cake/param
 import gleam/list
@@ -45,7 +45,7 @@ pub fn new(from frm: From, select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
     from: frm,
-    where: NoWherePart,
+    where: NoWhere,
     joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
@@ -58,7 +58,7 @@ pub fn new_from(from frm: From) -> SelectQuery {
     select: [],
     from: frm,
     joins: NoJoins,
-    where: NoWherePart,
+    where: NoWhere,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilogPart,
@@ -69,7 +69,7 @@ pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
     select: slct,
     from: NoFrom,
-    where: NoWherePart,
+    where: NoWhere,
     joins: NoJoins,
     order_by: [],
     limit_offset: NoLimitNoOffset,
@@ -109,14 +109,11 @@ pub fn get_select(select_query qry: SelectQuery) -> List(SelectValue) {
 
 // ▒▒▒ WHERE ▒▒▒
 
-pub fn where(select_query qry: SelectQuery, where whr: WherePart) -> SelectQuery {
+pub fn where(select_query qry: SelectQuery, where whr: Where) -> SelectQuery {
   SelectQuery(..qry, where: whr)
 }
 
-pub fn or_where(
-  select_query qry: SelectQuery,
-  where whr: WherePart,
-) -> SelectQuery {
+pub fn or_where(select_query qry: SelectQuery, where whr: Where) -> SelectQuery {
   let new_where = query.OrWhere([qry.where, whr])
   SelectQuery(..qry, where: new_where)
 }
@@ -124,7 +121,7 @@ pub fn or_where(
 // TODO
 // pub fn xor_where(
 //   select_query qry: SelectQuery,
-//   where whr: WherePart,
+//   where whr: Where,
 // ) -> SelectQuery {
 //   let new_where = query.XorWhere([qry.where, whr])
 //   SelectQuery(..qry, where: new_where)
@@ -132,12 +129,12 @@ pub fn or_where(
 
 pub fn where_replace(
   select_query qry: SelectQuery,
-  where whr: WherePart,
+  where whr: Where,
 ) -> SelectQuery {
   SelectQuery(..qry, where: whr)
 }
 
-pub fn get_where(select_query qry: SelectQuery) -> WherePart {
+pub fn get_where(select_query qry: SelectQuery) -> Where {
   qry.where
 }
 

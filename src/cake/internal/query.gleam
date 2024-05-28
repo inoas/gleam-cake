@@ -359,8 +359,7 @@ pub type SelectQuery {
     // window: String,
     from: From,
     joins: Joins,
-    // TODO: Maybe rename WherePart to Where
-    where: WherePart,
+    where: Where,
     // group_by: String,
     // having: String,
     order_by: List(OrderByPart),
@@ -464,7 +463,7 @@ pub fn from_part_apply(
 // │  Where Part                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub type WherePart {
+pub type Where {
   WhereEqual(value_a: WhereValue, value_b: WhereValue)
   WhereLower(value_a: WhereValue, value_b: WhereValue)
   WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
@@ -481,10 +480,10 @@ pub type WherePart {
   WhereSimilar(value_a: WhereValue, string: String)
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
-  AndWhere(parts: List(WherePart))
-  OrWhere(parts: List(WherePart))
-  // TODO: XorWhere(List(WherePart))
-  NotWhere(part: WherePart)
+  AndWhere(parts: List(Where))
+  OrWhere(parts: List(Where))
+  // TODO: XorWhere(List(Where))
+  NotWhere(part: Where)
   // NOTICE: Where with subqueries requires scalar queries
   // We will use let assert here?!
   // WhereInSubQuery(value: WhereValue, sub_query: Query)
@@ -497,7 +496,7 @@ pub type WherePart {
   // WhereGreaterSubQuery(value: WhereValue, sub_query: Query)
   // WhereGreaterOrEqualSubQuery(value: WhereValue, sub_query: Query)
   // WhereNotEqualSubQuery(value: WhereValue, sub_query: Query)
-  NoWherePart
+  NoWhere
 }
 
 pub type WhereValue {
@@ -515,7 +514,7 @@ pub type WhereValue {
 
 fn where_part_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: WherePart,
+  part prt: Where,
 ) -> PreparedStatement {
   case prt {
     WhereEqual(val_a, val_b) ->
@@ -574,16 +573,16 @@ fn where_part_apply(
     WhereIn(val, vals) -> prp_stm |> where_part_apply_value_in_values(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_part_apply_between(val_a, val_b, val_c)
-    NoWherePart -> prp_stm
+    NoWhere -> prp_stm
   }
 }
 
 pub fn where_part_apply_clause(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: WherePart,
+  part prt: Where,
 ) -> PreparedStatement {
   case prt {
-    NoWherePart -> prp_stm
+    NoWhere -> prp_stm
     prt -> {
       prp_stm
       |> prepared_statement.append_sql(" WHERE ")
@@ -611,7 +610,7 @@ pub fn join_parts_apply_clause(
             |> prepared_statement.append_sql(" " <> sql_command <> " ")
             |> join_part_apply(prt)
           }
-          let apply_on = fn(new_prp_stm: PreparedStatement, on: WherePart) {
+          let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
             new_prp_stm
             |> prepared_statement.append_sql(" ON ")
             |> where_part_apply(on)
@@ -724,14 +723,14 @@ fn where_part_apply_param(
 fn where_part_apply_logical_operator(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
-  parts prts: List(WherePart),
+  parts prts: List(Where),
 ) -> PreparedStatement {
   let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
   prts
   |> list.fold(
     prp_stm,
-    fn(new_prp_stm: PreparedStatement, prt: WherePart) -> PreparedStatement {
+    fn(new_prp_stm: PreparedStatement, prt: Where) -> PreparedStatement {
       case new_prp_stm == prp_stm {
         True -> new_prp_stm |> where_part_apply(prt)
         False ->
@@ -838,10 +837,10 @@ pub type JoinKind {
 
 pub type Join {
   CrossJoin(with: JoinKind, alias: String)
-  InnerJoin(with: JoinKind, alias: String, on: WherePart)
-  LeftOuterJoin(with: JoinKind, alias: String, on: WherePart)
-  RightOuterJoin(with: JoinKind, alias: String, on: WherePart)
-  FullOuterJoin(with: JoinKind, alias: String, on: WherePart)
+  InnerJoin(with: JoinKind, alias: String, on: Where)
+  LeftOuterJoin(with: JoinKind, alias: String, on: Where)
+  RightOuterJoin(with: JoinKind, alias: String, on: Where)
+  FullOuterJoin(with: JoinKind, alias: String, on: Where)
 }
 
 fn join_part_apply(

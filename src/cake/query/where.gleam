@@ -1,4 +1,4 @@
-import cake/internal/query.{type Fragment, type WherePart, type WhereValue}
+import cake/internal/query.{type Fragment, type Where, type WhereValue}
 import cake/param
 
 pub fn col(name: String) -> WhereValue {
@@ -21,43 +21,43 @@ pub fn string(value: String) -> WhereValue {
   value |> param.string |> query.WhereParam
 }
 
-pub fn and(parts: List(WherePart)) -> WherePart {
+pub fn and(parts: List(Where)) -> Where {
   parts |> query.AndWhere
 }
 
-pub fn or(parts: List(WherePart)) -> WherePart {
+pub fn or(parts: List(Where)) -> Where {
   parts |> query.OrWhere
 }
 
-// pub fn xor(parts: List(WherePart)) -> WherePart {
+// pub fn xor(parts: List(Where)) -> Where {
 //   parts |> query.XorWhere
 // }
 
-pub fn not(part: WherePart) -> WherePart {
+pub fn not(part: Where) -> Where {
   part |> query.NotWhere
 }
 
-pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereEqual(val_b)
 }
 
-pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereLower(val_b)
 }
 
-pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereLowerOrEqual(val_b)
 }
 
-pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereGreater(val_b)
 }
 
-pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> WherePart {
+pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereGreaterOrEqual(val_b)
 }
 
-pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> WherePart {
+pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> Where {
   val |> query.WhereIn(vals)
 }
 
@@ -65,39 +65,39 @@ pub fn between(
   value_a val_a: WhereValue,
   value_b val_b: WhereValue,
   value_c val_c: WhereValue,
-) -> WherePart {
+) -> Where {
   val_a |> query.WhereBetween(val_b, val_c)
 }
 
-pub fn is_bool(value val: WhereValue, bool b: Bool) -> WherePart {
+pub fn is_bool(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsBool(b)
 }
 
-pub fn is_not_bool(value val: WhereValue, bool b: Bool) -> WherePart {
+pub fn is_not_bool(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsNotBool(b)
 }
 
-pub fn is_not(value val: WhereValue, bool b: Bool) -> WherePart {
+pub fn is_not(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsNotBool(b)
 }
 
-pub fn is_null(value val: WhereValue) -> WherePart {
+pub fn is_null(value val: WhereValue) -> Where {
   val |> query.WhereIsNull
 }
 
-pub fn is_not_null(value val: WhereValue) -> WherePart {
+pub fn is_not_null(value val: WhereValue) -> Where {
   val |> query.WhereIsNotNull
 }
 
-pub fn like(value val: WhereValue, pattern pttrn: String) -> WherePart {
+pub fn like(value val: WhereValue, pattern pttrn: String) -> Where {
   val |> query.WhereLike(pttrn)
 }
 
-pub fn ilike(value val: WhereValue, pattern pttrn: String) -> WherePart {
+pub fn ilike(value val: WhereValue, pattern pttrn: String) -> Where {
   val |> query.WhereILike(pttrn)
 }
 
-pub fn similar(value val: WhereValue, to pttrn: String) -> WherePart {
+pub fn similar(value val: WhereValue, to pttrn: String) -> Where {
   val |> query.WhereSimilar(pttrn)
 }
 
