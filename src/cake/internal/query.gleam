@@ -132,7 +132,7 @@ fn select_builder_maybe_apply_select(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: SelectQuery,
 ) -> PreparedStatement {
-  prp_stm |> select_apply_clause(qry.select)
+  prp_stm |> select_apply_clause(qry.selects)
 }
 
 fn select_builder_maybe_apply_from(
@@ -353,15 +353,19 @@ pub type SelectQuery {
     // with_recursive: String, ?
     // TODO: wrap this in Select?
     // and rename property rename select to selects
-    select: List(SelectValue),
+    // or rename it to Projection
+    selects: List(SelectValue),
     // modifier: String,
     // distinct: String,
     // window: String,
     from: From,
     joins: Joins,
+    // Rename this to Selection internally?
     where: Where,
     // group_by: String,
     // having: String,
+    // TODO: rename to order_bys
+    // and wrap it as OrderBys{NoOrders OrderBys(List(OrderBy)}
     order_by: List(OrderBy),
     limit_offset: LimitOffset,
     epilog: Epilog,

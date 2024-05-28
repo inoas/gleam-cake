@@ -43,7 +43,7 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 pub fn new(from frm: From, select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
-    select: slct,
+    selects: slct,
     from: frm,
     where: NoWhere,
     joins: NoJoins,
@@ -55,7 +55,7 @@ pub fn new(from frm: From, select slct: List(SelectValue)) -> SelectQuery {
 
 pub fn new_from(from frm: From) -> SelectQuery {
   SelectQuery(
-    select: [],
+    selects: [],
     from: frm,
     joins: NoJoins,
     where: NoWhere,
@@ -67,7 +67,7 @@ pub fn new_from(from frm: From) -> SelectQuery {
 
 pub fn new_select(select slct: List(SelectValue)) -> SelectQuery {
   SelectQuery(
-    select: slct,
+    selects: slct,
     from: NoFrom,
     where: NoWhere,
     joins: NoJoins,
@@ -93,18 +93,18 @@ pub fn select(
   select_query qry: SelectQuery,
   select_parts prts: List(SelectValue),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: list.append(qry.select, prts))
+  SelectQuery(..qry, selects: list.append(qry.selects, prts))
 }
 
 pub fn select_replace(
   select_query qry: SelectQuery,
   select_parts prts: List(SelectValue),
 ) -> SelectQuery {
-  SelectQuery(..qry, select: prts)
+  SelectQuery(..qry, selects: prts)
 }
 
 pub fn get_select(select_query qry: SelectQuery) -> List(SelectValue) {
-  qry.select
+  qry.selects
 }
 
 // ▒▒▒ WHERE ▒▒▒
