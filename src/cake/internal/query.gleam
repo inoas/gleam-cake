@@ -170,17 +170,18 @@ pub type Select {
   Select(
     // with: String,
     // with_recursive: String, ?
+    // TODO: singular field:
     selects: Selects,
     // modifier: String,
     // distinct: String,
     // window: String,
     from: From,
+    // TODO: singular field:
     joins: Joins,
     where: Where,
     group_by: GroupBy,
     having: Where,
-    // TODO: rename to order_bys
-    // and wrap it as OrderBys{NoOrders OrderBys(List(OrderBy)}
+    // TODO: wrap it as OrderBys{NoOrders OrderBys(List(OrderBy)}
     order_by: List(OrderBy),
     // TODO: split up and wrap
     limit_offset: LimitOffset,
