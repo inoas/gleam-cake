@@ -41,7 +41,7 @@ pub fn run_dummy_fragment() {
 
   let cats_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
 
   let select_query =
     cats_query
@@ -90,11 +90,11 @@ pub fn run_dummy_select() {
 
   let cats_sub_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
 
   let dogs_sub_query =
     f.table(name: "dogs")
-    |> s.new_from()
+    |> s.new_from
 
   let cats_t = q.qualified_identifier("cats")
   let owners_t = q.qualified_identifier("owners")
@@ -166,7 +166,7 @@ pub fn run_dummy_union_all() {
 
   let select_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
     |> s.selects([s.col("name"), s.col("age")])
 
   let select_query_a =
@@ -189,7 +189,7 @@ pub fn run_dummy_union_all() {
 
   let union_query =
     [select_query_a, select_query_b]
-    |> c.union_all()
+    |> c.union_all
     |> c.set_limit(1)
     |> c.order_replace(by: "age", direction: c.Asc)
     |> c.to_query
@@ -219,7 +219,7 @@ pub fn run_dummy_union_all() {
 }
 
 pub fn run_on_postgres(query, query_decoder) {
-  use conn <- postgres_adapter.with_connection()
+  use conn <- postgres_adapter.with_connection
 
   let _ = drop_owners_table_if_exists() |> postgres_adapter.execute(conn)
   let _ = create_owners_table() |> postgres_adapter.execute(conn)
@@ -237,7 +237,7 @@ pub fn run_on_postgres(query, query_decoder) {
 }
 
 fn run_on_sqlite(query, query_decoder) {
-  use conn <- sqlite_adapter.with_memory_connection()
+  use conn <- sqlite_adapter.with_memory_connection
 
   let _ = drop_owners_table_if_exists() |> sqlite_adapter.execute(conn)
   let _ = create_owners_table() |> sqlite_adapter.execute(conn)

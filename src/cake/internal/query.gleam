@@ -20,7 +20,7 @@ pub fn builder_new(
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
   prp_stm_prfx
-  |> prepared_statement.new()
+  |> prepared_statement.new
   |> builder_apply(qry)
 }
 
@@ -114,7 +114,7 @@ pub fn combined_query_new(
   qrys
   // NOTICE: `ORDER BY` is not allowed for queries,
   // that are part of combined queries:
-  |> combined_query_remove_order_by_clause()
+  |> combined_query_remove_order_by_clause
   |> Combined(
     kind: knd,
     queries: _,
@@ -834,7 +834,7 @@ pub fn fragment_prepared_split_string(
   string_fragment str_frgmt: String,
 ) -> List(String) {
   str_frgmt
-  |> string.to_graphemes()
+  |> string.to_graphemes
   |> list.fold([], fn(acc: List(String), grapheme: String) -> List(String) {
     case grapheme == fragment_placeholder_grapheme, acc {
       // If encountering a placeholder, we want to add it as a single item.
@@ -853,7 +853,7 @@ pub fn fragment_prepared_split_string(
       }
     }
   })
-  |> list.reverse()
+  |> list.reverse
 }
 
 pub fn fragment_count_placeholders(
@@ -878,8 +878,7 @@ fn fragment_apply(
     FragmentPrepared(fragment: frgmt, params: prms) -> {
       let frgmts = frgmt |> fragment_prepared_split_string
       let frgmt_plchldr_count = frgmts |> fragment_count_placeholders
-      let prms_count = prms |> list.length()
-
+      let prms_count = prms |> list.length
       // Fill up or reduce params to match the given number of placeholders
       // This is likely a user error that cannot be catched by
       // the type system, but instead of crashing we do the best we can.
@@ -941,7 +940,7 @@ fn fragment_apply(
           },
         )
 
-      // Sanity check that all parameters have been used.
+      // Sanity runtime check that all parameters have been used.
       let assert [] = param_rest_should_be_empty
 
       new_prp_stm

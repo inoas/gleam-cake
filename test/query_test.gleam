@@ -8,7 +8,7 @@ import pprint.{format as to_string}
 
 fn query_where_between_setup() {
   f.table(name: "cats")
-  |> s.new_from()
+  |> s.new_from
   |> s.where(w.col("age") |> w.between(w.int(10), w.int(20)))
 }
 

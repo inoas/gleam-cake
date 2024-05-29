@@ -13,7 +13,7 @@ import pprint.{format as to_string}
 pub fn query_fragment_snap_test() {
   let cats_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
     |> tap(fn(v) {
       v |> to_string |> birdie.snap("cats_query")
       v
@@ -43,7 +43,7 @@ pub fn query_fragment_snap_test() {
 pub fn query_select_snap_test() {
   let cats_sub_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
     |> tap(fn(v) {
       v |> to_string |> birdie.snap("cats_sub_query")
       v
@@ -51,7 +51,7 @@ pub fn query_select_snap_test() {
 
   let dogs_sub_query =
     f.table(name: "dogs")
-    |> s.new_from()
+    |> s.new_from
     |> tap(fn(v) {
       v |> to_string |> birdie.snap("dogs_sub_query")
       v
@@ -107,7 +107,7 @@ pub fn query_select_snap_test() {
 pub fn query_combined_snap_test() {
   let base_select_query =
     f.table(name: "cats")
-    |> s.new_from()
+    |> s.new_from
     |> s.selects([s.col("name"), s.col("age")])
     |> tap(fn(v) {
       v
@@ -148,7 +148,7 @@ pub fn query_combined_snap_test() {
     })
 
   [select_query_a, select_query_b]
-  |> c.union_all()
+  |> c.union_all
   |> c.set_limit(1)
   |> c.order_replace(by: "age", direction: c.Asc)
   |> c.to_query

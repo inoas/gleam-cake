@@ -8,7 +8,7 @@ import gleam/order
 pub const placeholder = query.fragment_placeholder_grapheme
 
 pub fn literal(string str: String) -> Fragment {
-  str |> query.FragmentLiteral()
+  str |> query.FragmentLiteral
 }
 
 pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
@@ -21,7 +21,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 
   case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {
     0, 0, order.Eq -> {
-      str |> query.FragmentLiteral()
+      str |> query.FragmentLiteral
     }
     _n, _n, order.Eq -> {
       str |> query.FragmentPrepared(prms)
@@ -34,7 +34,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> int.to_string(param_count)
         <> " params given!",
       )
-      str |> query.FragmentLiteral()
+      str |> query.FragmentLiteral
     }
     _n, 0, _not_eq -> {
       io.println_error(
@@ -44,7 +44,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> placeholder
         <> "-placeholders, but there were 0 params given!",
       )
-      str |> query.FragmentLiteral()
+      str |> query.FragmentLiteral
     }
     _n, _m, _not_eq -> {
       io.println_error(

@@ -45,7 +45,7 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
         StringParam(param) -> pgo.text(param)
-        // NullParam -> pgo.null()
+        // NullParam -> pgo.null
       }
     })
     |> iox.print_tap("Params: ")
