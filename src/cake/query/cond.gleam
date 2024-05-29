@@ -1,5 +1,5 @@
 // // TODO: CASE expressions for WHERE, SELECT and others?
-
+//
 // pub type Case {
 //   SimpleCase(base: CaseValue, matches: List(CaseValue), otherwise: CaseValue)
 //   BooleanCase(
@@ -9,11 +9,11 @@
 //   )
 //   ComplexCase(branches: List(CaseWhen), otherwise: CaseValue)
 // }
-
+//
 // pub type CaseWhen {
 //   CaseWhen(condition: CaseBoolExpression, result: CaseValue)
 // }
-
+//
 // pub type CaseBoolExpression {
 //   CaseBoolExpression(
 //     value_a: CaseValue,
@@ -21,12 +21,12 @@
 //     value_b: CaseValue,
 //   )
 // }
-
+//
 // // These need to be specific enums I guess
 // pub type CaseOperator {
 //   CaseOperator(String)
 // }
-
+//
 // pub type CaseValue {
 //   CaseColumn(column: String)
 //   CaseParam(param: Param)
