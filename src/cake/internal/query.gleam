@@ -19,8 +19,15 @@ pub fn builder_new(
   query qry: Query,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
-  let prp_stm = prp_stm_prfx |> prepared_statement.new()
+  prp_stm_prfx
+  |> prepared_statement.new()
+  |> builder_apply(qry)
+}
 
+pub fn builder_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: Query,
+) -> PreparedStatement {
   case qry {
     SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
     CombinedQuery(query: qry) -> prp_stm |> combined_builder(qry)
