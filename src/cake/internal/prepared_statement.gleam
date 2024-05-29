@@ -36,12 +36,12 @@ pub fn append_param(
 pub fn append_sql_and_param(
   prepared_statement prp_stm: PreparedStatement,
   new_sql nw_sql: String,
-  new_param nw_prms: Param,
+  new_param nw_prm: Param,
 ) {
   PreparedStatement(
     ..prp_stm,
     sql: prp_stm.sql <> nw_sql,
-    params: list.append(prp_stm.params, [nw_prms]),
+    params: prp_stm.params |> list.append([nw_prm]),
     index: prp_stm.index + 1,
   )
 }
@@ -54,7 +54,7 @@ pub fn append_sql_and_params(
   PreparedStatement(
     ..prp_stm,
     sql: prp_stm.sql <> nw_sql,
-    params: list.append(prp_stm.params, nw_prms),
+    params: prp_stm.params |> list.append(nw_prms),
     index: prp_stm.index + list.length(nw_prms),
   )
 }
