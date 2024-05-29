@@ -28,7 +28,7 @@ pub fn builder_new(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Combined Builder                                                         │
+// │  Combined (UNION, UNION ALL, etc)                                         │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn combined_builder(
@@ -70,27 +70,6 @@ pub fn combined_clause_apply(
     },
   )
 }
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Select Builder                                                           │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-pub fn select_builder(
-  prepared_statement prp_stm: PreparedStatement,
-  select_query qry: Select,
-) -> PreparedStatement {
-  prp_stm
-  |> select_clause_apply(qry.selects)
-  |> from_clause_apply(qry.from)
-  |> join_clause_apply(qry.joins)
-  |> where_clause_apply(qry.where)
-  |> order_by_clause_apply(qry.order_by)
-  |> limit_offset_clause_apply(qry.limit_offset)
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Combined Query                                                           │
-// └───────────────────────────────────────────────────────────────────────────┘
 
 pub type CombinedQueryKind {
   Union
@@ -168,7 +147,19 @@ pub fn combined_order_by(
 // │  Select                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// List of SQL parts that will be used to build a select query.
+pub fn select_builder(
+  prepared_statement prp_stm: PreparedStatement,
+  select_query qry: Select,
+) -> PreparedStatement {
+  prp_stm
+  |> select_clause_apply(qry.selects)
+  |> from_clause_apply(qry.from)
+  |> join_clause_apply(qry.joins)
+  |> where_clause_apply(qry.where)
+  |> order_by_clause_apply(qry.order_by)
+  |> limit_offset_clause_apply(qry.limit_offset)
+}
+
 pub type Select {
   Select(
     // with: String,
