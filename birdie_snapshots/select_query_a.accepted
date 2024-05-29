@@ -1,10 +1,10 @@
 ---
-version: 1.1.5
+version: 1.1.6
 title: select_query_a
 file: ./test/old_query_test.gleam
 test_name: query_combined_snap_test
 ---
-SelectQuery(
+Select(
   Selects([
     SelectColumn("name"),
     SelectColumn("age"),

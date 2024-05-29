@@ -1,10 +1,10 @@
 ---
-version: 1.1.5
+version: 1.1.6
 title: composed
 file: ./test/old_query_test.gleam
 test_name: query_select_snap_test
 ---
-SelectQuery(
+Select(
   Selects([
     SelectColumn("cats.name"),
     SelectColumn("cats.age"),
@@ -14,7 +14,7 @@ SelectQuery(
     ),
   ]),
   FromSubQuery(
-    Select(SelectQuery(
+    SelectQuery(Select(
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -42,7 +42,7 @@ SelectQuery(
       ]),
     ),
     CrossJoin(
-      JoinSubQuery(Select(SelectQuery(
+      JoinSubQuery(SelectQuery(Select(
         NoSelects,
         FromTable("dogs"),
         NoJoins,
