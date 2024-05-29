@@ -1,5 +1,3 @@
-// TODO: CASE expressions for WHERE, SELECT and others?
-
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import cake/stdlib/listx
@@ -29,7 +27,7 @@ pub fn builder_apply(
 ) -> PreparedStatement {
   case qry {
     SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
-    Combined(query: qry) -> prp_stm |> combined_builder(qry)
+    CombinedQuery(query: qry) -> prp_stm |> combined_builder(qry)
   }
 }
 
@@ -39,7 +37,7 @@ pub fn builder_apply(
 
 pub fn combined_builder(
   prepared_statement prp_stm: PreparedStatement,
-  combined_query cmbnd_qry: CombinedQuery,
+  combined_query cmbnd_qry: Combined,
 ) -> PreparedStatement {
   prp_stm
   |> combined_builder_apply_command_sql(cmbnd_qry)
@@ -53,7 +51,7 @@ pub fn combined_builder(
 
 pub fn combined_builder_apply_command_sql(
   prepared_statement prp_stm: PreparedStatement,
-  combined_query cmbnd_qry: CombinedQuery,
+  combined_query cmbnd_qry: Combined,
 ) -> PreparedStatement {
   let sql_command = case cmbnd_qry.kind {
     Union -> "UNION"
@@ -82,13 +80,13 @@ pub fn combined_builder_apply_command_sql(
 
 fn combined_builder_apply_to_sql(
   prepared_statement prp_stm: PreparedStatement,
-  combined_query qry: CombinedQuery,
-  maybe_fun mb_fun: fn(CombinedQuery) -> String,
+  combined_query qry: Combined,
+  maybe_fun mb_fun: fn(Combined) -> String,
 ) -> PreparedStatement {
   prp_stm |> prepared_statement.append_sql(mb_fun(qry))
 }
 
-fn combined_builder_maybe_add_order_sql(query qry: CombinedQuery) -> String {
+fn combined_builder_maybe_add_order_sql(query qry: Combined) -> String {
   case qry.order_by {
     [] -> ""
     _ -> {
@@ -112,63 +110,47 @@ pub fn select_builder(
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm
-  |> select_builder_maybe_apply_select(qry)
-  |> select_builder_maybe_apply_from(qry)
-  |> select_builder_maybe_apply_join(qry)
-  |> select_builder_maybe_apply_where(qry)
-  |> select_builder_apply_to_sql(qry, select_builder_maybe_add_order_sql)
+  |> select_builder_apply_select(qry)
+  |> select_builder_apply_from(qry)
+  |> select_builder_apply_join(qry)
+  |> select_builder_apply_where(qry)
+  |> select_builder_apply_order_by(qry)
   |> select_builder_maybe_apply_limit_offset(qry)
 }
 
-fn select_builder_apply_to_sql(
-  prepared_statement prp_stm: PreparedStatement,
-  select_query qry: Select,
-  maybe_fun mb_fun: fn(Select) -> String,
-) -> PreparedStatement {
-  prp_stm |> prepared_statement.append_sql(mb_fun(qry))
-}
-
-fn select_builder_maybe_apply_select(
+fn select_builder_apply_select(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> select_apply_clause(qry.selects)
 }
 
-fn select_builder_maybe_apply_from(
+fn select_builder_apply_from(
   prp_stm: PreparedStatement,
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> from_apply(qry.from)
 }
 
-fn select_builder_maybe_apply_where(
+fn select_builder_apply_where(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> where_apply_clause(qry.where)
 }
 
-fn select_builder_maybe_apply_join(
+fn select_builder_apply_join(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm |> joins_apply_clause(qry.joins)
 }
 
-fn select_builder_maybe_add_order_sql(select_query qry: Select) -> String {
-  case qry.order_by {
-    [] -> ""
-    _ -> {
-      let order_bys =
-        qry.order_by
-        |> list.map(fn(ordrb: OrderBy) -> String {
-          ordrb.column <> " " <> order_by_to_sql(ordrb)
-        })
-
-      " ORDER BY " <> string.join(order_bys, ", ")
-    }
-  }
+fn select_builder_apply_order_by(
+  prepared_statement prp_stm: PreparedStatement,
+  select_query qry: Select,
+) -> PreparedStatement {
+  prp_stm |> order_by_apply_clause(qry.order_by)
 }
 
 fn select_builder_maybe_apply_limit_offset(
@@ -186,7 +168,7 @@ fn select_builder_maybe_apply_limit_offset(
 
 pub type Query {
   SelectQuery(query: Select)
-  Combined(query: CombinedQuery)
+  CombinedQuery(query: Combined)
   // Insert(query: InsertQuery
   // Update(query: UpdateQuery)
   // Delete(query: DeleteQuery)
@@ -216,11 +198,30 @@ pub fn order_by_to_sql(order_by ordbpt: OrderBy) -> String {
   }
 }
 
+fn order_by_apply_clause(
+  prepared_statement prp_stm: PreparedStatement,
+  order_bys ordbs: List(OrderBy),
+) -> PreparedStatement {
+  case ordbs {
+    [] -> ""
+    _ -> {
+      let order_bys =
+        ordbs
+        |> list.map(fn(ordrb: OrderBy) -> String {
+          ordrb.column <> " " <> order_by_to_sql(ordrb)
+        })
+
+      " ORDER BY " <> string.join(order_bys, ", ")
+    }
+  }
+  |> prepared_statement.append_sql(prp_stm, _)
+}
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Limit & Offset                                                           │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO: split limit and offset into separate types and separate functions
+// TODO: Split limit and offset into separate types and separate functions
 //       then add one combination function to set both limit and offset.
 pub type LimitOffset {
   LimitOffset(limit: Int, offset: Int)
@@ -270,10 +271,10 @@ pub fn limit_offset_get(select_query qry: Select) -> LimitOffset {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Combined Query                                                           │
+// │  CombinedQuery Query                                                           │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub type CombinedKind {
+pub type CombinedQueryKind {
   Union
   UnionAll
   Except
@@ -286,9 +287,9 @@ pub type CombinedKind {
 
 /// SQL parts that will be used to build a combined query
 /// such as a UNION query.
-pub type CombinedQuery {
-  CombinedQuery(
-    kind: CombinedKind,
+pub type Combined {
+  Combined(
+    kind: CombinedQueryKind,
     select_queries: List(Select),
     limit_offset: LimitOffset,
     order_by: List(OrderBy),
@@ -298,15 +299,17 @@ pub type CombinedQuery {
   )
 }
 
+// TODO: also allow nested combined combined_get_select_queries
+// from any nested SELECT
 pub fn combined_query_new(
-  kind knd: CombinedKind,
-  select_queries qrys: List(Select),
-) -> CombinedQuery {
+  kind knd: CombinedQueryKind,
+  queries qrys: List(Select),
+) -> Combined {
   qrys
   // ORDER BY is not allowed for queries,
-  // that are part of combined queries.
+  // that are part of combined queries:
   |> combined_query_remove_order_by_from_selects()
-  |> CombinedQuery(
+  |> Combined(
     kind: knd,
     select_queries: _,
     limit_offset: NoLimitNoOffset,
@@ -318,25 +321,28 @@ pub fn combined_query_new(
 fn combined_query_remove_order_by_from_selects(
   select_queries qrys: List(Select),
 ) -> List(Select) {
+  // TODO: Add notice that order_by was dropped if it existed before
+  // TODO: Would be very useful if we could inject a logging function here
+  // TODO: Would be very cool if that code part would be eliminated
+  //       depending on the environment
   qrys
   |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: []) })
 }
 
 pub fn combined_get_select_queries(
-  combined_query cmbnd_qry: CombinedQuery,
+  combined_query cmbnd_qry: Combined,
 ) -> List(Select) {
   cmbnd_qry.select_queries
 }
 
 pub fn combined_order_by(
-  query qry: CombinedQuery,
+  query qry: Combined,
   by ordb: OrderBy,
   append appnd: Bool,
-) -> CombinedQuery {
+) -> Combined {
   case appnd {
-    True ->
-      CombinedQuery(..qry, order_by: qry.order_by |> listx.append_item(ordb))
-    False -> CombinedQuery(..qry, order_by: listx.wrap(ordb))
+    True -> Combined(..qry, order_by: qry.order_by |> listx.append_item(ordb))
+    False -> Combined(..qry, order_by: listx.wrap(ordb))
   }
 }
 
@@ -591,49 +597,6 @@ pub fn where_apply_clause(
   }
 }
 
-pub fn joins_apply_clause(
-  prepared_statement prp_stm: PreparedStatement,
-  joins jns: Joins,
-) -> PreparedStatement {
-  case jns {
-    Joins(parts) -> {
-      parts
-      |> list.fold(
-        prp_stm,
-        fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
-          let apply_join = fn(
-            new_prp_stm: PreparedStatement,
-            sql_command: String,
-          ) -> PreparedStatement {
-            new_prp_stm
-            |> prepared_statement.append_sql(" " <> sql_command <> " ")
-            |> join_apply(prt)
-          }
-
-          let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
-            new_prp_stm
-            |> prepared_statement.append_sql(" ON ")
-            |> where_apply(on)
-          }
-
-          case prt {
-            CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
-            InnerJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
-            LeftOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
-            RightOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
-            FullOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
-          }
-        },
-      )
-    }
-    NoJoins -> prp_stm
-  }
-}
-
 fn where_apply_literal(
   prepared_statement prp_stm: PreparedStatement,
   value v: WhereValue,
@@ -857,6 +820,49 @@ fn join_apply(
   }
 }
 
+pub fn joins_apply_clause(
+  prepared_statement prp_stm: PreparedStatement,
+  joins jns: Joins,
+) -> PreparedStatement {
+  case jns {
+    Joins(parts) -> {
+      parts
+      |> list.fold(
+        prp_stm,
+        fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
+          let apply_join = fn(
+            new_prp_stm: PreparedStatement,
+            sql_command: String,
+          ) -> PreparedStatement {
+            new_prp_stm
+            |> prepared_statement.append_sql(" " <> sql_command <> " ")
+            |> join_apply(prt)
+          }
+
+          let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
+            new_prp_stm
+            |> prepared_statement.append_sql(" ON ")
+            |> where_apply(on)
+          }
+
+          case prt {
+            CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
+            InnerJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
+            LeftOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+            RightOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+            FullOuterJoin(_, _, on: on) ->
+              new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+          }
+        },
+      )
+    }
+    NoJoins -> prp_stm
+  }
+}
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Epilog                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
@@ -886,8 +892,12 @@ pub fn epilog_apply(
 ///
 /// NOTICE: Injecting input data into fragments is only safe when using
 ///         `FragmentPrepared` and only using literal strings in the
-///         `fragment` field. To enforce this policy, it is recommended
-///          to use module constants for any `fragment`-field string.
+///         `fragment` field.
+///
+///          As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS
+///          for any `fragment`-field string.
+///
+///          TODO can erlang at runtime check if a given argument is a constant?
 ///
 pub type Fragment {
   FragmentLiteral(fragment: String)
