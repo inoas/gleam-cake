@@ -13,24 +13,14 @@ import gleam/string
 pub type Query {
   SelectQuery(query: Select)
   CombinedQuery(query: Combined)
-  // Insert(query: InsertQuery
-  // Update(query: UpdateQuery)
-  // Delete(query: DeleteQuery)
 }
 
 pub fn builder_new(
   query qry: Query,
   prepared_statement_prefix prp_stm_prfx: String,
 ) -> PreparedStatement {
-  prp_stm_prfx
-  |> prepared_statement.new()
-  |> builder_apply(qry)
-}
+  let prp_stm = prp_stm_prfx |> prepared_statement.new()
 
-pub fn builder_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  query qry: Query,
-) -> PreparedStatement {
   case qry {
     SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
     CombinedQuery(query: qry) -> prp_stm |> combined_builder(qry)
@@ -65,7 +55,7 @@ pub fn combined_clause_apply(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  cmbnd_qry.select_queries
+  cmbnd_qry.queries
   |> list.fold(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, qry: Select) -> PreparedStatement {
@@ -99,113 +89,6 @@ pub fn select_builder(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Order By                                                                 │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-// TODO:
-// pub type OrderByValue {
-//   OrderByColumn(column: String)
-//   OrderByParam(param: Param)
-//   OrderByFragment(fragment: Fragment)
-// }
-
-// pub type OrderBy {
-//   OrderBy(val: String, direction: OrderByDirection)
-// }
-
-pub type OrderBy {
-  OrderByColumn(column: String, direction: OrderByDirection)
-}
-
-pub type OrderByDirection {
-  Asc
-  Desc
-  AscNullsFirst
-  DescNullsFirst
-}
-
-fn order_by_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  order_bys ordbs: List(OrderBy),
-) -> PreparedStatement {
-  case ordbs {
-    [] -> ""
-    _ -> {
-      let order_bys =
-        ordbs
-        |> list.map(fn(ordrb: OrderBy) -> String {
-          ordrb.column <> " " <> order_by_to_sql(ordrb)
-        })
-
-      " ORDER BY " <> string.join(order_bys, ", ")
-    }
-  }
-  |> prepared_statement.append_sql(prp_stm, _)
-}
-
-fn order_by_to_sql(order_by ordbpt: OrderBy) -> String {
-  case ordbpt.direction {
-    Asc -> "ASC NULLS LAST"
-    Desc -> "DESC NULLS LAST"
-    AscNullsFirst -> "ASC NULLS FIRST"
-    DescNullsFirst -> "DESC NULLS FIRST"
-  }
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Limit & Offset                                                           │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-// TODO: Split limit and offset into separate types and separate functions
-//       then add one combination function to set both limit and offset.
-pub type LimitOffset {
-  LimitOffset(limit: Int, offset: Int)
-  LimitNoOffset(limit: Int)
-  NoLimitOffset(offset: Int)
-  NoLimitNoOffset
-}
-
-pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffset {
-  case lmt >= 0, offst >= 0 {
-    True, True -> LimitOffset(limit: lmt, offset: offst)
-    True, False -> LimitNoOffset(limit: lmt)
-    False, _ -> NoLimitNoOffset
-  }
-}
-
-pub fn limit_new(limit lmt: Int) -> LimitOffset {
-  case lmt >= 0 {
-    True -> LimitNoOffset(limit: lmt)
-    False -> NoLimitNoOffset
-  }
-}
-
-pub fn offset_new(offset offst: Int) -> LimitOffset {
-  case offst >= 0 {
-    True -> NoLimitOffset(offset: offst)
-    False -> NoLimitNoOffset
-  }
-}
-
-pub fn limit_offset_get(select_query qry: Select) -> LimitOffset {
-  qry.limit_offset
-}
-
-fn limit_offset_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  limit_offset lmt_offst: LimitOffset,
-) -> PreparedStatement {
-  case lmt_offst {
-    LimitOffset(limit: lmt, offset: offst) ->
-      " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
-    LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
-    NoLimitOffset(offset: offst) -> " OFFSET " <> int.to_string(offst)
-    NoLimitNoOffset -> ""
-  }
-  |> prepared_statement.append_sql(prp_stm, _)
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Combined Query                                                           │
 // └───────────────────────────────────────────────────────────────────────────┘
 
@@ -225,8 +108,10 @@ pub type CombinedQueryKind {
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    select_queries: List(Select),
+    // TODO: Wrap this
+    queries: List(Select),
     limit_offset: LimitOffset,
+    // TODO: Wrap this
     order_by: List(OrderBy),
     // Epilog allows you to append raw SQL to the end of queries.
     // One should NEVER put raw user data into the epilog.
@@ -234,7 +119,7 @@ pub type Combined {
   )
 }
 
-// TODO: also allow nested combined combined_get_select_queries
+// TODO: also allow nested combined in combined_get_queries
 // from any nested SELECT
 pub fn combined_query_new(
   kind knd: CombinedQueryKind,
@@ -243,18 +128,18 @@ pub fn combined_query_new(
   qrys
   // NOTICE: `ORDER BY` is not allowed for queries,
   // that are part of combined queries:
-  |> combined_query_remove_order_by_from_selects()
+  |> combined_query_remove_order_by_clause()
   |> Combined(
     kind: knd,
-    select_queries: _,
+    queries: _,
     limit_offset: NoLimitNoOffset,
     order_by: [],
     epilog: NoEpilog,
   )
 }
 
-fn combined_query_remove_order_by_from_selects(
-  select_queries qrys: List(Select),
+fn combined_query_remove_order_by_clause(
+  queries qrys: List(Select),
 ) -> List(Select) {
   // TODO: Add notice that order_by was dropped if it existed before
   // TODO: Would be very useful if we could inject a logging function here
@@ -264,10 +149,8 @@ fn combined_query_remove_order_by_from_selects(
   |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: []) })
 }
 
-pub fn combined_get_select_queries(
-  combined_query cmbnd_qry: Combined,
-) -> List(Select) {
-  cmbnd_qry.select_queries
+pub fn combined_get_queries(combined_query cmbnd_qry: Combined) -> List(Select) {
+  cmbnd_qry.queries
 }
 
 pub fn combined_order_by(
@@ -437,14 +320,14 @@ pub type Where {
   // We will use let assert here?!
   // WhereInSubQuery(value: WhereValue, sub_query: Query)
   // WhereAllSubQuery(value: WhereValue, sub_query: Query)
-  // WhereAnySubQuery(value: WhereValue, sub_query: Query)
-  // WhereExistsSubQuery(sub_query: Query)
-  // WhereEqualSubQuery(value: WhereValue, sub_query: Query)
-  // WhereLowerSubQuery(value: WhereValue, sub_query: Query)
-  // WhereLowerOrEqualSubQuery(value: WhereValue, sub_query: Query)
-  // WhereGreaterSubQuery(value: WhereValue, sub_query: Query)
-  // WhereGreaterOrEqualSubQuery(value: WhereValue, sub_query: Query)
-  // WhereNotEqualSubQuery(value: WhereValue, sub_query: Query)
+  // WhereAnySubQuery(value: WhereValue, sub_query: Query)  // WhereExistQuery(query: WhereQuery)
+  // WhereExistsQuery(sub_query: Query)
+  // WhereEqualQuery(value: WhereValue, sub_query: Query)
+  // WhereLowerQuery(value: WhereValue, sub_query: Query)
+  // WhereLowerOrEqualQuery(value: WhereValue, sub_query: Query)
+  // WhereGreaterQuery(value: WhereValue, sub_query: Query)
+  // WhereGreaterOrEqualQuery(value: WhereValue, sub_query: Query)
+  // WhereNotEqualQuery(value: WhereValue, sub_query: Query)
 }
 
 pub type WhereValue {
@@ -792,6 +675,113 @@ fn join_apply(
       |> builder_apply(qry)
       |> prepared_statement.append_sql(") AS " <> prt.alias)
   }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Order By                                                                 │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO:
+// pub type OrderByValue {
+//   OrderByColumn(column: String)
+//   OrderByParam(param: Param)
+//   OrderByFragment(fragment: Fragment)
+// }
+
+// pub type OrderBy {
+//   OrderBy(val: String, direction: OrderByDirection)
+// }
+
+pub type OrderBy {
+  OrderByColumn(column: String, direction: OrderByDirection)
+}
+
+pub type OrderByDirection {
+  Asc
+  Desc
+  AscNullsFirst
+  DescNullsFirst
+}
+
+fn order_by_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  order_bys ordbs: List(OrderBy),
+) -> PreparedStatement {
+  case ordbs {
+    [] -> ""
+    _ -> {
+      let order_bys =
+        ordbs
+        |> list.map(fn(ordrb: OrderBy) -> String {
+          ordrb.column <> " " <> order_by_to_sql(ordrb)
+        })
+
+      " ORDER BY " <> string.join(order_bys, ", ")
+    }
+  }
+  |> prepared_statement.append_sql(prp_stm, _)
+}
+
+fn order_by_to_sql(order_by ordbpt: OrderBy) -> String {
+  case ordbpt.direction {
+    Asc -> "ASC NULLS LAST"
+    Desc -> "DESC NULLS LAST"
+    AscNullsFirst -> "ASC NULLS FIRST"
+    DescNullsFirst -> "DESC NULLS FIRST"
+  }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Limit & Offset                                                           │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO: Split limit and offset into separate types and separate functions
+//       then add one combination function to set both limit and offset.
+pub type LimitOffset {
+  LimitOffset(limit: Int, offset: Int)
+  LimitNoOffset(limit: Int)
+  NoLimitOffset(offset: Int)
+  NoLimitNoOffset
+}
+
+pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffset {
+  case lmt >= 0, offst >= 0 {
+    True, True -> LimitOffset(limit: lmt, offset: offst)
+    True, False -> LimitNoOffset(limit: lmt)
+    False, _ -> NoLimitNoOffset
+  }
+}
+
+pub fn limit_new(limit lmt: Int) -> LimitOffset {
+  case lmt >= 0 {
+    True -> LimitNoOffset(limit: lmt)
+    False -> NoLimitNoOffset
+  }
+}
+
+pub fn offset_new(offset offst: Int) -> LimitOffset {
+  case offst >= 0 {
+    True -> NoLimitOffset(offset: offst)
+    False -> NoLimitNoOffset
+  }
+}
+
+pub fn limit_offset_get(select_query qry: Select) -> LimitOffset {
+  qry.limit_offset
+}
+
+fn limit_offset_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  limit_offset lmt_offst: LimitOffset,
+) -> PreparedStatement {
+  case lmt_offst {
+    LimitOffset(limit: lmt, offset: offst) ->
+      " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
+    LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
+    NoLimitOffset(offset: offst) -> " OFFSET " <> int.to_string(offst)
+    NoLimitNoOffset -> ""
+  }
+  |> prepared_statement.append_sql(prp_stm, _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
