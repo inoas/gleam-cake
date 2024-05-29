@@ -13,6 +13,8 @@ Select(
     WhereParam(IntParam(10)),
     WhereParam(IntParam(20)),
   ),
+  NoGroupBy,
+  NoWhere,
   [],
   NoLimitNoOffset,
   NoEpilog,

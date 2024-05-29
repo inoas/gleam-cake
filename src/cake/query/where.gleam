@@ -77,6 +77,14 @@ pub fn is_not_bool(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsNotBool(b)
 }
 
+pub fn is_false(value val: WhereValue) -> Where {
+  val |> query.WhereIsBool(False)
+}
+
+pub fn is_true(value val: WhereValue) -> Where {
+  val |> query.WhereIsBool(True)
+}
+
 pub fn is_not(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsNotBool(b)
 }

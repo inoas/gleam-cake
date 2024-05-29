@@ -24,7 +24,7 @@ pub fn builder_new(
   |> builder_apply(qry)
 }
 
-pub fn builder_apply(
+fn builder_apply(
   prepared_statement prp_stm: PreparedStatement,
   query qry: Query,
 ) -> PreparedStatement {
@@ -38,7 +38,7 @@ pub fn builder_apply(
 // │  Combined (UNION, UNION ALL, etc)                                         │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub fn combined_builder(
+fn combined_builder(
   prepared_statement prp_stm: PreparedStatement,
   combined_query qry: Combined,
 ) -> PreparedStatement {
@@ -78,6 +78,21 @@ pub fn combined_clause_apply(
   )
 }
 
+pub type Combined {
+  Combined(
+    kind: CombinedQueryKind,
+    // TODO: Wrap this
+    queries: List(Select),
+    // TODO: split up and wrap
+    limit_offset: LimitOffset,
+    // TODO: Wrap this
+    order_by: List(OrderBy),
+    // Epilog allows you to append raw SQL to the end of queries.
+    // One should NEVER put raw user data into the epilog.
+    epilog: Epilog,
+  )
+}
+
 pub type CombinedQueryKind {
   Union
   UnionAll
@@ -87,22 +102,6 @@ pub type CombinedQueryKind {
   Intersect
   // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator
   IntersectAll
-}
-
-/// SQL parts that will be used to build a combined query
-/// such as a UNION query.
-pub type Combined {
-  Combined(
-    kind: CombinedQueryKind,
-    // TODO: Wrap this
-    queries: List(Select),
-    limit_offset: LimitOffset,
-    // TODO: Wrap this
-    order_by: List(OrderBy),
-    // Epilog allows you to append raw SQL to the end of queries.
-    // One should NEVER put raw user data into the epilog.
-    epilog: Epilog,
-  )
 }
 
 // TODO: also allow nested combined in combined_get_queries
@@ -154,7 +153,7 @@ pub fn combined_order_by(
 // │  Select                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub fn select_builder(
+fn select_builder(
   prepared_statement prp_stm: PreparedStatement,
   select_query qry: Select,
 ) -> PreparedStatement {
@@ -178,11 +177,12 @@ pub type Select {
     from: From,
     joins: Joins,
     where: Where,
-    // group_by: String,
-    // having: String,
+    group_by: GroupBy,
+    having: Where,
     // TODO: rename to order_bys
     // and wrap it as OrderBys{NoOrders OrderBys(List(OrderBy)}
     order_by: List(OrderBy),
+    // TODO: split up and wrap
     limit_offset: LimitOffset,
     epilog: Epilog,
     // comment: String,
@@ -273,7 +273,7 @@ pub type From {
   FromSubQuery(sub_query: Query, alias: String)
 }
 
-pub fn from_clause_apply(
+fn from_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: From,
 ) -> PreparedStatement {
@@ -308,36 +308,28 @@ pub type Where {
   WhereILike(value_a: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilar(value_a: WhereValue, string: String)
+  // TODO: Check if this works with sub queries once WhereValue can also be a
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   AndWhere(parts: List(Where))
   OrWhere(parts: List(Where))
   // TODO: XorWhere(List(Where))
   NotWhere(part: Where)
-  // NOTICE: Where with subqueries requires scalar queries
-  // We will use let assert here?!
-  // WhereInSubQuery(value: WhereValue, sub_query: Query)
-  // WhereAllSubQuery(value: WhereValue, sub_query: Query)
-  // WhereAnySubQuery(value: WhereValue, sub_query: Query)  // WhereExistQuery(query: WhereQuery)
+  // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
+  // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereExistsQuery(sub_query: Query)
-  // WhereEqualQuery(value: WhereValue, sub_query: Query)
-  // WhereLowerQuery(value: WhereValue, sub_query: Query)
-  // WhereLowerOrEqualQuery(value: WhereValue, sub_query: Query)
-  // WhereGreaterQuery(value: WhereValue, sub_query: Query)
-  // WhereGreaterOrEqualQuery(value: WhereValue, sub_query: Query)
-  // WhereNotEqualQuery(value: WhereValue, sub_query: Query)
 }
 
 pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
-  // WhereQuery(Select):
-  // NOTICE: Return value must be scalar: Set LIMIT to 1,
+  // TODO:
+  // WhereSubQuery(sub_query: Query)
+  // NOTICE: For some commands, the return value must be scalar:
+  // 1 column, 1 row (LIMIT 1)
   // If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
-  // FIXME: (for unions need to wrap into a select with the unions as a sub select and a single field extracted and limit 1)
-  // Supply a wrapper function for this
 }
 
 fn where_apply(
@@ -398,7 +390,7 @@ fn where_apply(
   }
 }
 
-pub fn where_clause_apply(
+fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   part prt: Where,
 ) -> PreparedStatement {
@@ -596,6 +588,17 @@ fn where_between_apply(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Group By                                                                 │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO: implemenet
+
+pub type GroupBy {
+  NoGroupBy
+  GroupBy(columns: List(String))
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Joins                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
@@ -617,7 +620,7 @@ pub type Join {
   FullOuterJoin(with: JoinKind, alias: String, on: Where)
 }
 
-pub fn join_clause_apply(
+fn join_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   joins jns: Joins,
 ) -> PreparedStatement {
@@ -680,7 +683,7 @@ fn join_apply(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 // TODO:
-// pub type OrderByValue {
+// type OrderByValue {
 //   OrderByColumn(column: String)
 //   OrderByParam(param: Param)
 //   OrderByFragment(fragment: Fragment)
@@ -793,7 +796,7 @@ pub type Epilog {
   Epilog(string: String)
 }
 
-pub fn epilog_apply(
+fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
   epilog prt: Epilog,
 ) -> PreparedStatement {

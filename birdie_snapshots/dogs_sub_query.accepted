@@ -9,6 +9,8 @@ Select(
   FromTable("dogs"),
   NoJoins,
   NoWhere,
+  NoGroupBy,
+  NoWhere,
   [],
   NoLimitNoOffset,
   NoEpilog,

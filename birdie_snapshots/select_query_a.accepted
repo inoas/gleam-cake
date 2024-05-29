@@ -21,6 +21,8 @@ Select(
       "%ara%",
     ),
   ]),
+  NoGroupBy,
+  NoWhere,
   [],
   NoLimitNoOffset,
   NoEpilog,

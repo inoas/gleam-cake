@@ -1,8 +1,8 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type LimitOffset,
   type OrderByDirection, type Query, type Select, type SelectValue, type Selects,
-  type Where, Joins, NoEpilog, NoFrom, NoJoins, NoLimitNoOffset, NoSelects,
-  NoWhere, OrderByColumn, Select, SelectQuery, Selects,
+  type Where, Joins, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimitNoOffset,
+  NoSelects, NoWhere, OrderByColumn, Select, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
@@ -49,8 +49,10 @@ pub fn new(from frm: From, selects slcts: List(SelectValue)) -> Select {
   Select(
     selects: slcts,
     from: frm,
-    where: NoWhere,
     joins: NoJoins,
+    where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilog,
@@ -63,6 +65,8 @@ pub fn new_from(from frm: From) -> Select {
     from: frm,
     joins: NoJoins,
     where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilog,
@@ -77,8 +81,10 @@ pub fn new_select(selects slcts: List(SelectValue)) -> Select {
   Select(
     selects: slcts,
     from: NoFrom,
-    where: NoWhere,
     joins: NoJoins,
+    where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
     order_by: [],
     limit_offset: NoLimitNoOffset,
     epilog: NoEpilog,

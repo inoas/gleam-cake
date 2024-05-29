@@ -18,6 +18,8 @@ Select(
       ],
     )),
   ),
+  NoGroupBy,
+  NoWhere,
   [],
   NoLimitNoOffset,
   NoEpilog,
