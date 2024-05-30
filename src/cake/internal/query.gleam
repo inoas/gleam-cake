@@ -51,9 +51,9 @@ fn combined_builder(
 
 pub fn combined_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
-  combined_query cmbnd_qry: Combined,
+  combined_query qry: Combined,
 ) -> PreparedStatement {
-  let sql_command = case cmbnd_qry.kind {
+  let sql_command = case qry.kind {
     Union -> "UNION"
     UnionAll -> "UNION ALL"
     Except -> "EXCEPT"
@@ -62,7 +62,7 @@ pub fn combined_clause_apply(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  cmbnd_qry.queries
+  qry.queries
   |> list.fold(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, qry: Select) -> PreparedStatement {
@@ -104,7 +104,7 @@ pub type CombinedQueryKind {
   IntersectAll
 }
 
-// TODO: also allow nested combined in combined_get_queries
+// TODO: Also allow nested combined in combined_get_queries
 // from any nested SELECT
 pub fn combined_query_new(
   kind knd: CombinedQueryKind,
@@ -134,8 +134,8 @@ fn combined_query_remove_order_by_clause(
   |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: []) })
 }
 
-pub fn combined_get_queries(combined_query cmbnd_qry: Combined) -> List(Select) {
-  cmbnd_qry.queries
+pub fn combined_get_queries(combined_query qry: Combined) -> List(Select) {
+  qry.queries
 }
 
 pub fn combined_order_by(
@@ -318,7 +318,7 @@ pub type Where {
   NotWhere(part: Where)
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
-  // WhereExistsQuery(sub_query: Query)
+  // WhereExistsInSubQuery(sub_query: Query)
 }
 
 pub type WhereValue {
