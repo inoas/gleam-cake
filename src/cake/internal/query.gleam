@@ -80,9 +80,11 @@ pub fn combined_clause_apply(
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    // TODO: Wrap this
+    // TODO: if single list item, unwrap Combined to Select and warn user // v2
     queries: List(Select),
     // TODO: split up and wrap
+    // limit: Limit // v0
+    // offset: Offset // v0
     limit_offset: LimitOffset,
     order_by: OrderBy,
     // Epilog allows you to append raw SQL to the end of queries.
@@ -166,13 +168,13 @@ fn select_builder(
 
 pub type Select {
   Select(
-    // with: String,
-    // with_recursive: String, ?
+    // with: String, // v2
+    // with_recursive: String, ? // v2
     // TODO: singular field:
     selects: Selects,
-    // modifier: String,
-    // distinct: String,
-    // window: String,
+    // modifier: String, // v1
+    // distinct: String, // v1
+    // window: String, // v2
     from: From,
     // TODO: singular field:
     joins: Joins,
@@ -181,10 +183,12 @@ pub type Select {
     having: Where,
     order_by: OrderBy,
     // TODO: split up and wrap
+    // limit: Limit // v0
+    // offset: Offset // v0
     limit_offset: LimitOffset,
     epilog: Epilog,
-    // comment: String,
-    // values: String, ?
+    // comment: String, // v2
+    // values: String, // ?
   )
 }
 
