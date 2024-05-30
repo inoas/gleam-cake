@@ -335,9 +335,9 @@ pub type WhereValue {
 
 fn where_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: Where,
+  part wh: Where,
 ) -> PreparedStatement {
-  case prt {
+  case wh {
     NoWhere -> prp_stm
     WhereEqual(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "=", val_b)
@@ -377,12 +377,12 @@ fn where_apply(
         WhereParam(param.StringParam(prm)),
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    AndWhere(prts) -> prp_stm |> where_apply_logical_operator("AND", prts)
-    OrWhere(prts) -> prp_stm |> where_apply_logical_operator("OR", prts)
-    NotWhere(prt) -> {
+    AndWhere(whs) -> prp_stm |> where_apply_logical_operator("AND", whs)
+    OrWhere(whs) -> prp_stm |> where_apply_logical_operator("OR", whs)
+    NotWhere(wh) -> {
       prp_stm
       |> prepared_statement.append_sql("NOT (")
-      |> where_apply(prt)
+      |> where_apply(wh)
       |> prepared_statement.append_sql(")")
     }
     WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
@@ -393,12 +393,11 @@ fn where_apply(
 
 fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: Where,
+  where wh: Where,
 ) -> PreparedStatement {
-  case prt {
+  case wh {
     NoWhere -> prp_stm
-    prt ->
-      prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(prt)
+    _ -> prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(wh)
   }
 }
 
@@ -488,20 +487,20 @@ fn where_apply_param(
 fn where_apply_logical_operator(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
-  parts prts: List(Where),
+  where whs: List(Where),
 ) -> PreparedStatement {
   let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
-  prts
+  whs
   |> list.fold(
     prp_stm,
-    fn(new_prp_stm: PreparedStatement, prt: Where) -> PreparedStatement {
+    fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
       case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> where_apply(prt)
+        True -> new_prp_stm |> where_apply(wh)
         False ->
           new_prp_stm
           |> prepared_statement.append_sql(" " <> oprtr <> " ")
-          |> where_apply(prt)
+          |> where_apply(wh)
       }
     },
   )
@@ -597,6 +596,39 @@ fn where_between_apply(
 pub type GroupBy {
   NoGroupBy
   GroupBy(columns: List(String))
+}
+
+pub fn group_by_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  group_by grpb: GroupBy,
+) -> PreparedStatement {
+  case grpb {
+    NoGroupBy -> prp_stm
+    GroupBy(grpbs) ->
+      prp_stm
+      |> prepared_statement.append_sql(" GROUP BY ")
+      |> group_by_apply(grpbs)
+  }
+}
+
+fn group_by_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  group_bys grpbs: List(String),
+) -> PreparedStatement {
+  case grpbs {
+    [] -> prp_stm
+    _ ->
+      grpbs
+      |> list.fold(
+        prp_stm,
+        fn(new_prp_stm: PreparedStatement, s: String) -> PreparedStatement {
+          case new_prp_stm == prp_stm {
+            True -> new_prp_stm |> prepared_statement.append_sql(s)
+            False -> new_prp_stm |> prepared_statement.append_sql(", " <> s)
+          }
+        },
+      )
+  }
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

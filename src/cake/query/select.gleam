@@ -1,8 +1,9 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type LimitOffset,
   type OrderByDirection, type Query, type Select, type SelectValue, type Selects,
-  type Where, Joins, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimitNoOffset,
-  NoSelects, NoWhere, OrderByColumn, Select, SelectQuery, Selects,
+  type Where, GroupBy, Joins, NoEpilog, NoFrom, NoGroupBy, NoJoins,
+  NoLimitNoOffset, NoSelects, NoWhere, OrderByColumn, Select, SelectQuery,
+  Selects,
 }
 import cake/param
 import gleam/list
@@ -128,34 +129,6 @@ pub fn get_selects(query qry: Select) -> Selects {
   qry.selects
 }
 
-// ▒▒▒ WHERE ▒▒▒
-
-pub fn where(query qry: Select, where whr: Where) -> Select {
-  Select(..qry, where: whr)
-}
-
-pub fn or_where(query qry: Select, where whr: Where) -> Select {
-  let new_where = query.OrWhere([qry.where, whr])
-  Select(..qry, where: new_where)
-}
-
-// TODO
-// pub fn xor_where(
-//   query qry: Select,
-//   where whr: Where,
-// ) -> Select {
-//   let new_where = query.XorWhere([qry.where, whr])
-//   Select(..qry, where: new_where)
-// }
-
-pub fn where_replace(query qry: Select, where whr: Where) -> Select {
-  Select(..qry, where: whr)
-}
-
-pub fn get_where(query qry: Select) -> Where {
-  qry.where
-}
-
 // ▒▒▒ JOIN ▒▒▒
 
 pub fn join(query qry: Select, join_part prt: Join) -> Select {
@@ -188,6 +161,63 @@ pub fn joins_remove(query qry: Select) -> Select {
 
 pub fn get_joins(query qry: Select) -> Joins {
   qry.joins
+}
+
+// ▒▒▒ WHERE ▒▒▒
+
+pub fn where(query qry: Select, where whr: Where) -> Select {
+  Select(..qry, where: whr)
+}
+
+pub fn or_where(query qry: Select, where whr: Where) -> Select {
+  let new_where = query.OrWhere([qry.where, whr])
+  Select(..qry, where: new_where)
+}
+
+// TODO
+// pub fn xor_where(
+//   query qry: Select,
+//   where whr: Where,
+// ) -> Select {
+//   let new_where = query.XorWhere([qry.where, whr])
+//   Select(..qry, where: new_where)
+// }
+
+pub fn where_replace(query qry: Select, where whr: Where) -> Select {
+  Select(..qry, where: whr)
+}
+
+pub fn get_where(query qry: Select) -> Where {
+  qry.where
+}
+
+// ▒▒▒ GROUP BY ▒▒▒
+
+pub fn group_by(query qry: Select, group_by grpb: String) -> Select {
+  case qry.group_by {
+    NoGroupBy -> Select(..qry, group_by: GroupBy([grpb]))
+    GroupBy(grpbs) ->
+      Select(..qry, group_by: GroupBy(grpbs |> list.append([grpb])))
+  }
+}
+
+pub fn group_by_replace(query qry: Select, group_by grpb: String) -> Select {
+  Select(..qry, group_by: GroupBy([grpb]))
+}
+
+pub fn groups_by(query qry: Select, group_bys grpbs: List(String)) -> Select {
+  case qry.group_by {
+    NoGroupBy -> Select(..qry, group_by: GroupBy(grpbs))
+    GroupBy(grpbs) ->
+      Select(..qry, group_by: GroupBy(grpbs |> list.append(grpbs)))
+  }
+}
+
+pub fn group_bys_replace(
+  query qry: Select,
+  group_bys grpbs: List(String),
+) -> Select {
+  Select(..qry, group_by: GroupBy(grpbs))
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒

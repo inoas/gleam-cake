@@ -6,6 +6,8 @@
 ////
 //// Becaue of this difference, WHERE can refer to columns that are not part of the GROUP BY clause, while HAVING cannot.
 ////
-//// Please use where.gleam instead of this module.
+//// Please use where.gleam instead of this module to specify HAVING constraints.
+////
+//// TODO: Add unit tests for specifing HAVING.
 ////
 

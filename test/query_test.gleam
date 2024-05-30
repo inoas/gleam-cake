@@ -33,3 +33,18 @@ pub fn query_where_between_sqlite_test() {
   |> to_string
   |> birdie.snap("query_where_between_sqlite_test")
 }
+
+fn query_group_by_setup() {
+  f.table(name: "cats")
+  |> s.new_from
+  |> s.selects([s.col("name"), s.col("MAX(age)")])
+  |> s.group_by("id")
+  |> s.group_by("age")
+  |> s.group_bys_replace(["name", "breed"])
+}
+
+pub fn query_group_by_test() {
+  query_group_by_setup()
+  |> to_string
+  |> birdie.snap("query_group_by_test")
+}
