@@ -591,10 +591,9 @@ fn where_between_apply(
 // │  Group By                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO: implemenet
-
 pub type GroupBy {
   NoGroupBy
+  // TODO: maybe use a Column type?
   GroupBy(columns: List(String))
 }
 
@@ -843,6 +842,14 @@ fn epilog_apply(
 // │  Fragment                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+// TODO: create injection checker, something like:
+//
+// gleam run --module cake/sql-injection-check -- ./src
+//
+// This could parse the gleam source and find spots
+// where fragments are used and check if the inserted
+// values are gleam constants only.
+//
 /// Fragments are used to insert raw SQL into the query.
 ///
 /// NOTICE: Injecting input data into fragments is only safe when using
@@ -851,8 +858,6 @@ fn epilog_apply(
 ///
 ///          As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS
 ///          for any `fragment`-field string.
-///
-///          TODO can erlang at runtime check if a given argument is a constant?
 ///
 pub type Fragment {
   FragmentLiteral(fragment: String)
@@ -911,21 +916,25 @@ fn fragment_apply(
   case frgmt {
     FragmentLiteral(fragment: frgmt) ->
       prp_stm |> prepared_statement.append_sql(frgmt)
+    FragmentPrepared(fragment: frgmt, params: []) ->
+      prp_stm |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: prms) -> {
       let frgmts = frgmt |> fragment_prepared_split_string
       let frgmt_plchldr_count = frgmts |> fragment_count_placeholders
       let prms_count = prms |> list.length
       // Fill up or reduce params to match the given number of placeholders
+      //
       // This is likely a user error that cannot be catched by
-      // the type system, but instead of crashing we do the best we can.
-      // ´fragment.prepared()` should be used with caution and will
-      // warn about the mismatch.
+      // the type system, but instead of crashing we do the best we can:
+      //
+      // For the user ´fragment.prepared()` should be used with caution and
+      // will warn about the mismatch at runtime.
       let prms = case frgmt_plchldr_count |> int.compare(with: prms_count) {
         order.Eq -> prms
         order.Lt -> {
           // If there are more params than placeholders, we take the first
-          // n params where n is the number of placeholders, and discard the
-          // rest.
+          // `n` params where `n` is the number of placeholders, and discard
+          // the rest.
           let missing_placeholders = prms_count - frgmt_plchldr_count
           prms |> list.take(missing_placeholders + 1)
         }
@@ -934,8 +943,8 @@ fn fragment_apply(
           // param until the number of placeholders is reached.
           let missing_params = frgmt_plchldr_count - prms_count
           // At this point one can assume a non-empty-list for the params
-          // because `fragment.prepared()` converts a call with 0
-          // placeholders andor 0 params to `FragmentLiteral` which needs
+          // because `fragment.prepared()` converts a call with `0`
+          // placeholders andor `0` params to `FragmentLiteral` which needs
           // neither placeholders nor params.
           let assert Ok(last_item) = list.last(prms)
           let repeated_last_item = last_item |> list.repeat(missing_params)
@@ -943,7 +952,7 @@ fn fragment_apply(
         }
       }
 
-      let #(new_prp_stm, param_rest_should_be_empty) =
+      let #(new_prp_stm, param_rest) =
         frgmts
         |> list.fold(
           #(prp_stm, prms),
@@ -976,8 +985,14 @@ fn fragment_apply(
           },
         )
 
-      // Sanity runtime check that all parameters have been used.
-      let assert [] = param_rest_should_be_empty
+      let _sanity_check_all_params_have_been_used = case param_rest {
+        [] -> True
+        _ -> {
+          let crash_msg =
+            "The number of placeholders in the fragment does not match the number of parameters. This is likely a user error. Please check the fragment and the parameters."
+          panic as crash_msg
+        }
+      }
 
       new_prp_stm
     }
