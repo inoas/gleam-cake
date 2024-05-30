@@ -1,6 +1,5 @@
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
-import cake/stdlib/listx
 import gleam/int
 import gleam/list
 import gleam/order
@@ -85,8 +84,7 @@ pub type Combined {
     queries: List(Select),
     // TODO: split up and wrap
     limit_offset: LimitOffset,
-    // TODO: Wrap this
-    order_by: List(OrderBy),
+    order_by: OrderBy,
     // Epilog allows you to append raw SQL to the end of queries.
     // One should NEVER put raw user data into the epilog.
     epilog: Epilog,
@@ -118,7 +116,7 @@ pub fn combined_query_new(
     kind: knd,
     queries: _,
     limit_offset: NoLimitNoOffset,
-    order_by: [],
+    order_by: NoOrderBy,
     epilog: NoEpilog,
   )
 }
@@ -131,7 +129,7 @@ fn combined_query_remove_order_by_clause(
   // TODO: Would be very cool if that code part would be eliminated
   //       depending on the environment.
   qrys
-  |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: []) })
+  |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: NoOrderBy) })
 }
 
 pub fn combined_get_queries(combined_query qry: Combined) -> List(Select) {
@@ -144,8 +142,8 @@ pub fn combined_order_by(
   append appnd: Bool,
 ) -> Combined {
   case appnd {
-    True -> Combined(..qry, order_by: qry.order_by |> listx.append_item(ordb))
-    False -> Combined(..qry, order_by: listx.wrap(ordb))
+    True -> Combined(..qry, order_by: order_by_append(qry.order_by, ordb))
+    False -> Combined(..qry, order_by: ordb)
   }
 }
 
@@ -181,8 +179,7 @@ pub type Select {
     where: Where,
     group_by: GroupBy,
     having: Where,
-    // TODO: wrap it as OrderBys{NoOrders OrderBys(List(OrderBy)}
-    order_by: List(OrderBy),
+    order_by: OrderBy,
     // TODO: split up and wrap
     limit_offset: LimitOffset,
     epilog: Epilog,
@@ -197,8 +194,28 @@ pub fn select_order_by(
   append appnd: Bool,
 ) -> Select {
   case appnd {
-    True -> Select(..qry, order_by: qry.order_by |> listx.append_item(ordb))
-    False -> Select(..qry, order_by: listx.wrap(ordb))
+    True -> Select(..qry, order_by: order_by_append(qry.order_by, ordb))
+    False -> Select(..qry, order_by: ordb)
+  }
+}
+
+fn order_by_append(query_ordb: OrderBy, new_ordb: OrderBy) -> OrderBy {
+  case query_ordb {
+    NoOrderBy -> new_ordb
+    OrderBy(qry_ordb_items) -> {
+      let new_ordb_items = case new_ordb {
+        NoOrderBy -> []
+        OrderBy(new_ordb) -> new_ordb
+      }
+      let new_ordb_item = case qry_ordb_items {
+        [] -> new_ordb_items
+        _ -> qry_ordb_items |> list.append(new_ordb_items)
+      }
+      case new_ordb_item {
+        [] -> NoOrderBy
+        _ -> OrderBy(new_ordb_item)
+      }
+    }
   }
 }
 
@@ -714,19 +731,15 @@ fn join_apply(
 // │  Order By                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO:
-// type OrderByValue {
-//   OrderByColumn(column: String)
-//   OrderByParam(param: Param)
-//   OrderByFragment(fragment: Fragment)
-// }
-
-// pub type OrderBy {
-//   OrderBy(val: String, direction: OrderByDirection)
-// }
-
 pub type OrderBy {
+  NoOrderBy
+  OrderBy(values: List(OrderByValue))
+}
+
+pub type OrderByValue {
   OrderByColumn(column: String, direction: OrderByDirection)
+  OrderByParam(param: Param, direction: OrderByDirection)
+  OrderByFragment(fragment: Fragment, direction: OrderByDirection)
 }
 
 pub type OrderByDirection {
@@ -738,25 +751,58 @@ pub type OrderByDirection {
 
 fn order_by_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
-  order_bys ordbs: List(OrderBy),
+  order_by ordb: OrderBy,
 ) -> PreparedStatement {
-  case ordbs {
-    [] -> ""
-    _ -> {
-      let order_bys =
-        ordbs
-        |> list.map(fn(ordrb: OrderBy) -> String {
-          ordrb.column <> " " <> order_by_to_sql(ordrb)
-        })
-
-      " ORDER BY " <> string.join(order_bys, ", ")
+  case ordb {
+    NoOrderBy -> prp_stm
+    OrderBy(ordbs) -> {
+      case ordbs {
+        [] -> prp_stm
+        vs -> {
+          let prp_stm = prp_stm |> prepared_statement.append_sql(" ORDER BY ")
+          vs
+          |> list.fold(
+            prp_stm,
+            fn(new_prp_stm: PreparedStatement, v: OrderByValue) -> PreparedStatement {
+              case new_prp_stm == prp_stm {
+                True -> new_prp_stm |> order_by_value_apply(v)
+                False ->
+                  new_prp_stm
+                  |> prepared_statement.append_sql(", ")
+                  |> order_by_value_apply(v)
+              }
+            },
+          )
+        }
+      }
     }
   }
-  |> prepared_statement.append_sql(prp_stm, _)
 }
 
-fn order_by_to_sql(order_by ordbpt: OrderBy) -> String {
-  case ordbpt.direction {
+fn order_by_value_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  value v: OrderByValue,
+) -> PreparedStatement {
+  case v {
+    OrderByColumn(col, dir) ->
+      prp_stm
+      |> prepared_statement.append_sql(col)
+      |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
+    OrderByParam(param, dir) ->
+      prp_stm
+      |> prepared_statement.append_param(param)
+      |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
+    OrderByFragment(frgmnt, dir) ->
+      prp_stm
+      |> fragment_apply(frgmnt)
+      |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
+  }
+}
+
+fn order_by_direction_to_sql(
+  order_by_direction ordbd: OrderByDirection,
+) -> String {
+  case ordbd {
     Asc -> "ASC NULLS LAST"
     Desc -> "DESC NULLS LAST"
     AscNullsFirst -> "ASC NULLS FIRST"
@@ -842,14 +888,18 @@ fn epilog_apply(
 // │  Fragment                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO: create injection checker, something like:
+// TODO: Create injection checker, something like:
 //
-// gleam run --module cake/sql-injection-check -- ./src
+// `gleam run --module cake/sql-injection-check -- ./src`
 //
 // This could parse the gleam source and find spots
 // where fragments are used and check if the inserted
 // values are gleam constants only.
 //
+// This solution could potentially be extended to a Literal type
+// that where a function takes a Literal the wrapped value (LiteralString, etc)
+// must be a gleam constant - this could work across this whole query builder.
+
 /// Fragments are used to insert raw SQL into the query.
 ///
 /// NOTICE: Injecting input data into fragments is only safe when using

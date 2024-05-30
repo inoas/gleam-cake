@@ -1,7 +1,7 @@
 import cake/internal/query.{
   type Combined, type LimitOffset, type OrderByDirection, type Query,
   type Select, Combined, CombinedQuery, Except, ExceptAll, Intersect,
-  IntersectAll, OrderByColumn, Union, UnionAll,
+  IntersectAll, OrderBy, OrderByColumn, Union, UnionAll,
 }
 
 pub fn to_query(combined_query qry: Combined) -> Query {
@@ -77,16 +77,27 @@ fn map_order_by_direction_part_constructor(
 }
 
 pub fn order_asc(query qry: Combined, by ordb: String) -> Combined {
-  qry |> query.combined_order_by(OrderByColumn(ordb, query.Asc), True)
+  qry
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    True,
+  )
 }
 
 pub fn order_asc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
   qry
-  |> query.combined_order_by(OrderByColumn(ordb, query.AscNullsFirst), True)
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    True,
+  )
 }
 
 pub fn order_asc_replace(query qry: Combined, by ordb: String) -> Combined {
-  qry |> query.combined_order_by(OrderByColumn(ordb, query.Asc), False)
+  qry
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    False,
+  )
 }
 
 pub fn order_asc_nulls_first_replace(
@@ -94,20 +105,34 @@ pub fn order_asc_nulls_first_replace(
   by ordb: String,
 ) -> Combined {
   qry
-  |> query.combined_order_by(OrderByColumn(ordb, query.AscNullsFirst), False)
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    False,
+  )
 }
 
 pub fn order_desc(query qry: Combined, by ordb: String) -> Combined {
-  qry |> query.combined_order_by(OrderByColumn(ordb, query.Desc), True)
+  qry
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    True,
+  )
 }
 
 pub fn order_desc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
   qry
-  |> query.combined_order_by(OrderByColumn(ordb, query.DescNullsFirst), True)
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    True,
+  )
 }
 
 pub fn order_desc_replace(query qry: Combined, by ordb: String) -> Combined {
-  qry |> query.combined_order_by(OrderByColumn(ordb, query.Desc), False)
+  qry
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    False,
+  )
 }
 
 pub fn order_desc_nulls_first_replace(
@@ -115,7 +140,10 @@ pub fn order_desc_nulls_first_replace(
   by ordb: String,
 ) -> Combined {
   qry
-  |> query.combined_order_by(OrderByColumn(ordb, query.DescNullsFirst), False)
+  |> query.combined_order_by(
+    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    False,
+  )
 }
 
 pub fn order(
@@ -124,7 +152,8 @@ pub fn order(
   direction dir: CombinedQueryOrderByDirection,
 ) -> Combined {
   let dir = dir |> map_order_by_direction_part_constructor
-  qry |> query.combined_order_by(OrderByColumn(ordb, dir), True)
+  qry
+  |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
 
 pub fn order_replace(
@@ -133,5 +162,6 @@ pub fn order_replace(
   direction dir: CombinedQueryOrderByDirection,
 ) -> Combined {
   let dir = dir |> map_order_by_direction_part_constructor
-  qry |> query.combined_order_by(OrderByColumn(ordb, dir), False)
+  qry
+  |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
