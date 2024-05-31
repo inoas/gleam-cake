@@ -12,10 +12,12 @@ gleam = ">= 1.2.0 and < 2.0.0"
 
 [dependencies]
 # act
+# aragorn2
 # bigben
 # blah
 # carpenter
 # cleam
+# commonmark
 # dot_env
 # dotenv_gleam
 # envoy
@@ -25,11 +27,15 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # glam
 # gleam_json
 # gleamy_structures
+# gleamyshell
 # glearray
 # glemo
 # glenvy
+# glevenshtein
 # gluid
+# go_over
 # gsv
+# hardcache
 # html_lustre_converter
 # kielet
 # libsql
@@ -38,6 +44,7 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # lustre_ssg
 # migrant
 # mist
+# mysql-otp maybe, but needs a gleam wrapper first
 # nibble
 # non_empty_list
 # parallel_map
@@ -50,11 +57,12 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # shellout
 # spinner
 # stacky
+# storch
+# tinyroute
 # tom
 # valid
 # wisp
 # youid
-# mysql-otp maybe, but needs a gleam wrapper first
 gleam_erlang = ">= 0.25.0 and < 2.0.0"
 gleam_pgo = ">= 0.9.0 and < 2.0.0"
 gleam_stdlib = ">= 0.37.0 and < 2.0.0"

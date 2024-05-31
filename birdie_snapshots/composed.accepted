@@ -21,7 +21,7 @@ Select(
       NoWhere,
       NoGroupBy,
       NoWhere,
-      [],
+      NoOrderBy,
       NoLimitNoOffset,
       NoEpilog,
     )),
@@ -51,7 +51,7 @@ Select(
         NoWhere,
         NoGroupBy,
         NoWhere,
-        [],
+        NoOrderBy,
         NoLimitNoOffset,
         NoEpilog,
       ))),
@@ -81,7 +81,9 @@ Select(
   ]),
   NoGroupBy,
   NoWhere,
-  [OrderByColumn("cats.age", Asc)],
+  OrderBy([
+    OrderByColumn("cats.age", Asc),
+  ]),
   LimitOffset(1, 0),
   NoEpilog,
 )

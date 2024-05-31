@@ -17,12 +17,12 @@ Select(
   )),
   NoGroupBy,
   NoWhere,
-  [
+  OrderBy([
     OrderByColumn(
       "will_be_removed",
       Asc,
     ),
-  ],
+  ]),
   NoLimitNoOffset,
   NoEpilog,
 )

@@ -1,3 +1,5 @@
+// FROM -> WHERE -> GROUP BY -> HAVING -> DISTINCT -> SELECT -> UNION -> ORDER BY -> LIMIT
+
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import gleam/int
@@ -337,9 +339,9 @@ pub type Where {
   OrWhere(parts: List(Where))
   // TODO: XorWhere(List(Where))
   NotWhere(part: Where)
+  WhereExistsInSubQuery(sub_query: Query)
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
-  // WhereExistsInSubQuery(sub_query: Query)
 }
 
 pub type WhereValue {
@@ -409,6 +411,8 @@ fn where_apply(
     WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
+    WhereExistsInSubQuery(sub_query) ->
+      prp_stm |> where_exists_in_sub_query_apply(sub_query)
   }
 }
 
@@ -606,6 +610,16 @@ fn where_between_apply(
   }
 
   prp_stm
+}
+
+fn where_exists_in_sub_query_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  sub_query qry: Query,
+) -> PreparedStatement {
+  prp_stm
+  |> prepared_statement.append_sql(" EXISTS (")
+  |> builder_apply(qry)
+  |> prepared_statement.append_sql(")")
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

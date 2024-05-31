@@ -14,7 +14,7 @@ Select(
   NoWhere,
   GroupBy(["name", "breed"]),
   NoWhere,
-  [],
+  NoOrderBy,
   NoLimitNoOffset,
   NoEpilog,
 )

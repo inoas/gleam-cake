@@ -23,7 +23,7 @@ Select(
   ]),
   NoGroupBy,
   NoWhere,
-  [],
+  NoOrderBy,
   NoLimitNoOffset,
   NoEpilog,
 )

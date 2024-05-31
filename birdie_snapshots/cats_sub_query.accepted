@@ -11,7 +11,7 @@ Select(
   NoWhere,
   NoGroupBy,
   NoWhere,
-  [],
+  NoOrderBy,
   NoLimitNoOffset,
   NoEpilog,
 )
