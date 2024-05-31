@@ -9,7 +9,7 @@ import pprint.{format as to_string}
 
 fn query_where_between_setup() {
   f.table(name: "cats")
-  |> s.new_from
+  |> s.from_from
   |> s.where(w.col("age") |> w.between(w.int(10), w.int(20)))
 }
 
@@ -45,7 +45,7 @@ pub fn query_where_between_sqlite_run_test() {
 
 fn query_group_by_setup() {
   f.table(name: "cats")
-  |> s.new_from
+  |> s.from_from
   |> s.selects([s.col("name"), s.col("MAX(age)")])
   |> s.group_by("id")
   |> s.group_by("age")

@@ -41,7 +41,7 @@ pub fn run_dummy_fragment() {
 
   let cats_query =
     f.table(name: "cats")
-    |> s.new_from
+    |> s.from
 
   let select_query =
     cats_query
@@ -90,11 +90,11 @@ pub fn run_dummy_select() {
 
   let cats_sub_query =
     f.table(name: "cats")
-    |> s.new_from
+    |> s.from
 
   let dogs_sub_query =
     f.table(name: "dogs")
-    |> s.new_from
+    |> s.from
 
   let cats_t = q.qualified_identifier("cats")
   let owners_t = q.qualified_identifier("owners")
@@ -111,7 +111,7 @@ pub fn run_dummy_select() {
     cats_sub_query
     |> s.to_query
     |> f.sub_query(alias: "cats")
-    |> s.new_from
+    |> s.from
     |> s.selects([
       s.col(cats_t("name")),
       s.col(cats_t("age")),
@@ -166,7 +166,7 @@ pub fn run_dummy_union_all() {
 
   let select_query =
     f.table(name: "cats")
-    |> s.new_from
+    |> s.from
     |> s.selects([s.col("name"), s.col("age")])
 
   let select_query_a =

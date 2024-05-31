@@ -11,8 +11,7 @@ import test_helper/sqlite_test_helper
 const const_field = "age"
 
 fn selects_query() {
-  f.table(name: "cats")
-  |> sut.new_from
+  sut.from(f.table("cats"))
   |> sut.selects([
     sut.col("name"),
     // sut.bool(True),

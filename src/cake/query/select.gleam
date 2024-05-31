@@ -42,25 +42,25 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 // ▒▒▒ NEW ▒▒▒
 
-pub fn new(from frm: From, selects slcts: List(SelectValue)) -> Select {
-  let slcts = case slcts {
-    [] -> NoSelects
-    _ -> slcts |> Selects
-  }
-  Select(
-    selects: slcts,
-    from: frm,
-    joins: NoJoins,
-    where: NoWhere,
-    group_by: NoGroupBy,
-    having: NoWhere,
-    order_by: NoOrderBy,
-    limit_offset: NoLimitNoOffset,
-    epilog: NoEpilog,
-  )
-}
+// pub fn new(from frm: From, selects slcts: List(SelectValue)) -> Select {
+//   let slcts = case slcts {
+//     [] -> NoSelects
+//     _ -> slcts |> Selects
+//   }
+//   Select(
+//     selects: slcts,
+//     from: frm,
+//     joins: NoJoins,
+//     where: NoWhere,
+//     group_by: NoGroupBy,
+//     having: NoWhere,
+//     order_by: NoOrderBy,
+//     limit_offset: NoLimitNoOffset,
+//     epilog: NoEpilog,
+//   )
+// }
 
-pub fn new_from(from frm: From) -> Select {
+pub fn from(from frm: From) -> Select {
   Select(
     selects: NoSelects,
     from: frm,
