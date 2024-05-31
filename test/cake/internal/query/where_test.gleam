@@ -40,7 +40,6 @@ pub fn where_execution_result_test() {
   let expected_pgo = where_query() |> postgres_test_helper.setup_and_run
   let expected_sql = where_query() |> sqlite_test_helper.setup_and_run
 
-  where_query()
   #(expected_pgo, expected_sql)
   |> to_string
   |> birdie.snap("where_execution_result_test")
