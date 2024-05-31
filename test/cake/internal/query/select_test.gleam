@@ -47,7 +47,6 @@ pub fn selects_execution_result_test() {
   let pgo = selects_query() |> postgres_test_helper.setup_and_run
   let lit = selects_query() |> sqlite_test_helper.setup_and_run
 
-  selects_query()
   #(pgo, lit)
   |> to_string
   |> birdie.snap("selects_execution_result_test")
