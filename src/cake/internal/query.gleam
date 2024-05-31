@@ -271,13 +271,19 @@ fn select_clause_apply(
   }
 }
 
+import gleam/io
+
 fn select_value_apply(
   prepared_statement prp_stm: PreparedStatement,
   value v: SelectValue,
 ) -> PreparedStatement {
   case v {
     SelectColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-    SelectParam(param) -> prp_stm |> prepared_statement.append_param(param)
+    SelectParam(prm) -> {
+      let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
+
+      prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+    }
     SelectFragment(frgmnt) -> prp_stm |> fragment_apply(frgmnt)
     SelectAlias(v, als) ->
       prp_stm

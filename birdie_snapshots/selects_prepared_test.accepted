@@ -1,0 +1,30 @@
+---
+version: 1.1.6
+title: selects_prepared_test
+file: ./test/cake/internal/query/select_test.gleam
+test_name: selects_prepared_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT name, $1, $2, $3, $4, 42, name AS also_name FROM cats",
+    [
+      BoolParam(True),
+      FloatParam(1.0),
+      IntParam(1),
+      StringParam("hello"),
+    ],
+    4,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name, ?1, ?2, ?3, ?4, 42, name AS also_name FROM cats",
+    [
+      BoolParam(True),
+      FloatParam(1.0),
+      IntParam(1),
+      StringParam("hello"),
+    ],
+    4,
+  ),
+)

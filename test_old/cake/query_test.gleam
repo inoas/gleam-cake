@@ -1,6 +1,7 @@
 import birdie
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
+import cake/internal/test_helper/sqlite_helper
 import cake/query/from as f
 import cake/query/select as s
 import cake/query/where as w
@@ -26,12 +27,20 @@ pub fn query_where_between_postgres_test() {
   |> birdie.snap("query_where_between_postgres_test")
 }
 
-pub fn query_where_between_sqlite_test() {
+pub fn query_where_between_sqlite_prepared_statement_test() {
   query_where_between_setup()
   |> s.to_query
   |> sqlite_adapter.to_prepared_statement
   |> to_string
-  |> birdie.snap("query_where_between_sqlite_test")
+  |> birdie.snap("query_where_between_sqlite_prepared_statement_test")
+}
+
+pub fn query_where_between_sqlite_run_test() {
+  query_where_between_setup()
+  |> s.to_query
+  |> sqlite_helper.run
+  |> to_string
+  |> birdie.snap("query_where_between_sqlite_run_test")
 }
 
 fn query_group_by_setup() {

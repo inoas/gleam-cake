@@ -2,6 +2,7 @@ import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import cake/stdlib/iox
+import gleam/dynamic
 import gleam/list
 import sqlight.{type Value}
 
@@ -39,6 +40,32 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
 
   sql
   |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
+}
+
+pub fn run_query_with_dynamic_decoder(db_connection db_conn, query qry: Query) {
+  let prp_stm = to_prepared_statement(qry)
+
+  let sql =
+    prepared_statement.get_sql(prp_stm)
+    |> iox.dbg
+
+  let params = prepared_statement.get_params(prp_stm)
+
+  let db_params =
+    params
+    |> list.map(fn(param: Param) -> Value {
+      case param {
+        BoolParam(param) -> sqlight.bool(param)
+        FloatParam(param) -> sqlight.float(param)
+        IntParam(param) -> sqlight.int(param)
+        StringParam(param) -> sqlight.text(param)
+      }
+    })
+    |> iox.print_tap("Params: ")
+    |> iox.dbg
+
+  sql
+  |> sqlight.query(on: db_conn, with: db_params, expecting: dynamic.dynamic)
 }
 
 pub fn execute(query: String, conn) {
