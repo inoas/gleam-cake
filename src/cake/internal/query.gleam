@@ -271,8 +271,6 @@ fn select_clause_apply(
   }
 }
 
-import gleam/io
-
 fn select_value_apply(
   prepared_statement prp_stm: PreparedStatement,
   value v: SelectValue,
@@ -345,6 +343,7 @@ pub type Where {
   OrWhere(parts: List(Where))
   // TODO: XorWhere(List(Where))
   NotWhere(part: Where)
+  RawWhereFragment(fragment: Fragment)
   WhereExistsInSubQuery(sub_query: Query)
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
@@ -417,6 +416,7 @@ fn where_apply(
     WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
+    RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
     WhereExistsInSubQuery(sub_query) ->
       prp_stm |> where_exists_in_sub_query_apply(sub_query)
   }
@@ -436,7 +436,7 @@ fn where_apply_literal(
   prepared_statement prp_stm: PreparedStatement,
   value v: WhereValue,
   literal lt: String,
-) {
+) -> PreparedStatement {
   case v {
     WhereColumn(col) ->
       prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
@@ -455,7 +455,7 @@ fn where_comparison_apply(
   value_a val_a: WhereValue,
   operator oprtr: String,
   value_b val_b: WhereValue,
-) {
+) -> PreparedStatement {
   case val_a, val_b {
     WhereColumn(col_a), WhereColumn(col_b) ->
       prp_stm

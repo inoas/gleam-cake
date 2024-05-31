@@ -48,7 +48,7 @@ pub fn run_dummy_fragment() {
     |> s.where(
       w.col("name")
       |> w.eq(
-        w.fragment(
+        w.value_fragment(
           frgmt.prepared(
             "LOWER("
               <> frgmt.placeholder

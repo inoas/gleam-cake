@@ -1,0 +1,36 @@
+---
+version: 1.1.6
+title: where_test
+file: ./test/cake/internal/query/where_test.gleam
+test_name: where_test
+---
+#(
+  SelectQuery(Select(
+    NoSelects,
+    FromTable("cats"),
+    NoJoins,
+    WhereEqual(
+      WhereParam(StringParam("Hello")),
+      WhereColumn("name"),
+    ),
+    NoGroupBy,
+    NoWhere,
+    NoOrderBy,
+    NoLimitNoOffset,
+    NoEpilog,
+  )),
+  SelectQuery(Select(
+    NoSelects,
+    FromTable("cats"),
+    NoJoins,
+    WhereEqual(
+      WhereParam(StringParam("Hello")),
+      WhereColumn("name"),
+    ),
+    NoGroupBy,
+    NoWhere,
+    NoOrderBy,
+    NoLimitNoOffset,
+    NoEpilog,
+  )),
+)

@@ -1,4 +1,6 @@
-import cake/internal/query.{type Fragment, type Where, type WhereValue}
+import cake/internal/query.{
+  type Fragment, type Where, type WhereValue, RawWhereFragment,
+}
 import cake/param
 
 pub fn col(name: String) -> WhereValue {
@@ -109,6 +111,10 @@ pub fn similar(value val: WhereValue, to pttrn: String) -> Where {
   val |> query.WhereSimilar(pttrn)
 }
 
-pub fn fragment(fragment frgmt: Fragment) -> WhereValue {
+pub fn fragment(fragment frgmt: Fragment) -> Where {
+  RawWhereFragment(frgmt)
+}
+
+pub fn value_fragment(fragment frgmt: Fragment) -> WhereValue {
   frgmt |> query.WhereFragment
 }

@@ -8,7 +8,7 @@ import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 
-const literal = "age"
+const const_field = "age"
 
 fn selects_query() {
   f.table(name: "cats")
@@ -19,7 +19,7 @@ fn selects_query() {
     // sut.float(1.0),
     // sut.int(1),
     sut.string("hello"),
-    sut.fragment(frgmt.literal(literal)),
+    sut.fragment(frgmt.literal(const_field)),
     sut.alias(sut.col("age"), "years_since_birth"),
   ])
   |> sut.to_query
@@ -50,8 +50,5 @@ pub fn selects_execution_result_test() {
   selects_query()
   #(expected_pgo, expected_sql)
   |> to_string
-  |> io.debug()
   |> birdie.snap("selects_execution_result_test")
 }
-
-import gleam/io

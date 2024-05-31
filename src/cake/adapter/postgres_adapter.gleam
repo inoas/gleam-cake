@@ -31,9 +31,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
 
-  let sql =
-    prepared_statement.get_sql(prp_stm)
-    |> iox.dbg
+  let sql = prepared_statement.get_sql(prp_stm)
+  // |> iox.dbg
 
   let params = prepared_statement.get_params(prp_stm)
 
@@ -49,7 +48,7 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
       }
     })
     |> iox.print_tap("Params: ")
-    |> iox.dbg
+  // |> iox.dbg
 
   let result =
     sql
