@@ -1,21 +1,18 @@
 ---
 version: 1.1.6
-title: selects_query_test
+title: selects_test
 file: ./test/cake/internal/query/select_test.gleam
-test_name: selects_query_test
+test_name: selects_test
 ---
 #(
   SelectQuery(Select(
     Selects([
       SelectColumn("name"),
-      SelectParam(BoolParam(True)),
-      SelectParam(FloatParam(1.0)),
-      SelectParam(IntParam(1)),
       SelectParam(StringParam("hello")),
-      SelectFragment(FragmentLiteral("42")),
+      SelectFragment(FragmentLiteral("age")),
       SelectAlias(
-        SelectColumn("name"),
-        "also_name",
+        SelectColumn("age"),
+        "years_since_birth",
       ),
     ]),
     FromTable("cats"),
@@ -30,14 +27,11 @@ test_name: selects_query_test
   SelectQuery(Select(
     Selects([
       SelectColumn("name"),
-      SelectParam(BoolParam(True)),
-      SelectParam(FloatParam(1.0)),
-      SelectParam(IntParam(1)),
       SelectParam(StringParam("hello")),
-      SelectFragment(FragmentLiteral("42")),
+      SelectFragment(FragmentLiteral("age")),
       SelectAlias(
-        SelectColumn("name"),
-        "also_name",
+        SelectColumn("age"),
+        "years_since_birth",
       ),
     ]),
     FromTable("cats"),
