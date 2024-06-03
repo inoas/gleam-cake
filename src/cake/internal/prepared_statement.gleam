@@ -17,14 +17,14 @@ pub fn new(prefix prfx: String) -> PreparedStatement {
 
 pub fn append_sql(
   prepared_statement prp_stm: PreparedStatement,
-  new_sql nw_sql: String,
+  sql nw_sql: String,
 ) {
   PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
 }
 
 pub fn append_param(
   prepared_statement prp_stm: PreparedStatement,
-  new_param nw_prms: Param,
+  param nw_prms: Param,
 ) {
   PreparedStatement(
     ..prp_stm,
@@ -35,8 +35,8 @@ pub fn append_param(
 
 pub fn append_sql_and_param(
   prepared_statement prp_stm: PreparedStatement,
-  new_sql nw_sql: String,
-  new_param nw_prm: Param,
+  sql nw_sql: String,
+  param nw_prm: Param,
 ) {
   PreparedStatement(
     ..prp_stm,
@@ -48,8 +48,8 @@ pub fn append_sql_and_param(
 
 pub fn append_sql_and_params(
   prepared_statement prp_stm: PreparedStatement,
-  new_sql nw_sql: String,
-  new_params nw_prms: List(Param),
+  sql nw_sql: String,
+  params nw_prms: List(Param),
 ) {
   PreparedStatement(
     ..prp_stm,
