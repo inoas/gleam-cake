@@ -240,26 +240,6 @@ pub fn select_order_by(
   }
 }
 
-fn order_by_append(query_ordb: OrderBy, new_ordb: OrderBy) -> OrderBy {
-  case query_ordb {
-    NoOrderBy -> new_ordb
-    OrderBy(qry_ordb_items) -> {
-      let new_ordb_items = case new_ordb {
-        NoOrderBy -> []
-        OrderBy(new_ordb) -> new_ordb
-      }
-      let new_ordb_item = case qry_ordb_items {
-        [] -> new_ordb_items
-        _ -> qry_ordb_items |> list.append(new_ordb_items)
-      }
-      case new_ordb_item {
-        [] -> NoOrderBy
-        _ -> OrderBy(new_ordb_item)
-      }
-    }
-  }
-}
-
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Selects                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
@@ -319,10 +299,7 @@ fn select_value_apply(
 ) -> PreparedStatement {
   case v {
     SelectColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-    SelectParam(prm) -> {
-      let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-      prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
-    }
+    SelectParam(prm) -> prp_stm |> prepared_statement.append_param(prm)
     SelectFragment(frgmnt) -> prp_stm |> fragment_apply(frgmnt)
     SelectAlias(v, als) ->
       prp_stm
@@ -550,11 +527,7 @@ fn where_literal_apply(
   case v {
     WhereColumnValue(col) ->
       prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
-    WhereParamValue(prm) -> {
-      let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-      prp_stm
-      |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
-    }
+    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
     WhereFragmentValue(fragment: frgmt) ->
       prp_stm
       |> fragment_apply(frgmt)
@@ -659,8 +632,7 @@ fn where_param_apply(
   prepared_statement prp_stm: PreparedStatement,
   param prm: Param,
 ) -> PreparedStatement {
-  let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-  prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+  prp_stm |> prepared_statement.append_param(prm)
 }
 
 fn where_sub_query_apply(
@@ -704,10 +676,7 @@ fn where_value_in_values_apply(
   let prp_stm =
     case val {
       WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParamValue(prm) -> {
-        let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
-        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
-      }
+      WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
       WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
       WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
@@ -720,16 +689,16 @@ fn where_value_in_values_apply(
       case v {
         WhereColumnValue(col) ->
           case new_prp_stm == prp_stm {
-            True -> prp_stm |> prepared_statement.append_sql(col)
+            True -> new_prp_stm |> prepared_statement.append_sql(col)
             False -> new_prp_stm |> prepared_statement.append_sql(", " <> col)
           }
-        WhereParamValue(prm) -> {
+        WhereParamValue(prm) ->
           case new_prp_stm == prp_stm {
-            True -> new_prp_stm |> prepared_statement.next_placeholder
-            False -> ", " <> new_prp_stm |> prepared_statement.next_placeholder
+            True -> ""
+            False -> ", "
           }
-          |> prepared_statement.append_sql_and_param(new_prp_stm, _, prm)
-        }
+          |> prepared_statement.append_sql(new_prp_stm, _)
+          |> prepared_statement.append_param(prm)
         WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
         WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
       }
@@ -744,36 +713,27 @@ fn where_between_apply(
   value_b val_b: WhereValue,
   value_c val_c: WhereValue,
 ) -> PreparedStatement {
-  let prp_stm =
-    case val_a {
-      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParamValue(prm) -> {
-        let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
-      }
-      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
-    }
-    |> prepared_statement.append_sql(" BETWEEN ")
+  let prp_stm = case val_a {
+    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
+    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+  }
 
-  let prp_stm =
-    case val_b {
-      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParamValue(prm) -> {
-        let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-        prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
-      }
-      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
-    }
-    |> prepared_statement.append_sql(" AND ")
+  let prp_stm = prp_stm |> prepared_statement.append_sql(" BETWEEN ")
+
+  let prp_stm = case val_b {
+    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
+    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+  }
+
+  let prp_stm = prp_stm |> prepared_statement.append_sql(" AND ")
 
   let prp_stm = case val_c {
     WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) -> {
-      let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
-      prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
-    }
+    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
     WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
     WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
   }
@@ -920,7 +880,6 @@ pub type OrderBy {
 
 pub type OrderByValue {
   OrderByColumn(column: String, direction: OrderByDirection)
-  OrderByParam(param: Param, direction: OrderByDirection)
   OrderByFragment(fragment: Fragment, direction: OrderByDirection)
 }
 
@@ -929,6 +888,26 @@ pub type OrderByDirection {
   Desc
   AscNullsFirst
   DescNullsFirst
+}
+
+fn order_by_append(query_ordb: OrderBy, new_ordb: OrderBy) -> OrderBy {
+  case query_ordb {
+    NoOrderBy -> new_ordb
+    OrderBy(qry_ordb_items) -> {
+      let new_ordb_items = case new_ordb {
+        NoOrderBy -> []
+        OrderBy(new_ordb) -> new_ordb
+      }
+      let new_ordb_item = case qry_ordb_items {
+        [] -> new_ordb_items
+        _ -> qry_ordb_items |> list.append(new_ordb_items)
+      }
+      case new_ordb_item {
+        [] -> NoOrderBy
+        _ -> OrderBy(new_ordb_item)
+      }
+    }
+  }
 }
 
 fn order_by_clause_apply(
@@ -969,11 +948,6 @@ fn order_by_value_apply(
     OrderByColumn(col, dir) ->
       prp_stm
       |> prepared_statement.append_sql(col)
-      |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
-    OrderByParam(param, dir) ->
-      prp_stm
-      // TODO v1 check if this is not buggy
-      |> prepared_statement.append_param(param)
       |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
     OrderByFragment(frgmnt, dir) ->
       prp_stm
@@ -1211,11 +1185,8 @@ fn fragment_apply(
                 // This is safe because we have already checked that the list
                 // is not empty.
                 let assert [prm, ..rest_prms] = acc.1
-                let nxt_plchldr =
-                  new_prp_stm |> prepared_statement.next_placeholder
                 let new_prp_stm =
-                  new_prp_stm
-                  |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+                  new_prp_stm |> prepared_statement.append_param(prm)
 
                 #(new_prp_stm, rest_prms)
               }

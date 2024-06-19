@@ -1,4 +1,7 @@
-// TODO v1 module doc
+//// Prepared Statements protect against SQL injection attacks by ensuring
+//// that any parameters passed to the database are treated as escaped
+//// values rather than raw SQL.
+////
 
 import cake/param.{type Param}
 import gleam/int
@@ -32,50 +35,28 @@ pub fn new(
   )
 }
 
+// pub fn apply_sql_with_param(
+//   prepared_statement prp_stm: PreparedStatement,
+//   apply_sql appl_sql: fn(String) -> String,
+//   param nw_prm: Param,
+// ) {
+//   let new_sql = prp_stm |> next_placeholder |> appl_sql
+//   prp_stm |> append_sql_and_param(new_sql, nw_prm)
+// }
+
+pub fn append_param(
+  prepared_statement prp_stm: PreparedStatement,
+  param nw_prm: Param,
+) {
+  let new_sql = prp_stm |> next_placeholder
+  prp_stm |> append_sql_and_param(new_sql, nw_prm)
+}
+
 pub fn append_sql(
   prepared_statement prp_stm: PreparedStatement,
   sql nw_sql: String,
 ) {
   PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
-}
-
-// TODO v1: this could potentially lead to bugs if the param is not also being used?
-pub fn append_param(
-  prepared_statement prp_stm: PreparedStatement,
-  param nw_prms: Param,
-) {
-  PreparedStatement(
-    ..prp_stm,
-    params: prp_stm.params |> list.append([nw_prms]),
-    index: prp_stm.index + 1,
-  )
-}
-
-// TODO v1: potentially replace this with append_placeholder_and_param calls
-pub fn append_sql_and_param(
-  prepared_statement prp_stm: PreparedStatement,
-  sql nw_sql: String,
-  param nw_prm: Param,
-) {
-  PreparedStatement(
-    ..prp_stm,
-    sql: prp_stm.sql <> nw_sql,
-    params: prp_stm.params |> list.append([nw_prm]),
-    index: prp_stm.index + 1,
-  )
-}
-
-pub fn append_sql_and_params(
-  prepared_statement prp_stm: PreparedStatement,
-  sql nw_sql: String,
-  params nw_prms: List(Param),
-) {
-  PreparedStatement(
-    ..prp_stm,
-    sql: prp_stm.sql <> nw_sql,
-    params: prp_stm.params |> list.append(nw_prms),
-    index: prp_stm.index + list.length(nw_prms),
-  )
 }
 
 pub fn get_prefix(prepared_statement prp_stm: PreparedStatement) -> String {
@@ -90,12 +71,33 @@ pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) 
   prp_stm.params
 }
 
-pub fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
-  prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
-}
-
 pub fn get_database_adapter(
   prepared_statement prp_stm: PreparedStatement,
 ) -> DatabaseAdapter {
   prp_stm.database_adapter
+}
+
+fn append_sql_and_param(
+  prepared_statement prp_stm: PreparedStatement,
+  sql nw_sql: String,
+  param nw_prm: Param,
+) {
+  prp_stm |> append_sql_and_params(sql: nw_sql, params: [nw_prm])
+}
+
+fn append_sql_and_params(
+  prepared_statement prp_stm: PreparedStatement,
+  sql nw_sql: String,
+  params nw_prms: List(Param),
+) {
+  PreparedStatement(
+    ..prp_stm,
+    sql: prp_stm.sql <> nw_sql,
+    params: prp_stm.params |> list.append(nw_prms),
+    index: prp_stm.index + list.length(nw_prms),
+  )
+}
+
+fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
+  prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
 }
