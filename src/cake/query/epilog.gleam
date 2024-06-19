@@ -1,6 +1,6 @@
 //// Allows appending aribtrary text to the end of the generated
 //// SQL query. This is useful for adding adapter specific
-//// modifiers such as `"FOR UPDATE"`, for example, see
+//// modifiers such as `FOR UPDATE`, for example, see
 //// <https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-TABLES>
 ////
 
