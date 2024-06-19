@@ -95,7 +95,7 @@ pub type InsertIntoTable {
 }
 
 pub type InsertColumns {
-  InsertColumns(columns: List(String))
+  InsertColumns(cols: List(String))
 }
 
 pub type InsertModifier {
@@ -105,7 +105,7 @@ pub type InsertModifier {
 
 pub type InsertSource(a) {
   InsertSourceDefault
-  InsertSourceParams(source: List(a), caster: fn(a) -> InsertRow)
+  InsertSourceParams(records: List(a), caster: fn(a) -> InsertRow)
   InsertSourceQuery(query: Query)
 }
 
@@ -158,7 +158,7 @@ fn insert_apply(
     |> insert_modifier_apply(isrt.modifier)
 
   let prp_stm = case isrt.source {
-    InsertSourceParams(source: src, caster: cstr) ->
+    InsertSourceParams(records: src, caster: cstr) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_params_apply(source: src, row_caster: cstr)

@@ -30,12 +30,11 @@ fn caster(wibble: Wibble) -> InsertRow {
 }
 
 pub fn insert_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
-  wibbles
-  |> InsertSourceParams(caster: caster)
-  |> Insert(
-    into_table: InsertIntoTable(table_name),
+  Insert(
+    into_table: InsertIntoTable(table: table_name),
     modifier: NoInsertModifier,
-    columns: InsertColumns(columns),
+    source: InsertSourceParams(records: wibbles, caster: caster),
+    columns: InsertColumns(cols: columns),
     on_conflict: InsertConflictError,
     returning: NoReturning,
     comment: NoComment,

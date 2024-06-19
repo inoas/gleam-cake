@@ -1,5 +1,4 @@
-//// Contains types and composition functions to build
-//// _read queries_.
+//// Contains types and composition functions to build _read queries_.
 ////
 //// _Read queries_ are in essence SELECT and combined queries such as `UNION`,
 //// `UNION ALL`, `INTERSECT`, 'EXCECEPT', etc. which combine multiple `SELECT`
@@ -15,7 +14,7 @@
 //// is mich higher than using the interface modules found
 //// in `cake/query/*`.
 ////
-//// WARNING: Once the library has matured, public access to these types may
+//// WARNING: Once the library has matured, public access to these types _may_
 //// vanish.
 ////
 //// ## Scope
