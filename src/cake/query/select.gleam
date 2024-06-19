@@ -4,10 +4,10 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,
   type OrderByDirection, type Query, type Select, type SelectKind,
-  type SelectValue, type Selects, type Where, GroupBy, Joins, Limit, NoEpilog,
-  NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects, NoWhere,
-  Offset, OrderBy, OrderByColumn, Select, SelectAll, SelectDistinct, SelectQuery,
-  Selects,
+  type SelectValue, type Selects, type Where, AndWhere, GroupBy, Joins, Limit,
+  NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects,
+  NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select, SelectAll,
+  SelectDistinct, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
@@ -194,12 +194,21 @@ pub fn get_joins(query qry: Select) -> Joins {
 // ▒▒▒ WHERE ▒▒▒
 
 pub fn where(query qry: Select, where whr: Where) -> Select {
-  Select(..qry, where: whr)
+  case qry.where {
+    NoWhere -> Select(..qry, where: whr)
+    AndWhere(wheres) ->
+      Select(..qry, where: AndWhere(wheres |> list.append([whr])))
+    _ -> Select(..qry, where: query.AndWhere([qry.where, whr]))
+  }
 }
 
 pub fn or_where(query qry: Select, where whr: Where) -> Select {
-  let new_where = query.OrWhere([qry.where, whr])
-  Select(..qry, where: new_where)
+  case qry.where {
+    NoWhere -> Select(..qry, where: whr)
+    OrWhere(wheres) ->
+      Select(..qry, where: OrWhere(wheres |> list.append([whr])))
+    _ -> Select(..qry, where: query.OrWhere([qry.where, whr]))
+  }
 }
 
 // TODO v1

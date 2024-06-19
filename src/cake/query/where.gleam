@@ -11,10 +11,6 @@ pub fn col(name: String) -> WhereValue {
   name |> query.WhereColumn
 }
 
-pub fn bool(value: Bool) -> WhereValue {
-  value |> param.bool |> query.WhereParam
-}
-
 pub fn float(value: Float) -> WhereValue {
   value |> param.float |> query.WhereParam
 }

@@ -422,6 +422,7 @@ fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   where wh: Where,
 ) -> PreparedStatement {
+  // TODO v1 unwrap the outer AND WHERE nesting
   case wh {
     NoWhere -> prp_stm
     _ -> prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(wh)

@@ -5,9 +5,9 @@ pub type Param {
   FloatParam(Float)
   IntParam(Int)
   StringParam(String)
-  // NullParam // <- Not sure we want this
-  //
+  // NullParam // <- Not sure we want this?
   // Maybe add:
+  // DecimalParam(Int, Int) // TODO: v1
   // JsonParam(String)
   // XmlParam(String)
   // UuidParam(String)

@@ -7,16 +7,24 @@ test_name: where_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "SELECT * FROM cats WHERE $1 = name",
-    [StringParam("Hello")],
-    1,
+    "SELECT * FROM cats WHERE (age = $1 AND 1 = 1 AND $2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= $3)",
+    [
+      IntParam(10),
+      StringParam("Hello"),
+      IntParam(0),
+    ],
+    3,
     PostgresAdapter,
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE ?1 = name",
-    [StringParam("Hello")],
-    1,
+    "SELECT * FROM cats WHERE (age = ?1 AND 1 = 1 AND ?2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= ?3)",
+    [
+      IntParam(10),
+      StringParam("Hello"),
+      IntParam(0),
+    ],
+    3,
     SqliteAdapter,
   ),
 )

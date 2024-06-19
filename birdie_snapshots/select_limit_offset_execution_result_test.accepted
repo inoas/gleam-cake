@@ -6,15 +6,33 @@ test_name: select_limit_offset_execution_result_test
 ---
 #(
   Ok([
-    #("Biffy", 10, Null, 2),
-    #("Clara", 3, True, Null),
-    #("Ginny", 6, False, 3),
-    #("Karl", 8, True, Null),
+    #("Biffy", 10, Null, 2, Null),
+    #("Clara", 3, True, Null, Null),
+    #("Ginny", 6, False, 3, Null),
+    #("Karl", 8, True, Null, Null),
   ]),
   Ok([
-    #("Biffy", 10, Undefined, 2),
-    #("Clara", 3, 1, Undefined),
-    #("Ginny", 6, 0, 3),
-    #("Karl", 8, 1, Undefined),
+    #(
+      "Biffy",
+      10,
+      Undefined,
+      2,
+      Undefined,
+    ),
+    #(
+      "Clara",
+      3,
+      1,
+      Undefined,
+      Undefined,
+    ),
+    #("Ginny", 6, 0, 3, Undefined),
+    #(
+      "Karl",
+      8,
+      1,
+      Undefined,
+      Undefined,
+    ),
   ]),
 )

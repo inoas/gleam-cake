@@ -14,6 +14,14 @@ fn where_query() {
   |> s.where(sut.col("age") |> sut.eq(sut.int(10)))
   |> s.where(sut.fragment(frgmt.literal("1 = 1")))
   |> s.where(sut.string("Hello") |> sut.eq(sut.col("name")))
+  |> s.where(
+    sut.or([
+      sut.col("is_wild") |> sut.is_false,
+      sut.col("is_wild") |> sut.is_true,
+    ]),
+  )
+  |> s.where(sut.col("age") |> sut.gte(sut.int(0)))
+  // |> s.where(sut.float(1.0) |> sut.eq(sut.col("age")))
   |> s.to_query
 }
 

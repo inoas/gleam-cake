@@ -12,6 +12,8 @@ pub fn to_query(combined_query qry: Combined) -> Query {
 
 // ▒▒▒ Combined Kind ▒▒▒
 
+// TODO v1: make sure this is a non empty list
+// TODO v1: maybe if just one item unwrap the nested select at sql query building?
 pub fn union(select_queries qrys: List(Select)) -> Combined {
   UnionDistinct |> query.combined_query_new(qrys)
 }

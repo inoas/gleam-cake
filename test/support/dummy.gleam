@@ -4,11 +4,11 @@ pub fn drop_owners_table_if_exists() {
 
 pub fn create_owners_table() {
   "CREATE TABLE owners (
-    id int,
-    name text,
-    last_name text,
-    age int,
-    tags text[]
+    id INT,
+    name TEXT,
+    last_name TEXT,
+    age INT,
+    tags TEXT[]
   );"
 }
 
@@ -26,10 +26,11 @@ pub fn drop_cats_table_if_exists() {
 
 pub fn create_cats_table() {
   "CREATE TABLE cats (
-    name text,
-    age int,
-    is_wild boolean,
-    owner_id int
+    name TEXT,
+    age INT,
+    is_wild BOOLEAN,
+    owner_id INT,
+    rating FLOAT(8)
   );"
 }
 
@@ -49,10 +50,10 @@ pub fn drop_dogs_table_if_exists() {
 
 pub fn create_dogs_table() {
   "CREATE TABLE dogs (
-    name text,
-    age int,
-    is_trained boolean,
-    owner_id int
+    name TEXT,
+    age INT,
+    is_trained BOOLEAN,
+    owner_id INT
   );"
 }
 

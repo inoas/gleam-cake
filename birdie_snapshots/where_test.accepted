@@ -9,11 +9,34 @@ SelectQuery(Select(
   NoSelects,
   FromTable("cats"),
   NoJoins,
-  WhereComparison(
-    WhereParam(StringParam("Hello")),
-    Equal,
-    WhereColumn("name"),
-  ),
+  AndWhere([
+    WhereComparison(
+      WhereColumn("age"),
+      Equal,
+      WhereParam(IntParam(10)),
+    ),
+    RawWhereFragment(FragmentLiteral("1 = 1")),
+    WhereComparison(
+      WhereParam(StringParam("Hello")),
+      Equal,
+      WhereColumn("name"),
+    ),
+    OrWhere([
+      WhereIsBool(
+        WhereColumn("is_wild"),
+        False,
+      ),
+      WhereIsBool(
+        WhereColumn("is_wild"),
+        True,
+      ),
+    ]),
+    WhereComparison(
+      WhereColumn("age"),
+      GreaterOrEqual,
+      WhereParam(IntParam(0)),
+    ),
+  ]),
   NoGroupBy,
   NoWhere,
   NoOrderBy,
