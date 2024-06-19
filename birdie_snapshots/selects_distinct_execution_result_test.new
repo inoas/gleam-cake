@@ -1,0 +1,8 @@
+---
+version: 1.1.6
+title: selects_distinct_execution_result_test
+---
+#(
+  Ok([False, True, Null]),
+  Ok([#(0), #(1), Undefined]),
+)

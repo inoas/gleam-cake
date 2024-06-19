@@ -49,3 +49,35 @@ pub fn selects_execution_result_test() {
   |> to_string
   |> birdie.snap("selects_execution_result_test")
 }
+
+fn selects_distinct_query() {
+  sut.new_from(f.table("cats"))
+  |> sut.distinct
+  |> sut.selects([sut.col("is_wild")])
+  |> sut.order_asc("is_wild")
+  |> sut.to_query
+}
+
+pub fn selects_distinct_test() {
+  selects_distinct_query()
+  |> to_string
+  |> birdie.snap("selects_distinct_test")
+}
+
+pub fn selects_distinct_prepared_statement_test() {
+  let pgo = selects_distinct_query() |> postgres_adapter.to_prepared_statement
+  let lit = selects_distinct_query() |> sqlite_adapter.to_prepared_statement
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("selects_distinct_prepared_statement_test")
+}
+
+pub fn selects_distinct_execution_result_test() {
+  let pgo = selects_distinct_query() |> postgres_test_helper.setup_and_run
+  let lit = selects_distinct_query() |> sqlite_test_helper.setup_and_run
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("selects_distinct_execution_result_test")
+}

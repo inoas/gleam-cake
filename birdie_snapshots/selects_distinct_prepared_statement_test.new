@@ -1,0 +1,20 @@
+---
+version: 1.1.6
+title: selects_distinct_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    [],
+    0,
+    PostgresAdapter,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    [],
+    0,
+    SqliteAdapter,
+  ),
+)
