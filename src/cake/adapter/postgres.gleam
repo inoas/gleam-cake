@@ -10,7 +10,9 @@ import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox
 import cake/internal/write_query.{type WriteQuery}
-import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
+import cake/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection, type Value}
@@ -65,7 +67,7 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
         StringParam(param) -> pgo.text(param)
-        // NullParam -> pgo.null
+        NullParam -> pgo.null()
       }
     })
     |> iox.print_tap("Params: ")
@@ -93,7 +95,7 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
         StringParam(param) -> pgo.text(param)
-        // NullParam -> pgo.null
+        NullParam -> pgo.null()
       }
     })
     |> iox.print_tap("Params: ")

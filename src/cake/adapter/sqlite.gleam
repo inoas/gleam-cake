@@ -10,7 +10,9 @@ import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox
 import cake/internal/write_query.{type WriteQuery}
-import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
+import cake/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/list
 import sqlight.{type Value}
 
@@ -53,6 +55,7 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)
         StringParam(param) -> sqlight.text(param)
+        NullParam -> sqlight.null()
       }
     })
     |> iox.print_tap("Params: ")
@@ -75,6 +78,7 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)
         StringParam(param) -> sqlight.text(param)
+        NullParam -> sqlight.null()
       }
     })
     |> iox.print_tap("Params: ")

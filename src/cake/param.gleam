@@ -9,7 +9,7 @@ pub type Param {
   FloatParam(Float)
   IntParam(Int)
   StringParam(String)
-  // NullParam // <- Not sure we want this?
+  NullParam
   //
   // Not sure this should be here, but should it not?
   // Maybe add:
