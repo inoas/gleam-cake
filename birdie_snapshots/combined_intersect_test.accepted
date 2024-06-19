@@ -1,11 +1,14 @@
 ---
 version: 1.1.6
-title: combined_except_test
+title: combined_intersect_test
+file: ./test/cake/internal/query/combined_test.gleam
+test_name: combined_intersect_test
 ---
 CombinedQuery(Combined(
-  Except,
+  IntersectDistinct,
   [
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -20,6 +23,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -34,6 +38,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,

@@ -5,6 +5,7 @@ file: ./test/cake/internal/query/where_test.gleam
 test_name: where_test
 ---
 SelectQuery(Select(
+  SelectAll,
   NoSelects,
   FromTable("cats"),
   NoJoins,

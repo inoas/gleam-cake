@@ -5,6 +5,7 @@ file: ./test/cake/internal/query/select_test.gleam
 test_name: selects_test
 ---
 SelectQuery(Select(
+  SelectAll,
   Selects([
     SelectColumn("name"),
     SelectParam(StringParam("hello")),

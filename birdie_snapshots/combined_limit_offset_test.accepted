@@ -8,6 +8,7 @@ CombinedQuery(Combined(
   UnionAll,
   [
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -22,6 +23,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -36,6 +38,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,

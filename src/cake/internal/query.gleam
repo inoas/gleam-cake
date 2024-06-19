@@ -133,13 +133,11 @@ pub fn combined_clause_apply(
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    // TODO: if single list item, unwrap Combined to Select and warn user // v2
+    // TODO V2: If single list item, unwrap Combined to Select and warn user
     queries: List(Select),
     limit: Limit,
     offset: Offset,
     order_by: OrderBy,
-    // Epilog allows you to append raw SQL to the end of queries.
-    // One should NEVER put raw user data into the epilog.
     epilog: Epilog,
   )
 }
@@ -162,12 +160,6 @@ pub fn combined_query_new(
   queries qrys: List(Select),
 ) -> Combined {
   qrys
-  // NOTICE: `ORDER BY` is not allowed for queries,
-  // that are part of combined queries:
-  // TODO: rather than drop it, make sure
-  // we can use it
-  // EDIT: seems we CAN actually use it
-  // |> combined_query_remove_order_by_clause
   |> Combined(
     kind: knd,
     queries: _,
@@ -176,21 +168,6 @@ pub fn combined_query_new(
     order_by: NoOrderBy,
     epilog: NoEpilog,
   )
-}
-
-// fn combined_query_remove_order_by_clause(
-//   queries qrys: List(Select),
-// ) -> List(Select) {
-//   // TODO: Add notice that order_by was dropped if it existed before
-//   // TODO: Would be very useful if we could inject a logging function here
-//   // TODO: Would be very cool if that code part would be eliminated
-//   //       depending on the environment.
-//   qrys
-//   |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: NoOrderBy) })
-// }
-
-pub fn combined_get_queries(combined_query qry: Combined) -> List(Select) {
-  qry.queries
 }
 
 pub fn combined_order_by(
@@ -216,7 +193,7 @@ fn select_builder(
   // TODO v1 make sure all of these are tested individually
   // TODO v1 make sure there is a query with all of these
   // TODO v1 make sure there is a combined query wrapping 2 full queries
-  |> select_clause_apply(qry.select)
+  |> select_clause_apply(qry.kind, qry.select)
   |> from_clause_apply(qry.from)
   |> join_clause_apply(qry.join)
   |> where_clause_apply(qry.where)
@@ -301,15 +278,22 @@ pub type SelectValue {
 
 fn select_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
+  kind knd: SelectKind,
   selects slcts: Selects,
 ) -> PreparedStatement {
+  let select_command = case knd {
+    SelectAll -> "SELECT"
+    SelectDistinct -> "SELECT DISTINCT"
+  }
   case slcts {
-    NoSelects -> prp_stm |> prepared_statement.append_sql("SELECT *")
+    NoSelects ->
+      prp_stm |> prepared_statement.append_sql(select_command <> " *")
     Selects(slct_vs) -> {
       case slct_vs {
         [] -> prp_stm
         vs -> {
-          let prp_stm = prp_stm |> prepared_statement.append_sql("SELECT ")
+          let prp_stm =
+            prp_stm |> prepared_statement.append_sql(select_command <> " ")
           vs
           |> list.fold(
             prp_stm,
@@ -705,7 +689,6 @@ fn where_exists_in_sub_query_apply(
 
 pub type GroupBy {
   NoGroupBy
-  // TODO: maybe use a Column type?
   GroupBy(columns: List(String))
 }
 
@@ -979,6 +962,9 @@ fn offset_clause_apply(
 
 /// Used to add a trailing SQL statement to the query.
 ///
+/// Epilog allows to append raw SQL to the end of queries.
+/// One should NEVER put raw user data into the epilog.
+///
 pub type Epilog {
   NoEpilog
   Epilog(string: String)
@@ -998,7 +984,7 @@ fn epilog_apply(
 // │  Fragment                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO: Create injection checker, something like:
+// TODO v3: Create injection checker, something like:
 //
 // `gleam run --module cake/sql-injection-check -- ./src`
 //

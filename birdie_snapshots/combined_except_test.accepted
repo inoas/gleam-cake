@@ -1,11 +1,14 @@
 ---
 version: 1.1.6
-title: combined_union_all_test
+title: combined_except_test
+file: ./test/cake/internal/query/combined_test.gleam
+test_name: combined_except_test
 ---
 CombinedQuery(Combined(
-  UnionAll,
+  ExceptDistinct,
   [
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -20,6 +23,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,
@@ -34,6 +38,7 @@ CombinedQuery(Combined(
       NoEpilog,
     ),
     Select(
+      SelectAll,
       NoSelects,
       FromTable("cats"),
       NoJoins,

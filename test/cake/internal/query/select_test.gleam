@@ -10,6 +10,8 @@ import test_helper/sqlite_test_helper
 
 const const_field = "age"
 
+// TODO v1: test All vs Distinct
+
 fn selects_query() {
   sut.from(f.table("cats"))
   |> sut.selects([

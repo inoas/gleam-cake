@@ -36,6 +36,10 @@ pub fn intersect_all(select_queries qrys: List(Select)) -> Combined {
   IntersectAll |> query.combined_query_new(qrys)
 }
 
+pub fn get_queries(combined_query qry: Combined) -> List(Select) {
+  qry.queries
+}
+
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 pub fn limit(query qry: Combined, limit lmt: Int) -> Combined {

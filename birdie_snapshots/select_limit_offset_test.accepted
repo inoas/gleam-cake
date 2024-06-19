@@ -5,6 +5,7 @@ file: ./test/cake/internal/query/limit_offset_test.gleam
 test_name: select_limit_offset_test
 ---
 SelectQuery(Select(
+  SelectAll,
   NoSelects,
   FromTable("cats"),
   NoJoins,
