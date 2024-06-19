@@ -106,8 +106,7 @@ pub type InsertModifier {
 pub type InsertSource(a) {
   InsertSourceDefault
   InsertSourceParams(records: List(a), caster: fn(a) -> InsertRow)
-  // TODO v1
-  // InsertSourceValues(records: List(List(InsertValue)))
+  InsertSourceValues(records: List(InsertRow))
   InsertSourceQuery(query: Query)
 }
 
@@ -164,6 +163,10 @@ fn insert_apply(
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_params_apply(source: src, row_caster: cstr)
+    InsertSourceValues(records: src) ->
+      prp_stm
+      |> prepared_statement.append_sql(" VALUES")
+      |> insert_from_values_apply(source: src)
     InsertSourceQuery(query: qry) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
@@ -194,38 +197,6 @@ fn insert_from_params_apply(
   source src: List(a),
   row_caster cstr: fn(a) -> InsertRow,
 ) {
-  let apply_row = fn(new_prp_stm: PreparedStatement, row: List(InsertValue)) -> PreparedStatement {
-    row
-    |> list.fold(
-      new_prp_stm,
-      fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
-        case insert_value {
-          InsertParam(column: _column, param: param) -> {
-            case new_prp_stm_inner == new_prp_stm {
-              True ->
-                new_prp_stm_inner
-                |> prepared_statement.append_param(param)
-              False ->
-                new_prp_stm_inner
-                |> prepared_statement.append_sql(", ")
-                |> prepared_statement.append_param(param)
-            }
-          }
-          InsertDefault(column: _column) -> {
-            case new_prp_stm_inner == new_prp_stm {
-              True ->
-                new_prp_stm_inner
-                |> prepared_statement.append_sql("DEFAULT")
-              False ->
-                new_prp_stm_inner
-                |> prepared_statement.append_sql(", DEFAULT")
-            }
-          }
-        }
-      },
-    )
-  }
-
   let prp_stm = prp_stm |> prepared_statement.append_sql(" (")
   let prp_stm =
     src
@@ -234,17 +205,77 @@ fn insert_from_params_apply(
       fn(new_prp_stm: PreparedStatement, rcrd: a) -> PreparedStatement {
         let InsertRow(row) = rcrd |> cstr
         case new_prp_stm == prp_stm {
-          True -> new_prp_stm |> apply_row(row)
+          True -> new_prp_stm |> row_apply(row)
           False ->
             new_prp_stm
             |> prepared_statement.append_sql("), (")
-            |> apply_row(row)
+            |> row_apply(row)
         }
       },
     )
   let prp_stm = prp_stm |> prepared_statement.append_sql(")")
 
   prp_stm
+}
+
+fn insert_from_values_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  source src: List(InsertRow),
+) {
+  let prp_stm = prp_stm |> prepared_statement.append_sql(" (")
+  let prp_stm =
+    src
+    |> list.fold(
+      prp_stm,
+      fn(new_prp_stm: PreparedStatement, row: InsertRow) -> PreparedStatement {
+        let InsertRow(row) = row
+        case new_prp_stm == prp_stm {
+          True -> new_prp_stm |> row_apply(row)
+          False ->
+            new_prp_stm
+            |> prepared_statement.append_sql("), (")
+            |> row_apply(row)
+        }
+      },
+    )
+  let prp_stm = prp_stm |> prepared_statement.append_sql(")")
+
+  prp_stm
+}
+
+fn row_apply(
+  new_prp_stm: PreparedStatement,
+  row: List(InsertValue),
+) -> PreparedStatement {
+  row
+  |> list.fold(
+    new_prp_stm,
+    fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
+      case insert_value {
+        InsertParam(column: _column, param: param) -> {
+          case new_prp_stm_inner == new_prp_stm {
+            True ->
+              new_prp_stm_inner
+              |> prepared_statement.append_param(param)
+            False ->
+              new_prp_stm_inner
+              |> prepared_statement.append_sql(", ")
+              |> prepared_statement.append_param(param)
+          }
+        }
+        InsertDefault(column: _column) -> {
+          case new_prp_stm_inner == new_prp_stm {
+            True ->
+              new_prp_stm_inner
+              |> prepared_statement.append_sql("DEFAULT")
+            False ->
+              new_prp_stm_inner
+              |> prepared_statement.append_sql(", DEFAULT")
+          }
+        }
+      }
+    },
+  )
 }
 
 fn insert_from_query_apply(

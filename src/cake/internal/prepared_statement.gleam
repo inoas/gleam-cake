@@ -35,15 +35,6 @@ pub fn new(
   )
 }
 
-// pub fn apply_sql_with_param(
-//   prepared_statement prp_stm: PreparedStatement,
-//   apply_sql appl_sql: fn(String) -> String,
-//   param nw_prm: Param,
-// ) {
-//   let new_sql = prp_stm |> next_placeholder |> appl_sql
-//   prp_stm |> append_sql_and_param(new_sql, nw_prm)
-// }
-
 pub fn append_param(
   prepared_statement prp_stm: PreparedStatement,
   param nw_prm: Param,
