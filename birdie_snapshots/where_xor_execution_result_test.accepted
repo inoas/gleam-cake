@@ -1,7 +1,7 @@
 ---
 version: 1.1.6
 title: where_xor_execution_result_test
-file: ./test/cake/internal/query/where_test.gleam
+file: ./test/cake/where_test.gleam
 test_name: where_xor_execution_result_test
 ---
 #(

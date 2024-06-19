@@ -1,11 +1,13 @@
 ---
 version: 1.1.6
-title: insert_test_prepared_statement_test
+title: insert_prepared_statement_test
+file: ./test/cake/insert_test.gleam
+test_name: insert_prepared_statement_test
 ---
 #(
   PreparedStatement(
     "$",
-    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3), ($4, $5, $6)",
+    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3), ($4, $5, $6) RETURNING name",
     [
       StringParam("Whiskers"),
       IntParam(3),
@@ -19,7 +21,7 @@ title: insert_test_prepared_statement_test
   ),
   PreparedStatement(
     "$",
-    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3), ($4, $5, $6)",
+    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3), ($4, $5, $6) RETURNING name",
     [
       StringParam("Whiskers"),
       IntParam(3),

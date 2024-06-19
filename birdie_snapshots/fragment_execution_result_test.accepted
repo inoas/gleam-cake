@@ -1,7 +1,7 @@
 ---
 version: 1.1.6
 title: fragment_execution_result_test
-file: ./test/cake/internal/query/fragment_test.gleam
+file: ./test/cake/fragment_test.gleam
 test_name: fragment_execution_result_test
 ---
 #(
