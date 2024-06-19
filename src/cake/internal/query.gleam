@@ -757,11 +757,8 @@ fn do_fake_where_xor_apply(
             ) {
               let #(new_prp_stm_per_xor, wh_idx) = acc
               let new_prp_stm_per_xor = case wh_idx == xor_idx, wh_idx {
-                True, 0 ->
-                  new_prp_stm_per_xor
-                  // |> prepared_statement.append_sql("(")
-                  |> where_apply(wh)
-                // |> prepared_statement.append_sql(")")
+                True, 0 -> new_prp_stm_per_xor |> where_apply(wh)
+
                 True, _gt_0 ->
                   new_prp_stm_per_xor
                   |> prepared_statement.append_sql(" AND (")
