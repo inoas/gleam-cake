@@ -70,18 +70,21 @@ pub fn combined_clause_apply(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  // `LIMIT`, `OFFSET` and `ORDER BY` is not SQL standard to work
-  // within queries referenced nested in UNION and its siblings
+  // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL
+  // within queries nested in UNION and its siblings
   // (Combined queries) but they do work on MariaDB and PostgreSQL
   // out of the box, see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
   // For Sqlite we need to wrap these in sub queries, like so:
   //
   // ```sql
-  // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1 UNION ALL SELECT * FROM (SELECT * FROM cats OFFSET 2) AS c2 LIMIT 1
+  // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1
+  // UNION ALL
+  // SELECT * FROM (SELECT * FROM cats OFFSET 2) AS c2
+  // LIMIT 1
   // ```
 
-  let open_nested_query = fn(prp_stm) {
+  let open_nested_query = fn(prp_stm: PreparedStatement) -> PreparedStatement {
     case prp_stm |> prepared_statement.get_database_adapter() {
       SqliteAdapter ->
         prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
@@ -89,7 +92,7 @@ pub fn combined_clause_apply(
     }
   }
 
-  let close_nested_query = fn(prp_stm, nested_index) {
+  let close_nested_query = fn(prp_stm: PreparedStatement, nested_index: Int) -> PreparedStatement {
     case prp_stm |> prepared_statement.get_database_adapter() {
       SqliteAdapter ->
         prp_stm
@@ -782,7 +785,7 @@ fn join_clause_apply(
             |> join_apply(jn)
           }
 
-          let on_apply = fn(new_prp_stm: PreparedStatement, on: Where) {
+          let on_apply = fn(new_prp_stm: PreparedStatement, on: Where) -> PreparedStatement {
             new_prp_stm
             |> prepared_statement.append_sql(" ON ")
             |> where_apply(on)
