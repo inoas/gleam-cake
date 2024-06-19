@@ -16,6 +16,14 @@ pub fn main() {
 
   process.sleep(100)
 
+  let _ = exec_dummy_update()
+
+  process.sleep(100)
+
+  let _ = exec_dummy_delete()
+
+  process.sleep(100)
+
   Nil
 }
 
@@ -47,6 +55,74 @@ pub fn exec_dummy_insert() {
         write_example_wibble.new(),
       ]
         |> write_example_wibble.insert_to_write_query(),
+      query_decoder,
+    )
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+}
+
+pub fn exec_dummy_update() {
+  iox.print_dashes()
+
+  let query_decoder = dynamic.dynamic
+
+  iox.println("SQLite")
+
+  let _ =
+    run_write_on_sqlite(
+      [write_example_wibble.new()]
+        |> write_example_wibble.update_to_write_query(),
+      query_decoder,
+    )
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+
+  process.sleep(100)
+
+  iox.println("Postgres")
+
+  let _ =
+    run_write_on_postgres(
+      [
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+      ]
+        |> write_example_wibble.update_to_write_query(),
+      query_decoder,
+    )
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+}
+
+pub fn exec_dummy_delete() {
+  iox.print_dashes()
+
+  let query_decoder = dynamic.dynamic
+
+  iox.println("SQLite")
+
+  let _ =
+    run_write_on_sqlite(
+      [write_example_wibble.new()]
+        |> write_example_wibble.delete_to_write_query(),
+      query_decoder,
+    )
+    |> iox.print_tap("Result: ")
+    |> iox.dbg
+
+  process.sleep(100)
+
+  iox.println("Postgres")
+
+  let _ =
+    run_write_on_postgres(
+      [
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+      ]
+        |> write_example_wibble.delete_to_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
