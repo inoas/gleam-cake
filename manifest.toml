@@ -40,6 +40,6 @@ glacier = { version = ">= 1.0.0 and < 2.0.0" }
 gleam_erlang = { version = ">= 0.25.0 and < 2.0.0" }
 gleam_pgo = { version = ">= 0.10.0 and < 2.0.0" }
 gleam_stdlib = { version = ">= 0.38.0 and < 2.0.0" }
-pprint = { version = ">= 1.0.3 and < 2.0.0"}
+pprint = { version = ">= 1.0.3 and < 2.0.0" }
 sqlight = { version = ">= 0.9.0 and < 2.0.0" }
 stacky = { version = ">= 1.4.0 and < 2.0.0" }

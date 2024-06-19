@@ -8,8 +8,8 @@
 //    in this module currently.
 // 4. Remove shortly before v1
 
-import cake/adapter/postgres_adapter
-import cake/adapter/sqlite_adapter
+import cake/adapter/postgres
+import cake/adapter/sqlite
 import cake/internal/query as q
 import cake/internal/stdlib/iox
 import cake/param as p
@@ -220,39 +220,39 @@ pub fn run_dummy_union_all() {
 }
 
 pub fn run_on_postgres(query, query_decoder) {
-  use conn <- postgres_adapter.with_connection
+  use conn <- postgres.with_connection
 
-  let _ = drop_owners_table_if_exists() |> postgres_adapter.execute(conn)
-  let _ = create_owners_table() |> postgres_adapter.execute(conn)
-  let _ = insert_owners_rows() |> postgres_adapter.execute(conn)
+  let _ = drop_owners_table_if_exists() |> postgres.execute(conn)
+  let _ = create_owners_table() |> postgres.execute(conn)
+  let _ = insert_owners_rows() |> postgres.execute(conn)
 
-  let _ = drop_cats_table_if_exists() |> postgres_adapter.execute(conn)
-  let _ = create_cats_table() |> postgres_adapter.execute(conn)
-  let _ = insert_cats_rows() |> postgres_adapter.execute(conn)
+  let _ = drop_cats_table_if_exists() |> postgres.execute(conn)
+  let _ = create_cats_table() |> postgres.execute(conn)
+  let _ = insert_cats_rows() |> postgres.execute(conn)
 
-  let _ = drop_dogs_table_if_exists() |> postgres_adapter.execute(conn)
-  let _ = create_dogs_table() |> postgres_adapter.execute(conn)
-  let _ = insert_dogs_rows() |> postgres_adapter.execute(conn)
+  let _ = drop_dogs_table_if_exists() |> postgres.execute(conn)
+  let _ = create_dogs_table() |> postgres.execute(conn)
+  let _ = insert_dogs_rows() |> postgres.execute(conn)
 
-  postgres_adapter.run_query(conn, query, query_decoder)
+  postgres.run_query(conn, query, query_decoder)
 }
 
 fn run_on_sqlite(query, query_decoder) {
-  use conn <- sqlite_adapter.with_memory_connection
+  use conn <- sqlite.with_memory_connection
 
-  let _ = drop_owners_table_if_exists() |> sqlite_adapter.execute(conn)
-  let _ = create_owners_table() |> sqlite_adapter.execute(conn)
-  let _ = insert_owners_rows() |> sqlite_adapter.execute(conn)
+  let _ = drop_owners_table_if_exists() |> sqlite.execute(conn)
+  let _ = create_owners_table() |> sqlite.execute(conn)
+  let _ = insert_owners_rows() |> sqlite.execute(conn)
 
-  let _ = drop_cats_table_if_exists() |> sqlite_adapter.execute(conn)
-  let _ = create_cats_table() |> sqlite_adapter.execute(conn)
-  let _ = insert_cats_rows() |> sqlite_adapter.execute(conn)
+  let _ = drop_cats_table_if_exists() |> sqlite.execute(conn)
+  let _ = create_cats_table() |> sqlite.execute(conn)
+  let _ = insert_cats_rows() |> sqlite.execute(conn)
 
-  let _ = drop_dogs_table_if_exists() |> sqlite_adapter.execute(conn)
-  let _ = create_dogs_table() |> sqlite_adapter.execute(conn)
-  let _ = insert_dogs_rows() |> sqlite_adapter.execute(conn)
+  let _ = drop_dogs_table_if_exists() |> sqlite.execute(conn)
+  let _ = create_dogs_table() |> sqlite.execute(conn)
+  let _ = insert_dogs_rows() |> sqlite.execute(conn)
 
-  sqlite_adapter.run_query(conn, query, query_decoder)
+  sqlite.run_query(conn, query, query_decoder)
 }
 
 fn drop_owners_table_if_exists() {

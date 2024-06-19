@@ -1,6 +1,6 @@
 import birdie
-import cake/adapter/postgres_adapter
-import cake/adapter/sqlite_adapter
+import cake/adapter/postgres
+import cake/adapter/sqlite
 import cake/param as p
 import cake/query/fragment as frgmt
 import cake/query/from as f
@@ -30,8 +30,8 @@ pub fn fragment_test() {
 }
 
 pub fn fragment_prepared_statement_test() {
-  let pgo = fragment_query() |> postgres_adapter.to_prepared_statement
-  let lit = fragment_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = fragment_query() |> postgres.to_prepared_statement
+  let lit = fragment_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string

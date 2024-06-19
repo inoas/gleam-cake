@@ -1,6 +1,6 @@
 import birdie
-import cake/adapter/postgres_adapter
-import cake/adapter/sqlite_adapter
+import cake/adapter/postgres
+import cake/adapter/sqlite
 import cake/query/fragment as frgmt
 import cake/query/from as f
 import cake/query/select as s
@@ -55,8 +55,8 @@ pub fn where_test() {
 }
 
 pub fn where_prepared_statement_test() {
-  let pgo = where_query() |> postgres_adapter.to_prepared_statement
-  let lit = where_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = where_query() |> postgres.to_prepared_statement
+  let lit = where_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
@@ -92,8 +92,8 @@ pub fn where_any_test() {
 }
 
 pub fn where_any_prepared_statement_test() {
-  let pgo = where_any_query() |> postgres_adapter.to_prepared_statement
-  let lit = where_any_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = where_any_query() |> postgres.to_prepared_statement
+  let lit = where_any_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
@@ -129,8 +129,8 @@ pub fn where_xor_test() {
 }
 
 pub fn where_xor_prepared_statement_test() {
-  let pgo = where_xor_query() |> postgres_adapter.to_prepared_statement
-  let lit = where_xor_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = where_xor_query() |> postgres.to_prepared_statement
+  let lit = where_xor_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string

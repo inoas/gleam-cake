@@ -1,6 +1,6 @@
 import birdie
-import cake/adapter/postgres_adapter
-import cake/adapter/sqlite_adapter
+import cake/adapter/postgres
+import cake/adapter/sqlite
 import cake/query/from as f
 import cake/query/join as j
 import cake/query/select as s
@@ -31,8 +31,8 @@ pub fn select_query_test() {
 }
 
 pub fn select_query_prepared_statement_test() {
-  let pgo = select_query_query() |> postgres_adapter.to_prepared_statement
-  let lit = select_query_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = select_query_query() |> postgres.to_prepared_statement
+  let lit = select_query_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string

@@ -1,6 +1,6 @@
 import birdie
-import cake/adapter/postgres_adapter
-import cake/adapter/sqlite_adapter
+import cake/adapter/postgres
+import cake/adapter/sqlite
 import cake/query/combined as sut
 import cake/query/from as f
 import cake/query/select as s
@@ -32,8 +32,8 @@ pub fn combined_union_all_test() {
 }
 
 pub fn combined_union_all_prepared_statement_test() {
-  let pgo = combined_union_all_query() |> postgres_adapter.to_prepared_statement
-  let lit = combined_union_all_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = combined_union_all_query() |> postgres.to_prepared_statement
+  let lit = combined_union_all_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
@@ -66,8 +66,8 @@ pub fn combined_intersect_test() {
 }
 
 pub fn combined_intersect_prepared_statement_test() {
-  let pgo = combined_intersect_query() |> postgres_adapter.to_prepared_statement
-  let lit = combined_intersect_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = combined_intersect_query() |> postgres.to_prepared_statement
+  let lit = combined_intersect_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
@@ -100,8 +100,8 @@ pub fn combined_except_test() {
 }
 
 pub fn combined_except_prepared_statement_test() {
-  let pgo = combined_except_query() |> postgres_adapter.to_prepared_statement
-  let lit = combined_except_query() |> sqlite_adapter.to_prepared_statement
+  let pgo = combined_except_query() |> postgres.to_prepared_statement
+  let lit = combined_except_query() |> sqlite.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
