@@ -20,6 +20,10 @@ pub fn col(name: String) -> SelectValue {
   name |> query.SelectColumn
 }
 
+pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
+  v |> query.SelectAlias(alias: als)
+}
+
 pub fn bool(value: Bool) -> SelectValue {
   value |> param.bool |> query.SelectParam
 }
@@ -38,10 +42,6 @@ pub fn string(value: String) -> SelectValue {
 
 pub fn fragment(fragment frgmt: Fragment) -> SelectValue {
   frgmt |> query.SelectFragment
-}
-
-pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
-  v |> query.SelectAlias(alias: als)
 }
 
 // ▒▒▒ NEW ▒▒▒
@@ -202,7 +202,7 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
   Select(..qry, where: new_where)
 }
 
-// TODO v2
+// TODO v1
 // pub fn xor_where(
 //   query qry: Select,
 //   where whr: Where,
