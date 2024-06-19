@@ -1,7 +1,8 @@
 import cake/internal/query.{NoComment}
 import cake/internal/write_query.{
-  type InsertRow, type WriteQuery, Insert, InsertConflictError, InsertFromParams,
-  InsertParam, InsertRow, NoInsertValuesModifier,
+  type InsertRow, type WriteQuery, Insert, InsertColumns, InsertConflictError,
+  InsertIntoTable, InsertParam, InsertRow, InsertSourceParams, NoInsertModifier,
+  NoReturning,
 }
 import cake/param
 
@@ -29,12 +30,13 @@ fn caster(wibble: Wibble) -> InsertRow {
 
 pub fn insert_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   wibbles
-  |> InsertFromParams(caster: caster)
+  |> InsertSourceParams(caster: caster)
   |> Insert(
-    into: table_name,
-    columns: columns,
-    values_modifier: NoInsertValuesModifier,
+    into_table: InsertIntoTable(table_name),
+    modifier: NoInsertModifier,
+    columns: InsertColumns(columns),
     on_conflict: InsertConflictError,
+    returning: NoReturning,
     comment: NoComment,
   )
   |> write_query.insert_to_write_query

@@ -176,14 +176,16 @@ pub type Combined {
   )
 }
 
+// TODO: Add to query validator in v2 or v3
+/// NOTICE: SQLite does not support `EXCEPT ALL` (`ExceptAll`)
+/// nor `INTERSECT ALL` (`IntersectAll`).
+///
 pub type CombinedQueryKind {
   UnionDistinct
   UnionAll
   ExceptDistinct
-  // NOTICE: ExceptAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   ExceptAll
   IntersectDistinct
-  // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   IntersectAll
 }
 
@@ -352,7 +354,7 @@ pub type From {
   FromSubQuery(sub_query: Query, alias: String)
 }
 
-fn from_clause_apply(
+pub fn from_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   from frm: From,
 ) -> PreparedStatement {
@@ -371,6 +373,12 @@ fn from_clause_apply(
 // │  Where                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// NOTICE: Sqlite does _not_ support:
+///
+/// - `ANY` (`WhereAny*`),
+/// - `ALL` (`WhereAny*`) and,
+/// - `SIMILAR TO (WhereSimilarTo)`
+///
 pub type Where {
   NoWhere
   NotWhere(where: Where)
@@ -386,13 +394,11 @@ pub type Where {
     operator: WhereComparisonOperator,
     value_b: WhereValue,
   )
-  // NOTICE: Sqlite does not support ANY
   WhereAnyOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
     sub_query: Query,
   )
-  // NOTICE: Sqlite does not support ALL
   WhereAllOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
@@ -403,7 +409,6 @@ pub type Where {
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, string: String)
   WhereILike(value: WhereValue, string: String)
-  // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilarTo(value: WhereValue, string: String)
   WhereFragment(fragment: Fragment)
 }
@@ -430,7 +435,7 @@ pub type WhereValue {
   WhereSubQueryValue(sub_query: Query)
 }
 
-fn where_clause_apply(
+pub fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   where wh: Where,
 ) -> PreparedStatement {
@@ -945,7 +950,7 @@ pub type Join {
   FullOuterJoin(with: JoinKind, alias: String, on: Where)
 }
 
-fn join_clause_apply(
+pub fn join_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   joins jns: Joins,
 ) -> PreparedStatement {
@@ -1204,7 +1209,7 @@ pub type Comment {
   Comment(string: String)
 }
 
-fn comment_apply(
+pub fn comment_apply(
   prepared_statement prp_stm: PreparedStatement,
   comment cmmnt: Comment,
 ) -> PreparedStatement {
