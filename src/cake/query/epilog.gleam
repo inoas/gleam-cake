@@ -4,6 +4,9 @@
 //// <https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-TABLES>
 ////
 
+// TODO v1 probably move this internal and call from select and other modules
+//
+
 import cake/internal/query.{type Epilog, Epilog, NoEpilog}
 
 pub fn epilog(epilog eplg: String) -> Epilog {

@@ -946,12 +946,16 @@ pub type JoinKind {
   JoinSubQuery(sub_query: Query)
 }
 
+/// `LEFT JOIN` is also called `LEFT OUTER JOIN`
+/// `RIGHT JOIN` is also called `RIGHT OUTER JOIN`
+/// `FULL JOIN` is also called `FULL OUTER JOIN`
+///
 pub type Join {
-  CrossJoin(with: JoinKind, alias: String)
   InnerJoin(with: JoinKind, alias: String, on: Where)
-  LeftOuterJoin(with: JoinKind, alias: String, on: Where)
-  RightOuterJoin(with: JoinKind, alias: String, on: Where)
-  FullOuterJoin(with: JoinKind, alias: String, on: Where)
+  LeftJoin(with: JoinKind, alias: String, on: Where)
+  RightJoin(with: JoinKind, alias: String, on: Where)
+  FullJoin(with: JoinKind, alias: String, on: Where)
+  CrossJoin(with: JoinKind, alias: String)
 }
 
 pub fn join_clause_apply(
@@ -980,21 +984,21 @@ pub fn join_clause_apply(
           }
 
           case jn {
-            CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
             InnerJoin(_, _, on: on) ->
               new_prp_stm |> join_command_apply("INNER JOIN") |> on_apply(on)
-            LeftOuterJoin(_, _, on: on) ->
+            LeftJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
-            RightOuterJoin(_, _, on: on) ->
+            RightJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("RIGHT OUTER JOIN")
               |> on_apply(on)
-            FullOuterJoin(_, _, on: on) ->
+            FullJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
+            CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
           }
         },
       )

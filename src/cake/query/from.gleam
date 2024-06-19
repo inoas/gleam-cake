@@ -1,6 +1,8 @@
 //// Functions to build the `FROM` clause of an SQL query.
 ////
 
+// TODO v1 probably move this internal and call from select and other modules
+
 import cake/internal/query.{type From, type Query, FromSubQuery, FromTable}
 
 pub fn table(name tbl_nm: String) -> From {
