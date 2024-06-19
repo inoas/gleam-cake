@@ -3,24 +3,24 @@
 
 import cake/internal/query.{
   type Fragment, type Query, type Where, type WhereValue, Equal, Greater,
-  GreaterOrEqual, Lower, LowerOrEqual, RawWhereFragment,
+  GreaterOrEqual, Lower, LowerOrEqual, WhereFragment,
 }
 import cake/param
 
 pub fn col(name: String) -> WhereValue {
-  name |> query.WhereColumn
+  name |> query.WhereColumnValue
 }
 
 pub fn float(value: Float) -> WhereValue {
-  value |> param.float |> query.WhereParam
+  value |> param.float |> query.WhereParamValue
 }
 
 pub fn int(value: Int) -> WhereValue {
-  value |> param.int |> query.WhereParam
+  value |> param.int |> query.WhereParamValue
 }
 
 pub fn string(value: String) -> WhereValue {
-  value |> param.string |> query.WhereParam
+  value |> param.string |> query.WhereParamValue
 }
 
 pub fn not(part: Where) -> Where {
@@ -88,42 +88,62 @@ pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
   val_a |> query.WhereComparison(GreaterOrEqual, val_b)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn eq_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAnyOfSubQuery(Equal, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn lt_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAnyOfSubQuery(Lower, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn lte_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAnyOfSubQuery(LowerOrEqual, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn gt_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAnyOfSubQuery(Greater, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn gte_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAnyOfSubQuery(GreaterOrEqual, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn eq_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAllOfSubQuery(Equal, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn lt_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAllOfSubQuery(Lower, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn lte_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAllOfSubQuery(LowerOrEqual, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn gt_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAllOfSubQuery(Greater, qry)
 }
 
+/// Notice: Not supported by SQLite
+///
 pub fn gte_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
   val |> query.WhereAllOfSubQuery(GreaterOrEqual, qry)
 }
@@ -154,14 +174,16 @@ pub fn ilike(value val: WhereValue, pattern pttrn: String) -> Where {
   val |> query.WhereILike(pttrn)
 }
 
-pub fn similar(value val: WhereValue, to pttrn: String) -> Where {
-  val |> query.WhereSimilar(pttrn)
+/// Notice: Not supported by SQLite
+///
+pub fn similar_to(value val: WhereValue, to pttrn: String) -> Where {
+  val |> query.WhereSimilarTo(pttrn)
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> Where {
-  frgmt |> RawWhereFragment
+  frgmt |> WhereFragment
 }
 
 pub fn value_fragment(fragment frgmt: Fragment) -> WhereValue {
-  frgmt |> query.WhereFragment
+  frgmt |> query.WhereFragmentValue
 }

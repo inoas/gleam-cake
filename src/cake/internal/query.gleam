@@ -392,8 +392,8 @@ pub type Where {
   WhereLike(value: WhereValue, string: String)
   WhereILike(value: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
-  WhereSimilar(value: WhereValue, string: String)
-  RawWhereFragment(fragment: Fragment)
+  WhereSimilarTo(value: WhereValue, string: String)
+  WhereFragment(fragment: Fragment)
 }
 
 pub type WhereComparisonOperator {
@@ -406,16 +406,16 @@ pub type WhereComparisonOperator {
 }
 
 pub type WhereValue {
-  WhereColumn(column: String)
-  WhereParam(param: Param)
-  WhereFragment(fragment: Fragment)
+  WhereColumnValue(column: String)
+  WhereParamValue(param: Param)
+  WhereFragmentValue(fragment: Fragment)
   // NOTICE: For some commands, the return value must be scalar:
   // e.g. a result of 1 column, 1 row (LIMIT 1, and a single
   // projection aka SELECT value)
   // TODO v2 If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1
-  WhereSubQuery(sub_query: Query)
+  WhereSubQueryValue(sub_query: Query)
 }
 
 fn where_clause_apply(
@@ -520,24 +520,24 @@ fn where_apply(
       |> where_comparison_apply(
         val,
         "LIKE",
-        prm |> param.StringParam |> WhereParam,
+        prm |> param.StringParam |> WhereParamValue,
       )
     WhereILike(val, prm) ->
       prp_stm
       |> where_comparison_apply(
         val,
         "ILIKE",
-        prm |> param.StringParam |> WhereParam,
+        prm |> param.StringParam |> WhereParamValue,
       )
-    WhereSimilar(val, prm) ->
+    WhereSimilarTo(val, prm) ->
       prp_stm
       |> where_comparison_apply(
         val,
         "SIMILAR TO",
-        prm |> param.StringParam |> WhereParam,
+        prm |> param.StringParam |> WhereParamValue,
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
+    WhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
   }
 }
 
@@ -547,18 +547,18 @@ fn where_literal_apply(
   literal lt: String,
 ) -> PreparedStatement {
   case v {
-    WhereColumn(col) ->
+    WhereColumnValue(col) ->
       prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
-    WhereParam(prm) -> {
+    WhereParamValue(prm) -> {
       let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
-    WhereFragment(fragment: frgmt) ->
+    WhereFragmentValue(fragment: frgmt) ->
       prp_stm
       |> fragment_apply(frgmt)
       |> prepared_statement.append_sql(" " <> lt)
-    WhereSubQuery(qry) ->
+    WhereSubQueryValue(qry) ->
       prp_stm
       |> where_sub_query_apply(qry)
       |> prepared_statement.append_sql(" " <> lt)
@@ -572,74 +572,74 @@ fn where_comparison_apply(
   value_b val_b: WhereValue,
 ) -> PreparedStatement {
   case val_a, val_b {
-    WhereColumn(col_a), WhereColumn(col_b) ->
+    WhereColumnValue(col_a), WhereColumnValue(col_b) ->
       prp_stm
       |> where_string_apply(col_a <> " " <> oprtr <> " " <> col_b)
-    WhereColumn(col), WhereParam(prm) ->
+    WhereColumnValue(col), WhereParamValue(prm) ->
       prp_stm
       |> where_string_apply(col <> " " <> oprtr <> " ")
       |> where_param_apply(prm)
-    WhereParam(prm), WhereColumn(col) ->
+    WhereParamValue(prm), WhereColumnValue(col) ->
       prp_stm
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereParam(prm_a), WhereParam(prm_b) ->
+    WhereParamValue(prm_a), WhereParamValue(prm_b) ->
       prp_stm
       |> where_param_apply(prm_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm_b)
-    WhereFragment(frgmt), WhereColumn(col) ->
+    WhereFragmentValue(frgmt), WhereColumnValue(col) ->
       prp_stm
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereColumn(col), WhereFragment(frgmt) ->
+    WhereColumnValue(col), WhereFragmentValue(frgmt) ->
       prp_stm
       |> where_string_apply(col <> " " <> oprtr <> " ")
       |> fragment_apply(frgmt)
-    WhereFragment(frgmt), WhereParam(prm) ->
+    WhereFragmentValue(frgmt), WhereParamValue(prm) ->
       prp_stm
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm)
-    WhereParam(prm), WhereFragment(frgmt) ->
+    WhereParamValue(prm), WhereFragmentValue(frgmt) ->
       prp_stm
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt)
-    WhereFragment(frgmt_a), WhereFragment(frgmt_b) ->
+    WhereFragmentValue(frgmt_a), WhereFragmentValue(frgmt_b) ->
       prp_stm
       |> fragment_apply(frgmt_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt_b)
-    WhereSubQuery(qry_a), WhereSubQuery(qry_b) ->
+    WhereSubQueryValue(qry_a), WhereSubQueryValue(qry_b) ->
       prp_stm
       |> where_sub_query_apply(qry_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_sub_query_apply(qry_b)
-    WhereColumn(col), WhereSubQuery(qry) ->
+    WhereColumnValue(col), WhereSubQueryValue(qry) ->
       prp_stm
       |> where_string_apply(col <> " " <> oprtr <> " ")
       |> where_sub_query_apply(qry)
-    WhereSubQuery(qry), WhereColumn(col) ->
+    WhereSubQueryValue(qry), WhereColumnValue(col) ->
       prp_stm
       |> where_sub_query_apply(qry)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereParam(prm), WhereSubQuery(qry) ->
+    WhereParamValue(prm), WhereSubQueryValue(qry) ->
       prp_stm
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_sub_query_apply(qry)
-    WhereSubQuery(qry), WhereParam(prm) ->
+    WhereSubQueryValue(qry), WhereParamValue(prm) ->
       prp_stm
       |> where_sub_query_apply(qry)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm)
-    WhereFragment(frgmt), WhereSubQuery(qry) ->
+    WhereFragmentValue(frgmt), WhereSubQueryValue(qry) ->
       prp_stm
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_sub_query_apply(qry)
-    WhereSubQuery(qry), WhereFragment(frgmt) ->
+    WhereSubQueryValue(qry), WhereFragmentValue(frgmt) ->
       prp_stm
       |> where_sub_query_apply(qry)
       |> where_string_apply(" " <> oprtr <> " ")
@@ -667,7 +667,7 @@ fn where_sub_query_apply(
   sub_query qry: Query,
 ) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.append_sql(" (")
+  |> prepared_statement.append_sql("(")
   |> builder_apply(qry)
   |> prepared_statement.append_sql(")")
 }
@@ -702,13 +702,13 @@ fn where_value_in_values_apply(
 ) -> PreparedStatement {
   let prp_stm =
     case val {
-      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParam(prm) -> {
+      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParamValue(prm) -> {
         let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
       }
-      WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" IN (")
 
@@ -717,20 +717,20 @@ fn where_value_in_values_apply(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, v: WhereValue) -> PreparedStatement {
       case v {
-        WhereColumn(col) ->
+        WhereColumnValue(col) ->
           case new_prp_stm == prp_stm {
             True -> prp_stm |> prepared_statement.append_sql(col)
             False -> new_prp_stm |> prepared_statement.append_sql(", " <> col)
           }
-        WhereParam(prm) -> {
+        WhereParamValue(prm) -> {
           case new_prp_stm == prp_stm {
             True -> new_prp_stm |> prepared_statement.next_placeholder
             False -> ", " <> new_prp_stm |> prepared_statement.next_placeholder
           }
           |> prepared_statement.append_sql_and_param(new_prp_stm, _, prm)
         }
-        WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
-        WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+        WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+        WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
       }
     },
   )
@@ -745,36 +745,36 @@ fn where_between_apply(
 ) -> PreparedStatement {
   let prp_stm =
     case val_a {
-      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParam(prm) -> {
+      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParamValue(prm) -> {
         let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
       }
-      WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" BETWEEN ")
 
   let prp_stm =
     case val_b {
-      WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParam(prm) -> {
+      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+      WhereParamValue(prm) -> {
         let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
       }
-      WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" AND ")
 
   let prp_stm = case val_c {
-    WhereColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-    WhereParam(prm) -> {
+    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) -> {
       let nxt_plchldr_a = prp_stm |> prepared_statement.next_placeholder
       prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
     }
-    WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
+    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
   }
 
   prp_stm

@@ -10,8 +10,8 @@ SelectQuery(Select(
   FromTable("cats"),
   NoJoins,
   WhereAnyOfSubQuery(
-    WhereColumn("owner_id"),
-    Lower,
+    WhereColumnValue("owner_id"),
+    Equal,
     SelectQuery(Select(
       SelectAll,
       Selects([SelectColumn("owner_id")]),
@@ -21,7 +21,7 @@ SelectQuery(Select(
       NoGroupBy,
       NoWhere,
       NoOrderBy,
-      Limit(1),
+      NoLimit,
       NoOffset,
       NoEpilog,
     )),

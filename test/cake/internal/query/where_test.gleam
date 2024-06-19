@@ -76,10 +76,9 @@ fn where_any_query() {
   s.new_from(f.table("cats"))
   |> s.where(
     sut.col("owner_id")
-    |> sut.lt_any_query(
+    |> sut.eq_any_query(
       s.new_from(f.table("dogs"))
       |> s.selects([s.col("owner_id")])
-      |> s.limit(1)
       |> s.to_query,
     ),
   )
@@ -100,11 +99,13 @@ pub fn where_any_prepared_statement_test() {
   |> to_string
   |> birdie.snap("where_any_prepared_statement_test")
 }
-// pub fn where_any_execution_result_test() {
-//   let pgo = where_any_query() |> postgres_test_helper.setup_and_run
-//   let lit = where_any_query() |> sqlite_test_helper.setup_and_run
 
-//   #(pgo, lit)
-//   |> to_string
-//   |> birdie.snap("where_any_execution_result_test")
-// }
+pub fn where_any_execution_result_test() {
+  let pgo = where_any_query() |> postgres_test_helper.setup_and_run
+  // This is supposed to fail because SQLite does not support any
+  let lit = where_any_query() |> sqlite_test_helper.setup_and_run
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("where_any_execution_result_test")
+}
