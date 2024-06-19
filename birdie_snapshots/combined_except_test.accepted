@@ -1,7 +1,7 @@
 ---
 version: 1.1.6
 title: combined_except_test
-file: ./test/cake/internal/query/combined_test.gleam
+file: ./test/cake/combined_test.gleam
 test_name: combined_except_test
 ---
 CombinedQuery(Combined(
@@ -21,6 +21,7 @@ CombinedQuery(Combined(
       Limit(10),
       NoOffset,
       NoEpilog,
+      NoComment,
     ),
     Select(
       SelectAll,
@@ -36,10 +37,12 @@ CombinedQuery(Combined(
       Limit(10),
       NoOffset,
       NoEpilog,
+      NoComment,
     ),
   ],
   Limit(1),
   Offset(2),
   OrderBy([OrderByColumn("age", Asc)]),
   NoEpilog,
+  NoComment,
 ))
