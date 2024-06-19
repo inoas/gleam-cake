@@ -1,5 +1,9 @@
 //// A DSL to build `SELECT` queries.
 ////
+//// `HAVING` allows to specify constraints much like `WHERE`,
+//// but filters the results after `GROUP BY` is applied
+//// instead of before
+////
 
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,
@@ -198,8 +202,13 @@ pub fn get_where(query qry: Select) -> Where {
 }
 
 // ▒▒▒ HAVING ▒▒▒
-// This is the same as WHERE, but for GROUP BY
 
+/// `HAVING` allows to specify constraints much like `WHERE`,
+/// but filters the results after `GROUP BY` is applied
+/// instead of before.
+///
+/// Because it uses the same semantics as `WHERE`, it takes a `Where`
+///
 pub fn having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
     NoWhere -> Select(..qry, having: whr)
@@ -209,6 +218,8 @@ pub fn having(query qry: Select, having whr: Where) -> Select {
   }
 }
 
+/// See `having` on details why this takes a where
+///
 pub fn or_having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
     NoWhere -> Select(..qry, having: whr)
@@ -218,15 +229,21 @@ pub fn or_having(query qry: Select, having whr: Where) -> Select {
   }
 }
 
+/// See `having` on details why this takes a where
+///
 pub fn xor_having(query qry: Select, having whr: Where) -> Select {
   let new_where = query.XorWhere([qry.having, whr])
   Select(..qry, having: new_where)
 }
 
+/// See `having` on details why this takes a where
+///
 pub fn having_replace(query qry: Select, having whr: Where) -> Select {
   Select(..qry, having: whr)
 }
 
+/// See `having` on details why returns a where
+///
 pub fn get_having(query qry: Select) -> Where {
   qry.having
 }
