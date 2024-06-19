@@ -1,9 +1,5 @@
 // TODO v1 module doc
-
-// Select: FROM -> WHERE -> GROUP BY -> HAVING -> DISTINCT -> SELECT -> ORDER BY -> LIMIT
-// Combined: queries -> ORDER BY -> LIMIT
-
-pub const computed_alias_prefix = "__cake_computed_alias_prefix_"
+// TODO v1 add tests
 
 import cake/internal/prepared_statement.{
   type DatabaseAdapter, type PreparedStatement, SqliteAdapter,
@@ -13,6 +9,8 @@ import gleam/int
 import gleam/list
 import gleam/order
 import gleam/string
+
+pub const computed_alias_prefix = "__cake_computed_alias_prefix_"
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Query                                                                    │
