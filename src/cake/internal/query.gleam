@@ -373,20 +373,19 @@ pub type Where {
   WhereLower(value_a: WhereValue, value_b: WhereValue)
   WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
   WhereUnequal(value_a: WhereValue, value_b: WhereValue)
+  WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereIsBool(value: WhereValue, bool: Bool)
   WhereIsNotBool(value: WhereValue, bool: Bool)
   WhereIsNull(value: WhereValue)
   WhereIsNotNull(value: WhereValue)
-  WhereLike(value_a: WhereValue, string: String)
-  WhereILike(value_a: WhereValue, string: String)
-  // TODO v2 Check if this works with sub queries
-  WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
+  WhereLike(value: WhereValue, string: String)
+  WhereILike(value: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
-  WhereSimilar(value_a: WhereValue, string: String)
-  WhereIn(value_a: WhereValue, values: List(WhereValue))
+  WhereSimilar(value: WhereValue, string: String)
+  WhereIn(value: WhereValue, values: List(WhereValue))
+  // WhereAny(value: WhereValue, values: List(WhereValue))
+  // WhereAll(value: WhereValue, values: List(WhereValue))
   WhereExistsInSubQuery(sub_query: Query)
-  // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
-  // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
   RawWhereFragment(fragment: Fragment)
 }
 
@@ -401,9 +400,6 @@ pub type WhereValue {
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1
   WhereSubQuery(sub_query: Query)
-  // TODO v2
-  // WhereAny(values: List(WhereValue))
-  // WhereAll(values: List(WhereValue))
 }
 
 fn where_clause_apply(
@@ -466,17 +462,17 @@ fn where_apply(
         "LIKE",
         prm |> param.StringParam |> WhereParam,
       )
-    WhereILike(col, prm) ->
+    WhereILike(val, prm) ->
       prp_stm
       |> where_comparison_apply(
-        col,
+        val,
         "ILIKE",
         prm |> param.StringParam |> WhereParam,
       )
-    WhereSimilar(col, prm) ->
+    WhereSimilar(val, prm) ->
       prp_stm
       |> where_comparison_apply(
-        col,
+        val,
         "SIMILAR TO",
         prm |> param.StringParam |> WhereParam,
       )
@@ -484,8 +480,19 @@ fn where_apply(
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
     WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
-    WhereExistsInSubQuery(sub_query) ->
-      prp_stm |> where_exists_in_sub_query_apply(sub_query)
+    WhereExistsInSubQuery(qry) ->
+      prp_stm
+      |> prepared_statement.append_sql(" EXISTS ")
+      |> where_sub_query_apply(qry)
+    // TODO: need to support more operators, not just =
+    // WhereAllOfSubQuery(val, qry) ->
+    //   prp_stm
+    //   |> where_literal_apply(val, "= ALL")
+    //   |> where_sub_query_apply(qry)
+    // WhereAnyOfSubQuery(val, qry) ->
+    //   prp_stm
+    //   |> where_literal_apply(val, "= ANY")
+    //   |> where_sub_query_apply(qry)
     RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
   }
 }
@@ -503,8 +510,14 @@ fn where_literal_apply(
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
-    WhereFragment(fragment: frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
+    WhereFragment(fragment: frgmt) ->
+      prp_stm
+      |> fragment_apply(frgmt)
+      |> prepared_statement.append_sql(" " <> lt)
+    WhereSubQuery(qry) ->
+      prp_stm
+      |> where_sub_query_apply(qry)
+      |> prepared_statement.append_sql(" " <> lt)
   }
 }
 
@@ -721,15 +734,6 @@ fn where_between_apply(
   }
 
   prp_stm
-}
-
-fn where_exists_in_sub_query_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  sub_query qry: Query,
-) -> PreparedStatement {
-  prp_stm
-  |> prepared_statement.append_sql(" EXISTS ")
-  |> where_sub_query_apply(qry)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
