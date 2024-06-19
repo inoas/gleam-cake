@@ -29,6 +29,7 @@ packages = [
   { name = "shellout", version = "1.6.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "shellout", source = "hex", outer_checksum = "E2FCD18957F0E9F67E1F497FC9FF57393392F8A9BAEAEA4779541DE7A68DD7E0" },
   { name = "simplifile", version = "1.7.0", build_tools = ["gleam"], requirements = ["filepath", "gleam_stdlib"], otp_app = "simplifile", source = "hex", outer_checksum = "1D5DFA3A2F9319EC85825F6ED88B8E449F381B0D55A62F5E61424E748E7DDEB0" },
   { name = "sqlight", version = "0.9.0", build_tools = ["gleam"], requirements = ["esqlite", "gleam_stdlib"], otp_app = "sqlight", source = "hex", outer_checksum = "2D9C9BA420A5E7DCE7DB2DAAE4CAB0BE6218BEB48FD1531C583550B3D1316E94" },
+  { name = "stacky", version = "1.4.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_stdlib", "pprint"], otp_app = "stacky", source = "hex", outer_checksum = "58D628F896A03064F043F2B3E9ABA771703B9AFA2C2E05813E6DEA69B398DB64" },
   { name = "thoas", version = "1.2.1", build_tools = ["rebar3"], requirements = [], otp_app = "thoas", source = "hex", outer_checksum = "E38697EDFFD6E91BD12CEA41B155115282630075C2A727E7A6B2947F5408B86A" },
   { name = "trie_again", version = "1.1.2", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "trie_again", source = "hex", outer_checksum = "5B19176F52B1BD98831B57FDC97BD1F88C8A403D6D8C63471407E78598E27184" },
 ]
@@ -37,7 +38,8 @@ packages = [
 birdie = { version = ">= 1.1.5 and < 2.0.0" }
 glacier = { version = ">= 1.0.0 and < 2.0.0" }
 gleam_erlang = { version = ">= 0.25.0 and < 2.0.0" }
-gleam_pgo = { version = ">= 0.9.0 and < 2.0.0" }
+gleam_pgo = { version = ">= 0.10.0 and < 2.0.0" }
 gleam_stdlib = { version = ">= 0.38.0 and < 2.0.0" }
 pprint = { version = ">= 1.0.3 and < 2.0.0" }
 sqlight = { version = ">= 0.9.0 and < 2.0.0" }
+stacky = { version = ">= 1.4.0 and < 2.0.0" }
