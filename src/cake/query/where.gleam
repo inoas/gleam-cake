@@ -12,7 +12,7 @@ import cake/internal/query.{
   WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween, WhereColumnValue,
   WhereComparison, WhereExistsInSubQuery, WhereFragment, WhereFragmentValue,
   WhereILike, WhereIn, WhereIsBool, WhereIsNotBool, WhereIsNotNull, WhereIsNull,
-  WhereLike, WhereParamValue, WhereSimilarTo,
+  WhereLike, WhereParamValue, WhereSimilarTo, XorWhere,
 }
 import cake/param
 
@@ -44,9 +44,9 @@ pub fn or(wheres whs: List(Where)) -> Where {
   whs |> OrWhere
 }
 
-// pub fn xor(wheres whs: List(Where)) -> Where {
-//   whs |> XorWhere
-// }
+pub fn xor(wheres whs: List(Where)) -> Where {
+  whs |> XorWhere
+}
 
 pub fn is_bool(value val: WhereValue, bool b: Bool) -> Where {
   val |> WhereIsBool(b)

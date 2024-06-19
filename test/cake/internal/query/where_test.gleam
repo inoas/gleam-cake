@@ -109,3 +109,39 @@ pub fn where_any_execution_result_test() {
   |> to_string
   |> birdie.snap("where_any_execution_result_test")
 }
+
+fn where_xor_query() {
+  s.new_from(f.table("cats"))
+  |> s.where(
+    sut.xor([
+      sut.col("name") |> sut.eq(sut.string("Karl")),
+      sut.col("is_wild") |> sut.is_true,
+      sut.col("age") |> sut.lte(sut.int(9)),
+    ]),
+  )
+  |> s.to_query
+}
+
+pub fn where_xor_test() {
+  where_xor_query()
+  |> to_string
+  |> birdie.snap("where_xor_test")
+}
+
+pub fn where_xor_prepared_statement_test() {
+  let pgo = where_xor_query() |> postgres_adapter.to_prepared_statement
+  let lit = where_xor_query() |> sqlite_adapter.to_prepared_statement
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("where_xor_prepared_statement_test")
+}
+
+pub fn where_xor_execution_result_test() {
+  let pgo = where_xor_query() |> postgres_test_helper.setup_and_run
+  let lit = where_xor_query() |> sqlite_test_helper.setup_and_run
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("where_xor_execution_result_test")
+}

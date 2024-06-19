@@ -1,0 +1,34 @@
+---
+version: 1.1.6
+title: where_xor_test
+file: ./test/cake/internal/query/where_test.gleam
+test_name: where_xor_test
+---
+SelectQuery(Select(
+  SelectAll,
+  NoSelects,
+  FromTable("cats"),
+  NoJoins,
+  XorWhere([
+    WhereComparison(
+      WhereColumnValue("name"),
+      Equal,
+      WhereParamValue(StringParam("Karl")),
+    ),
+    WhereIsBool(
+      WhereColumnValue("is_wild"),
+      True,
+    ),
+    WhereComparison(
+      WhereColumnValue("age"),
+      LowerOrEqual,
+      WhereParamValue(IntParam(9)),
+    ),
+  ]),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+))
