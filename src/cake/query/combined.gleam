@@ -132,14 +132,12 @@ pub fn get_offset(query qry: Combined) -> Offset {
 
 // ▒▒▒ ORDER BY ▒▒▒
 
-pub type CombinedQueryOrderByDirection {
+pub type Direction {
   Asc
   Desc
 }
 
-fn map_order_by_direction_constructor(
-  in: CombinedQueryOrderByDirection,
-) -> OrderByDirection {
+fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
   case in {
     Asc -> query.Asc
     Desc -> query.Desc
@@ -219,7 +217,7 @@ pub fn order_desc_nulls_first_replace(
 pub fn order(
   query qry: Combined,
   by ordb: String,
-  direction dir: CombinedQueryOrderByDirection,
+  direction dir: Direction,
 ) -> Combined {
   let dir = dir |> map_order_by_direction_constructor
   qry
@@ -229,7 +227,7 @@ pub fn order(
 pub fn order_replace(
   query qry: Combined,
   by ordb: String,
-  direction dir: CombinedQueryOrderByDirection,
+  direction dir: Direction,
 ) -> Combined {
   let dir = dir |> map_order_by_direction_constructor
   qry

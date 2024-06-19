@@ -282,14 +282,12 @@ pub fn get_offset(query qry: Select) -> Offset {
 
 // ▒▒▒ ORDER BY ▒▒▒
 
-pub type SelectOrderByDirection {
+pub type Direction {
   Asc
   Desc
 }
 
-fn map_order_by_direction_constructor(
-  in: SelectOrderByDirection,
-) -> OrderByDirection {
+fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
   case in {
     Asc -> query.Asc
     Desc -> query.Desc
@@ -369,7 +367,7 @@ pub fn order_desc_nulls_first_replace(
 pub fn order(
   query qry: Select,
   by ordb: String,
-  direction dir: SelectOrderByDirection,
+  direction dir: Direction,
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
@@ -379,7 +377,7 @@ pub fn order(
 pub fn order_replace(
   query qry: Select,
   by ordb: String,
-  direction dir: SelectOrderByDirection,
+  direction dir: Direction,
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
