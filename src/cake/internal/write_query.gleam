@@ -106,6 +106,8 @@ pub type InsertModifier {
 pub type InsertSource(a) {
   InsertSourceDefault
   InsertSourceParams(records: List(a), caster: fn(a) -> InsertRow)
+  // TODO v1
+  // InsertSourceValues(records: List(List(InsertValue)))
   InsertSourceQuery(query: Query)
 }
 
@@ -135,7 +137,7 @@ pub type InsertConfictTarget {
   InsertConflictTargetConstraint(constraint: String)
 }
 
-pub fn to_insert_write_query(insert: Insert(a)) -> WriteQuery(a) {
+pub fn to_insert_query(insert: Insert(a)) -> WriteQuery(a) {
   insert |> InsertQuery
 }
 

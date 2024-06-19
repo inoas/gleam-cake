@@ -37,7 +37,7 @@ pub fn exec_dummy_insert() {
   let _ =
     run_write_on_sqlite(
       [cake_write_queries.new()]
-        |> cake_write_queries.to_insert_write_query(),
+        |> cake_write_queries.to_insert_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -54,7 +54,7 @@ pub fn exec_dummy_insert() {
         cake_write_queries.new(),
         cake_write_queries.new(),
       ]
-        |> cake_write_queries.to_insert_write_query(),
+        |> cake_write_queries.to_insert_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
