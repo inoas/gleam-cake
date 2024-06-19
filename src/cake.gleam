@@ -44,7 +44,7 @@ pub fn run_dummy_fragment() {
 
   let cats_query =
     f.table(name: "cats")
-    |> s.from
+    |> s.new_from
 
   let select_query =
     cats_query
@@ -91,13 +91,9 @@ pub fn run_dummy_fragment() {
 pub fn run_dummy_select() {
   iox.print_dashes()
 
-  let cats_sub_query =
-    f.table(name: "cats")
-    |> s.from
+  let cats_sub_query = s.new_from(f.table(name: "cats"))
 
-  let dogs_sub_query =
-    f.table(name: "dogs")
-    |> s.from
+  let dogs_sub_query = s.new_from(f.table(name: "dogs"))
 
   let cats_t = q.qualified_identifier("cats")
   let owners_t = q.qualified_identifier("owners")
@@ -114,7 +110,7 @@ pub fn run_dummy_select() {
     cats_sub_query
     |> s.to_query
     |> f.sub_query(alias: "cats")
-    |> s.from
+    |> s.new_from
     |> s.selects([
       s.col(cats_t("name")),
       s.col(cats_t("age")),
@@ -168,8 +164,7 @@ pub fn run_dummy_union_all() {
   iox.print_dashes()
 
   let select_query =
-    f.table(name: "cats")
-    |> s.from
+    s.new_from(f.table(name: "cats"))
     |> s.selects([s.col("name"), s.col("age")])
 
   let select_query_a =

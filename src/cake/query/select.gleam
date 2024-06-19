@@ -46,7 +46,23 @@ pub fn fragment(fragment frgmt: Fragment) -> SelectValue {
 
 // ▒▒▒ NEW ▒▒▒
 
-pub fn from(from frm: From) -> Select {
+pub fn new() -> Select {
+  Select(
+    kind: SelectAll,
+    select: NoSelects,
+    from: NoFrom,
+    join: NoJoins,
+    where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
+    order_by: NoOrderBy,
+    limit: NoLimit,
+    offset: NoOffset,
+    epilog: NoEpilog,
+  )
+}
+
+pub fn new_from(from frm: From) -> Select {
   Select(
     kind: SelectAll,
     select: NoSelects,
@@ -62,67 +78,23 @@ pub fn from(from frm: From) -> Select {
   )
 }
 
-pub fn from_distinct(from frm: From) -> Select {
-  Select(
-    kind: SelectDistinct,
-    select: NoSelects,
-    from: frm,
-    join: NoJoins,
-    where: NoWhere,
-    group_by: NoGroupBy,
-    having: NoWhere,
-    order_by: NoOrderBy,
-    limit: NoLimit,
-    offset: NoOffset,
-    epilog: NoEpilog,
-  )
+// ▒▒▒ KIND ▒▒▒
+
+pub fn all(query qry: Select) -> Select {
+  Select(..qry, kind: SelectAll)
 }
 
-pub fn select(selects slcts: List(SelectValue)) -> Select {
-  case slcts {
-    [] -> NoSelects
-    _ -> slcts |> Selects
-  }
-  |> Select(
-    kind: SelectAll,
-    from: NoFrom,
-    join: NoJoins,
-    where: NoWhere,
-    group_by: NoGroupBy,
-    having: NoWhere,
-    order_by: NoOrderBy,
-    limit: NoLimit,
-    offset: NoOffset,
-    epilog: NoEpilog,
-  )
+pub fn distinct(query qry: Select) -> Select {
+  Select(..qry, kind: SelectDistinct)
 }
 
-pub fn distinct(selects slcts: List(SelectValue)) -> Select {
-  case slcts {
-    [] -> NoSelects
-    _ -> slcts |> Selects
-  }
-  |> Select(
-    kind: SelectDistinct,
-    from: NoFrom,
-    join: NoJoins,
-    where: NoWhere,
-    group_by: NoGroupBy,
-    having: NoWhere,
-    order_by: NoOrderBy,
-    limit: NoLimit,
-    offset: NoOffset,
-    epilog: NoEpilog,
-  )
-}
-
-pub fn kind(query qry: Select, kind knd: SelectKind) -> Select {
+pub fn get_kind(query qry: Select, kind knd: SelectKind) -> Select {
   Select(..qry, kind: knd)
 }
 
 // ▒▒▒ FROM ▒▒▒
 
-pub fn replace_from(query qry: Select, from frm: From) -> Select {
+pub fn from(query qry: Select, from frm: From) -> Select {
   Select(..qry, from: frm)
 }
 

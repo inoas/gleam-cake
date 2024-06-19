@@ -9,7 +9,7 @@ import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 
 fn query() {
-  s.from(f.table("cats"))
+  s.new_from(f.table("cats"))
   |> s.order_asc("name")
   |> s.limit(10)
   |> s.offset(0)

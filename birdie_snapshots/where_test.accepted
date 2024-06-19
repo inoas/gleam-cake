@@ -10,17 +10,46 @@ SelectQuery(Select(
   FromTable("cats"),
   NoJoins,
   AndWhere([
-    WhereComparison(
-      WhereColumn("age"),
-      Equal,
-      WhereParam(IntParam(10)),
-    ),
+    OrWhere([
+      WhereComparison(
+        WhereColumn("age"),
+        Lower,
+        WhereParam(IntParam(100)),
+      ),
+      WhereComparison(
+        WhereColumn("age"),
+        LowerOrEqual,
+        WhereParam(IntParam(99)),
+      ),
+      WhereComparison(
+        WhereColumn("age"),
+        Equal,
+        WhereParam(IntParam(50)),
+      ),
+      WhereComparison(
+        WhereColumn("age"),
+        Lower,
+        WhereParam(IntParam(10)),
+      ),
+      WhereComparison(
+        WhereColumn("age"),
+        LowerOrEqual,
+        WhereParam(IntParam(9)),
+      ),
+    ]),
     RawWhereFragment(FragmentLiteral("1 = 1")),
-    WhereComparison(
-      WhereParam(StringParam("Hello")),
-      Equal,
-      WhereColumn("name"),
-    ),
+    OrWhere([
+      WhereComparison(
+        WhereColumn("name"),
+        Equal,
+        WhereParam(StringParam("Karl")),
+      ),
+      WhereComparison(
+        WhereColumn("name"),
+        Equal,
+        WhereParam(StringParam("Clara")),
+      ),
+    ]),
     OrWhere([
       WhereIsBool(
         WhereColumn("is_wild"),
@@ -30,17 +59,33 @@ SelectQuery(Select(
         WhereColumn("is_wild"),
         True,
       ),
+      WhereIsBool(
+        WhereColumn("is_wild"),
+        False,
+      ),
+      WhereIsBool(
+        WhereColumn("is_wild"),
+        True,
+      ),
+      WhereIsNotBool(
+        WhereColumn("is_wild"),
+        False,
+      ),
+      WhereIsNotBool(
+        WhereColumn("is_wild"),
+        True,
+      ),
+      WhereIsNull(WhereColumn("is_wild")),
+      WhereIsNotNull(WhereColumn("is_wild")),
     ]),
-    WhereComparison(
-      WhereColumn("age"),
-      GreaterOrEqual,
-      WhereParam(IntParam(0)),
-    ),
-    NotWhere(WhereComparison(
-      WhereParam(FloatParam(1.0)),
-      Equal,
-      WhereColumn("rating"),
-    )),
+    OrWhere([
+      NotWhere(WhereComparison(
+        WhereColumn("rating"),
+        Greater,
+        WhereParam(FloatParam(0.0)),
+      )),
+      NotWhere(WhereIsNull(WhereColumn("rating"))),
+    ]),
   ]),
   NoGroupBy,
   NoWhere,

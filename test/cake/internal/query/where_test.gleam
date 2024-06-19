@@ -10,18 +10,50 @@ import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 
 fn where_query() {
-  s.from(f.table("cats"))
-  |> s.where(sut.col("age") |> sut.eq(sut.int(10)))
+  s.new_from(f.table("cats"))
+  |> s.where(
+    sut.or([
+      sut.col("age") |> sut.lt(sut.int(100)),
+      sut.col("age") |> sut.lte(sut.int(99)),
+      sut.col("age") |> sut.eq(sut.int(50)),
+      sut.col("age") |> sut.lt(sut.int(10)),
+      sut.col("age") |> sut.lte(sut.int(9)),
+    ]),
+  )
   |> s.where(sut.fragment(frgmt.literal("1 = 1")))
-  |> s.where(sut.string("Hello") |> sut.eq(sut.col("name")))
+  |> s.where(
+    sut.or([
+      sut.col("name") |> sut.eq(sut.string("Karl")),
+      sut.col("name") |> sut.eq(sut.string("Clara")),
+    ]),
+  )
   |> s.where(
     sut.or([
       sut.col("is_wild") |> sut.is_false,
       sut.col("is_wild") |> sut.is_true,
+      sut.col("is_wild") |> sut.is_bool(False),
+      sut.col("is_wild") |> sut.is_bool(True),
+      sut.col("is_wild") |> sut.is_not_bool(False),
+      sut.col("is_wild") |> sut.is_not_bool(True),
+      sut.col("is_wild") |> sut.is_null,
+      sut.col("is_wild") |> sut.is_not_null,
     ]),
   )
-  |> s.where(sut.col("age") |> sut.gte(sut.int(0)))
-  |> s.where(sut.not(sut.float(1.0) |> sut.eq(sut.col("rating"))))
+  |> s.where(
+    sut.or([
+      sut.not(sut.col("rating") |> sut.gt(sut.float(0.0))),
+      sut.not(sut.col("rating") |> sut.is_null),
+    ]),
+  )
+  // |> s.where(
+  //   sut.col("owner_id")
+  //   |> sut.lt_any_query(
+  //     s.new_from(f.table("dogs"))
+  //     |> s.selects([s.col("owner_id")])
+  //     |> s.limit(1)
+  //     |> s.to_query,
+  //   ),
+  // )
   |> s.to_query
 }
 

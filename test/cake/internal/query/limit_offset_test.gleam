@@ -9,7 +9,7 @@ import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 
 fn limit_offset_query() {
-  sut.from(f.table("cats"))
+  sut.new_from(f.table("cats"))
   |> sut.order_asc("name")
   |> sut.limit(4)
   |> sut.offset(0)
