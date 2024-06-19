@@ -39,17 +39,19 @@ pub fn append_sql(
   PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
 }
 
+// TODO v1: this could potentially lead to bugs if the param is not also being used?
 pub fn append_param(
   prepared_statement prp_stm: PreparedStatement,
   param nw_prms: Param,
 ) {
   PreparedStatement(
     ..prp_stm,
-    params: list.append(prp_stm.params, [nw_prms]),
+    params: prp_stm.params |> list.append([nw_prms]),
     index: prp_stm.index + 1,
   )
 }
 
+// TODO v1: potentially replace this with append_placeholder_and_param calls
 pub fn append_sql_and_param(
   prepared_statement prp_stm: PreparedStatement,
   sql nw_sql: String,

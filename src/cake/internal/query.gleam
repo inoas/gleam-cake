@@ -379,13 +379,12 @@ pub type Where {
   WhereIsNotNull(value: WhereValue)
   WhereLike(value_a: WhereValue, string: String)
   WhereILike(value_a: WhereValue, string: String)
-  // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
-  WhereSimilar(value_a: WhereValue, string: String)
   // TODO v2 Check if this works with sub queries
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
+  // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
+  WhereSimilar(value_a: WhereValue, string: String)
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereExistsInSubQuery(sub_query: Query)
-  // TODO v2
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
   RawWhereFragment(fragment: Fragment)
@@ -395,6 +394,10 @@ pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
+  WhereSubQuery(sub_query: Query)
+  // WhereAny(values: List(WhereValue))
+  // WhereAll(values: List(WhereValue))
+  // WhereSubQuery(sub_query: Query)
   // TODO v2
   // WhereAll(value: WhereValue)
   // WhereAny(value: WhereValue)
@@ -432,6 +435,13 @@ fn where_apply(
 ) -> PreparedStatement {
   case wh {
     NoWhere -> prp_stm
+    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs)
+    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs)
+    NotWhere(wh) ->
+      prp_stm
+      |> prepared_statement.append_sql("NOT (")
+      |> where_apply(wh)
+      |> prepared_statement.append_sql(")")
     WhereEqual(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "=", val_b)
     WhereGreater(val_a, val_b) ->
@@ -474,16 +484,9 @@ fn where_apply(
         prm |> param.StringParam |> WhereParam,
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs)
-    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs)
-    NotWhere(wh) ->
-      prp_stm
-      |> prepared_statement.append_sql("NOT (")
-      |> where_apply(wh)
-      |> prepared_statement.append_sql(")")
-    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
+    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
     WhereExistsInSubQuery(sub_query) ->
       prp_stm |> where_exists_in_sub_query_apply(sub_query)
     RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
@@ -500,11 +503,11 @@ fn where_literal_apply(
       prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
     WhereParam(prm) -> {
       let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-
       prp_stm
       |> prepared_statement.append_sql_and_param(nxt_plchldr <> " " <> lt, prm)
     }
     WhereFragment(fragment: frgmt) -> prp_stm |> fragment_apply(frgmt)
+    WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
   }
 }
 
@@ -554,6 +557,39 @@ fn where_comparison_apply(
       |> fragment_apply(frgmt_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt_b)
+    WhereSubQuery(qry_a), WhereSubQuery(qry_b) ->
+      prp_stm
+      |> where_sub_query_apply(qry_a)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_sub_query_apply(qry_b)
+    WhereColumn(col), WhereSubQuery(qry) ->
+      prp_stm
+      |> where_string_apply(col <> " " <> oprtr <> " ")
+      |> where_sub_query_apply(qry)
+    WhereSubQuery(qry), WhereColumn(col) ->
+      prp_stm
+      |> where_sub_query_apply(qry)
+      |> where_string_apply(" " <> oprtr <> " " <> col)
+    WhereParam(prm), WhereSubQuery(qry) ->
+      prp_stm
+      |> where_param_apply(prm)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_sub_query_apply(qry)
+    WhereSubQuery(qry), WhereParam(prm) ->
+      prp_stm
+      |> where_sub_query_apply(qry)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_param_apply(prm)
+    WhereFragment(frgmt), WhereSubQuery(qry) ->
+      prp_stm
+      |> fragment_apply(frgmt)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_sub_query_apply(qry)
+    WhereSubQuery(qry), WhereFragment(frgmt) ->
+      prp_stm
+      |> where_sub_query_apply(qry)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> fragment_apply(frgmt)
   }
 }
 
@@ -569,8 +605,17 @@ fn where_param_apply(
   param prm: Param,
 ) -> PreparedStatement {
   let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-
   prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
+}
+
+fn where_sub_query_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  sub_query qry: Query,
+) -> PreparedStatement {
+  prp_stm
+  |> prepared_statement.append_sql(" (")
+  |> builder_apply(qry)
+  |> prepared_statement.append_sql(")")
 }
 
 fn where_logical_operator_apply(
@@ -609,6 +654,7 @@ fn where_value_in_values_apply(
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
       }
       WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" IN (")
 
@@ -630,6 +676,7 @@ fn where_value_in_values_apply(
           |> prepared_statement.append_sql_and_param(new_prp_stm, _, prm)
         }
         WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
+        WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
       }
     },
   )
@@ -650,6 +697,7 @@ fn where_between_apply(
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
       }
       WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" BETWEEN ")
 
@@ -661,6 +709,7 @@ fn where_between_apply(
         prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
       }
       WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
+      WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
     }
     |> prepared_statement.append_sql(" AND ")
 
@@ -671,6 +720,7 @@ fn where_between_apply(
       prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr_a, prm)
     }
     WhereFragment(frgmt) -> prp_stm |> fragment_apply(frgmt)
+    WhereSubQuery(qry) -> prp_stm |> where_sub_query_apply(qry)
   }
 
   prp_stm
@@ -681,9 +731,8 @@ fn where_exists_in_sub_query_apply(
   sub_query qry: Query,
 ) -> PreparedStatement {
   prp_stm
-  |> prepared_statement.append_sql(" EXISTS (")
-  |> builder_apply(qry)
-  |> prepared_statement.append_sql(")")
+  |> prepared_statement.append_sql(" EXISTS ")
+  |> where_sub_query_apply(qry)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -877,6 +926,7 @@ fn order_by_value_apply(
       |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
     OrderByParam(param, dir) ->
       prp_stm
+      // TODO v1 check if this is not buggy
       |> prepared_statement.append_param(param)
       |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
     OrderByFragment(frgmnt, dir) ->
@@ -891,8 +941,8 @@ fn order_by_direction_to_sql(
 ) -> String {
   case ordbd {
     Asc -> "ASC NULLS LAST"
-    Desc -> "DESC NULLS LAST"
     AscNullsFirst -> "ASC NULLS FIRST"
+    Desc -> "DESC NULLS LAST"
     DescNullsFirst -> "DESC NULLS FIRST"
   }
 }
@@ -1034,13 +1084,9 @@ pub fn fragment_prepared_split_string(
       False, [] -> [grapheme]
       // If the previous item matches a placeholder, we don't want to append
       // to it, because we want placeholders to exist as separat single items.
-      False, [first, ..] if first == fragment_placeholder_grapheme -> {
-        [grapheme, ..acc]
-      }
+      False, [x, ..] if x == fragment_placeholder_grapheme -> [grapheme, ..acc]
       // In any other case we can just append to the previous item
-      False, [first, ..rest] -> {
-        [first <> grapheme, ..rest]
-      }
+      False, [x, ..xs] -> [x <> grapheme, ..xs]
     }
   })
   |> list.reverse
@@ -1085,6 +1131,7 @@ fn fragment_apply(
           // `n` params where `n` is the number of placeholders, and discard
           // the rest.
           let missing_placeholders = prms_count - frgmt_plchldr_count
+
           prms |> list.take(missing_placeholders + 1)
         }
         order.Gt -> {
@@ -1095,8 +1142,9 @@ fn fragment_apply(
           // because `fragment.prepared()` converts a call with `0`
           // placeholders andor `0` params to `FragmentLiteral` which needs
           // neither placeholders nor params.
-          let assert Ok(last_item) = list.last(prms)
+          let assert Ok(last_item) = prms |> list.last
           let repeated_last_item = last_item |> list.repeat(missing_params)
+
           prms |> list.append(repeated_last_item)
         }
       }
@@ -1113,14 +1161,12 @@ fn fragment_apply(
 
             case frgmnt == fragment_placeholder_grapheme {
               True -> {
-                let nxt_plchldr =
-                  new_prp_stm |> prepared_statement.next_placeholder
-
                 // Pop one of the list, and use it as the next parameter value.
                 // This is safe because we have already checked that the list
                 // is not empty.
                 let assert [prm, ..rest_prms] = acc.1
-
+                let nxt_plchldr =
+                  new_prp_stm |> prepared_statement.next_placeholder
                 let new_prp_stm =
                   new_prp_stm
                   |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
