@@ -12,7 +12,7 @@ pub type Param {
   //
   // Not sure this should be here, but should it not?
   // Maybe add:
-  // DecimalParam(Int, Int) // TODO: v1? and if not here, in another way?
+  // DecimalParam(Int, Int) TODO v2
   // JsonParam(String)
   // XmlParam(String)
   // UuidParam(String)
