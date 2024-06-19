@@ -9,7 +9,7 @@
 import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox
-import cake/internal/write.{type Write}
+import cake/internal/write_query.{type WriteQuery}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import gleam/list
 import sqlight.{type Value}
@@ -25,9 +25,11 @@ pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   )
 }
 
-pub fn write_to_prepared_statement(query qry: Write(t)) -> PreparedStatement {
+pub fn write_query_to_prepared_statement(
+  query qry: WriteQuery(t),
+) -> PreparedStatement {
   qry
-  |> write.to_prepared_statement(
+  |> write_query.to_prepared_statement(
     placeholder_prefix: placeholder_prefix,
     database_adapter: SqliteAdapter,
   )
@@ -59,8 +61,8 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
   sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
-pub fn run_write(query qry: Write(t), decoder dcdr, db_connection db_conn) {
-  let prp_stm = write_to_prepared_statement(qry)
+pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) {
+  let prp_stm = write_query_to_prepared_statement(qry)
   let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
 
   let params = prepared_statement.get_params(prp_stm)

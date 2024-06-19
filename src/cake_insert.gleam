@@ -4,7 +4,8 @@
 import cake/adapter/postgres
 import cake/adapter/sqlite
 import cake/internal/stdlib/iox
-import cake/internal/write.{type Write}
+import cake/internal/write_example_wibble
+import cake/internal/write_query.{type WriteQuery}
 import gleam/dynamic
 import gleam/erlang/process
 
@@ -26,7 +27,10 @@ pub fn exec_dummy_insert() {
   iox.println("SQLite")
 
   let _ =
-    run_write_on_sqlite(write.wibble_write(), query_decoder)
+    run_write_on_sqlite(
+      [write_example_wibble.new()] |> write_example_wibble.to_write_query(),
+      query_decoder,
+    )
     |> iox.print_tap("Result: ")
     |> iox.dbg
 
@@ -35,19 +39,27 @@ pub fn exec_dummy_insert() {
   iox.println("Postgres")
 
   let _ =
-    run_write_on_postgres(write.wibble_write(), query_decoder)
+    run_write_on_postgres(
+      [
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+        write_example_wibble.new(),
+      ]
+        |> write_example_wibble.to_write_query(),
+      query_decoder,
+    )
     |> iox.print_tap("Result: ")
     |> iox.dbg
 }
 
-fn run_write_on_postgres(query: Write(t), query_decoder) {
+fn run_write_on_postgres(query: WriteQuery(t), query_decoder) {
   use conn <- postgres.with_connection
   let _ = drop_cats_table_if_exists() |> postgres.raw_execute(conn)
   let _ = create_cats_table() |> postgres.raw_execute(conn)
   query |> postgres.run_write(query_decoder, conn)
 }
 
-fn run_write_on_sqlite(query: Write(t), query_decoder) {
+fn run_write_on_sqlite(query: WriteQuery(t), query_decoder) {
   use conn <- sqlite.with_memory_connection
   let _ = drop_cats_table_if_exists() |> sqlite.raw_execute(conn)
   let _ = create_cats_table() |> sqlite.raw_execute(conn)
