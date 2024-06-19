@@ -350,6 +350,7 @@ fn select_value_apply(
 pub type From {
   NoFrom
   // TODO v1: Check if the table or view does indeed exist
+  // => should be a function somewhere but not here
   // TODO v1: Could be a list of tables/views
   // TODO v1: FromTable(names: List(String))
   // TODO v1: FromSubQuery(sub_queries: List(#(sub_query: Query, alias: String)))

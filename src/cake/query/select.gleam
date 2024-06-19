@@ -438,3 +438,12 @@ pub fn comment_remove(query qry: Select) -> Select {
 pub fn get_comment(query qry: Select) -> Comment {
   qry.comment
 }
+// TODO v3:
+// pub fn col_exists(connection conn: Connection, table_name tbl_nm: String, column col: String) -> Boolean {
+//   todo
+// }
+
+// TODO v3:
+// pub fn cols_exist(connection conn: Connection, table_name tbl_nm: String, columns cols: List(String)) -> List(#(String, Boolean)) {
+//   todo
+// }
