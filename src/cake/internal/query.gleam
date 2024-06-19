@@ -724,8 +724,9 @@ fn where_xor_apply(
   where whs: List(Where),
 ) -> PreparedStatement {
   case prp_stm |> prepared_statement.get_dialect() {
-    Postgres | Sqlite -> do_fake_where_xor_apply(prp_stm, whs)
+    Postgres -> do_fake_where_xor_apply(prp_stm, whs)
     Maria -> do_where_xor_apply(prp_stm, whs)
+    Sqlite -> do_fake_where_xor_apply(prp_stm, whs)
   }
 }
 
