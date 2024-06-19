@@ -18,7 +18,7 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 ## Examples
 
-See cake's [tests](./test/cake/).
+See cake's [tests](./test/cake_test/).
 
 ## Development
 
