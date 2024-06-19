@@ -1220,16 +1220,22 @@ pub fn comment_apply(
 ) -> PreparedStatement {
   case cmmnt {
     NoComment -> prp_stm
-    Comment(string: cmmnts) ->
-      prp_stm
-      |> prepared_statement.append_sql(
-        " /* "
-        <> cmmnts
-        |> string.replace(each: "*/", with: "* /")
-        |> string.replace(each: "/*", with: "/ *")
-        |> string.trim
-        <> " */",
-      )
+    Comment(string: cmmnt) ->
+      case cmmnt |> string.contains("\n") || cmmnt |> string.contains("\r") {
+        True ->
+          prp_stm
+          |> prepared_statement.append_sql(
+            " /* "
+            <> cmmnt
+            |> string.trim
+            |> string.replace(each: "*/", with: "* /")
+            |> string.replace(each: "/*", with: "/ *")
+            <> " */",
+          )
+        False ->
+          prp_stm
+          |> prepared_statement.append_sql(" -- " <> cmmnt |> string.trim)
+      }
   }
 }
 

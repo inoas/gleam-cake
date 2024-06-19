@@ -161,7 +161,7 @@ pub fn joins_replace(query qry: Select, joins jns: List(Join)) -> Select {
   Select(..qry, join: jns |> Joins)
 }
 
-pub fn joins_remove(query qry: Select) -> Select {
+pub fn no_joins(query qry: Select) -> Select {
   Select(..qry, join: NoJoins)
 }
 
@@ -412,7 +412,7 @@ pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
   }
 }
 
-pub fn epilog_remove(query qry: Select) -> Select {
+pub fn no_epilog(query qry: Select) -> Select {
   Select(..qry, epilog: NoEpilog)
 }
 
@@ -430,7 +430,7 @@ pub fn comment(query qry: Select, comment cmmnt: String) -> Select {
   }
 }
 
-pub fn comment_remove(query qry: Select) -> Select {
+pub fn no_comment(query qry: Select) -> Select {
   Select(..qry, comment: NoComment)
 }
 

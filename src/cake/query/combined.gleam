@@ -242,6 +242,6 @@ pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
   }
 }
 
-pub fn epilog_remove(query qry: Combined) -> Combined {
+pub fn no_epilog(query qry: Combined) -> Combined {
   Combined(..qry, epilog: NoEpilog)
 }
