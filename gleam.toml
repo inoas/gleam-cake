@@ -42,6 +42,7 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # html_lustre_converter
 # kielet
 # libsql
+# logging = ">= 1.1.0 and < 2.0.0"
 # lustre
 # lustre_dev_tools
 # lustre_ssg
@@ -66,11 +67,9 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # valid
 # wisp
 # youid
+# comet = ">= 0.2.2 and < 2.0.0" # logging
+# stacky = ">= 1.4.0 and < 2.0.0"
 
-gleam_erlang = ">= 0.25.0 and < 2.0.0"
-gleam_pgo = ">= 0.10.0 and < 2.0.0"
-gleam_stdlib = ">= 0.38.0 and < 2.0.0"
-sqlight = ">= 0.9.0 and < 2.0.0"
 # TODO v2 wrap prepared statement in a catch, return Result
 # TODO v2 run validator after building, return Result
 # TODO v2 - hash the structure, safe hash as valid into cache
@@ -79,8 +78,12 @@ sqlight = ">= 0.9.0 and < 2.0.0"
 # TODO v2 - add a client side caching layer
 # TODO v2   - safe small results in cache
 # TODO v2   - expire cache based on arg, which could also be 0 for no cache
-stacky = ">= 1.4.0 and < 2.0.0"
+
+gleam_erlang = ">= 0.25.0 and < 2.0.0"
+gleam_pgo = ">= 0.10.0 and < 2.0.0"
+gleam_stdlib = ">= 0.38.0 and < 2.0.0"
 pprint = ">= 1.0.3 and < 2.0.0"
+sqlight = ">= 0.9.0 and < 2.0.0"
 
 [dev-dependencies]
 birdie = ">= 1.1.5 and < 2.0.0"

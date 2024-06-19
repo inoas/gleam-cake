@@ -22,12 +22,6 @@ import cake/query/where as w
 import gleam/dynamic
 import gleam/erlang/process
 
-// import cake/query/having as h
-// import cake/query/limit as l
-// import cake/query/order as o
-// import cake/query/window as win
-// import cake/query/with as with
-
 pub fn main() {
   process.sleep(100)
 
@@ -222,17 +216,17 @@ pub fn run_dummy_union_all() {
 fn run_on_postgres(query: q.Query, query_decoder) {
   use conn <- postgres.with_connection
 
-  let _ = drop_owners_table_if_exists() |> postgres.raw_execute(conn)
-  let _ = create_owners_table() |> postgres.raw_execute(conn)
-  let _ = insert_owners_rows() |> postgres.raw_execute(conn)
+  let _ = drop_owners_table_if_exists() |> postgres.execute_raw_sql(conn)
+  let _ = create_owners_table() |> postgres.execute_raw_sql(conn)
+  let _ = insert_owners_rows() |> postgres.execute_raw_sql(conn)
 
-  let _ = drop_cats_table_if_exists() |> postgres.raw_execute(conn)
-  let _ = create_cats_table() |> postgres.raw_execute(conn)
-  let _ = insert_cats_rows() |> postgres.raw_execute(conn)
+  let _ = drop_cats_table_if_exists() |> postgres.execute_raw_sql(conn)
+  let _ = create_cats_table() |> postgres.execute_raw_sql(conn)
+  let _ = insert_cats_rows() |> postgres.execute_raw_sql(conn)
 
-  let _ = drop_dogs_table_if_exists() |> postgres.raw_execute(conn)
-  let _ = create_dogs_table() |> postgres.raw_execute(conn)
-  let _ = insert_dogs_rows() |> postgres.raw_execute(conn)
+  let _ = drop_dogs_table_if_exists() |> postgres.execute_raw_sql(conn)
+  let _ = create_dogs_table() |> postgres.execute_raw_sql(conn)
+  let _ = insert_dogs_rows() |> postgres.execute_raw_sql(conn)
 
   query |> postgres.run_query(query_decoder, conn)
 }
@@ -240,17 +234,17 @@ fn run_on_postgres(query: q.Query, query_decoder) {
 fn run_on_sqlite(query: q.Query, query_decoder) {
   use conn <- sqlite.with_memory_connection
 
-  let _ = drop_owners_table_if_exists() |> sqlite.raw_execute(conn)
-  let _ = create_owners_table() |> sqlite.raw_execute(conn)
-  let _ = insert_owners_rows() |> sqlite.raw_execute(conn)
+  let _ = drop_owners_table_if_exists() |> sqlite.execute_raw_sql(conn)
+  let _ = create_owners_table() |> sqlite.execute_raw_sql(conn)
+  let _ = insert_owners_rows() |> sqlite.execute_raw_sql(conn)
 
-  let _ = drop_cats_table_if_exists() |> sqlite.raw_execute(conn)
-  let _ = create_cats_table() |> sqlite.raw_execute(conn)
-  let _ = insert_cats_rows() |> sqlite.raw_execute(conn)
+  let _ = drop_cats_table_if_exists() |> sqlite.execute_raw_sql(conn)
+  let _ = create_cats_table() |> sqlite.execute_raw_sql(conn)
+  let _ = insert_cats_rows() |> sqlite.execute_raw_sql(conn)
 
-  let _ = drop_dogs_table_if_exists() |> sqlite.raw_execute(conn)
-  let _ = create_dogs_table() |> sqlite.raw_execute(conn)
-  let _ = insert_dogs_rows() |> sqlite.raw_execute(conn)
+  let _ = drop_dogs_table_if_exists() |> sqlite.execute_raw_sql(conn)
+  let _ = create_dogs_table() |> sqlite.execute_raw_sql(conn)
+  let _ = insert_dogs_rows() |> sqlite.execute_raw_sql(conn)
 
   query |> sqlite.run_query(query_decoder, conn)
 }
@@ -322,6 +316,5 @@ fn insert_dogs_rows() {
     ('Clara', 5, TRUE, NULL)
   ;"
 }
-
-@external(erlang, "cake_ffi", "stacky")
-pub fn stacky() -> a
+// @external(erlang, "cake_ffi", "stacky")
+// pub fn stacky() -> a

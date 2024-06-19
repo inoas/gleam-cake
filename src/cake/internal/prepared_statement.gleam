@@ -3,14 +3,10 @@
 //// values rather than raw SQL.
 ////
 
+import cake/internal/database_adapter.{type DatabaseAdapter}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
-
-pub type DatabaseAdapter {
-  PostgresAdapter
-  SqliteAdapter
-}
 
 pub opaque type PreparedStatement {
   PreparedStatement(

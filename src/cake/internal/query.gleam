@@ -31,9 +31,10 @@
 //// the query structure when composing different queries.
 ////
 
-import cake/internal/prepared_statement.{
-  type DatabaseAdapter, type PreparedStatement, PostgresAdapter, SqliteAdapter,
+import cake/internal/database_adapter.{
+  type DatabaseAdapter, PostgresAdapter, SqliteAdapter,
 }
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list

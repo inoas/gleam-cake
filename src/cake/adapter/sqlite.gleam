@@ -6,7 +6,8 @@
 
 // TODO v2 transactions and collecting their errors?
 
-import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
+import cake/internal/database_adapter.{SqliteAdapter}
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox
 import cake/internal/write_query.{type WriteQuery}
@@ -14,7 +15,7 @@ import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/list
-import sqlight.{type Value}
+import sqlight.{type Connection, type Value}
 
 // Could also be ? for SQLite
 const placeholder_prefix = "$"
@@ -37,7 +38,7 @@ pub fn write_query_to_prepared_statement(
   )
 }
 
-pub fn with_memory_connection(callback_fun) {
+pub fn with_memory_connection(callback_fun: fn(Connection) -> a) -> a {
   sqlight.with_connection(":memory:", callback_fun)
 }
 
@@ -74,6 +75,7 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
+        // If all we need is this, use based library
         BoolParam(param) -> sqlight.bool(param)
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)
@@ -87,6 +89,6 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
   sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
-pub fn raw_execute(query: String, conn) {
-  query |> sqlight.exec(conn)
+pub fn execute_raw_sql(query qry: String, connection conn: Connection) {
+  qry |> sqlight.exec(conn)
 }

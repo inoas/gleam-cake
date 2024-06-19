@@ -2,9 +2,8 @@
 //// _write queries_, such as `INSERT`, `UPDATE` and `DELETE`.
 ////
 
-import cake/internal/prepared_statement.{
-  type DatabaseAdapter, type PreparedStatement,
-}
+import cake/internal/database_adapter.{type DatabaseAdapter}
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{
   type Comment, type From, type Joins, type Query, type Where, FromSubQuery,
   FromTable, NoFrom,

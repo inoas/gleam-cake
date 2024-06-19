@@ -6,7 +6,8 @@
 
 // TODO v2 transactions and collecting their errors?
 
-import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter}
+import cake/internal/database_adapter.{PostgresAdapter}
+import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox
 import cake/internal/write_query.{type WriteQuery}
@@ -91,6 +92,7 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
+        // If all we need is this, use based library
         BoolParam(param) -> pgo.bool(param)
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
@@ -109,8 +111,6 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
   }
 }
 
-pub fn raw_execute(query: String, conn) {
-  let execute_decoder = dynamic.dynamic
-
-  query |> pgo.execute(conn, with: [], expecting: execute_decoder)
+pub fn execute_raw_sql(query qry: String, connection conn: Connection) {
+  qry |> pgo.execute(conn, with: [], expecting: dynamic.dynamic)
 }

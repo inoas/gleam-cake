@@ -127,15 +127,15 @@ pub fn exec_dummy_delete() {
 
 fn run_write_on_postgres(query: WriteQuery(t), query_decoder) {
   use conn <- postgres.with_connection
-  let _ = drop_cats_table_if_exists() |> postgres.raw_execute(conn)
-  let _ = create_cats_table() |> postgres.raw_execute(conn)
+  let _ = drop_cats_table_if_exists() |> postgres.execute_raw_sql(conn)
+  let _ = create_cats_table() |> postgres.execute_raw_sql(conn)
   query |> postgres.run_write(query_decoder, conn)
 }
 
 fn run_write_on_sqlite(query: WriteQuery(t), query_decoder) {
   use conn <- sqlite.with_memory_connection
-  let _ = drop_cats_table_if_exists() |> sqlite.raw_execute(conn)
-  let _ = create_cats_table() |> sqlite.raw_execute(conn)
+  let _ = drop_cats_table_if_exists() |> sqlite.execute_raw_sql(conn)
+  let _ = create_cats_table() |> sqlite.execute_raw_sql(conn)
   query |> sqlite.run_write(query_decoder, conn)
 }
 
