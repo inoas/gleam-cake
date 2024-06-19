@@ -1,3 +1,6 @@
+// TODO v1 module doc
+// TODO v1 tests
+
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,
   type OrderByDirection, type Query, type Select, type SelectValue, type Selects,

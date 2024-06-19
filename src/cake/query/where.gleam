@@ -1,3 +1,6 @@
+// TODO v1 module doc
+// TODO v1 tests
+
 import cake/internal/query.{
   type Fragment, type Where, type WhereValue, RawWhereFragment,
 }

@@ -1,3 +1,6 @@
+// TODO v1 split up and move this to examples
+// TODO v1 document how to run as examples
+
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
 import cake/internal/query as q

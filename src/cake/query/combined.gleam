@@ -1,3 +1,5 @@
+// TODO v1 module doc
+
 import cake/internal/query.{
   type Combined, type Limit, type Offset, type OrderByDirection, type Query,
   type Select, Combined, CombinedQuery, Except, ExceptAll, Intersect,

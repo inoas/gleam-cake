@@ -1,3 +1,5 @@
+//// Please use where.gleam instead of this module to specify HAVING constraints.
+////
 //// NOTICE: This module is a placeholder until rexporting functions is supported by Gleam.
 ////
 //// HAVING and WHERE are similar in so far that they both filter data.
@@ -8,6 +10,5 @@
 ////
 //// Please use where.gleam instead of this module to specify HAVING constraints.
 ////
-//// TODO: Add unit tests for specifing HAVING.
-////
 
+// TODO v1 tests for HAVING
