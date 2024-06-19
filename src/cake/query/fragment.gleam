@@ -34,7 +34,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         "Fragment had 0 "
         <> placeholder
         <> "-placeholders, but there were "
-        <> int.to_string(param_count)
+        <> param_count |> int.to_string
         <> " params given!",
       )
       str |> query.FragmentLiteral
@@ -42,7 +42,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
     _n, 0, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> int.to_string(plchldr_count)
+        <> plchldr_count |> int.to_string
         <> " "
         <> placeholder
         <> "-placeholders, but there were 0 params given!",
@@ -52,11 +52,11 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
     _n, _m, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> int.to_string(plchldr_count)
+        <> plchldr_count |> int.to_string
         <> " "
         <> placeholder
         <> "-placeholders, but there were "
-        <> int.to_string(param_count)
+        <> param_count |> int.to_string
         <> " params given!",
       )
       str |> query.FragmentPrepared(prms)
