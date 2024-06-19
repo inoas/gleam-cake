@@ -51,6 +51,7 @@ pub type InsertConflictStrategy {
   InsertConflictIgnore
   // TODO v1: implement SQL generation for RDMBS
   // TODO v1: change update from String to cake Update type once we have it
+  // TODO v1: check if Sqlite supports this at all
   InsertConflictUpdate(command: String, update: String)
 }
 
