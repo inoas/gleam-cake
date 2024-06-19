@@ -1213,7 +1213,12 @@ fn comment_apply(
     Comment(string: cmmnts) ->
       prp_stm
       |> prepared_statement.append_sql(
-        "/* " <> cmmnts |> string.replace(each: "*/", with: "*\\/") <> " */",
+        " /* "
+        <> cmmnts
+        |> string.replace(each: "*/", with: "* /")
+        |> string.replace(each: "/*", with: "/ *")
+        |> string.trim
+        <> " */",
       )
   }
 }

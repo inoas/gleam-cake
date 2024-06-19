@@ -20,7 +20,10 @@ pub fn select_query_query() {
   |> s.order_asc("cats.name")
   |> s.limit(10)
   |> s.offset(1)
-  |> s.epilog("-- my epilog comment here")
+  |> s.epilog(
+    "/* an epilog such as FOR UPDATE could be here instead of a comment */",
+  )
+  |> s.comment("my regular comment /* */")
   |> s.to_query
 }
 

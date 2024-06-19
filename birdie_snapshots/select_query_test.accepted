@@ -28,6 +28,6 @@ SelectQuery(Select(
   ]),
   Limit(10),
   Offset(1),
-  Epilog(" -- my epilog comment here"),
-  NoComment,
+  Epilog(" /* an epilog such as FOR UPDATE could be here instead of a comment */"),
+  Comment(" my regular comment /* */"),
 ))
