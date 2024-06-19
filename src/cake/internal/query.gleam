@@ -394,19 +394,16 @@ pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
+  // NOTICE: For some commands, the return value must be scalar:
+  // e.g. a result of 1 column, 1 row (LIMIT 1, and a single
+  // projection aka SELECT value)
+  // TODO v2 If there are multiple, take the list of select parts
+  // and return the last one, if there is none, return NULL
+  // And also potentially apply LIMIT 1
   WhereSubQuery(sub_query: Query)
+  // TODO v2
   // WhereAny(values: List(WhereValue))
   // WhereAll(values: List(WhereValue))
-  // WhereSubQuery(sub_query: Query)
-  // TODO v2
-  // WhereAll(value: WhereValue)
-  // WhereAny(value: WhereValue)
-  // TODO v2
-  // WhereSubQueryValue(sub_query: Query)
-  // NOTICE: For some commands, the return value must be scalar:
-  // 1 column, 1 row (LIMIT 1)
-  // If there are multiple, take the list of select parts
-  // and return the last one, if there is none, return NULL
 }
 
 fn where_clause_apply(
