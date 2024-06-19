@@ -3,9 +3,13 @@
 
 import cake/internal/query.{type Epilog, Epilog, NoEpilog}
 
-pub fn epilog(epilog eplg: String) -> Epilog {
+pub fn set(epilog eplg: String) -> Epilog {
   case eplg {
     "" -> NoEpilog
     _ -> Epilog(string: eplg)
   }
+}
+
+pub fn remove() -> Epilog {
+  NoEpilog
 }
