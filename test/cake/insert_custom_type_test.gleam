@@ -4,7 +4,7 @@ import cake/adapter/sqlite
 import cake/internal/query.{NoComment}
 import cake/internal/write_query.{
   type InsertRow, type WriteQuery, Insert, InsertColumns, InsertConflictError,
-  InsertIntoTable, InsertParam, InsertRow, InsertSourceParams, NoInsertModifier,
+  InsertIntoTable, InsertParam, InsertRow, InsertSourceRecords, NoInsertModifier,
   Returning,
 }
 import cake/param
@@ -18,7 +18,7 @@ import test_helper/sqlite_test_helper
 
 const table_name = "cats"
 
-const columns = ["name", "age", "is_wild"]
+const cols = ["name", "age", "is_wild"]
 
 type Cat {
   Cat(name: String, age: Int, is_wild: Bool)
@@ -45,8 +45,8 @@ fn insert_custom_type_query() -> WriteQuery(Cat) {
   Insert(
     into_table: InsertIntoTable(table: table_name),
     modifier: NoInsertModifier,
-    source: InsertSourceParams(records: cats, caster: caster),
-    columns: InsertColumns(cols: columns),
+    source: InsertSourceRecords(records: cats, caster: caster),
+    columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: Returning(["name"]),
     comment: NoComment,

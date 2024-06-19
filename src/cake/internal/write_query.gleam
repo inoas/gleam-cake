@@ -94,7 +94,7 @@ pub type InsertIntoTable {
 }
 
 pub type InsertColumns {
-  InsertColumns(cols: List(String))
+  InsertColumns(columns: List(String))
 }
 
 pub type InsertModifier {
@@ -104,8 +104,8 @@ pub type InsertModifier {
 
 pub type InsertSource(a) {
   InsertSourceDefault
-  InsertSourceParams(records: List(a), caster: fn(a) -> InsertRow)
-  InsertSourceValues(records: List(InsertRow))
+  InsertSourceRecords(records: List(a), caster: fn(a) -> InsertRow)
+  InsertSourceRows(records: List(InsertRow))
   InsertSourceQuery(query: Query)
 }
 
@@ -143,8 +143,8 @@ fn insert_apply(
   prepared_statement prp_stm: PreparedStatement,
   insert isrt: Insert(a),
 ) {
-  let InsertIntoTable(into_table) = isrt.into_table
-  let InsertColumns(insert_columns) = isrt.columns
+  let InsertIntoTable(table: into_table) = isrt.into_table
+  let InsertColumns(columns: insert_columns) = isrt.columns
 
   let prp_stm =
     prp_stm
@@ -158,11 +158,11 @@ fn insert_apply(
     |> insert_modifier_apply(isrt.modifier)
 
   let prp_stm = case isrt.source {
-    InsertSourceParams(records: src, caster: cstr) ->
+    InsertSourceRecords(records: src, caster: cstr) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_params_apply(source: src, row_caster: cstr)
-    InsertSourceValues(records: src) ->
+    InsertSourceRows(records: src) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_values_apply(source: src)

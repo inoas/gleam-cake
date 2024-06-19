@@ -12,7 +12,7 @@ InsertQuery(Insert(
     "is_wild",
   ]),
   NoInsertModifier,
-  InsertSourceParams(
+  InsertSourceRecords(
     [
       Cat("Whiskers", 3, False),
       Cat("Mittens", 5, True),

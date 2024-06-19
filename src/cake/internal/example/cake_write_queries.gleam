@@ -2,14 +2,14 @@
 import cake/internal/query.{NoComment}
 import cake/internal/write_query.{
   type InsertRow, type WriteQuery, Insert, InsertColumns, InsertConflictError,
-  InsertIntoTable, InsertParam, InsertRow, InsertSourceParams, NoInsertModifier,
+  InsertIntoTable, InsertParam, InsertRow, InsertSourceRecords, NoInsertModifier,
   NoReturning,
 }
 import cake/param
 
 pub const table_name = "cats"
 
-pub const columns = ["name", "age", "is_wild"]
+pub const cols = ["name", "age", "is_wild"]
 
 pub type Wibble {
   Wibble(name: String, age: Int, is_wild: Bool)
@@ -33,8 +33,8 @@ pub fn to_insert_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   Insert(
     into_table: InsertIntoTable(table: table_name),
     modifier: NoInsertModifier,
-    source: InsertSourceParams(records: wibbles, caster: caster),
-    columns: InsertColumns(cols: columns),
+    source: InsertSourceRecords(records: wibbles, caster: caster),
+    columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: NoReturning,
     comment: NoComment,
