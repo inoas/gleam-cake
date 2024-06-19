@@ -219,40 +219,40 @@ pub fn run_dummy_union_all() {
   process.sleep(100)
 }
 
-pub fn run_on_postgres(query, query_decoder) {
+fn run_on_postgres(query: q.Query, query_decoder) {
   use conn <- postgres.with_connection
 
-  let _ = drop_owners_table_if_exists() |> postgres.execute(conn)
-  let _ = create_owners_table() |> postgres.execute(conn)
-  let _ = insert_owners_rows() |> postgres.execute(conn)
+  let _ = drop_owners_table_if_exists() |> postgres.raw_execute(conn)
+  let _ = create_owners_table() |> postgres.raw_execute(conn)
+  let _ = insert_owners_rows() |> postgres.raw_execute(conn)
 
-  let _ = drop_cats_table_if_exists() |> postgres.execute(conn)
-  let _ = create_cats_table() |> postgres.execute(conn)
-  let _ = insert_cats_rows() |> postgres.execute(conn)
+  let _ = drop_cats_table_if_exists() |> postgres.raw_execute(conn)
+  let _ = create_cats_table() |> postgres.raw_execute(conn)
+  let _ = insert_cats_rows() |> postgres.raw_execute(conn)
 
-  let _ = drop_dogs_table_if_exists() |> postgres.execute(conn)
-  let _ = create_dogs_table() |> postgres.execute(conn)
-  let _ = insert_dogs_rows() |> postgres.execute(conn)
+  let _ = drop_dogs_table_if_exists() |> postgres.raw_execute(conn)
+  let _ = create_dogs_table() |> postgres.raw_execute(conn)
+  let _ = insert_dogs_rows() |> postgres.raw_execute(conn)
 
-  postgres.run_query(conn, query, query_decoder)
+  query |> postgres.run_query(query_decoder, conn)
 }
 
-fn run_on_sqlite(query, query_decoder) {
+fn run_on_sqlite(query: q.Query, query_decoder) {
   use conn <- sqlite.with_memory_connection
 
-  let _ = drop_owners_table_if_exists() |> sqlite.execute(conn)
-  let _ = create_owners_table() |> sqlite.execute(conn)
-  let _ = insert_owners_rows() |> sqlite.execute(conn)
+  let _ = drop_owners_table_if_exists() |> sqlite.raw_execute(conn)
+  let _ = create_owners_table() |> sqlite.raw_execute(conn)
+  let _ = insert_owners_rows() |> sqlite.raw_execute(conn)
 
-  let _ = drop_cats_table_if_exists() |> sqlite.execute(conn)
-  let _ = create_cats_table() |> sqlite.execute(conn)
-  let _ = insert_cats_rows() |> sqlite.execute(conn)
+  let _ = drop_cats_table_if_exists() |> sqlite.raw_execute(conn)
+  let _ = create_cats_table() |> sqlite.raw_execute(conn)
+  let _ = insert_cats_rows() |> sqlite.raw_execute(conn)
 
-  let _ = drop_dogs_table_if_exists() |> sqlite.execute(conn)
-  let _ = create_dogs_table() |> sqlite.execute(conn)
-  let _ = insert_dogs_rows() |> sqlite.execute(conn)
+  let _ = drop_dogs_table_if_exists() |> sqlite.raw_execute(conn)
+  let _ = create_dogs_table() |> sqlite.raw_execute(conn)
+  let _ = insert_dogs_rows() |> sqlite.raw_execute(conn)
 
-  sqlite.run_query(conn, query, query_decoder)
+  query |> sqlite.run_query(query_decoder, conn)
 }
 
 fn drop_owners_table_if_exists() {
