@@ -76,7 +76,7 @@ pub fn query_select_snap_test() {
   |> s.to_query
   |> f.sub_query(alias: "cats")
   |> s.from_from
-  |> s.selects([
+  |> s.select([
     s.col(cats_t("name")),
     s.col(cats_t("age")),
     s.col(owners_t("name")) |> s.alias("owner_name"),
@@ -108,7 +108,7 @@ pub fn query_combined_snap_test() {
   let base_select_query =
     f.table(name: "cats")
     |> s.from_from
-    |> s.selects([s.col("name"), s.col("age")])
+    |> s.select([s.col("name"), s.col("age")])
     |> tap(fn(v) {
       v
       |> to_string

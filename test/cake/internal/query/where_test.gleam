@@ -78,7 +78,7 @@ fn where_any_query() {
     sut.col("owner_id")
     |> sut.eq_any_query(
       s.new_from(f.table("dogs"))
-      |> s.selects([s.col("owner_id")])
+      |> s.select([s.col("owner_id")])
       |> s.to_query,
     ),
   )

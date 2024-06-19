@@ -9,7 +9,7 @@ import pprint.{format as to_string}
 fn selects_query() {
   f.table(name: "cats")
   |> sut.new_from
-  |> sut.selects([
+  |> sut.select([
     sut.col("name"),
     sut.bool(True),
     sut.float(1.0),

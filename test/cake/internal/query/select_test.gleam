@@ -12,7 +12,7 @@ const const_field = "age"
 
 fn selects_query() {
   sut.new_from(f.table("cats"))
-  |> sut.selects([
+  |> sut.select([
     sut.col("name"),
     // sut.bool(True),
     // sut.float(1.0),
@@ -51,7 +51,7 @@ pub fn selects_execution_result_test() {
 fn selects_distinct_query() {
   sut.new_from(f.table("cats"))
   |> sut.distinct
-  |> sut.selects([sut.col("is_wild")])
+  |> sut.select([sut.col("is_wild")])
   |> sut.order_asc("is_wild")
   |> sut.to_query
 }

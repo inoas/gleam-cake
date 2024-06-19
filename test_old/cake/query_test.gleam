@@ -46,7 +46,7 @@ pub fn query_where_between_sqlite_run_test() {
 fn query_group_by_setup() {
   f.table(name: "cats")
   |> s.from_from
-  |> s.selects([s.col("name"), s.col("MAX(age)")])
+  |> s.select([s.col("name"), s.col("MAX(age)")])
   |> s.group_by("id")
   |> s.group_by("age")
   |> s.group_bys_replace(["name", "breed"])

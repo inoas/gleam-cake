@@ -1,4 +1,7 @@
-// TODO v1 module doc
+//// A Param is a value that can be used in a query.
+//// Params are wrapped (boxed) literal values,
+//// that can be used in a query.
+////
 
 pub type Param {
   BoolParam(Bool)
@@ -6,8 +9,10 @@ pub type Param {
   IntParam(Int)
   StringParam(String)
   // NullParam // <- Not sure we want this?
+  //
+  // Not sure this should be here, but should it not?
   // Maybe add:
-  // DecimalParam(Int, Int) // TODO: v1
+  // DecimalParam(Int, Int) // TODO: v1? and if not here, in another way?
   // JsonParam(String)
   // XmlParam(String)
   // UuidParam(String)

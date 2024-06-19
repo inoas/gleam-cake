@@ -4,13 +4,14 @@
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,
   type OrderByDirection, type Query, type Select, type SelectKind,
-  type SelectValue, type Selects, type Where, AndWhere, GroupBy, Joins, Limit,
-  NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects,
-  NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select, SelectAll,
+  type SelectValue, type Selects, type Where, AndWhere, Epilog, GroupBy, Joins,
+  Limit, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy,
+  NoSelects, NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select, SelectAll,
   SelectDistinct, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
+import gleam/string
 
 pub fn to_query(query qry: Select) -> Query {
   qry |> SelectQuery
@@ -104,7 +105,7 @@ pub fn get_from(query qry: Select) -> From {
 
 // ▒▒▒ SELECT ▒▒▒
 
-pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select {
+pub fn select(query qry: Select, select_values sv: List(SelectValue)) -> Select {
   case sv, qry.select {
     [], _ -> qry
     sv, NoSelects -> Select(..qry, select: Selects(sv))
@@ -113,7 +114,7 @@ pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select
   }
 }
 
-pub fn selects_replace(
+pub fn select_replace(
   query qry: Select,
   select_values sv: List(SelectValue),
 ) -> Select {
@@ -183,14 +184,10 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
   }
 }
 
-// TODO v1
-// pub fn xor_where(
-//   query qry: Select,
-//   where whr: Where,
-// ) -> Select {
-//   let new_where = query.XorWhere([qry.where, whr])
-//   Select(..qry, where: new_where)
-// }
+pub fn xor_where(query qry: Select, where whr: Where) -> Select {
+  let new_where = query.XorWhere([qry.where, whr])
+  Select(..qry, where: new_where)
+}
 
 pub fn where_replace(query qry: Select, where whr: Where) -> Select {
   Select(..qry, where: whr)
@@ -198,6 +195,40 @@ pub fn where_replace(query qry: Select, where whr: Where) -> Select {
 
 pub fn get_where(query qry: Select) -> Where {
   qry.where
+}
+
+// ▒▒▒ HAVING ▒▒▒
+// This is the same as WHERE, but for GROUP BY
+
+pub fn having(query qry: Select, having whr: Where) -> Select {
+  case qry.having {
+    NoWhere -> Select(..qry, having: whr)
+    AndWhere(wheres) ->
+      Select(..qry, having: AndWhere(wheres |> list.append([whr])))
+    _ -> Select(..qry, having: query.AndWhere([qry.having, whr]))
+  }
+}
+
+pub fn or_having(query qry: Select, having whr: Where) -> Select {
+  case qry.having {
+    NoWhere -> Select(..qry, having: whr)
+    OrWhere(wheres) ->
+      Select(..qry, having: OrWhere(wheres |> list.append([whr])))
+    _ -> Select(..qry, having: query.OrWhere([qry.having, whr]))
+  }
+}
+
+pub fn xor_having(query qry: Select, having whr: Where) -> Select {
+  let new_where = query.XorWhere([qry.having, whr])
+  Select(..qry, having: new_where)
+}
+
+pub fn having_replace(query qry: Select, having whr: Where) -> Select {
+  Select(..qry, having: whr)
+}
+
+pub fn get_having(query qry: Select) -> Where {
+  qry.having
 }
 
 // ▒▒▒ GROUP BY ▒▒▒
@@ -353,4 +384,16 @@ pub fn order_replace(
   let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
+}
+
+pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
+  let eplg = eplg |> string.trim
+  case eplg {
+    "" -> Select(..qry, epilog: NoEpilog)
+    _ -> Select(..qry, epilog: { " " <> eplg } |> Epilog)
+  }
+}
+
+pub fn epilog_remove(query qry: Select) -> Select {
+  Select(..qry, epilog: NoEpilog)
 }

@@ -101,3 +101,9 @@ fn append_sql_and_params(
 fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
   prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
 }
+//
+// TODO
+// This should ONLY be used for debugging purposes
+// not to ever run actual queries in production.
+// pub fn to_debug(prepared_statement prp_stm: PreparedStatement) -> String {
+// }

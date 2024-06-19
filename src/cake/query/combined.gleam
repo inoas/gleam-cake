@@ -2,9 +2,11 @@
 
 import cake/internal/query.{
   type Combined, type Limit, type Offset, type OrderByDirection, type Query,
-  type Select, Combined, CombinedQuery, ExceptAll, ExceptDistinct, IntersectAll,
-  IntersectDistinct, OrderBy, OrderByColumn, UnionAll, UnionDistinct,
+  type Select, Combined, CombinedQuery, Epilog, ExceptAll, ExceptDistinct,
+  IntersectAll, IntersectDistinct, NoEpilog, OrderBy, OrderByColumn, UnionAll,
+  UnionDistinct,
 }
+import gleam/string
 
 pub fn to_query(combined_query qry: Combined) -> Query {
   qry |> CombinedQuery
@@ -212,4 +214,16 @@ pub fn order_replace(
   let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
+}
+
+pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
+  let eplg = eplg |> string.trim
+  case eplg {
+    "" -> Combined(..qry, epilog: NoEpilog)
+    _ -> Combined(..qry, epilog: { " " <> eplg } |> Epilog)
+  }
+}
+
+pub fn epilog_remove(query qry: Combined) -> Combined {
+  Combined(..qry, epilog: NoEpilog)
 }

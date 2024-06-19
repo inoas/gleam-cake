@@ -1,5 +1,37 @@
-// TODO v1 module doc
-// TODO v1 add tests
+//// Contains types and composition functions to build
+//// _read queries_.
+////
+//// _Read queries_ are in essence SELECT and combined queries such as `UNION`,
+//// `UNION ALL`, `INTERSECT`, 'EXCECEPT', etc. which combine multiple `SELECT`
+//// queries into one query.
+////
+//// ## Notice
+////
+//// The included types are all non-opaque public, so that you _CAN_ build
+//// whatever you want in userland code, however the whole module is internal
+//// because you _SHOULD NOT_ build queries based on raw types manually.
+////
+//// Because the likihood of creating invalid queries
+//// is mich higher than using the interface modules found
+//// in `cake/query/*`.
+////
+//// WARNING: Once the library has matured, public access to these types may
+//// vanish.
+////
+//// ## Scope
+////
+//// The functions of this module are mostly concerned about either
+//// of these two things:
+////
+//// 1. Building complex nested custom types that represent read queries.
+//// 2. Converting these complex nested custom types into SQL including
+////    all the necessary prepared statement placeholders and parameters.
+////
+//// The complex nested types are setup in a way that most values are wrapped
+//// (or boxed) even if that would not be required technically, simply to
+//// enhance the debugging experience and thus make it easier to reason about
+//// the query structure when composing different queries.
+////
 
 import cake/internal/prepared_statement.{
   type DatabaseAdapter, type PreparedStatement, PostgresAdapter, SqliteAdapter,
@@ -192,7 +224,6 @@ fn select_builder(
   prp_stm
   // TODO v1 make sure all of these are tested individually
   // TODO v1 make sure there is a query with all of these
-  // TODO v1 make sure there is a combined query wrapping 2 full queries
   |> select_clause_apply(qry.kind, qry.select)
   |> from_clause_apply(qry.from)
   |> join_clause_apply(qry.join)
