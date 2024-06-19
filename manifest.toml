@@ -16,7 +16,7 @@ packages = [
   { name = "gleam_community_colour", version = "1.4.0", build_tools = ["gleam"], requirements = ["gleam_json", "gleam_stdlib"], otp_app = "gleam_community_colour", source = "hex", outer_checksum = "795964217EBEDB3DA656F5EB8F67D7AD22872EB95182042D3E7AFEF32D3FD2FE" },
   { name = "gleam_erlang", version = "0.25.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_erlang", source = "hex", outer_checksum = "054D571A7092D2A9727B3E5D183B7507DAB0DA41556EC9133606F09C15497373" },
   { name = "gleam_json", version = "1.0.1", build_tools = ["gleam"], requirements = ["gleam_stdlib", "thoas"], otp_app = "gleam_json", source = "hex", outer_checksum = "9063D14D25406326C0255BDA0021541E797D8A7A12573D849462CAFED459F6EB" },
-  { name = "gleam_pgo", version = "0.9.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "pgo"], otp_app = "gleam_pgo", source = "hex", outer_checksum = "54C31CD4994D2653B175337296533E370DFB84AB94783C4D9C9A1529C28C3FE1" },
+  { name = "gleam_pgo", version = "0.10.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "pgo"], otp_app = "gleam_pgo", source = "hex", outer_checksum = "56B8FF31B3FC2E516EAC53C25528674FEEA2F00EBD81FC3C1899F2054D406BF7" },
   { name = "gleam_stdlib", version = "0.38.0", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "663CF11861179AF415A625307447775C09404E752FF99A24E2057C835319F1BE" },
   { name = "glexer", version = "1.0.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "glexer", source = "hex", outer_checksum = "BD477AD657C2B637FEF75F2405FAEFFA533F277A74EF1A5E17B55B1178C228FB" },
   { name = "justin", version = "1.0.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "justin", source = "hex", outer_checksum = "7FA0C6DB78640C6DC5FBFD59BF3456009F3F8B485BF6825E97E1EB44E9A1E2CD" },
@@ -38,6 +38,6 @@ birdie = { version = ">= 1.1.5 and < 2.0.0" }
 glacier = { version = ">= 1.0.0 and < 2.0.0" }
 gleam_erlang = { version = ">= 0.25.0 and < 2.0.0" }
 gleam_pgo = { version = ">= 0.9.0 and < 2.0.0" }
-gleam_stdlib = { version = ">= 0.37.0 and < 2.0.0" }
+gleam_stdlib = { version = ">= 0.38.0 and < 2.0.0" }
 pprint = { version = ">= 1.0.3 and < 2.0.0" }
 sqlight = { version = ">= 0.9.0 and < 2.0.0" }
