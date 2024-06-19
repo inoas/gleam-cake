@@ -20,8 +20,8 @@ test_name: where_xor_prepared_statement_test
     PostgresAdapter,
   ),
   PreparedStatement(
-    "?",
-    "SELECT * FROM cats WHERE ((name = ?1) AND NOT(is_wild IS TRUE) AND NOT(age <= ?2)) OR (NOT(name = ?3) AND (is_wild IS TRUE) AND NOT(age <= ?4)) OR (NOT(name = ?5) AND NOT(is_wild IS TRUE) AND (age <= ?6))",
+    "$",
+    "SELECT * FROM cats WHERE ((name = $1) AND NOT(is_wild IS TRUE) AND NOT(age <= $2)) OR (NOT(name = $3) AND (is_wild IS TRUE) AND NOT(age <= $4)) OR (NOT(name = $5) AND NOT(is_wild IS TRUE) AND (age <= $6))",
     [
       StringParam("Karl"),
       IntParam(9),

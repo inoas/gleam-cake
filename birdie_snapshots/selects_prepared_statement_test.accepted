@@ -13,8 +13,8 @@ test_name: selects_prepared_statement_test
     PostgresAdapter,
   ),
   PreparedStatement(
-    "?",
-    "SELECT name, ?1, age, age AS years_since_birth FROM cats",
+    "$",
+    "SELECT name, $1, age, age AS years_since_birth FROM cats",
     [StringParam("hello")],
     1,
     SqliteAdapter,

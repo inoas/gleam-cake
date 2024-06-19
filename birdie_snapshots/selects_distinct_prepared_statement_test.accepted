@@ -13,7 +13,7 @@ test_name: selects_distinct_prepared_statement_test
     PostgresAdapter,
   ),
   PreparedStatement(
-    "?",
+    "$",
     "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
     [],
     0,

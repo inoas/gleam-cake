@@ -13,7 +13,7 @@ test_name: where_any_prepared_statement_test
     PostgresAdapter,
   ),
   PreparedStatement(
-    "?",
+    "$",
     "SELECT * FROM cats WHERE owner_id = ANY(SELECT owner_id FROM dogs)",
     [],
     0,

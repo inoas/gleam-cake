@@ -3,6 +3,8 @@
 // TODO v1 Add pluggable logging, remove default logging
 // TODO v1 What about transactions?
 
+// TODO v2: consider using library based
+
 import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}

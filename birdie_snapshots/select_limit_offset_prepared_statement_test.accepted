@@ -13,7 +13,7 @@ test_name: select_limit_offset_prepared_statement_test
     PostgresAdapter,
   ),
   PreparedStatement(
-    "?",
+    "$",
     "SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4",
     [],
     0,

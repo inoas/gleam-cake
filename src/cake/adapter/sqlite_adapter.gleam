@@ -3,6 +3,8 @@
 // TODO v1 Add pluggable logging, remove default logging
 // TODO v1 What about transactions?
 
+// TODO v2: consider using library based
+
 import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
@@ -11,7 +13,8 @@ import gleam/dynamic
 import gleam/list
 import sqlight.{type Value}
 
-const prepared_statement_placeholder_prefix = "?"
+// Could also be ? for SQLite
+const prepared_statement_placeholder_prefix = "$"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
