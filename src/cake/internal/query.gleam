@@ -222,8 +222,6 @@ fn select_builder(
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm
-  // TODO v1 make sure all of these are tested individually
-  // TODO v1 make sure there is a query with all of these
   |> select_clause_apply(qry.kind, qry.select)
   |> from_clause_apply(qry.from)
   |> join_clause_apply(qry.join)
