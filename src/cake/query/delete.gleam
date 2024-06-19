@@ -1,1 +1,5 @@
-// TODO v1
+//// A DSL to build `DELETE` queries.
+////
+//// TODO v1
+////
+

@@ -1,13 +1,15 @@
-// TODO v1 tests
-// TODO v1 module doc
+//// Sqlite adapter which which passes `PreparedStatements`
+//// to the `sqlight` library for execution.
+////
+
 // TODO v1 Add pluggable logging, remove default logging
 
 // TODO v2 transactions and collecting their errors?
 
 import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
+import cake/internal/stdlib/iox
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
-import cake/stdlib/iox
 import gleam/dynamic
 import gleam/list
 import sqlight.{type Value}

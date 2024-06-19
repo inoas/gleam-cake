@@ -10,7 +10,7 @@ import test_helper/sqlite_test_helper
 
 const const_field = "age"
 
-fn selects_query() {
+fn select_query() {
   sut.new_from(f.table("cats"))
   |> sut.select([
     sut.col("name"),
@@ -24,31 +24,31 @@ fn selects_query() {
   |> sut.to_query
 }
 
-pub fn selects_test() {
-  selects_query()
+pub fn select_test() {
+  select_query()
   |> to_string
-  |> birdie.snap("selects_test")
+  |> birdie.snap("select_test")
 }
 
-pub fn selects_prepared_statement_test() {
-  let pgo = selects_query() |> postgres_adapter.to_prepared_statement
-  let lit = selects_query() |> sqlite_adapter.to_prepared_statement
+pub fn select_prepared_statement_test() {
+  let pgo = select_query() |> postgres_adapter.to_prepared_statement
+  let lit = select_query() |> sqlite_adapter.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("selects_prepared_statement_test")
+  |> birdie.snap("select_prepared_statement_test")
 }
 
-pub fn selects_execution_result_test() {
-  let pgo = selects_query() |> postgres_test_helper.setup_and_run
-  let lit = selects_query() |> sqlite_test_helper.setup_and_run
+pub fn select_execution_result_test() {
+  let pgo = select_query() |> postgres_test_helper.setup_and_run
+  let lit = select_query() |> sqlite_test_helper.setup_and_run
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("selects_execution_result_test")
+  |> birdie.snap("select_execution_result_test")
 }
 
-fn selects_distinct_query() {
+fn select_distinct_query() {
   sut.new_from(f.table("cats"))
   |> sut.distinct
   |> sut.select([sut.col("is_wild")])
@@ -56,26 +56,26 @@ fn selects_distinct_query() {
   |> sut.to_query
 }
 
-pub fn selects_distinct_test() {
-  selects_distinct_query()
+pub fn select_distinct_test() {
+  select_distinct_query()
   |> to_string
-  |> birdie.snap("selects_distinct_test")
+  |> birdie.snap("select_distinct_test")
 }
 
-pub fn selects_distinct_prepared_statement_test() {
-  let pgo = selects_distinct_query() |> postgres_adapter.to_prepared_statement
-  let lit = selects_distinct_query() |> sqlite_adapter.to_prepared_statement
+pub fn select_distinct_prepared_statement_test() {
+  let pgo = select_distinct_query() |> postgres_adapter.to_prepared_statement
+  let lit = select_distinct_query() |> sqlite_adapter.to_prepared_statement
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("selects_distinct_prepared_statement_test")
+  |> birdie.snap("select_distinct_prepared_statement_test")
 }
 
-pub fn selects_distinct_execution_result_test() {
-  let pgo = selects_distinct_query() |> postgres_test_helper.setup_and_run
-  let lit = selects_distinct_query() |> sqlite_test_helper.setup_and_run
+pub fn select_distinct_execution_result_test() {
+  let pgo = select_distinct_query() |> postgres_test_helper.setup_and_run
+  let lit = select_distinct_query() |> sqlite_test_helper.setup_and_run
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("selects_distinct_execution_result_test")
+  |> birdie.snap("select_distinct_execution_result_test")
 }

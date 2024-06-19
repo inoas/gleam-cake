@@ -1,15 +1,15 @@
-//// PostgreSQL adapter which converts queries
+//// PostgreSQL adapter which which passes `PreparedStatements`
+//// to the `gleam_pgo` library for execution.
 ////
 
-// TODO v1 module doc
 // TODO v1 Add pluggable logging, remove default logging
 
 // TODO v2 transactions and collecting their errors?
 
 import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter}
 import cake/internal/query.{type Query}
+import cake/internal/stdlib/iox
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
-import cake/stdlib/iox
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection, type Value}

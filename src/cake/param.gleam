@@ -1,6 +1,6 @@
-//// A Param is a value that can be used in a query.
-//// Params are wrapped (boxed) literal values,
-//// that can be used in a query.
+//// A `Param` is a value that can be used in a query.
+//// Params (e.g. parameters) are wrapped (boxed) literal values,
+//// that can be used in SQL queries.
 ////
 
 pub type Param {

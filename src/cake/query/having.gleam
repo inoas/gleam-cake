@@ -1,7 +1,8 @@
-//// Please use the where module instead of this module to specify `HAVING`
+//// Please use the `where` module instead of this module to specify `HAVING`
 //// constraints.
 ////
-//// `HAVING` and `WHERE` are similar in so far that they both filter data.
+//// `HAVING` and `WHERE` are similar in so far that they both filter data:
+////
 //// - `WHERE` filters input rows before groups and aggregates are computed,
 ////   and by that controls which rows go into the aggregate computation.
 //// - `HAVING` filters group rows after groups and aggregates are computed.

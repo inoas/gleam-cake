@@ -126,7 +126,7 @@ pub fn select_replace(
   }
 }
 
-pub fn get_selects(query qry: Select) -> Selects {
+pub fn get_select(query qry: Select) -> Selects {
   qry.select
 }
 

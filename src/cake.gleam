@@ -1,11 +1,17 @@
 //// This module exists for premature testing only
 //// It will be removed or replaced shortly before v1
 
-// TODO v1 Remove shortly before v1
+// TODO v1
+// 1. extract query building examples from the tests
+// 2. copy them into the examples dir
+// 3. confirm we are not missing some good examples that are
+//    in this module currently.
+// 4. Remove shortly before v1
 
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter
 import cake/internal/query as q
+import cake/internal/stdlib/iox
 import cake/param as p
 import cake/query/combined as c
 import cake/query/fragment as frgmt
@@ -13,7 +19,6 @@ import cake/query/from as f
 import cake/query/join as j
 import cake/query/select as s
 import cake/query/where as w
-import cake/stdlib/iox
 import gleam/dynamic
 import gleam/erlang/process
 
@@ -56,7 +61,7 @@ pub fn run_dummy_fragment() {
         w.fragment_value(
           frgmt.prepared("LOWER(" <> frgmt.placeholder <> ")", [
             p.string("Karl"),
-            p.string("Clara"),
+            // p.string("Clara"),
           ]),
         ),
       )
