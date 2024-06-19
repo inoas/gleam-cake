@@ -7,14 +7,14 @@ test_name: combined_limit_offset_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
+    "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
     PostgresAdapter,
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_prefix_1 UNION ALL SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_prefix_2 UNION ALL SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_prefix_3 ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
+    "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_prefix_1 UNION ALL SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_prefix_2 ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
     SqliteAdapter,

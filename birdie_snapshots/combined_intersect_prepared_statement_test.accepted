@@ -7,14 +7,14 @@ test_name: combined_intersect_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) INTERSECT (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) INTERSECT (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
+    "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) INTERSECT (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
     PostgresAdapter,
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_prefix_1 INTERSECT SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_prefix_2 INTERSECT SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_prefix_3 ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
+    "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_prefix_1 INTERSECT SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_prefix_2 ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
     SqliteAdapter,
