@@ -10,40 +10,14 @@ import cake/param.{type Param}
 import gleam/list
 import gleam/string
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  WriteQuery                                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 pub type WriteQuery(a) {
   InsertQuery(Insert(a))
   // UpdateQuery(a)
   // DeleteQuery
-}
-
-pub type Insert(a) {
-  Insert(
-    into: String,
-    // tag with a?
-    columns: List(String),
-    source: InsertRecords(a),
-    // comment: String, // v2
-    // with (_recursive?): ?, // v2
-    // modifier: String, ? // v1
-    // epiloq: Epilog
-  )
-}
-
-pub type InsertRecords(a) {
-  InsertFromParams(source: List(a), caster: fn(a) -> InsertRow)
-  InsertFromQuery(query: Query)
-}
-
-pub type InsertRow {
-  InsertRow(row: List(InsertValue))
-}
-
-pub type InsertValue {
-  InsertParam(column: String, param: Param)
-}
-
-pub fn insert_to_write_query(insert: Insert(a)) -> WriteQuery(a) {
-  insert |> InsertQuery
 }
 
 pub fn to_prepared_statement(
@@ -63,6 +37,40 @@ fn apply(
   case qry {
     InsertQuery(insert) -> prp_stm |> insert_apply(insert)
   }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Insert                                                                   │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Insert(a) {
+  Insert(
+    into: String,
+    // TODO: tag with a?
+    columns: List(String),
+    source: InsertRecords(a),
+    // with (_recursive?): ?, // v2
+    // modifier: InsertModifier, ? // such as IGNORE or REPLACE // v1
+    // epiloq: Epilog
+    // comment: String, // v2
+  )
+}
+
+pub type InsertRecords(a) {
+  InsertFromParams(source: List(a), caster: fn(a) -> InsertRow)
+  InsertFromQuery(query: Query)
+}
+
+pub type InsertRow {
+  InsertRow(row: List(InsertValue))
+}
+
+pub type InsertValue {
+  InsertParam(column: String, param: Param)
+}
+
+pub fn insert_to_write_query(insert: Insert(a)) -> WriteQuery(a) {
+  insert |> InsertQuery
 }
 
 fn insert_apply(
