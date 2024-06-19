@@ -4,43 +4,23 @@ title: selects_test
 file: ./test/cake/internal/query/select_test.gleam
 test_name: selects_test
 ---
-#(
-  SelectQuery(Select(
-    Selects([
-      SelectColumn("name"),
-      SelectParam(StringParam("hello")),
-      SelectFragment(FragmentLiteral("age")),
-      SelectAlias(
-        SelectColumn("age"),
-        "years_since_birth",
-      ),
-    ]),
-    FromTable("cats"),
-    NoJoins,
-    NoWhere,
-    NoGroupBy,
-    NoWhere,
-    NoOrderBy,
-    NoLimitNoOffset,
-    NoEpilog,
-  )),
-  SelectQuery(Select(
-    Selects([
-      SelectColumn("name"),
-      SelectParam(StringParam("hello")),
-      SelectFragment(FragmentLiteral("age")),
-      SelectAlias(
-        SelectColumn("age"),
-        "years_since_birth",
-      ),
-    ]),
-    FromTable("cats"),
-    NoJoins,
-    NoWhere,
-    NoGroupBy,
-    NoWhere,
-    NoOrderBy,
-    NoLimitNoOffset,
-    NoEpilog,
-  )),
-)
+SelectQuery(Select(
+  Selects([
+    SelectColumn("name"),
+    SelectParam(StringParam("hello")),
+    SelectFragment(FragmentLiteral("age")),
+    SelectAlias(
+      SelectColumn("age"),
+      "years_since_birth",
+    ),
+  ]),
+  FromTable("cats"),
+  NoJoins,
+  NoWhere,
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+))

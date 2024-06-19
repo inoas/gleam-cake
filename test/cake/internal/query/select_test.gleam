@@ -25,10 +25,7 @@ fn selects_query() {
 }
 
 pub fn selects_test() {
-  let pgo = selects_query()
-  let lit = selects_query()
-
-  #(pgo, lit)
+  selects_query()
   |> to_string
   |> birdie.snap("selects_test")
 }

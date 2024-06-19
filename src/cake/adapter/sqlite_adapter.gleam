@@ -1,4 +1,4 @@
-import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import cake/stdlib/iox
@@ -9,7 +9,8 @@ import sqlight.{type Value}
 const prepared_statement_placeholder_prefix = "?"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> query.builder_new(prepared_statement_placeholder_prefix)
+  qry
+  |> query.builder_new(prepared_statement_placeholder_prefix, SqliteAdapter)
 }
 
 pub fn with_memory_connection(callback_fun) {
@@ -18,9 +19,7 @@ pub fn with_memory_connection(callback_fun) {
 
 pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
-
-  let sql = prepared_statement.get_sql(prp_stm)
-  // |> iox.dbg
+  let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
 
   let params = prepared_statement.get_params(prp_stm)
 
@@ -35,19 +34,14 @@ pub fn run_query(db_connection db_conn, query qry: Query, decoder dcdr) {
       }
     })
     |> iox.print_tap("Params: ")
-  // |> iox.dbg
+    |> iox.inspect_println_tap
 
-  sql
-  |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
+  sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
 pub fn run_query_with_dynamic_decoder(db_connection db_conn, query qry: Query) {
   let prp_stm = to_prepared_statement(qry)
-
-  let sql =
-    prepared_statement.get_sql(prp_stm)
-    |> iox.dbg
-
+  let sql = prepared_statement.get_sql(prp_stm) |> iox.dbg
   let params = prepared_statement.get_params(prp_stm)
 
   let db_params =
@@ -61,10 +55,9 @@ pub fn run_query_with_dynamic_decoder(db_connection db_conn, query qry: Query) {
       }
     })
     |> iox.print_tap("Params: ")
-    |> iox.dbg
+    |> iox.inspect_println_tap
 
-  sql
-  |> sqlight.query(on: db_conn, with: db_params, expecting: dynamic.dynamic)
+  sql |> sqlight.query(on: db_conn, with: db_params, expecting: dynamic.dynamic)
 }
 
 pub fn execute(query: String, conn) {

@@ -1,6 +1,11 @@
-// FROM -> WHERE -> GROUP BY -> HAVING -> DISTINCT -> SELECT -> UNION -> ORDER BY -> LIMIT
+// Select: FROM -> WHERE -> GROUP BY -> HAVING -> DISTINCT -> SELECT -> ORDER BY -> LIMIT
+// Combined: queries -> ORDER BY -> LIMIT
 
-import cake/internal/prepared_statement.{type PreparedStatement}
+pub const computed_alias_prefix = "__cake_computed_alias_prefix_"
+
+import cake/internal/prepared_statement.{
+  type DatabaseAdapter, type PreparedStatement, SqliteAdapter,
+}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
@@ -19,10 +24,9 @@ pub type Query {
 pub fn builder_new(
   query qry: Query,
   prepared_statement_prefix prp_stm_prfx: String,
+  database_adapter db_adptr: DatabaseAdapter,
 ) -> PreparedStatement {
-  prp_stm_prfx
-  |> prepared_statement.new
-  |> builder_apply(qry)
+  prp_stm_prfx |> prepared_statement.new(db_adptr) |> builder_apply(qry)
 }
 
 fn builder_apply(
@@ -46,7 +50,8 @@ fn combined_builder(
   prp_stm
   |> combined_clause_apply(qry)
   |> order_by_clause_apply(qry.order_by)
-  |> limit_offset_clause_apply(qry.limit_offset)
+  |> limit_clause_apply(qry.limit)
+  |> offset_clause_apply(qry.offset)
   |> epilog_apply(qry.epilog)
 }
 
@@ -63,20 +68,63 @@ pub fn combined_clause_apply(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  qry.queries
-  |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, qry: Select) -> PreparedStatement {
-      case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> select_builder(qry)
-        False -> {
-          new_prp_stm
-          |> prepared_statement.append_sql(" " <> sql_command <> " ")
-          |> select_builder(qry)
+  // `LIMIT`, `OFFSET` and `ORDER BY` is not SQL standard to work
+  // within queries referenced nested in UNION and its siblings
+  // (Combined queries) but they do work on MariaDB and PostgreSQL
+  // out of the box, see <https://github.com/diesel-rs/diesel/issues/3151>.
+  //
+  // For Sqlite we need to wrap these in sub queries, like so:
+  //
+  // ```sql
+  // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1 UNION ALL SELECT * FROM (SELECT * FROM cats OFFSET 2) AS c2 LIMIT 1
+  // ```
+
+  let open_nested_query = fn(prp_stm) {
+    case prp_stm |> prepared_statement.get_database_adapter() {
+      SqliteAdapter ->
+        prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
+      _ -> prp_stm |> prepared_statement.append_sql("(")
+    }
+  }
+
+  let close_nested_query = fn(prp_stm, nested_index) {
+    case prp_stm |> prepared_statement.get_database_adapter() {
+      SqliteAdapter ->
+        prp_stm
+        |> prepared_statement.append_sql(
+          ") AS " <> computed_alias_prefix <> nested_index |> int.to_string,
+        )
+      _ -> prp_stm |> prepared_statement.append_sql(")")
+    }
+  }
+
+  let prp_stm = prp_stm |> open_nested_query
+  let #(new_prp_stm, nested_index) =
+    qry.queries
+    |> list.fold(
+      #(prp_stm, 0),
+      fn(acc: #(PreparedStatement, Int), qry: Select) -> #(
+        PreparedStatement,
+        Int,
+      ) {
+        let #(new_prp_stm, nested_index) = acc
+        case new_prp_stm == prp_stm {
+          True -> #(new_prp_stm |> select_builder(qry), nested_index)
+          False -> {
+            let nested_index = nested_index + 1
+            let new_prp_stm =
+              new_prp_stm
+              |> close_nested_query(nested_index)
+              |> prepared_statement.append_sql(" " <> sql_command <> " ")
+              |> open_nested_query
+              |> select_builder(qry)
+
+            #(new_prp_stm, nested_index)
+          }
         }
-      }
-    },
-  )
+      },
+    )
+  new_prp_stm |> close_nested_query(nested_index + 1)
 }
 
 pub type Combined {
@@ -84,10 +132,8 @@ pub type Combined {
     kind: CombinedQueryKind,
     // TODO: if single list item, unwrap Combined to Select and warn user // v2
     queries: List(Select),
-    // TODO: split up and wrap
-    // limit: Limit // v0
-    // offset: Offset // v0
-    limit_offset: LimitOffset,
+    limit: Limit,
+    offset: Offset,
     order_by: OrderBy,
     // Epilog allows you to append raw SQL to the end of queries.
     // One should NEVER put raw user data into the epilog.
@@ -99,14 +145,14 @@ pub type CombinedQueryKind {
   Union
   UnionAll
   Except
-  // NOTICE: ExceptAll Does not work on SQLite, TODO: add to query builder validator
+  // NOTICE: ExceptAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   ExceptAll
   Intersect
-  // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator
+  // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   IntersectAll
 }
 
-// TODO: Also allow nested combined in combined_get_queries
+// v2: Also allow nested combined (aka UNION of UNIONs, etc)
 // from any nested SELECT
 pub fn combined_query_new(
   kind knd: CombinedQueryKind,
@@ -115,26 +161,30 @@ pub fn combined_query_new(
   qrys
   // NOTICE: `ORDER BY` is not allowed for queries,
   // that are part of combined queries:
-  |> combined_query_remove_order_by_clause
+  // TODO: rather than drop it, make sure
+  // we can use it
+  // EDIT: seems we CAN actually use it
+  // |> combined_query_remove_order_by_clause
   |> Combined(
     kind: knd,
     queries: _,
-    limit_offset: NoLimitNoOffset,
+    limit: NoLimit,
+    offset: NoOffset,
     order_by: NoOrderBy,
     epilog: NoEpilog,
   )
 }
 
-fn combined_query_remove_order_by_clause(
-  queries qrys: List(Select),
-) -> List(Select) {
-  // TODO: Add notice that order_by was dropped if it existed before
-  // TODO: Would be very useful if we could inject a logging function here
-  // TODO: Would be very cool if that code part would be eliminated
-  //       depending on the environment.
-  qrys
-  |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: NoOrderBy) })
-}
+// fn combined_query_remove_order_by_clause(
+//   queries qrys: List(Select),
+// ) -> List(Select) {
+//   // TODO: Add notice that order_by was dropped if it existed before
+//   // TODO: Would be very useful if we could inject a logging function here
+//   // TODO: Would be very cool if that code part would be eliminated
+//   //       depending on the environment.
+//   qrys
+//   |> list.map(fn(qry: Select) -> Select { Select(..qry, order_by: NoOrderBy) })
+// }
 
 pub fn combined_get_queries(combined_query qry: Combined) -> List(Select) {
   qry.queries
@@ -160,37 +210,33 @@ fn select_builder(
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm
-  |> select_clause_apply(qry.selects)
+  |> select_clause_apply(qry.select)
   |> from_clause_apply(qry.from)
-  |> join_clause_apply(qry.joins)
+  |> join_clause_apply(qry.join)
   |> where_clause_apply(qry.where)
   |> order_by_clause_apply(qry.order_by)
-  |> limit_offset_clause_apply(qry.limit_offset)
+  |> limit_clause_apply(qry.limit)
+  |> offset_clause_apply(qry.offset)
 }
 
 pub type Select {
   Select(
     // with: String, // v2
-    // with_recursive: String, ? // v2
-    // TODO: singular field:
-    selects: Selects,
-    // modifier: String, // v1
+    // with_recursive: String, // v2
+    select: Selects,
+    // modifier: String, // v2
     // distinct: String, // v1
     // window: String, // v2
     from: From,
-    // TODO: singular field:
-    joins: Joins,
+    join: Joins,
     where: Where,
     group_by: GroupBy,
     having: Where,
     order_by: OrderBy,
-    // TODO: split up and wrap
-    // limit: Limit // v0
-    // offset: Offset // v0
-    limit_offset: LimitOffset,
+    limit: Limit,
+    offset: Offset,
     epilog: Epilog,
     // comment: String, // v2
-    // values: String, // ?
   )
 }
 
@@ -279,7 +325,6 @@ fn select_value_apply(
     SelectColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
     SelectParam(prm) -> {
       let nxt_plchldr = prp_stm |> prepared_statement.next_placeholder
-
       prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
     }
     SelectFragment(frgmnt) -> prp_stm |> fragment_apply(frgmnt)
@@ -303,9 +348,9 @@ pub type From {
 
 fn from_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part prt: From,
+  from frm: From,
 ) -> PreparedStatement {
-  case prt {
+  case frm {
     NoFrom -> prp_stm
     FromTable(tbl) -> prp_stm |> prepared_statement.append_sql(" FROM " <> tbl)
     FromSubQuery(qry, als) ->
@@ -323,10 +368,10 @@ fn from_clause_apply(
 pub type Where {
   NoWhere
   WhereEqual(value_a: WhereValue, value_b: WhereValue)
-  WhereLower(value_a: WhereValue, value_b: WhereValue)
-  WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
   WhereGreater(value_a: WhereValue, value_b: WhereValue)
   WhereGreaterOrEqual(value_a: WhereValue, value_b: WhereValue)
+  WhereLower(value_a: WhereValue, value_b: WhereValue)
+  WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
   WhereUnequal(value_a: WhereValue, value_b: WhereValue)
   WhereIsBool(value: WhereValue, bool: Bool)
   WhereIsNotBool(value: WhereValue, bool: Bool)
@@ -339,10 +384,10 @@ pub type Where {
   // TODO: Check if this works with sub queries once WhereValue can also be a
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
-  AndWhere(parts: List(Where))
-  OrWhere(parts: List(Where))
+  AndWhere(wheres: List(Where))
+  OrWhere(wheres: List(Where))
   // TODO: XorWhere(List(Where))
-  NotWhere(part: Where)
+  NotWhere(where: Where)
   RawWhereFragment(fragment: Fragment)
   WhereExistsInSubQuery(sub_query: Query)
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
@@ -363,57 +408,60 @@ pub type WhereValue {
 
 fn where_apply(
   prepared_statement prp_stm: PreparedStatement,
-  part wh: Where,
+  where wh: Where,
 ) -> PreparedStatement {
   case wh {
     NoWhere -> prp_stm
     WhereEqual(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "=", val_b)
-    WhereLower(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<", val_b)
-    WhereLowerOrEqual(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<=", val_b)
     WhereGreater(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, ">", val_b)
     WhereGreaterOrEqual(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, ">=", val_b)
+    WhereLower(val_a, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "<", val_b)
+    WhereLowerOrEqual(val_a, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "<=", val_b)
     WhereUnequal(val_a, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "<>", val_b)
-    WhereIsBool(val, True) -> prp_stm |> where_apply_literal(val, "IS TRUE")
-    WhereIsBool(val, False) -> prp_stm |> where_apply_literal(val, "IS FALSE")
+    WhereIsBool(val, True) -> prp_stm |> where_literal_apply(val, "IS TRUE")
+    WhereIsBool(val, False) -> prp_stm |> where_literal_apply(val, "IS FALSE")
     WhereIsNotBool(val, True) ->
-      prp_stm |> where_apply_literal(val, "IS NOT TRUE")
+      prp_stm |> where_literal_apply(val, "IS NOT TRUE")
     WhereIsNotBool(val, False) ->
-      prp_stm |> where_apply_literal(val, "IS NOT FALSE")
-    WhereIsNull(val) -> prp_stm |> where_apply_literal(val, "IS NULL")
-    WhereIsNotNull(val) -> prp_stm |> where_apply_literal(val, "IS NOT NULL")
+      prp_stm |> where_literal_apply(val, "IS NOT FALSE")
+    WhereIsNull(val) -> prp_stm |> where_literal_apply(val, "IS NULL")
+    WhereIsNotNull(val) -> prp_stm |> where_literal_apply(val, "IS NOT NULL")
     WhereLike(val, prm) ->
       prp_stm
-      |> where_comparison_apply(val, "LIKE", WhereParam(param.StringParam(prm)))
+      |> where_comparison_apply(
+        val,
+        "LIKE",
+        prm |> param.StringParam |> WhereParam,
+      )
     WhereILike(col, prm) ->
       prp_stm
       |> where_comparison_apply(
         col,
         "ILIKE",
-        WhereParam(param.StringParam(prm)),
+        prm |> param.StringParam |> WhereParam,
       )
     WhereSimilar(col, prm) ->
       prp_stm
       |> where_comparison_apply(
         col,
         "SIMILAR TO",
-        WhereParam(param.StringParam(prm)),
+        prm |> param.StringParam |> WhereParam,
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    AndWhere(whs) -> prp_stm |> where_apply_logical_operator("AND", whs)
-    OrWhere(whs) -> prp_stm |> where_apply_logical_operator("OR", whs)
-    NotWhere(wh) -> {
+    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs)
+    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs)
+    NotWhere(wh) ->
       prp_stm
       |> prepared_statement.append_sql("NOT (")
       |> where_apply(wh)
       |> prepared_statement.append_sql(")")
-    }
-    WhereIn(val, vals) -> prp_stm |> where_apply_value_in_values(val, vals)
+    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
     RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
@@ -432,7 +480,7 @@ fn where_clause_apply(
   }
 }
 
-fn where_apply_literal(
+fn where_literal_apply(
   prepared_statement prp_stm: PreparedStatement,
   value v: WhereValue,
   literal lt: String,
@@ -459,54 +507,54 @@ fn where_comparison_apply(
   case val_a, val_b {
     WhereColumn(col_a), WhereColumn(col_b) ->
       prp_stm
-      |> where_apply_string(col_a <> " " <> oprtr <> " " <> col_b)
+      |> where_string_apply(col_a <> " " <> oprtr <> " " <> col_b)
     WhereColumn(col), WhereParam(prm) ->
       prp_stm
-      |> where_apply_string(col <> " " <> oprtr <> " ")
-      |> where_apply_param(prm)
+      |> where_string_apply(col <> " " <> oprtr <> " ")
+      |> where_param_apply(prm)
     WhereParam(prm), WhereColumn(col) ->
       prp_stm
-      |> where_apply_param(prm)
-      |> where_apply_string(" " <> oprtr <> " " <> col)
+      |> where_param_apply(prm)
+      |> where_string_apply(" " <> oprtr <> " " <> col)
     WhereParam(prm_a), WhereParam(prm_b) ->
       prp_stm
-      |> where_apply_param(prm_a)
-      |> where_apply_string(" " <> oprtr <> " ")
-      |> where_apply_param(prm_b)
+      |> where_param_apply(prm_a)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_param_apply(prm_b)
     WhereFragment(frgmt), WhereColumn(col) ->
       prp_stm
       |> fragment_apply(frgmt)
-      |> where_apply_string(" " <> oprtr <> " " <> col)
+      |> where_string_apply(" " <> oprtr <> " " <> col)
     WhereColumn(col), WhereFragment(frgmt) ->
       prp_stm
-      |> where_apply_string(col <> " " <> oprtr <> " ")
+      |> where_string_apply(col <> " " <> oprtr <> " ")
       |> fragment_apply(frgmt)
     WhereFragment(frgmt), WhereParam(prm) ->
       prp_stm
       |> fragment_apply(frgmt)
-      |> where_apply_string(" " <> oprtr <> " ")
-      |> where_apply_param(prm)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_param_apply(prm)
     WhereParam(prm), WhereFragment(frgmt) ->
       prp_stm
-      |> where_apply_param(prm)
-      |> where_apply_string(" " <> oprtr <> " ")
+      |> where_param_apply(prm)
+      |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt)
     WhereFragment(frgmt_a), WhereFragment(frgmt_b) ->
       prp_stm
       |> fragment_apply(frgmt_a)
-      |> where_apply_string(" " <> oprtr <> " ")
+      |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt_b)
   }
 }
 
-fn where_apply_string(
+fn where_string_apply(
   prepared_statement prp_stm: PreparedStatement,
   string s: String,
 ) -> PreparedStatement {
   prp_stm |> prepared_statement.append_sql(s)
 }
 
-fn where_apply_param(
+fn where_param_apply(
   prepared_statement prp_stm: PreparedStatement,
   param prm: Param,
 ) -> PreparedStatement {
@@ -515,7 +563,7 @@ fn where_apply_param(
   prp_stm |> prepared_statement.append_sql_and_param(nxt_plchldr, prm)
 }
 
-fn where_apply_logical_operator(
+fn where_logical_operator_apply(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
   where whs: List(Where),
@@ -538,7 +586,7 @@ fn where_apply_logical_operator(
   |> prepared_statement.append_sql(")")
 }
 
-fn where_apply_value_in_values(
+fn where_value_in_values_apply(
   prepared_statement prp_stm: PreparedStatement,
   value val: WhereValue,
   parameters prms: List(WhereValue),
@@ -698,36 +746,42 @@ fn join_clause_apply(
   joins jns: Joins,
 ) -> PreparedStatement {
   case jns {
-    Joins(parts) -> {
-      parts
+    Joins(jns) -> {
+      jns
       |> list.fold(
         prp_stm,
-        fn(new_prp_stm: PreparedStatement, prt: Join) -> PreparedStatement {
-          let apply_join = fn(
+        fn(new_prp_stm: PreparedStatement, jn: Join) -> PreparedStatement {
+          let join_command_apply = fn(
             new_prp_stm: PreparedStatement,
             sql_command: String,
           ) -> PreparedStatement {
             new_prp_stm
             |> prepared_statement.append_sql(" " <> sql_command <> " ")
-            |> join_apply(prt)
+            |> join_apply(jn)
           }
 
-          let apply_on = fn(new_prp_stm: PreparedStatement, on: Where) {
+          let on_apply = fn(new_prp_stm: PreparedStatement, on: Where) {
             new_prp_stm
             |> prepared_statement.append_sql(" ON ")
             |> where_apply(on)
           }
 
-          case prt {
-            CrossJoin(_, _) -> new_prp_stm |> apply_join("CROSS JOIN")
+          case jn {
+            CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
             InnerJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("INNER JOIN") |> apply_on(on)
+              new_prp_stm |> join_command_apply("INNER JOIN") |> on_apply(on)
             LeftOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("LEFT OUTER JOIN") |> apply_on(on)
+              new_prp_stm
+              |> join_command_apply("LEFT OUTER JOIN")
+              |> on_apply(on)
             RightOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("RIGHT OUTER JOIN") |> apply_on(on)
+              new_prp_stm
+              |> join_command_apply("RIGHT OUTER JOIN")
+              |> on_apply(on)
             FullOuterJoin(_, _, on: on) ->
-              new_prp_stm |> apply_join("FULL OUTER JOIN") |> apply_on(on)
+              new_prp_stm
+              |> join_command_apply("FULL OUTER JOIN")
+              |> on_apply(on)
           }
         },
       )
@@ -738,16 +792,16 @@ fn join_clause_apply(
 
 fn join_apply(
   prepared_statement prp_stm: PreparedStatement,
-  join prt: Join,
+  join jn: Join,
 ) -> PreparedStatement {
-  case prt.with {
+  case jn.with {
     JoinTable(table: tbl) ->
-      prp_stm |> prepared_statement.append_sql(tbl <> " AS " <> prt.alias)
+      prp_stm |> prepared_statement.append_sql(tbl <> " AS " <> jn.alias)
     JoinSubQuery(sub_query: qry) ->
       prp_stm
       |> prepared_statement.append_sql("(")
       |> builder_apply(qry)
-      |> prepared_statement.append_sql(") AS " <> prt.alias)
+      |> prepared_statement.append_sql(") AS " <> jn.alias)
   }
 }
 
@@ -835,54 +889,63 @@ fn order_by_direction_to_sql(
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Limit & Offset                                                           │
+// │  Limit                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO: Split limit and offset into separate types and separate functions
-//       then add one combination function to set both limit and offset.
-pub type LimitOffset {
-  LimitOffset(limit: Int, offset: Int)
-  LimitNoOffset(limit: Int)
-  NoLimitOffset(offset: Int)
-  NoLimitNoOffset
+pub type Limit {
+  NoLimit
+  Limit(limit: Int)
 }
 
-pub fn limit_offset_new(limit lmt: Int, offset offst: Int) -> LimitOffset {
-  case lmt >= 0, offst >= 0 {
-    True, True -> LimitOffset(limit: lmt, offset: offst)
-    True, False -> LimitNoOffset(limit: lmt)
-    False, _ -> NoLimitNoOffset
+pub fn limit_new(limit lmt: Int) -> Limit {
+  case lmt > 0 {
+    False -> NoLimit
+    True -> Limit(limit: lmt)
   }
 }
 
-pub fn limit_new(limit lmt: Int) -> LimitOffset {
-  case lmt >= 0 {
-    True -> LimitNoOffset(limit: lmt)
-    False -> NoLimitNoOffset
-  }
+pub fn limit_get(select_query qry: Select) -> Limit {
+  qry.limit
 }
 
-pub fn offset_new(offset offst: Int) -> LimitOffset {
-  case offst >= 0 {
-    True -> NoLimitOffset(offset: offst)
-    False -> NoLimitNoOffset
-  }
-}
-
-pub fn limit_offset_get(select_query qry: Select) -> LimitOffset {
-  qry.limit_offset
-}
-
-fn limit_offset_clause_apply(
+fn limit_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
-  limit_offset lmt_offst: LimitOffset,
+  limit lmt: Limit,
 ) -> PreparedStatement {
-  case lmt_offst {
-    LimitOffset(limit: lmt, offset: offst) ->
-      " LIMIT " <> int.to_string(lmt) <> " OFFSET " <> int.to_string(offst)
-    LimitNoOffset(limit: lmt) -> " LIMIT " <> int.to_string(lmt)
-    NoLimitOffset(offset: offst) -> " OFFSET " <> int.to_string(offst)
-    NoLimitNoOffset -> ""
+  case lmt {
+    NoLimit -> ""
+    Limit(limit: lmt) -> " LIMIT " <> lmt |> int.to_string
+  }
+  |> prepared_statement.append_sql(prp_stm, _)
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Offset                                                                   │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Offset {
+  NoOffset
+  Offset(offset: Int)
+}
+
+pub fn offset_new(offset offst: Int) -> Offset {
+  case offst > 0 {
+    False -> NoOffset
+    True -> Offset(offset: offst)
+  }
+}
+
+pub fn offset_get(select_query qry: Select) -> Offset {
+  qry.offset
+}
+
+fn offset_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  offset offst: Offset,
+) -> PreparedStatement {
+  case offst {
+    NoOffset -> ""
+    Offset(offset: offst) -> " OFFSET " <> offst |> int.to_string
   }
   |> prepared_statement.append_sql(prp_stm, _)
 }

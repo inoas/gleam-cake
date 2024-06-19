@@ -1,0 +1,8 @@
+---
+version: 1.1.6
+title: combined_intersect_execution_result_test
+---
+#(
+  Ok([#("Ginny", 6, False, 3)]),
+  Ok([#("Ginny", 6, 0, 3)]),
+)

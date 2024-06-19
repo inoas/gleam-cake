@@ -1,5 +1,5 @@
 import cake/internal/query.{
-  type Combined, type LimitOffset, type OrderByDirection, type Query,
+  type Combined, type Limit, type Offset, type OrderByDirection, type Query,
   type Select, Combined, CombinedQuery, Except, ExceptAll, Intersect,
   IntersectAll, OrderBy, OrderByColumn, Union, UnionAll,
 }
@@ -34,30 +34,24 @@ pub fn intersect_all(select_queries qrys: List(Select)) -> Combined {
   IntersectAll |> query.combined_query_new(qrys)
 }
 
-// TODO: split up
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
-pub fn set_limit_and_offset(
-  query qry: Combined,
-  limit lmt: Int,
-  offset offst: Int,
-) -> Combined {
-  let lmt_offst = query.limit_offset_new(limit: lmt, offset: offst)
-  Combined(..qry, limit_offset: lmt_offst)
+pub fn limit(query qry: Combined, limit lmt: Int) -> Combined {
+  let lmt = lmt |> query.limit_new
+  Combined(..qry, limit: lmt)
 }
 
-pub fn set_limit(query qry: Combined, limit lmt: Int) -> Combined {
-  let lmt_offst = query.limit_new(lmt)
-  Combined(..qry, limit_offset: lmt_offst)
+pub fn get_limit(query qry: Combined) -> Limit {
+  qry.limit
 }
 
-pub fn set_offset(query qry: Combined, limit lmt: Int) -> Combined {
-  let lmt_offst = query.offset_new(lmt)
-  Combined(..qry, limit_offset: lmt_offst)
+pub fn offset(query qry: Combined, offst offst: Int) -> Combined {
+  let offst = offst |> query.offset_new
+  Combined(..qry, offset: offst)
 }
 
-pub fn get_limit_and_offset(select_query qry: Combined) -> LimitOffset {
-  qry.limit_offset
+pub fn get_offset(query qry: Combined) -> Offset {
+  qry.offset
 }
 
 // ▒▒▒ ORDER BY ▒▒▒

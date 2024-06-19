@@ -1,9 +1,9 @@
 import cake/internal/query.{
-  type Fragment, type From, type Join, type Joins, type LimitOffset,
+  type Fragment, type From, type Join, type Joins, type Limit, type Offset,
   type OrderByDirection, type Query, type Select, type SelectValue, type Selects,
-  type Where, GroupBy, Joins, NoEpilog, NoFrom, NoGroupBy, NoJoins,
-  NoLimitNoOffset, NoOrderBy, NoSelects, NoWhere, OrderBy, OrderByColumn, Select,
-  SelectQuery, Selects,
+  type Where, GroupBy, Joins, Limit, NoEpilog, NoFrom, NoGroupBy, NoJoins,
+  NoLimit, NoOffset, NoOrderBy, NoSelects, NoWhere, Offset, OrderBy,
+  OrderByColumn, Select, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
@@ -42,34 +42,17 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 // ▒▒▒ NEW ▒▒▒
 
-// pub fn new(from frm: From, selects slcts: List(SelectValue)) -> Select {
-//   let slcts = case slcts {
-//     [] -> NoSelects
-//     _ -> slcts |> Selects
-//   }
-//   Select(
-//     selects: slcts,
-//     from: frm,
-//     joins: NoJoins,
-//     where: NoWhere,
-//     group_by: NoGroupBy,
-//     having: NoWhere,
-//     order_by: NoOrderBy,
-//     limit_offset: NoLimitNoOffset,
-//     epilog: NoEpilog,
-//   )
-// }
-
 pub fn from(from frm: From) -> Select {
   Select(
-    selects: NoSelects,
+    select: NoSelects,
     from: frm,
-    joins: NoJoins,
+    join: NoJoins,
     where: NoWhere,
     group_by: NoGroupBy,
     having: NoWhere,
     order_by: NoOrderBy,
-    limit_offset: NoLimitNoOffset,
+    limit: NoLimit,
+    offset: NoOffset,
     epilog: NoEpilog,
   )
 }
@@ -80,14 +63,15 @@ pub fn new_select(selects slcts: List(SelectValue)) -> Select {
     _ -> slcts |> Selects
   }
   Select(
-    selects: slcts,
+    select: slcts,
     from: NoFrom,
-    joins: NoJoins,
+    join: NoJoins,
     where: NoWhere,
     group_by: NoGroupBy,
     having: NoWhere,
     order_by: NoOrderBy,
-    limit_offset: NoLimitNoOffset,
+    limit: NoLimit,
+    offset: NoOffset,
     epilog: NoEpilog,
   )
 }
@@ -105,11 +89,11 @@ pub fn get_from(query qry: Select) -> From {
 // ▒▒▒ SELECT ▒▒▒
 
 pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select {
-  case sv, qry.selects {
+  case sv, qry.select {
     [], _ -> qry
-    sv, NoSelects -> Select(..qry, selects: Selects(sv))
+    sv, NoSelects -> Select(..qry, select: Selects(sv))
     sv, Selects(qry_slcts) ->
-      Select(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
+      Select(..qry, select: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
@@ -117,50 +101,50 @@ pub fn selects_replace(
   query qry: Select,
   select_values sv: List(SelectValue),
 ) -> Select {
-  case sv, qry.selects {
+  case sv, qry.select {
     [], _ -> qry
-    sv, NoSelects -> Select(..qry, selects: Selects(sv))
+    sv, NoSelects -> Select(..qry, select: Selects(sv))
     sv, Selects(qry_slcts) ->
-      Select(..qry, selects: qry_slcts |> list.append(sv) |> Selects)
+      Select(..qry, select: qry_slcts |> list.append(sv) |> Selects)
   }
 }
 
 pub fn get_selects(query qry: Select) -> Selects {
-  qry.selects
+  qry.select
 }
 
 // ▒▒▒ JOIN ▒▒▒
 
-pub fn join(query qry: Select, join_part prt: Join) -> Select {
-  case qry.joins {
-    Joins(prts) -> Select(..qry, joins: prts |> list.append([prt]) |> Joins)
-    NoJoins -> Select(..qry, joins: [prt] |> Joins)
+pub fn join(query qry: Select, join jn: Join) -> Select {
+  case qry.join {
+    Joins(jns) -> Select(..qry, join: jns |> list.append([jn]) |> Joins)
+    NoJoins -> Select(..qry, join: [jn] |> Joins)
   }
 }
 
-pub fn join_replace(query qry: Select, join_part prt: Join) -> Select {
-  Select(..qry, joins: [prt] |> Joins)
+pub fn join_replace(query qry: Select, join jn: Join) -> Select {
+  Select(..qry, join: [jn] |> Joins)
 }
 
 pub fn joins(query qry: Select, joins jns: List(Join)) -> Select {
-  case jns, qry.joins {
-    [], _ -> Select(..qry, joins: Joins(jns))
+  case jns, qry.join {
+    [], _ -> Select(..qry, join: Joins(jns))
     jns, Joins(qry_joins) ->
-      Select(..qry, joins: qry_joins |> list.append(jns) |> Joins)
-    jns, NoJoins -> Select(..qry, joins: jns |> Joins)
+      Select(..qry, join: qry_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> Select(..qry, join: jns |> Joins)
   }
 }
 
-pub fn joins_replace(query qry: Select, join_parts prts: List(Join)) -> Select {
-  Select(..qry, joins: prts |> Joins)
+pub fn joins_replace(query qry: Select, joins jns: List(Join)) -> Select {
+  Select(..qry, join: jns |> Joins)
 }
 
 pub fn joins_remove(query qry: Select) -> Select {
-  Select(..qry, joins: NoJoins)
+  Select(..qry, join: NoJoins)
 }
 
 pub fn get_joins(query qry: Select) -> Joins {
-  qry.joins
+  qry.join
 }
 
 // ▒▒▒ WHERE ▒▒▒
@@ -222,27 +206,22 @@ pub fn group_bys_replace(
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
-pub fn set_limit_and_offset(
-  query qry: Select,
-  limit lmt: Int,
-  offset offst: Int,
-) -> Select {
-  let lmt_offst = query.limit_offset_new(limit: lmt, offset: offst)
-  Select(..qry, limit_offset: lmt_offst)
+pub fn limit(query qry: Select, limit lmt: Int) -> Select {
+  let lmt = lmt |> query.limit_new
+  Select(..qry, limit: lmt)
 }
 
-pub fn set_limit(query qry: Select, limit lmt: Int) -> Select {
-  let lmt_offst = query.limit_new(lmt)
-  Select(..qry, limit_offset: lmt_offst)
+pub fn get_limit(query qry: Select) -> Limit {
+  qry.limit
 }
 
-pub fn set_offset(query qry: Select, limit lmt: Int) -> Select {
-  let lmt_offst = query.offset_new(lmt)
-  Select(..qry, limit_offset: lmt_offst)
+pub fn offset(query qry: Select, offst offst: Int) -> Select {
+  let offst = offst |> query.offset_new
+  Select(..qry, offset: offst)
 }
 
-pub fn get_limit_and_offset(query qry: Select) -> LimitOffset {
-  qry.limit_offset
+pub fn get_offset(query qry: Select) -> Offset {
+  qry.offset
 }
 
 // ▒▒▒ ORDER BY ▒▒▒

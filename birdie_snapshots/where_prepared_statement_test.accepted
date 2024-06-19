@@ -10,11 +10,13 @@ test_name: where_prepared_statement_test
     "SELECT * FROM cats WHERE $1 = name",
     [StringParam("Hello")],
     1,
+    PostgresAdapter,
   ),
   PreparedStatement(
     "?",
     "SELECT * FROM cats WHERE ?1 = name",
     [StringParam("Hello")],
     1,
+    SqliteAdapter,
   ),
 )

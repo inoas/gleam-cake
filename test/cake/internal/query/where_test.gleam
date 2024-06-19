@@ -18,10 +18,7 @@ fn where_query() {
 }
 
 pub fn where_test() {
-  let pgo = where_query()
-  let lit = where_query()
-
-  #(pgo, lit)
+  where_query()
   |> to_string
   |> birdie.snap("where_test")
 }

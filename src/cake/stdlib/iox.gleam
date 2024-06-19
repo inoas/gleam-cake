@@ -37,3 +37,13 @@ pub fn print_tap(v: a, s: String) -> a {
   s |> io.print
   v
 }
+
+pub fn inspect_print_tap(v: a) -> a {
+  v |> string.inspect |> io.print
+  v
+}
+
+pub fn inspect_println_tap(v: a) -> a {
+  v |> string.inspect |> io.println
+  v
+}

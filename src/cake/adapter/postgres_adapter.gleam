@@ -1,4 +1,4 @@
-import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter}
 import cake/internal/query.{type Query}
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import cake/stdlib/iox
@@ -9,7 +9,8 @@ import gleam/pgo.{type Connection, type Value}
 const prepared_statement_placeholder_prefix = "$"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> query.builder_new(prepared_statement_placeholder_prefix)
+  qry
+  |> query.builder_new(prepared_statement_placeholder_prefix, PostgresAdapter)
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
@@ -30,9 +31,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 
 pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
   let prp_stm = to_prepared_statement(qry)
-
-  let sql = prepared_statement.get_sql(prp_stm)
-  // |> iox.dbg
+  let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
 
   let params = prepared_statement.get_params(prp_stm)
 
@@ -48,11 +47,9 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
       }
     })
     |> iox.print_tap("Params: ")
-  // |> iox.dbg
+    |> iox.inspect_println_tap
 
-  let result =
-    sql
-    |> pgo.execute(on: db_conn, with: db_params, expecting: dcdr)
+  let result = sql |> pgo.execute(on: db_conn, with: db_params, expecting: dcdr)
 
   case result {
     Ok(pgo.Returned(_result_count, v)) -> Ok(v)
@@ -63,6 +60,5 @@ pub fn run_query(db_conn, query qry: Query, decoder dcdr) {
 pub fn execute(query, conn) {
   let execute_decoder = dynamic.dynamic
 
-  query
-  |> pgo.execute(conn, with: [], expecting: execute_decoder)
+  query |> pgo.execute(conn, with: [], expecting: execute_decoder)
 }

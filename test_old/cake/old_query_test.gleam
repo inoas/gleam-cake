@@ -140,7 +140,7 @@ pub fn query_combined_snap_test() {
   let select_query_b =
     base_select_query
     |> s.where(w.col("age") |> w.gte(w.int(7)))
-    |> s.order_asc(by: "will_be_removed")
+    |> s.order_asc(by: "name")
     |> s.where(where_b)
     |> tap(fn(v) {
       v |> to_string |> birdie.snap("select_query_b")

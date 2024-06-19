@@ -2,17 +2,32 @@ import cake/param.{type Param}
 import gleam/int
 import gleam/list
 
+pub type DatabaseAdapter {
+  PostgresAdapter
+  SqliteAdapter
+}
+
 pub opaque type PreparedStatement {
   PreparedStatement(
     prefix: String,
     sql: String,
     params: List(Param),
     index: Int,
+    database_adapter: DatabaseAdapter,
   )
 }
 
-pub fn new(prefix prfx: String) -> PreparedStatement {
-  prfx |> PreparedStatement(sql: "", params: [], index: 0)
+pub fn new(
+  prefix prfx: String,
+  database_adapter db_adptr: DatabaseAdapter,
+) -> PreparedStatement {
+  prfx
+  |> PreparedStatement(
+    sql: "",
+    params: [],
+    index: 0,
+    database_adapter: db_adptr,
+  )
 }
 
 pub fn append_sql(
@@ -73,4 +88,10 @@ pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) 
 
 pub fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
   prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
+}
+
+pub fn get_database_adapter(
+  prepared_statement prp_stm: PreparedStatement,
+) -> DatabaseAdapter {
+  prp_stm.database_adapter
 }
