@@ -31,7 +31,7 @@
 //// the query structure when composing different queries.
 ////
 
-import cake/internal/database_adapter.{
+import cake/database_adapter.{
   type DatabaseAdapter, PostgresAdapter, SqliteAdapter,
 }
 import cake/internal/prepared_statement.{type PreparedStatement}

@@ -6,7 +6,7 @@
 
 // TODO v2 transactions and collecting their errors?
 
-import cake/internal/database_adapter.{PostgresAdapter}
+import cake/database_adapter.{PostgresAdapter}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/stdlib/iox

@@ -3,7 +3,7 @@
 //// values rather than raw SQL.
 ////
 
-import cake/internal/database_adapter.{type DatabaseAdapter}
+import cake/database_adapter.{type DatabaseAdapter}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
