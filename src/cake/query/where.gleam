@@ -7,7 +7,7 @@
 ////
 //// ## Compatibility
 ////
-//// - SQLite does not support `ANY` and `ALL`.
+//// - SQLite does not support `ANY`, `ALL` and `SIMILAR TO`.
 ////
 
 import cake/internal/query.{
