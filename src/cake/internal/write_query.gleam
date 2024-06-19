@@ -5,6 +5,7 @@
 import cake/internal/prepared_statement.{
   type DatabaseAdapter, type PreparedStatement,
 }
+import cake/internal/query.{type Query}
 import cake/param.{type Param}
 import gleam/list
 import gleam/string
@@ -18,20 +19,19 @@ pub type WriteQuery(a) {
 pub type Insert(a) {
   Insert(
     into: String,
+    // tag with a?
     columns: List(String),
-    records: List(a),
-    caster: fn(a) -> InsertRow,
+    source: InsertRecords(a),
     // comment: String, // v2
     // with (_recursive?): ?, // v2
     // modifier: String, ? // v1
     // epiloq: Epilog
   )
-  // InsertSubQuery(
-  //   into: String,
-  //   columns: List(String),
-  //   records: Query,
-  //   caster: fn(a) -> InsertRow,
-  // )
+}
+
+pub type InsertRecords(a) {
+  InsertFromParams(source: List(a), caster: fn(a) -> InsertRow)
+  InsertFromQuery(query: Query)
 }
 
 pub type InsertRow {
@@ -42,7 +42,7 @@ pub type InsertValue {
   InsertParam(column: String, param: Param)
 }
 
-pub fn to_write_query(insert: Insert(a)) -> WriteQuery(a) {
+pub fn insert_to_write_query(insert: Insert(a)) -> WriteQuery(a) {
   insert |> InsertQuery
 }
 
@@ -67,35 +67,31 @@ fn apply(
 
 fn insert_apply(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: Insert(a),
-) -> PreparedStatement {
-  case qry {
-    Insert(into: nto, columns: cols, records: rcrds, caster: cstr) ->
-      prp_stm
-      |> insert_type_apply(
-        into: nto,
-        columns: cols,
-        records: rcrds,
-        caster: cstr,
-      )
-  }
-}
-
-fn insert_type_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  into nto: String,
-  columns cols: List(String),
-  records rcrds: List(a),
-  caster cstr: fn(a) -> InsertRow,
+  insert srt: Insert(a),
 ) {
   let prp_stm =
     prp_stm
-    |> prepared_statement.append_sql("INSERT INTO " <> nto <> " (")
-    |> prepared_statement.append_sql(cols |> string.join(", "))
-    |> prepared_statement.append_sql(") VALUES (")
+    |> prepared_statement.append_sql("INSERT INTO " <> srt.into <> " (")
+    |> prepared_statement.append_sql(srt.columns |> string.join(", "))
+    |> prepared_statement.append_sql(") VALUES ")
+
+  let prp_stm = case srt.source {
+    InsertFromParams(source: src, caster: cstr) -> prp_stm |> insert_from_params_apply(src, cstr)
+    InsertFromQuery(query: qry) -> prp_stm |> insert_from_query_apply(qry)
+  }
+
+  prp_stm
+}
+
+fn insert_from_params_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  source src: List(a),
+  caster cstr: fn(a) -> InsertRow,
+) {
+  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
   let prp_stm =
-    rcrds
+    src
     |> list.fold(
       prp_stm,
       fn(new_prp_stm: PreparedStatement, rcrd: a) -> PreparedStatement {
@@ -136,4 +132,15 @@ fn insert_type_apply(
   let prp_stm = prp_stm |> prepared_statement.append_sql(")")
 
   prp_stm
+}
+
+fn insert_from_query_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  query qry: Query,
+) {
+
+  prp_stm
+  |> prepared_statement.append_sql("(")
+  |> query.apply(qry)
+  |> prepared_statement.append_sql(")")
 }

@@ -1,5 +1,5 @@
 import cake/internal/write_query.{
-  type InsertRow, type WriteQuery, Insert, InsertParam, InsertRow,
+  type InsertRow, type WriteQuery, Insert, InsertParam, InsertRow, InsertFromParams
 }
 import cake/param
 
@@ -25,8 +25,9 @@ fn caster(wibble: Wibble) -> InsertRow {
   ])
 }
 
-pub fn to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+pub fn insert_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   wibbles
-  |> Insert(into: table_name, columns: columns, caster: caster)
-  |> write_query.to_write_query
+  |> InsertFromParams(caster: caster)
+  |> Insert(into: table_name, columns: columns)
+  |> write_query.insert_to_write_query
 }

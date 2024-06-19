@@ -28,7 +28,8 @@ pub fn exec_dummy_insert() {
 
   let _ =
     run_write_on_sqlite(
-      [write_example_wibble.new()] |> write_example_wibble.to_write_query(),
+      [write_example_wibble.new()]
+        |> write_example_wibble.insert_to_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -45,7 +46,7 @@ pub fn exec_dummy_insert() {
         write_example_wibble.new(),
         write_example_wibble.new(),
       ]
-        |> write_example_wibble.to_write_query(),
+        |> write_example_wibble.insert_to_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")

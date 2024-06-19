@@ -61,7 +61,7 @@ pub fn to_prepared_statement(
   prp_stm_prfx |> prepared_statement.new(db_adptr) |> apply(qry)
 }
 
-fn apply(
+pub fn apply(
   prepared_statement prp_stm: PreparedStatement,
   query qry: Query,
 ) -> PreparedStatement {
