@@ -80,6 +80,7 @@ pub type InsertValuesModifier {
 }
 
 pub type InsertRecords(a) {
+  // InsertDefault // TODO: do we really need this?
   InsertFromParams(source: List(a), caster: fn(a) -> InsertRow)
   InsertFromQuery(query: Query)
 }
@@ -90,6 +91,7 @@ pub type InsertRow {
 
 pub type InsertValue {
   InsertParam(column: String, param: Param)
+  InsertDefault(column: String)
 }
 
 pub fn insert_to_write_query(insert: Insert(a)) -> WriteQuery(a) {
@@ -138,15 +140,28 @@ fn insert_from_params_apply(
           |> list.fold(
             new_prp_stm,
             fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
-              let InsertParam(column: _column, param: param) = insert_value
-
-              case new_prp_stm_inner == new_prp_stm {
-                True ->
-                  new_prp_stm_inner |> prepared_statement.append_param(param)
-                False ->
-                  new_prp_stm_inner
-                  |> prepared_statement.append_sql(", ")
-                  |> prepared_statement.append_param(param)
+              case insert_value {
+                InsertParam(column: _column, param: param) -> {
+                  case new_prp_stm_inner == new_prp_stm {
+                    True ->
+                      new_prp_stm_inner
+                      |> prepared_statement.append_param(param)
+                    False ->
+                      new_prp_stm_inner
+                      |> prepared_statement.append_sql(", ")
+                      |> prepared_statement.append_param(param)
+                  }
+                }
+                InsertDefault(column: _column) -> {
+                  case new_prp_stm_inner == new_prp_stm {
+                    True ->
+                      new_prp_stm_inner
+                      |> prepared_statement.append_sql("DEFAULT")
+                    False ->
+                      new_prp_stm_inner
+                      |> prepared_statement.append_sql(", DEFAULT")
+                  }
+                }
               }
             },
           )
@@ -176,7 +191,6 @@ fn insert_from_query_apply(
   |> query.apply(qry)
   |> prepared_statement.append_sql(")")
 }
-
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
