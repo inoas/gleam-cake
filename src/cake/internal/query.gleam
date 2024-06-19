@@ -85,6 +85,7 @@ fn combined_builder(
   |> limit_clause_apply(qry.limit)
   |> offset_clause_apply(qry.offset)
   |> epilog_apply(qry.epilog)
+  |> comment_apply(qry.comment)
 }
 
 pub fn combined_clause_apply(
@@ -171,6 +172,7 @@ pub type Combined {
     offset: Offset,
     order_by: OrderBy,
     epilog: Epilog,
+    comment: Comment,
   )
 }
 
@@ -199,6 +201,7 @@ pub fn combined_query_new(
     offset: NoOffset,
     order_by: NoOrderBy,
     epilog: NoEpilog,
+    comment: NoComment,
   )
 }
 
@@ -232,6 +235,7 @@ fn select_builder(
   |> limit_clause_apply(qry.limit)
   |> offset_clause_apply(qry.offset)
   |> epilog_apply(qry.epilog)
+  |> comment_apply(qry.comment)
 }
 
 pub type SelectKind {
@@ -254,7 +258,7 @@ pub type Select {
     limit: Limit,
     offset: Offset,
     epilog: Epilog,
-    // comment: String, // v2
+    comment: Comment,
   )
 }
 
@@ -1181,11 +1185,36 @@ pub type Epilog {
 
 fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
-  epilog prt: Epilog,
+  epilog eplg: Epilog,
 ) -> PreparedStatement {
-  case prt {
+  case eplg {
     NoEpilog -> prp_stm
-    Epilog(string: eplg) -> prp_stm |> prepared_statement.append_sql(eplg)
+    Epilog(string: eplgs) -> prp_stm |> prepared_statement.append_sql(eplgs)
+  }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Comment                                                                  │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// Used to add a trailing SQL comment to a query.
+///
+pub type Comment {
+  NoComment
+  Comment(string: String)
+}
+
+fn comment_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  comment cmmnt: Comment,
+) -> PreparedStatement {
+  case cmmnt {
+    NoComment -> prp_stm
+    Comment(string: cmmnts) ->
+      prp_stm
+      |> prepared_statement.append_sql(
+        "/* " <> cmmnts |> string.replace(each: "*/", with: "*\\/") <> " */",
+      )
   }
 }
 

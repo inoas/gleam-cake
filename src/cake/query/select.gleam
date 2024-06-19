@@ -6,12 +6,12 @@
 ////
 
 import cake/internal/query.{
-  type Fragment, type From, type Join, type Joins, type Limit, type Offset,
-  type OrderByDirection, type Query, type Select, type SelectKind,
-  type SelectValue, type Selects, type Where, AndWhere, Epilog, GroupBy, Joins,
-  Limit, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy,
-  NoSelects, NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select, SelectAll,
-  SelectDistinct, SelectQuery, Selects,
+  type Comment, type Epilog, type Fragment, type From, type Join, type Joins,
+  type Limit, type Offset, type OrderByDirection, type Query, type Select,
+  type SelectKind, type SelectValue, type Selects, type Where, AndWhere, Comment,
+  Epilog, GroupBy, Joins, Limit, NoComment, NoEpilog, NoFrom, NoGroupBy, NoJoins,
+  NoLimit, NoOffset, NoOrderBy, NoSelects, NoWhere, Offset, OrWhere, OrderBy,
+  OrderByColumn, Select, SelectAll, SelectDistinct, SelectQuery, Selects,
 }
 import cake/param
 import gleam/list
@@ -64,6 +64,7 @@ pub fn new() -> Select {
     limit: NoLimit,
     offset: NoOffset,
     epilog: NoEpilog,
+    comment: NoComment,
   )
 }
 
@@ -80,6 +81,7 @@ pub fn new_from(from frm: From) -> Select {
     limit: NoLimit,
     offset: NoOffset,
     epilog: NoEpilog,
+    comment: NoComment,
   )
 }
 
@@ -401,6 +403,8 @@ pub fn order_replace(
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
 
+// ▒▒▒ EPILOG ▒▒▒
+
 pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
   let eplg = eplg |> string.trim
   case eplg {
@@ -411,4 +415,26 @@ pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
 
 pub fn epilog_remove(query qry: Select) -> Select {
   Select(..qry, epilog: NoEpilog)
+}
+
+pub fn get_epilog(query qry: Select) -> Epilog {
+  qry.epilog
+}
+
+// ▒▒▒ COMMENT ▒▒▒
+
+pub fn comment(query qry: Select, comment cmmnt: String) -> Select {
+  let cmmnt = cmmnt |> string.trim
+  case cmmnt {
+    "" -> Select(..qry, comment: NoComment)
+    _ -> Select(..qry, comment: { " " <> cmmnt } |> Comment)
+  }
+}
+
+pub fn comment_remove(query qry: Select) -> Select {
+  Select(..qry, comment: NoComment)
+}
+
+pub fn get_comment(query qry: Select) -> Comment {
+  qry.comment
 }

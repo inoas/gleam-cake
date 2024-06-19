@@ -5,7 +5,7 @@
 import cake/internal/prepared_statement.{
   type DatabaseAdapter, type PreparedStatement,
 }
-import cake/internal/query.{type Query}
+import cake/internal/query.{type Comment, type Query}
 import cake/param.{type Param}
 import gleam/list
 import gleam/string
@@ -16,7 +16,8 @@ import gleam/string
 
 pub type WriteQuery(a) {
   InsertQuery(Insert(a))
-  // UpdateQuery(a)
+  // UpdateQuery(Update(a))
+  // UpdateAllQuery(UpdateAll(a))
   // DeleteQuery
 }
 
@@ -43,17 +44,38 @@ fn apply(
 // │  Insert                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+pub type InsertConflictStrategy {
+  // TODO v1: implement SQL generation for RDMBS
+  InsertConflictError
+  // TODO v1: implement SQL generation for RDMBS
+  InsertConflictIgnore
+  // TODO v1: implement SQL generation for RDMBS
+  // TODO v1: change update from String to cake Update type once we have it
+  InsertConflictUpdate(command: String, update: String)
+}
+
 pub type Insert(a) {
   Insert(
-    into: String,
-    // TODO: tag with a?
-    columns: List(String),
-    source: InsertRecords(a),
     // with (_recursive?): ?, // v2
-    // modifier: InsertModifier, ? // such as IGNORE or REPLACE // v1
-    // epiloq: Epilog
-    // comment: String, // v2
+    into: String,
+    columns: List(String),
+    // TODO v1: implement SQL string injection
+    values_modifier: InsertValuesModifier,
+    source: InsertRecords(a),
+    // TODO v1: implement SQL generation for RDMBS
+    on_conflict: InsertConflictStrategy,
+    comment: Comment,
   )
+}
+
+pub type InsertModifier {
+  NoInsertModifier
+  InsertModifier(modifier: String)
+}
+
+pub type InsertValuesModifier {
+  NoInsertValuesModifier
+  InsertValuesModifier(modifier: String)
 }
 
 pub type InsertRecords(a) {
@@ -84,8 +106,10 @@ fn insert_apply(
     |> prepared_statement.append_sql(") VALUES ")
 
   let prp_stm = case srt.source {
-    InsertFromParams(source: src, caster: cstr) -> prp_stm |> insert_from_params_apply(src, cstr)
-    InsertFromQuery(query: qry) -> prp_stm |> insert_from_query_apply(qry)
+    InsertFromParams(source: src, caster: cstr) ->
+      prp_stm |> insert_from_params_apply(source: src, row_caster: cstr)
+    InsertFromQuery(query: qry) ->
+      prp_stm |> insert_from_query_apply(query: qry)
   }
 
   prp_stm
@@ -94,7 +118,7 @@ fn insert_apply(
 fn insert_from_params_apply(
   prepared_statement prp_stm: PreparedStatement,
   source src: List(a),
-  caster cstr: fn(a) -> InsertRow,
+  row_caster cstr: fn(a) -> InsertRow,
 ) {
   let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
@@ -146,9 +170,14 @@ fn insert_from_query_apply(
   prepared_statement prp_stm: PreparedStatement,
   query qry: Query,
 ) {
-
   prp_stm
   |> prepared_statement.append_sql("(")
   |> query.apply(qry)
   |> prepared_statement.append_sql(")")
 }
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Update                                                                   │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+// TODO v1
