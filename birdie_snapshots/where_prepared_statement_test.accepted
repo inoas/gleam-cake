@@ -7,7 +7,7 @@ test_name: where_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "SELECT * FROM cats WHERE ((age < $1 OR age <= $2 OR age = $3 OR age < $4 OR age <= $5) AND 1 = 1 AND (name = $6 OR name = $7) AND (is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS NOT FALSE OR is_wild IS NOT TRUE OR is_wild IS NULL OR is_wild IS NOT NULL) AND (NOT (rating > $8) OR NOT (rating IS NULL)))",
+    "SELECT * FROM cats WHERE (age < $1 OR age <= $2 OR age = $3 OR age < $4 OR age <= $5) AND 1 = 1 AND (name = $6 OR name = $7) AND (is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS NOT FALSE OR is_wild IS NOT TRUE OR is_wild IS NULL OR is_wild IS NOT NULL) AND (NOT(rating > $8) OR NOT(rating IS NULL))",
     [
       IntParam(100),
       IntParam(99),
@@ -23,7 +23,7 @@ test_name: where_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE ((age < ?1 OR age <= ?2 OR age = ?3 OR age < ?4 OR age <= ?5) AND 1 = 1 AND (name = ?6 OR name = ?7) AND (is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS NOT FALSE OR is_wild IS NOT TRUE OR is_wild IS NULL OR is_wild IS NOT NULL) AND (NOT (rating > ?8) OR NOT (rating IS NULL)))",
+    "SELECT * FROM cats WHERE (age < ?1 OR age <= ?2 OR age = ?3 OR age < ?4 OR age <= ?5) AND 1 = 1 AND (name = ?6 OR name = ?7) AND (is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS FALSE OR is_wild IS TRUE OR is_wild IS NOT FALSE OR is_wild IS NOT TRUE OR is_wild IS NULL OR is_wild IS NOT NULL) AND (NOT(rating > ?8) OR NOT(rating IS NULL))",
     [
       IntParam(100),
       IntParam(99),

@@ -423,12 +423,12 @@ fn where_apply(
 ) -> PreparedStatement {
   case wh {
     NoWhere -> prp_stm
-    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs)
-    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs)
+    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs, False)
+    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs, True)
     XorWhere(whs) -> prp_stm |> where_xor_apply(whs)
     NotWhere(wh) ->
       prp_stm
-      |> prepared_statement.append_sql("NOT (")
+      |> prepared_statement.append_sql("NOT(")
       |> where_apply(wh)
       |> prepared_statement.append_sql(")")
     WhereIsBool(val, True) -> prp_stm |> where_literal_apply(val, "IS TRUE")
@@ -650,23 +650,34 @@ fn where_logical_operator_apply(
   prepared_statement prp_stm: PreparedStatement,
   operator oprtr: String,
   where whs: List(Where),
+  wrap_in_parentheses wrp_prns: Bool,
 ) -> PreparedStatement {
-  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
+  let prp_stm = case wrp_prns {
+    True -> prp_stm |> prepared_statement.append_sql("(")
+    False -> prp_stm
+  }
 
-  whs
-  |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
-      case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> where_apply(wh)
-        False ->
-          new_prp_stm
-          |> prepared_statement.append_sql(" " <> oprtr <> " ")
-          |> where_apply(wh)
-      }
-    },
-  )
-  |> prepared_statement.append_sql(")")
+  let prp_stm =
+    whs
+    |> list.fold(
+      prp_stm,
+      fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
+        case new_prp_stm == prp_stm {
+          True -> new_prp_stm |> where_apply(wh)
+          False ->
+            new_prp_stm
+            |> prepared_statement.append_sql(" " <> oprtr <> " ")
+            |> where_apply(wh)
+        }
+      },
+    )
+
+  let prp_stm = case wrp_prns {
+    True -> prp_stm |> prepared_statement.append_sql(")")
+    False -> prp_stm
+  }
+
+  prp_stm
 }
 
 fn where_xor_apply(
@@ -679,15 +690,13 @@ fn where_xor_apply(
   }
 }
 
-import gleam/io
-
 fn do_fake_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
+  let xor_idxs = whs |> list.length |> int.subtract(1) |> list.range(0, _)
 
-  let xor_idxs = whs |> list.length |> list.range(0, _)
+  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
   let prp_stm =
     xor_idxs
@@ -721,12 +730,12 @@ fn do_fake_where_xor_apply(
                   |> prepared_statement.append_sql(")")
                 False, 0 ->
                   new_prp_stm_per_xor
-                  |> prepared_statement.append_sql("NOT (")
+                  |> prepared_statement.append_sql("NOT(")
                   |> where_apply(wh)
                   |> prepared_statement.append_sql(")")
                 False, _gt_0 ->
                   new_prp_stm_per_xor
-                  |> prepared_statement.append_sql(" AND NOT (")
+                  |> prepared_statement.append_sql(" AND NOT(")
                   |> where_apply(wh)
                   |> prepared_statement.append_sql(")")
               }

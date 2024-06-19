@@ -5,18 +5,6 @@ file: ./test/cake/internal/query/where_test.gleam
 test_name: where_xor_execution_result_test
 ---
 #(
-  Ok([
-    #(
-      "Biffy",
-      10,
-      Null,
-      2,
-      1.100000023841858,
-    ),
-    #("Ginny", 6, False, 3, Null),
-  ]),
-  Ok([
-    #("Biffy", 10, Undefined, 2, 1.1),
-    #("Ginny", 6, 0, 3, Undefined),
-  ]),
+  Ok([#("Ginny", 6, False, 3, Null)]),
+  Ok([#("Ginny", 6, 0, 3, Undefined)]),
 )
