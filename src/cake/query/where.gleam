@@ -192,6 +192,6 @@ pub fn fragment(fragment frgmt: Fragment) -> Where {
   frgmt |> WhereFragment
 }
 
-pub fn value_fragment(fragment frgmt: Fragment) -> WhereValue {
+pub fn fragment_value(fragment frgmt: Fragment) -> WhereValue {
   frgmt |> WhereFragmentValue
 }

@@ -49,17 +49,13 @@ pub fn run_dummy_fragment() {
   let select_query =
     cats_query
     |> s.where(
-      w.col("name")
+      w.fragment_value(frgmt.literal("LOWER(cats.name)"))
       |> w.eq(
-        w.value_fragment(
-          frgmt.prepared(
-            "LOWER("
-              <> frgmt.placeholder
-              <> ") OR name = LOWER("
-              <> frgmt.placeholder
-              <> ")",
-            [p.string("Timmy"), p.string("Jimmy")],
-          ),
+        w.fragment_value(
+          frgmt.prepared("LOWER(" <> frgmt.placeholder <> ")", [
+            p.string("Karl"),
+            p.string("Clara"),
+          ]),
         ),
       )
       |> iox.dbg,

@@ -1,5 +1,11 @@
-// TODO v1 module doc
-// TODO v1 tests
+//// Fragments are low level building blocks of queries
+//// which allow direct manipulation of the query string.
+////
+//// If you want to insert variables, you are required to
+//// use prepared fragments, which will be validated against
+//// the number of parameters given and automatically
+//// escaped by the RDBMS to prevent SQL injection.
+////
 
 import cake/internal/query.{type Fragment}
 import cake/param.{type Param}
@@ -9,10 +15,6 @@ import gleam/list
 import gleam/order
 
 pub const placeholder = query.fragment_placeholder_grapheme
-
-pub fn literal(string str: String) -> Fragment {
-  str |> query.FragmentLiteral
-}
 
 pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
   let plchldr_count =
@@ -62,4 +64,8 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
       str |> query.FragmentPrepared(prms)
     }
   }
+}
+
+pub fn literal(string str: String) -> Fragment {
+  str |> query.FragmentLiteral
 }
