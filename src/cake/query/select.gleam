@@ -20,28 +20,28 @@ pub fn to_query(query qry: Select) -> Query {
   qry |> SelectQuery
 }
 
-pub fn col(name: String) -> SelectValue {
-  name |> query.SelectColumn
+pub fn col(name nm: String) -> SelectValue {
+  nm |> query.SelectColumn
 }
 
-pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
-  v |> query.SelectAlias(alias: als)
+pub fn alias(value vl: SelectValue, alias als: String) -> SelectValue {
+  vl |> query.SelectAlias(alias: als)
 }
 
-pub fn bool(value: Bool) -> SelectValue {
-  value |> param.bool |> query.SelectParam
+pub fn bool(value vl: Bool) -> SelectValue {
+  vl |> param.bool |> query.SelectParam
 }
 
-pub fn float(value: Float) -> SelectValue {
-  value |> param.float |> query.SelectParam
+pub fn float(value vl: Float) -> SelectValue {
+  vl |> param.float |> query.SelectParam
 }
 
-pub fn int(value: Int) -> SelectValue {
-  value |> param.int |> query.SelectParam
+pub fn int(value vl: Int) -> SelectValue {
+  vl |> param.int |> query.SelectParam
 }
 
-pub fn string(value: String) -> SelectValue {
-  value |> param.string |> query.SelectParam
+pub fn string(value vl: String) -> SelectValue {
+  vl |> param.string |> query.SelectParam
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> SelectValue {

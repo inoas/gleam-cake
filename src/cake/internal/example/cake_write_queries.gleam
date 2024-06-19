@@ -31,7 +31,7 @@ fn caster(wibble: Wibble) -> InsertRow {
 
 pub fn to_insert_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   Insert(
-    into_table: InsertIntoTable(table: table_name),
+    table: InsertIntoTable(table: table_name),
     modifier: NoInsertModifier,
     source: InsertSourceRecords(records: wibbles, caster: caster),
     columns: InsertColumns(columns: cols),

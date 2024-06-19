@@ -1,13 +1,7 @@
 import birdie
 import cake/adapter/postgres
 import cake/adapter/sqlite
-import cake/internal/query.{NoComment}
-import cake/internal/write_query.{
-  type InsertRow, type WriteQuery, Insert, InsertColumns, InsertConflictError,
-  InsertIntoTable, InsertParam, InsertRow, InsertSourceRecords, NoInsertModifier,
-  Returning,
-}
-import cake/param
+import cake/query/insert as i
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
@@ -16,42 +10,33 @@ import test_helper/sqlite_test_helper
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-const table_name = "cats"
-
-const cols = ["name", "age", "is_wild"]
-
 type Cat {
   Cat(name: String, age: Int, is_wild: Bool)
 }
 
-fn caster(cat: Cat) -> InsertRow {
-  let Cat(name: name, age: age, is_wild: is_wild) = cat
-
-  // TODO v1: builder functions for this
-  InsertRow(row: [
-    InsertParam(column: "name", param: name |> param.string),
-    InsertParam(column: "age", param: age |> param.int),
-    InsertParam(column: "is_wild", param: is_wild |> param.bool),
-  ])
+fn cat_caster(cat cat: Cat) {
+  [
+    i.param(column: "name", param: cat.name |> i.string),
+    i.param(column: "age", param: cat.age |> i.int),
+    i.param(column: "is_wild", param: cat.is_wild |> i.bool),
+  ]
+  |> i.row
 }
 
-fn insert_custom_type_query() -> WriteQuery(Cat) {
+fn insert_custom_type_query() {
   let cats = [
     Cat(name: "Whiskers", age: 3, is_wild: False),
     Cat(name: "Mittens", age: 5, is_wild: True),
   ]
 
-  // TODO v1: builder functions for this
-  Insert(
-    into_table: InsertIntoTable(table: table_name),
-    modifier: NoInsertModifier,
-    source: InsertSourceRecords(records: cats, caster: caster),
-    columns: InsertColumns(columns: cols),
-    on_conflict: InsertConflictError,
-    returning: Returning(["name"]),
-    comment: NoComment,
+  i.from_records(
+    table_name: "cats",
+    columns: ["name", "age", "is_wild"],
+    records: cats,
+    caster: cat_caster,
   )
-  |> write_query.to_insert_query
+  |> i.returning(["name"])
+  |> i.to_query
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

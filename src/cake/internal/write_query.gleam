@@ -79,7 +79,7 @@ fn returning_apply(
 pub type Insert(a) {
   Insert(
     // with (_recursive?): ?, // v2
-    into_table: InsertIntoTable,
+    table: InsertIntoTable,
     columns: InsertColumns,
     modifier: InsertModifier,
     source: InsertSource(a),
@@ -143,14 +143,14 @@ fn insert_apply(
   prepared_statement prp_stm: PreparedStatement,
   insert isrt: Insert(a),
 ) {
-  let InsertIntoTable(table: into_table) = isrt.into_table
+  let InsertIntoTable(table: table) = isrt.table
   let InsertColumns(columns: insert_columns) = isrt.columns
 
   let prp_stm =
     prp_stm
     |> prepared_statement.append_sql(
       "INSERT INTO "
-      <> into_table
+      <> table
       <> " ("
       <> insert_columns |> string.join(", ")
       <> ")",

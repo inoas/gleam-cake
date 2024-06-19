@@ -3,30 +3,56 @@
 
 import cake/internal/query.{type Where, Comment, NoComment}
 import cake/internal/write_query.{
-  type Insert, type InsertRow, type Update, type WriteQuery, Insert,
-  InsertColumns, InsertConflictError, InsertConflictIgnore, InsertConflictTarget,
-  InsertConflictTargetConstraint, InsertConflictUpdate, InsertIntoTable,
-  InsertModifier, InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows,
-  NoInsertModifier, NoReturning, Returning,
+  type Insert, type InsertRow, type InsertValue, type Update, type WriteQuery,
+  Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
+  InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
+  InsertIntoTable, InsertModifier, InsertParam, InsertQuery, InsertRow,
+  InsertSourceRecords, InsertSourceRows, NoInsertModifier, NoReturning,
+  Returning,
 }
+import cake/param.{type Param}
 import gleam/string
 
 pub fn to_query(insert: Insert(a)) -> WriteQuery(a) {
   insert |> InsertQuery
 }
 
+pub fn row(a) -> InsertRow {
+  a |> InsertRow
+}
+
+pub fn param(column col, param prm) -> InsertValue {
+  InsertParam(column: col, param: prm)
+}
+
+pub fn bool(value vl: Bool) -> Param {
+  vl |> param.bool
+}
+
+pub fn float(value vl: Float) -> Param {
+  vl |> param.float
+}
+
+pub fn int(value vl: Int) -> Param {
+  vl |> param.int
+}
+
+pub fn string(value vl: String) -> Param {
+  vl |> param.string
+}
+
 /// Create an `INSERT` query from a list of gleam records.
 ///
 /// The `caster` function is used to convert each record into an `InsertRow`.
 ///
-pub fn from_record(
+pub fn from_records(
   table_name tbl_nm: String,
   columns cols: List(String),
   records rcrds: List(a),
   caster cstr: fn(a) -> InsertRow,
 ) -> Insert(a) {
   Insert(
-    into_table: InsertIntoTable(table: tbl_nm),
+    table: InsertIntoTable(table: tbl_nm),
     modifier: NoInsertModifier,
     source: InsertSourceRecords(records: rcrds, caster: cstr),
     columns: InsertColumns(columns: cols),
@@ -44,7 +70,7 @@ pub fn from_values(
   records rcrds: List(InsertRow),
 ) -> Insert(a) {
   Insert(
-    into_table: InsertIntoTable(table: tbl_nm),
+    table: InsertIntoTable(table: tbl_nm),
     modifier: NoInsertModifier,
     source: InsertSourceRows(records: rcrds),
     columns: InsertColumns(columns: cols),
@@ -54,8 +80,12 @@ pub fn from_values(
   )
 }
 
-pub fn into_table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
-  Insert(..qry, into_table: InsertIntoTable(table: tbl_nm))
+pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
+  Insert(..qry, table: InsertIntoTable(table: tbl_nm))
+}
+
+pub fn get_table(query qry: Insert(a)) -> String {
+  qry.table.table
 }
 
 pub fn modifier(query qry: Insert(a), modifier mdfr: String) -> Insert(a) {
@@ -70,6 +100,13 @@ pub fn no_modifier(query qry: Insert(a)) -> Insert(a) {
   Insert(..qry, modifier: NoInsertModifier)
 }
 
+pub fn get_modifier(query qry: Insert(a)) -> String {
+  case qry.modifier {
+    NoInsertModifier -> ""
+    InsertModifier(mdfr) -> mdfr
+  }
+}
+
 pub fn source_records(
   query qry: Insert(a),
   source rcrds: List(a),
@@ -77,6 +114,8 @@ pub fn source_records(
 ) -> Insert(a) {
   Insert(..qry, source: InsertSourceRecords(records: rcrds, caster: cstr))
 }
+
+// TODO v1: more getters, such as get_source
 
 pub fn source_values(
   query qry: Insert(a),
