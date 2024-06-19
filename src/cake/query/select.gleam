@@ -1,5 +1,5 @@
-// TODO v1 module doc
-// TODO v1 tests
+//// A DSL to build `SELECT` queries.
+////
 
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,

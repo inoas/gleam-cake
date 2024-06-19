@@ -1,10 +1,10 @@
 //// Fragments are low level building blocks of queries
 //// which allow direct manipulation of the query string.
 ////
-//// If you want to insert variables, you are required to
+//// If you want to insert parameters, you are required to
 //// use prepared fragments, which will be validated against
-//// the number of parameters given and automatically
-//// escaped by the RDBMS to prevent SQL injection.
+//// the number of parameters given and the parameters
+//// are automatically escaped by the RDBMS to prevent SQL injections.
 ////
 
 import cake/internal/query.{type Fragment}
@@ -14,6 +14,8 @@ import gleam/io
 import gleam/list
 import gleam/order
 
+/// This placeholder must be used when building fragments with parameters.
+///
 pub const placeholder = query.fragment_placeholder_grapheme
 
 pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {

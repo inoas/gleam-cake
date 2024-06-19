@@ -53,15 +53,15 @@ pub type Query {
   CombinedQuery(query: Combined)
 }
 
-pub fn builder_new(
+pub fn to_prepared_statement(
   query qry: Query,
-  prepared_statement_prefix prp_stm_prfx: String,
+  placeholder_prefix prp_stm_prfx: String,
   database_adapter db_adptr: DatabaseAdapter,
 ) -> PreparedStatement {
-  prp_stm_prfx |> prepared_statement.new(db_adptr) |> builder_apply(qry)
+  prp_stm_prfx |> prepared_statement.new(db_adptr) |> apply(qry)
 }
 
-fn builder_apply(
+fn apply(
   prepared_statement prp_stm: PreparedStatement,
   query qry: Query,
 ) -> PreparedStatement {
@@ -165,7 +165,7 @@ pub fn combined_clause_apply(
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    // TODO V2: If single list item, unwrap Combined to Select and warn user
+    // TODO V2 If single list item, unwrap Combined to Select and warn user
     queries: List(Select),
     limit: Limit,
     offset: Offset,
@@ -358,7 +358,7 @@ fn from_clause_apply(
     FromSubQuery(qry, als) ->
       prp_stm
       |> prepared_statement.append_sql(" FROM (")
-      |> builder_apply(qry)
+      |> apply(qry)
       |> prepared_statement.append_sql(") AS " <> als)
   }
 }
@@ -671,7 +671,7 @@ fn where_sub_query_apply(
 ) -> PreparedStatement {
   prp_stm
   |> prepared_statement.append_sql("(")
-  |> builder_apply(qry)
+  |> apply(qry)
   |> prepared_statement.append_sql(")")
 }
 
@@ -1000,7 +1000,7 @@ fn join_apply(
     JoinSubQuery(sub_query: qry) ->
       prp_stm
       |> prepared_statement.append_sql("(")
-      |> builder_apply(qry)
+      |> apply(qry)
       |> prepared_statement.append_sql(") AS " <> jn.alias)
   }
 }

@@ -5,6 +5,10 @@
 //// because they work the same way as `WHERE` clauses,
 //// but are used to filter rows after `GROUP BY` has been applied.
 ////
+//// ## Compatibility
+////
+//// - SQLite does not support `ANY` and `ALL`.
+////
 
 import cake/internal/query.{
   type Fragment, type Query, type Where, type WhereValue, AndWhere, Equal,

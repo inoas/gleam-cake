@@ -1,4 +1,7 @@
-// TODO V2?
+//// THIS IS NOT IMPLEMENTED YET
+
+// TODO v2
+
 // // TODO: CASE expressions for WHERE, SELECT and others?
 //
 // pub type Case {

@@ -1,4 +1,16 @@
-// TODO v1 module doc
+//// A DSL to build combined queries such as:
+////
+//// - `UNION`
+//// - `UNION ALL`
+//// - `EXCEPT`
+//// - `EXCEPT ALL`
+//// - `INTERSECT`
+//// - `INTERSECT ALL`
+////
+//// ## Compatibility
+////
+//// - SQLite does not support `EXCEPT ALL` and `INTERSECT ALL`.
+////
 
 import cake/internal/query.{
   type Combined, type Limit, type Offset, type OrderByDirection, type Query,
@@ -50,10 +62,14 @@ pub fn except_many(
   ExceptDistinct |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
+/// NOTICE: Not supported by SQLite.
+///
 pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   ExceptAll |> query.combined_query_new([qry_a, qry_b])
 }
 
+/// NOTICE: Not supported by SQLite.
+///
 pub fn except_all_many(
   query_a qry_a: Select,
   query_b qry_b: Select,
@@ -74,10 +90,14 @@ pub fn intersect_many(
   IntersectDistinct |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
+/// NOTICE: Not supported by SQLite.
+///
 pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   IntersectAll |> query.combined_query_new([qry_a, qry_b])
 }
 
+/// NOTICE: Not supported by SQLite.
+///
 pub fn intersect_all_many(
   query_a qry_a: Select,
   query_b qry_b: Select,

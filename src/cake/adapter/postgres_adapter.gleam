@@ -1,9 +1,10 @@
-// TODO v1 tests
+//// PostgreSQL adapter which converts queries
+////
+
 // TODO v1 module doc
 // TODO v1 Add pluggable logging, remove default logging
-// TODO v1 What about transactions?
 
-// TODO v2: consider using library based
+// TODO v2 transactions and collecting their errors?
 
 import cake/internal/prepared_statement.{type PreparedStatement, PostgresAdapter}
 import cake/internal/query.{type Query}
@@ -13,11 +14,14 @@ import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection, type Value}
 
-const prepared_statement_placeholder_prefix = "$"
+const placeholder_prefix = "$"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.builder_new(prepared_statement_placeholder_prefix, PostgresAdapter)
+  |> query.to_prepared_statement(
+    placeholder_prefix: placeholder_prefix,
+    database_adapter: PostgresAdapter,
+  )
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {

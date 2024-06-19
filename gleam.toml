@@ -13,6 +13,9 @@ gleam = ">= 1.2.0 and < 2.0.0"
 [dependencies]
 # act
 # aragorn2
+# based
+# based_pg
+# based_sqlite
 # bigben
 # blah
 # carpenter
@@ -63,21 +66,26 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # valid
 # wisp
 # youid
+
 gleam_erlang = ">= 0.25.0 and < 2.0.0"
 gleam_pgo = ">= 0.10.0 and < 2.0.0"
 gleam_stdlib = ">= 0.38.0 and < 2.0.0"
 sqlight = ">= 0.9.0 and < 2.0.0"
+# TODO v2 wrap prepared statement in a catch, return Result
+# TODO v2 run validator after building, return Result
+# TODO v2 - hash the structure, safe hash as valid into cache
+# TODO v2 - only run validator if no cache hit
+# TODO v2 add all the prepared statement
+# TODO v2 - add a client side caching layer
+# TODO v2   - safe small results in cache
+# TODO v2   - expire cache based on arg, which could also be 0 for no cache
 stacky = ">= 1.4.0 and < 2.0.0"
-# RDBMS adapters
-based = ">= 2.0.0 and < 3.0.0"
-based_sqlite = ">= 2.0.0 and < 3.0.0"
-based_pg = ">= 2.0.0 and < 3.0.0"
+pprint = ">= 1.0.3 and < 2.0.0"
 
 [dev-dependencies]
 birdie = ">= 1.1.5 and < 2.0.0"
 glacier = ">= 1.0.0 and < 2.0.0"
 # glychee
-pprint = ">= 1.0.3 and < 2.0.0"
 # qcheck
 # qcheck_gleeunit_utils
 # testbldr

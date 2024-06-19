@@ -1,5 +1,8 @@
-// TODO v1 module doc
-// TODO v1 tests
+//// Allows appending aribtrary text to the end of the generated
+//// SQL query. This is useful for adding adapter specific
+//// modifiers such as `"FOR UPDATE"`, for example, see
+//// <https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-TABLES>
+////
 
 import cake/internal/query.{type Epilog, Epilog, NoEpilog}
 

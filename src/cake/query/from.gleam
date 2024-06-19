@@ -1,5 +1,6 @@
-// TODO v1 module doc
-// TODO v1 tests
+//// Functions to build the `FROM` clause
+//// of an SQL query.
+////
 
 import cake/internal/query.{type From, type Query, FromSubQuery, FromTable}
 

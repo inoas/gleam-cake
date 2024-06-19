@@ -1,9 +1,8 @@
 // TODO v1 tests
 // TODO v1 module doc
 // TODO v1 Add pluggable logging, remove default logging
-// TODO v1 What about transactions?
 
-// TODO v2: consider using library based
+// TODO v2 transactions and collecting their errors?
 
 import cake/internal/prepared_statement.{type PreparedStatement, SqliteAdapter}
 import cake/internal/query.{type Query}
@@ -14,11 +13,14 @@ import gleam/list
 import sqlight.{type Value}
 
 // Could also be ? for SQLite
-const prepared_statement_placeholder_prefix = "$"
+const placeholder_prefix = "$"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.builder_new(prepared_statement_placeholder_prefix, SqliteAdapter)
+  |> query.to_prepared_statement(
+    placeholder_prefix: placeholder_prefix,
+    database_adapter: SqliteAdapter,
+  )
 }
 
 pub fn with_memory_connection(callback_fun) {

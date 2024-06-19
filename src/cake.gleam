@@ -1,5 +1,7 @@
-// TODO v1 split up and move this to examples
-// TODO v1 document how to run as examples
+//// This module exists for premature testing only
+//// It will be removed or replaced shortly before v1
+
+// TODO v1 Remove shortly before v1
 
 import cake/adapter/postgres_adapter
 import cake/adapter/sqlite_adapter

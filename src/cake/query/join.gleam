@@ -1,5 +1,15 @@
-// TODO v1 module doc
-// TODO v1 tests
+//// Functions to build `JOIN` clauses of SQL queries.
+////
+//// Joined can be tables (including views) or sub-queries.
+////
+//// ## Supported kinds
+////
+//// - `INNER JOIN`
+//// - `LEFT OUTER JOIN`
+//// - `RIGHT OUTER JOIN`
+//// - `FULL OUTER JOIN`
+//// - `CROSS JOIN`
+////
 
 import cake/internal/query.{
   type Join, type JoinKind, type Query, type Where, CrossJoin, FullOuterJoin,

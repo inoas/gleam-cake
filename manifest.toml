@@ -4,9 +4,6 @@
 packages = [
   { name = "argv", version = "1.0.2", build_tools = ["gleam"], requirements = [], otp_app = "argv", source = "hex", outer_checksum = "BA1FF0929525DEBA1CE67256E5ADF77A7CDDFE729E3E3F57A5BDCAA031DED09D" },
   { name = "backoff", version = "1.1.6", build_tools = ["rebar3"], requirements = [], otp_app = "backoff", source = "hex", outer_checksum = "CF0CFFF8995FB20562F822E5CC47D8CCF664C5ECDC26A684CBE85C225F9D7C39" },
-  { name = "based", version = "2.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "based", source = "hex", outer_checksum = "217C95728AD32E5D6919210DF9FFF44EBC3CCF77DFD92A24474CA31408166EEF" },
-  { name = "based_pg", version = "2.0.0", build_tools = ["gleam"], requirements = ["based", "gleam_pgo", "gleam_stdlib"], otp_app = "based_pg", source = "hex", outer_checksum = "FBEAA169BF5A52401EB38AA2BA40C6F2839D29BB47553E57B38EF4B29912713C" },
-  { name = "based_sqlite", version = "2.0.0", build_tools = ["gleam"], requirements = ["based", "gleam_stdlib", "sqlight"], otp_app = "based_sqlite", source = "hex", outer_checksum = "CD5D67C03D4CBA13EDD0BE3AFF8A4A1BB886758DAD6160120FB55A90D5B1D02B" },
   { name = "birdie", version = "1.1.6", build_tools = ["gleam"], requirements = ["argv", "filepath", "glance", "gleam_community_ansi", "gleam_erlang", "gleam_stdlib", "justin", "rank", "simplifile", "trie_again"], otp_app = "birdie", source = "hex", outer_checksum = "9DBF73AEF936EAA8D22FFCE2B10CF42E38D62F8A006F89E3FFC1170D5C1E585B" },
   { name = "esqlite", version = "0.8.8", build_tools = ["rebar3"], requirements = [], otp_app = "esqlite", source = "hex", outer_checksum = "374902457C7D94DC9409C98D3BDD1CA0D50A60DC9F3BDF1FD8EB74C0DCDF02D6" },
   { name = "filepath", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "filepath", source = "hex", outer_checksum = "EFB6FF65C98B2A16378ABC3EE2B14124168C0CE5201553DE652E2644DCFDB594" },
@@ -38,14 +35,11 @@ packages = [
 ]
 
 [requirements]
-based = { version = ">= 2.0.0 and < 3.0.0" }
-based_pg = { version = ">= 2.0.0 and < 3.0.0"}
-based_sqlite = { version = ">= 2.0.0 and < 3.0.0" }
 birdie = { version = ">= 1.1.5 and < 2.0.0" }
 glacier = { version = ">= 1.0.0 and < 2.0.0" }
 gleam_erlang = { version = ">= 0.25.0 and < 2.0.0" }
 gleam_pgo = { version = ">= 0.10.0 and < 2.0.0" }
 gleam_stdlib = { version = ">= 0.38.0 and < 2.0.0" }
-pprint = { version = ">= 1.0.3 and < 2.0.0" }
+pprint = { version = ">= 1.0.3 and < 2.0.0"}
 sqlight = { version = ">= 0.9.0 and < 2.0.0" }
 stacky = { version = ">= 1.4.0 and < 2.0.0" }
