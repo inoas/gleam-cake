@@ -1,0 +1,10 @@
+---
+version: 1.1.6
+title: insert_custom_type_execution_result_test
+file: ./test/cake/insert_custom_type_test.gleam
+test_name: insert_custom_type_execution_result_test
+---
+#(
+  Ok([#("Whiskers"), #("Mittens")]),
+  Ok([#("Whiskers"), #("Mittens")]),
+)
