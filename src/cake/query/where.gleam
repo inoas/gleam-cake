@@ -2,8 +2,8 @@
 // TODO v1 tests
 
 import cake/internal/query.{
-  type Fragment, type Where, type WhereValue, Equal, Greater, GreaterOrEqual,
-  Lower, LowerOrEqual, RawWhereFragment,
+  type Fragment, type Query, type Where, type WhereValue, Equal, Greater,
+  GreaterOrEqual, Lower, LowerOrEqual, RawWhereFragment,
 }
 import cake/param
 
@@ -27,6 +27,10 @@ pub fn string(value: String) -> WhereValue {
   value |> param.string |> query.WhereParam
 }
 
+pub fn not(part: Where) -> Where {
+  part |> query.NotWhere
+}
+
 pub fn and(wheres whs: List(Where)) -> Where {
   whs |> query.AndWhere
 }
@@ -39,42 +43,6 @@ pub fn or(wheres whs: List(Where)) -> Where {
 // pub fn xor(wheres whs: List(Where)) -> Where {
 //   whs |> query.XorWhere
 // }
-
-pub fn not(part: Where) -> Where {
-  part |> query.NotWhere
-}
-
-pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereComparison(Equal, val_b)
-}
-
-pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereComparison(Lower, val_b)
-}
-
-pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereComparison(LowerOrEqual, val_b)
-}
-
-pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereComparison(Greater, val_b)
-}
-
-pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereComparison(GreaterOrEqual, val_b)
-}
-
-pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> Where {
-  val |> query.WhereIn(vals)
-}
-
-pub fn between(
-  value_a val_a: WhereValue,
-  value_b val_b: WhereValue,
-  value_c val_c: WhereValue,
-) -> Where {
-  val_a |> query.WhereBetween(val_b, val_c)
-}
 
 pub fn is_bool(value val: WhereValue, bool b: Bool) -> Where {
   val |> query.WhereIsBool(b)
@@ -104,10 +72,88 @@ pub fn is_not_null(value val: WhereValue) -> Where {
   val |> query.WhereIsNotNull
 }
 
+pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
+  val_a |> query.WhereComparison(Equal, val_b)
+}
+
+pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
+  val_a |> query.WhereComparison(Lower, val_b)
+}
+
+pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
+  val_a |> query.WhereComparison(LowerOrEqual, val_b)
+}
+
+pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
+  val_a |> query.WhereComparison(Greater, val_b)
+}
+
+pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
+  val_a |> query.WhereComparison(GreaterOrEqual, val_b)
+}
+
+pub fn eq_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAnyOfSubQuery(Equal, qry)
+}
+
+pub fn lt_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAnyOfSubQuery(Lower, qry)
+}
+
+pub fn lte_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAnyOfSubQuery(LowerOrEqual, qry)
+}
+
+pub fn gt_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAnyOfSubQuery(Greater, qry)
+}
+
+pub fn gte_any_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAnyOfSubQuery(GreaterOrEqual, qry)
+}
+
+pub fn eq_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAllOfSubQuery(Equal, qry)
+}
+
+pub fn lt_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAllOfSubQuery(Lower, qry)
+}
+
+pub fn lte_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAllOfSubQuery(LowerOrEqual, qry)
+}
+
+pub fn gt_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAllOfSubQuery(Greater, qry)
+}
+
+pub fn gte_all_query(value val: WhereValue, sub_query qry: Query) -> Where {
+  val |> query.WhereAllOfSubQuery(GreaterOrEqual, qry)
+}
+
+pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> Where {
+  val |> query.WhereIn(vals)
+}
+
+pub fn exists_in_query(sub_query qry: Query) -> Where {
+  qry |> query.WhereExistsInSubQuery
+}
+
+pub fn between(
+  value_a val_a: WhereValue,
+  value_b val_b: WhereValue,
+  value_c val_c: WhereValue,
+) -> Where {
+  val_a |> query.WhereBetween(val_b, val_c)
+}
+
 pub fn like(value val: WhereValue, pattern pttrn: String) -> Where {
   val |> query.WhereLike(pttrn)
 }
 
+/// `ILIKE` is the same as `LIKE` but case-insensitive.
+///
 pub fn ilike(value val: WhereValue, pattern pttrn: String) -> Where {
   val |> query.WhereILike(pttrn)
 }

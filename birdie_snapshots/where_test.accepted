@@ -9,8 +9,9 @@ SelectQuery(Select(
   NoSelects,
   FromTable("cats"),
   NoJoins,
-  WhereEqual(
+  WhereComparison(
     WhereParam(StringParam("Hello")),
+    Equal,
     WhereColumn("name"),
   ),
   NoGroupBy,
