@@ -14,6 +14,7 @@ fn select_query() {
   sut.new_from(f.table("cats"))
   |> sut.select([
     sut.col("name"),
+    // TODO v1 check if this should work AT ALL, because it does not work in postgres
     // sut.bool(True),
     // sut.float(1.0),
     // sut.int(1),

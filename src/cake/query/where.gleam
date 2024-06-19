@@ -1,9 +1,10 @@
 //// Used to build `WHERE` clauses for SQL queries.
+////
 //// Where clauses are used to filter rows in a table.
 ////
-//// Also used to build `HAVING` clauses for SQL queries,
-//// because they work the same way as `WHERE` clauses,
-//// but are used to filter rows after `GROUP BY` has been applied.
+//// Also used to build `HAVING` clauses for SQL queries, because they work the
+//// same way as `WHERE` clauses, but are used to filter rows after `GROUP BY`
+//// has been applied.
 ////
 //// ## Compatibility
 ////

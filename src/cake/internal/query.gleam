@@ -10,21 +10,20 @@
 //// whatever you want in userland code, however the whole module is internal
 //// because you _SHOULD NOT_ build queries based on raw types manually.
 ////
-//// Because the likihood of creating invalid queries
-//// is mich higher than using the interface modules found
-//// in `cake/query/*`.
+//// Because the likihood of creating invalid queries is mich higher than using
+//// the interface modules found in `cake/query/*`.
 ////
 //// WARNING: Once the library has matured, public access to these types _may_
 //// vanish.
 ////
 //// ## Scope
 ////
-//// The functions of this module are mostly concerned about either
-//// of these two things:
+//// The functions of this module are mostly concerned about either of these two
+//// things:
 ////
 //// 1. Building complex nested custom types that represent read queries.
-//// 2. Converting these complex nested custom types into SQL including
-////    all the necessary prepared statement placeholders and parameters.
+//// 2. Converting these complex nested custom types into SQL including all the
+////    necessary prepared statement placeholders and parameters.
 ////
 //// The complex nested types are setup in a way that most values are wrapped
 //// (or boxed) even if that would not be required technically, simply to
@@ -100,10 +99,10 @@ pub fn combined_clause_apply(
     IntersectAll -> "INTERSECT ALL"
   }
 
-  // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL
-  // within queries nested in UNION and its siblings
-  // (Combined queries) but they do work on MariaDB and PostgreSQL
-  // out of the box, see <https://github.com/diesel-rs/diesel/issues/3151>.
+  // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL within queries nested
+  // in UNION and its siblings (Combined queries) but they do work on MariaDB
+  // and PostgreSQL out of the box,
+  // see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
   // For Sqlite we need to wrap these in sub queries, like so:
   //
@@ -176,8 +175,8 @@ pub type Combined {
 }
 
 // TODO: Add to query validator in v2 or v3
-/// NOTICE: SQLite does not support `EXCEPT ALL` (`ExceptAll`)
-/// nor `INTERSECT ALL` (`IntersectAll`).
+/// NOTICE: SQLite does not support `EXCEPT ALL` (`ExceptAll`) nor
+/// `INTERSECT ALL` (`IntersectAll`).
 ///
 pub type CombinedQueryKind {
   UnionDistinct
@@ -794,7 +793,7 @@ fn do_fake_where_xor_apply(
   prp_stm
 }
 
-// MySQL/MariaDB can take this:
+// MySQL/MariaDB could take this instead:
 // fn do_where_xor_apply(
 //   prepared_statement prp_stm: PreparedStatement,
 //   where whs: List(Where),
@@ -1185,6 +1184,7 @@ fn offset_clause_apply(
 /// Used to add a trailing SQL statement to the query.
 ///
 /// Epilog allows to append raw SQL to the end of queries.
+///
 /// One should NEVER put raw user data into the epilog.
 ///
 pub type Epilog {
@@ -1240,19 +1240,18 @@ pub fn comment_apply(
 //
 // `gleam run --module cake/sql-injection-check -- ./src`
 //
-// This could parse the gleam source and find spots
-// where fragments are used and check if the inserted
-// values are gleam constants only.
+// This could parse the gleam source and find spots where fragments are used
+// and check if the inserted values are gleam constants only.
 //
-// This solution could potentially be extended to a Literal type
-// that where a function takes a Literal the wrapped value (LiteralString, etc)
-// must be a gleam constant - this could work across this whole query builder.
+// This solution could potentially be extended to a Literal type that where a
+// function takes a Literal the wrapped value (LiteralString, etc) must be a
+// gleam constant - this could work across this whole query builder.
 
 /// Fragments are used to insert raw SQL into the query.
 ///
 /// NOTICE: Injecting input data into fragments is only safe when using
-///         `FragmentPrepared` and only using literal strings in the
-///         `fragment` field.
+///         `FragmentPrepared` and only using literal strings in the `fragment`
+///         field.
 ///
 ///          As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS
 ///          for any `fragment`-field string.
@@ -1262,12 +1261,13 @@ pub type Fragment {
   FragmentPrepared(fragment: String, params: List(Param))
 }
 
-/// Use to mark the position where a parameter should be inserted into
-/// for a fragment with a prepared parameter.
+/// Use to mark the position where a parameter should be inserted into for a
+/// fragment with a prepared parameter.
 ///
 pub const fragment_placeholder_grapheme = "$"
 
-/// Splits something like `GREATER($, $)` into `["GREATER(", "$", ", ", "$", ")"]`.
+/// Splits something like `GREATER($, $)` into
+/// `["GREATER(", "$", ", ", "$", ")"]`.
 ///
 pub fn fragment_prepared_split_string(
   string_fragment str_frgmt: String,
@@ -1278,13 +1278,13 @@ pub fn fragment_prepared_split_string(
     case grapheme == fragment_placeholder_grapheme, acc {
       // If encountering a placeholder, we want to add it as a single item.
       True, _acc -> [fragment_placeholder_grapheme, ..acc]
-      // If Encountering anything else but there isn't anything yet,
-      // we want to add it as a single item.
+      // If Encountering anything else but there isn't anything yet, we want to
+      // add it as a single item.
       False, [] -> [grapheme]
       // If the previous item matches a placeholder, we don't want to append
       // to it, because we want placeholders to exist as separat single items.
       False, [x, ..] if x == fragment_placeholder_grapheme -> [grapheme, ..acc]
-      // In any other case we can just append to the previous item
+      // In any other case we can just append to the previous item.
       False, [x, ..xs] -> [x <> grapheme, ..xs]
     }
   })
@@ -1318,17 +1318,17 @@ fn fragment_apply(
       let prms_count = prms |> list.length
       // Fill up or reduce params to match the given number of placeholders
       //
-      // This is likely a user error that cannot be catched by
-      // the type system, but instead of crashing we do the best we can:
+      // This is likely a user error that cannot be catched by the type system,
+      // but instead of crashing we do the best we can:
       //
-      // For the user ´fragment.prepared()` should be used with caution and
-      // will warn about the mismatch at runtime.
+      // For the user ´fragment.prepared()` should be used with caution and will
+      // warn about the mismatch at runtime.
       let prms = case frgmt_plchldr_count |> int.compare(with: prms_count) {
         order.Eq -> prms
         order.Lt -> {
-          // If there are more params than placeholders, we take the first
-          // `n` params where `n` is the number of placeholders, and discard
-          // the rest.
+          // If there are more params than placeholders, we take the first `n`
+          // params where `n` is the number of placeholders, and discard the
+          // rest.
           let missing_placeholders = prms_count - frgmt_plchldr_count
 
           prms |> list.take(missing_placeholders + 1)
@@ -1361,8 +1361,8 @@ fn fragment_apply(
             case frgmnt == fragment_placeholder_grapheme {
               True -> {
                 // Pop one of the list, and use it as the next parameter value.
-                // This is safe because we have already checked that the list
-                // is not empty.
+                // This is safe because we have already checked that the list is
+                // not empty.
                 let assert [prm, ..rest_prms] = acc.1
                 let new_prp_stm =
                   new_prp_stm |> prepared_statement.append_param(prm)

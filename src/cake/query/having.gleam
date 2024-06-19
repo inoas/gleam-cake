@@ -3,8 +3,8 @@
 ////
 //// `HAVING` and `WHERE` are similar in so far that they both filter data:
 ////
-//// - `WHERE` filters input rows before groups and aggregates are computed,
-////   and by that controls which rows go into the aggregate computation.
+//// - `WHERE` filters input rows before groups and aggregates are computed, and
+////   by that controls which rows go into the aggregate computation.
 //// - `HAVING` filters group rows after groups and aggregates are computed.
 ////
 //// Becaue of this difference, `WHERE` can refer to columns that are not part

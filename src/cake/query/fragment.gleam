@@ -1,10 +1,10 @@
-//// Fragments are low level building blocks of queries
-//// which allow direct manipulation of the query string.
+//// Fragments are low level building blocks of queries which allow direct
+//// manipulation of the query string.
 ////
-//// If you want to insert parameters, you are required to
-//// use prepared fragments, which will be validated against
-//// the number of parameters given and the parameters
-//// are automatically escaped by the RDBMS to prevent SQL injections.
+//// If you want to insert parameters, you are required to use prepared
+//// fragments, which will be validated against the number of parameters given
+//// and the parameters are automatically escaped by the RDBMS to prevent SQL
+//// injections.
 ////
 
 import cake/internal/query.{type Fragment}

@@ -1,5 +1,4 @@
-//// Functions to build the `FROM` clause
-//// of an SQL query.
+//// Functions to build the `FROM` clause of an SQL query.
 ////
 
 import cake/internal/query.{type From, type Query, FromSubQuery, FromTable}

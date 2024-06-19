@@ -1,8 +1,7 @@
 //// A DSL to build `SELECT` queries.
 ////
-//// `HAVING` allows to specify constraints much like `WHERE`,
-//// but filters the results after `GROUP BY` is applied
-//// instead of before
+//// `HAVING` allows to specify constraints much like `WHERE`, but filters the
+//// results after `GROUP BY` is applied instead of before
 ////
 
 import cake/internal/query.{
