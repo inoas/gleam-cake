@@ -1,5 +1,5 @@
 import gleam/dynamic
-import test_support/dialect/postgres
+import test_support/adapter/postgres
 import test_support/dummy
 
 pub fn setup_and_run(query) {

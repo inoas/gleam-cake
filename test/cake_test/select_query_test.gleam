@@ -6,8 +6,8 @@ import cake/query/where as w
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
-import test_support/dialect/postgres
-import test_support/dialect/sqlite
+import test_support/adapter/postgres
+import test_support/adapter/sqlite
 
 pub fn select_query_query() {
   s.new()
