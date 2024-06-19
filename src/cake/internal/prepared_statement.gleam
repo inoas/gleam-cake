@@ -3,7 +3,7 @@
 //// values rather than raw SQL.
 ////
 
-import cake/database_adapter.{type DatabaseAdapter}
+import cake/dialect.{type Dialect}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
@@ -14,21 +14,12 @@ pub opaque type PreparedStatement {
     sql: String,
     params: List(Param),
     index: Int,
-    database_adapter: DatabaseAdapter,
+    dialect: Dialect,
   )
 }
 
-pub fn new(
-  prefix prfx: String,
-  database_adapter db_adptr: DatabaseAdapter,
-) -> PreparedStatement {
-  prfx
-  |> PreparedStatement(
-    sql: "",
-    params: [],
-    index: 0,
-    database_adapter: db_adptr,
-  )
+pub fn new(prefix prfx: String, dialect db_adptr: Dialect) -> PreparedStatement {
+  prfx |> PreparedStatement(sql: "", params: [], index: 0, dialect: db_adptr)
 }
 
 pub fn append_param(
@@ -58,10 +49,8 @@ pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) 
   prp_stm.params
 }
 
-pub fn get_database_adapter(
-  prepared_statement prp_stm: PreparedStatement,
-) -> DatabaseAdapter {
-  prp_stm.database_adapter
+pub fn get_dialect(prepared_statement prp_stm: PreparedStatement) -> Dialect {
+  prp_stm.dialect
 }
 
 fn append_sql_and_param(

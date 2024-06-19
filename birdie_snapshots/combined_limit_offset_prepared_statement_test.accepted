@@ -10,13 +10,13 @@ test_name: combined_limit_offset_prepared_statement_test
     "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
-    PostgresAdapter,
+    Postgres,
   ),
   PreparedStatement(
-    "$",
+    "?",
     "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_1 UNION ALL SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4) AS __cake_computed_alias_2 ORDER BY name ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
-    SqliteAdapter,
+    Sqlite,
   ),
 )

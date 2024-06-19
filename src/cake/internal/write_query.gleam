@@ -2,7 +2,7 @@
 //// _write queries_, such as `INSERT`, `UPDATE` and `DELETE`.
 ////
 
-import cake/database_adapter.{type DatabaseAdapter}
+import cake/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{
   type Comment, type From, type Joins, type Query, type Where, FromSubQuery,
@@ -32,10 +32,10 @@ pub type WriteQuery(a) {
 pub fn to_prepared_statement(
   query qry: WriteQuery(a),
   placeholder_prefix prp_stm_prfx: String,
-  database_adapter db_adptr: DatabaseAdapter,
+  dialect dlct: Dialect,
 ) -> PreparedStatement {
   prp_stm_prfx
-  |> prepared_statement.new(db_adptr)
+  |> prepared_statement.new(dlct)
   |> apply(qry)
 }
 
@@ -325,13 +325,13 @@ fn on_conflict_target_apply(
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// NOTICE: Postgres only supports `Joins` if `From` is given.
+/// NOTICE: Postgres only supports `JOIN` in `UPDATE` if `FROM` is given.
 ///
 pub type Update(a) {
   Update(
     // with (_recursive?): ?, // v2
-    modifier: UpdateModifier,
     table: UpdateTable,
+    modifier: UpdateModifier,
     set: UpdateSets,
     from: UpdateFrom,
     where: Where,
@@ -353,20 +353,16 @@ pub type UpdateSets {
   UpdateSets(List(UpdateSet))
 }
 
+pub type UpdateSet {
+  UpdateParamSet(column: String, param: Param)
+  UpdateExpressionSet(columns: List(String), expression: String)
+  UpdateSubQuerySet(columns: List(String), sub_query: Query)
+}
+
 pub type UpdateFrom {
   NoUpdateFrom
   UpdateFrom(from: From)
   UpdateFromJoins(from: From, joins: Joins)
-}
-
-pub type UpdateSet {
-  UpdateExpressionPairs(columns: List(String), expression: UpdateValue)
-  UpdateSubQueryPairs(columns: List(String), value: Query)
-}
-
-pub type UpdateValue {
-  UpdateExpression(expression: String)
-  UpdateParam(param: Param)
 }
 
 pub fn update_to_write_query(insert: Update(a)) -> WriteQuery(a) {
@@ -406,29 +402,42 @@ fn update_sets_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_sets updt_sts: List(UpdateSet),
 ) {
-  let apply_columns = fn(new_prp_stm: PreparedStatement, columns: List(String)) -> PreparedStatement {
-    new_prp_stm
-    |> prepared_statement.append_sql(
-      " (" <> columns |> string.join(", ") <> ")",
-    )
-    |> prepared_statement.append_sql(" =")
+  let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
+    case cols {
+      [] -> new_prp_stm |> prepared_statement.append_sql(" ")
+      [col] -> new_prp_stm |> prepared_statement.append_sql(col <> " =")
+      [_col, ..] ->
+        new_prp_stm
+        |> prepared_statement.append_sql(
+          " (" <> cols |> string.join(", ") <> ")",
+        )
+        |> prepared_statement.append_sql(" =")
+    }
   }
 
   updt_sts
   |> list.fold(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, updt_st: UpdateSet) -> PreparedStatement {
+      let new_prp_stm = case new_prp_stm == prp_stm {
+        True -> new_prp_stm |> prepared_statement.append_sql(" ")
+        False -> new_prp_stm |> prepared_statement.append_sql(", ")
+      }
       case updt_st {
-        UpdateExpressionPairs(columns: columns, expression: expression) ->
+        UpdateParamSet(column: col, param: prm) ->
           new_prp_stm
-          |> apply_columns(columns)
+          |> apply_columns([col])
           |> prepared_statement.append_sql(" ")
-          |> update_expression_apply(expression)
-        UpdateSubQueryPairs(columns: columns, value: value) ->
+          |> prepared_statement.append_param(prm)
+        UpdateExpressionSet(columns: cols, expression: expr) ->
+          new_prp_stm
+          |> apply_columns(cols)
+          |> prepared_statement.append_sql(" " <> expr)
+        UpdateSubQuerySet(columns: cols, sub_query: qry) ->
           prp_stm
-          |> apply_columns(columns)
+          |> apply_columns(cols)
           |> prepared_statement.append_sql(" (")
-          |> query.apply(value)
+          |> query.apply(qry)
           |> prepared_statement.append_sql(")")
       }
     },
@@ -447,23 +456,11 @@ fn update_from_apply(
   }
 }
 
-fn update_expression_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update_value updt_vl: UpdateValue,
-) -> PreparedStatement {
-  case updt_vl {
-    UpdateExpression(expression: expr) ->
-      prp_stm |> prepared_statement.append_sql(expr)
-    UpdateParam(param: param) ->
-      prp_stm |> prepared_statement.append_param(param)
-  }
-}
-
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Delete                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// SQlite does not support `Joins` in `Delete`.
+/// SQlite does not support `JOIN` in `DELETE`.
 ///
 pub type Delete(a) {
   Delete(

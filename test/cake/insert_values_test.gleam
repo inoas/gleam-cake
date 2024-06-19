@@ -1,10 +1,10 @@
 import birdie
-import cake/adapter/postgres
-import cake/adapter/sqlite
 import cake/query/insert as i
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
+import test_support/dialect/postgres
+import test_support/dialect/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Setup                                                                    │

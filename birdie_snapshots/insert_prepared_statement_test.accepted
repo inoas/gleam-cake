@@ -14,17 +14,17 @@ test_name: insert_prepared_statement_test
       BoolParam(False),
     ],
     3,
-    PostgresAdapter,
+    Postgres,
   ),
   PreparedStatement(
-    "$",
-    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3) RETURNING name",
+    "?",
+    "INSERT INTO cats (name, age, is_wild) VALUES (?1, ?2, ?3) RETURNING name",
     [
       StringParam("Whiskers"),
       IntParam(5),
       BoolParam(False),
     ],
     3,
-    SqliteAdapter,
+    Sqlite,
   ),
 )

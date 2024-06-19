@@ -10,13 +10,13 @@ test_name: where_any_prepared_statement_test
     "SELECT * FROM cats WHERE owner_id = ANY(SELECT owner_id FROM dogs)",
     [],
     0,
-    PostgresAdapter,
+    Postgres,
   ),
   PreparedStatement(
-    "$",
+    "?",
     "SELECT * FROM cats WHERE owner_id = ANY(SELECT owner_id FROM dogs)",
     [],
     0,
-    SqliteAdapter,
+    Sqlite,
   ),
 )

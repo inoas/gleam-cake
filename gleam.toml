@@ -80,14 +80,14 @@ gleam = ">= 1.2.0 and < 2.0.0"
 # TODO v2   - expire cache based on arg, which could also be 0 for no cache
 
 gleam_erlang = ">= 0.25.0 and < 2.0.0"
-gleam_pgo = ">= 0.10.0 and < 2.0.0"
 gleam_stdlib = ">= 0.38.0 and < 2.0.0"
-pprint = ">= 1.0.3 and < 2.0.0"
-sqlight = ">= 0.9.0 and < 2.0.0"
 
 [dev-dependencies]
 birdie = ">= 1.1.5 and < 2.0.0"
 glacier = ">= 1.0.0 and < 2.0.0"
+gleam_pgo = ">= 0.10.0 and < 2.0.0"
+pprint = ">= 1.0.3 and < 2.0.0"
+sqlight = ">= 0.9.0 and < 2.0.0"
 # glychee
 # qcheck
 # qcheck_gleeunit_utils

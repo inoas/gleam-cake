@@ -1,6 +1,6 @@
-import cake/adapter/sqlite
 import gleam/dynamic
-import support/dummy
+import test_support/dialect/sqlite
+import test_support/dummy
 
 pub fn setup_and_run(query) {
   use conn <- sqlite.with_memory_connection

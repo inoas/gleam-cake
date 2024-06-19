@@ -10,13 +10,13 @@ test_name: select_distinct_prepared_statement_test
     "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
     [],
     0,
-    PostgresAdapter,
+    Postgres,
   ),
   PreparedStatement(
-    "$",
+    "?",
     "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
     [],
     0,
-    SqliteAdapter,
+    Sqlite,
   ),
 )

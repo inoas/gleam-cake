@@ -1,6 +1,6 @@
-import cake/adapter/postgres
 import gleam/dynamic
-import support/dummy
+import test_support/dialect/postgres
+import test_support/dummy
 
 pub fn setup_and_run(query) {
   use conn <- postgres.with_connection

@@ -13,8 +13,8 @@ import cake/internal/write_query.{
 import cake/param.{type Param}
 import gleam/string
 
-pub fn to_query(insert: Insert(a)) -> WriteQuery(a) {
-  insert |> InsertQuery
+pub fn to_query(insert isrt: Insert(a)) -> WriteQuery(a) {
+  isrt |> InsertQuery
 }
 
 pub fn row(a) -> InsertRow {

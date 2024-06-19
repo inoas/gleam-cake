@@ -10,13 +10,13 @@ test_name: combined_except_prepared_statement_test
     "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) EXCEPT (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
-    PostgresAdapter,
+    Postgres,
   ),
   PreparedStatement(
-    "$",
+    "?",
     "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_1 EXCEPT SELECT * FROM (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) AS __cake_computed_alias_2 ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
     [],
     0,
-    SqliteAdapter,
+    Sqlite,
   ),
 )

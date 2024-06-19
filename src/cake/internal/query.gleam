@@ -31,9 +31,7 @@
 //// the query structure when composing different queries.
 ////
 
-import cake/database_adapter.{
-  type DatabaseAdapter, PostgresAdapter, SqliteAdapter,
-}
+import cake/dialect.{type Dialect, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import gleam/int
@@ -55,9 +53,9 @@ pub type Query {
 pub fn to_prepared_statement(
   query qry: Query,
   placeholder_prefix prp_stm_prfx: String,
-  database_adapter db_adptr: DatabaseAdapter,
+  dialect dlct: Dialect,
 ) -> PreparedStatement {
-  prp_stm_prfx |> prepared_statement.new(db_adptr) |> apply(qry)
+  prp_stm_prfx |> prepared_statement.new(dlct) |> apply(qry)
 }
 
 pub fn apply(
@@ -115,16 +113,15 @@ pub fn combined_clause_apply(
   // ```
 
   let open_nested_query = fn(prp_stm: PreparedStatement) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_database_adapter() {
-      SqliteAdapter ->
-        prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
+    case prp_stm |> prepared_statement.get_dialect() {
+      Sqlite -> prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
       _ -> prp_stm |> prepared_statement.append_sql("(")
     }
   }
 
   let close_nested_query = fn(prp_stm: PreparedStatement, nested_index: Int) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_database_adapter() {
-      SqliteAdapter ->
+    case prp_stm |> prepared_statement.get_dialect() {
+      Sqlite ->
         prp_stm
         |> prepared_statement.append_sql(
           ") AS " <> computed_alias_prefix <> nested_index |> int.to_string,
@@ -726,9 +723,9 @@ fn where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  case prp_stm |> prepared_statement.get_database_adapter() {
+  case prp_stm |> prepared_statement.get_dialect() {
     // MysqlAdapter -> do_where_xor_apply(prp_stm, whs)
-    PostgresAdapter | SqliteAdapter -> do_fake_where_xor_apply(prp_stm, whs)
+    Postgres | Sqlite -> do_fake_where_xor_apply(prp_stm, whs)
   }
 }
 
@@ -1405,6 +1402,7 @@ fn fragment_apply(
 // │  Helpers                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+// TODO v2 escaped_identifier, quote and escape table and column names
 pub fn qualified_identifier(scope scp: String) -> fn(String) -> String {
   fn(identifier) -> String { scp <> "." <> identifier }
 }

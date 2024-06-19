@@ -446,3 +446,5 @@ pub fn get_comment(query qry: Select) -> Comment {
 // pub fn cols_exist(connection conn: Connection, table_name tbl_nm: String, columns cols: List(String)) -> List(#(String, Boolean)) {
 //   todo
 // }
+
+// TODO v3: paginator support, either here or as a stand alone lib, probably latter
