@@ -42,7 +42,7 @@ import gleam/list
 import gleam/order
 import gleam/string
 
-pub const computed_alias_prefix = "__cake_computed_alias_prefix_"
+pub const computed_alias_prefix = "__cake_computed_alias_"
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Query                                                                    │
