@@ -135,7 +135,7 @@ pub type InsertConfictTarget {
   InsertConflictTargetConstraint(constraint: String)
 }
 
-pub fn insert_to_write_query(insert: Insert(a)) -> WriteQuery(a) {
+pub fn to_insert_write_query(insert: Insert(a)) -> WriteQuery(a) {
   insert |> InsertQuery
 }
 

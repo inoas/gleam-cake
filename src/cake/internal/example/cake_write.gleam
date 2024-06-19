@@ -3,8 +3,8 @@
 
 import cake/adapter/postgres
 import cake/adapter/sqlite
+import cake/internal/example/cake_write_queries
 import cake/internal/stdlib/iox
-import cake/internal/write_example_wibble
 import cake/internal/write_query.{type WriteQuery}
 import gleam/dynamic
 import gleam/erlang/process
@@ -36,8 +36,8 @@ pub fn exec_dummy_insert() {
 
   let _ =
     run_write_on_sqlite(
-      [write_example_wibble.new()]
-        |> write_example_wibble.insert_to_write_query(),
+      [cake_write_queries.new()]
+        |> cake_write_queries.to_insert_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -50,11 +50,11 @@ pub fn exec_dummy_insert() {
   let _ =
     run_write_on_postgres(
       [
-        write_example_wibble.new(),
-        write_example_wibble.new(),
-        write_example_wibble.new(),
+        cake_write_queries.new(),
+        cake_write_queries.new(),
+        cake_write_queries.new(),
       ]
-        |> write_example_wibble.insert_to_write_query(),
+        |> cake_write_queries.to_insert_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -70,8 +70,8 @@ pub fn exec_dummy_update() {
 
   let _ =
     run_write_on_sqlite(
-      [write_example_wibble.new()]
-        |> write_example_wibble.update_to_write_query(),
+      [cake_write_queries.new()]
+        |> cake_write_queries.to_update_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -83,12 +83,8 @@ pub fn exec_dummy_update() {
 
   let _ =
     run_write_on_postgres(
-      [
-        write_example_wibble.new(),
-        write_example_wibble.new(),
-        write_example_wibble.new(),
-      ]
-        |> write_example_wibble.update_to_write_query(),
+      [cake_write_queries.new()]
+        |> cake_write_queries.to_update_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -104,8 +100,8 @@ pub fn exec_dummy_delete() {
 
   let _ =
     run_write_on_sqlite(
-      [write_example_wibble.new()]
-        |> write_example_wibble.delete_to_write_query(),
+      [cake_write_queries.new()]
+        |> cake_write_queries.to_delete_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")
@@ -118,11 +114,11 @@ pub fn exec_dummy_delete() {
   let _ =
     run_write_on_postgres(
       [
-        write_example_wibble.new(),
-        write_example_wibble.new(),
-        write_example_wibble.new(),
+        cake_write_queries.new(),
+        cake_write_queries.new(),
+        cake_write_queries.new(),
       ]
-        |> write_example_wibble.delete_to_write_query(),
+        |> cake_write_queries.to_delete_write_query(),
       query_decoder,
     )
     |> iox.print_tap("Result: ")

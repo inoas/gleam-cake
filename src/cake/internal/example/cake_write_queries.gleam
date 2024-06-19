@@ -29,7 +29,7 @@ fn caster(wibble: Wibble) -> InsertRow {
   ])
 }
 
-pub fn insert_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+pub fn to_insert_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   Insert(
     into_table: InsertIntoTable(table: table_name),
     modifier: NoInsertModifier,
@@ -39,13 +39,13 @@ pub fn insert_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
     returning: NoReturning,
     comment: NoComment,
   )
-  |> write_query.insert_to_write_query
+  |> write_query.to_insert_write_query
 }
 
-pub fn update_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+pub fn to_update_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   todo
 }
 
-pub fn delete_to_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+pub fn to_delete_write_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   todo
 }
