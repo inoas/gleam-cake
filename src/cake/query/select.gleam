@@ -62,6 +62,22 @@ pub fn from(from frm: From) -> Select {
   )
 }
 
+pub fn from_distinct(from frm: From) -> Select {
+  Select(
+    kind: SelectDistinct,
+    select: NoSelects,
+    from: frm,
+    join: NoJoins,
+    where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
+    order_by: NoOrderBy,
+    limit: NoLimit,
+    offset: NoOffset,
+    epilog: NoEpilog,
+  )
+}
+
 pub fn select(selects slcts: List(SelectValue)) -> Select {
   case slcts {
     [] -> NoSelects
@@ -81,7 +97,7 @@ pub fn select(selects slcts: List(SelectValue)) -> Select {
   )
 }
 
-pub fn select_distinct(selects slcts: List(SelectValue)) -> Select {
+pub fn distinct(selects slcts: List(SelectValue)) -> Select {
   case slcts {
     [] -> NoSelects
     _ -> slcts |> Selects
