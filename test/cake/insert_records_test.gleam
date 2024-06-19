@@ -23,7 +23,7 @@ fn cat_caster(cat cat: Cat) {
   |> i.row
 }
 
-fn insert_custom_type_query() {
+fn insert_records_query() {
   let cats = [
     Cat(name: "Whiskers", age: 3, is_wild: False),
     Cat(name: "Mittens", age: 5, is_wild: True),
@@ -43,29 +43,26 @@ fn insert_custom_type_query() {
 // │  Test                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub fn insert_custom_type_test() {
-  insert_custom_type_query()
+pub fn insert_records_test() {
+  insert_records_query()
   |> to_string
-  |> birdie.snap("insert_custom_type_test")
+  |> birdie.snap("insert_records_test")
 }
 
-pub fn insert_custom_type_prepared_statement_test() {
-  let pgo =
-    insert_custom_type_query() |> postgres.write_query_to_prepared_statement
-  let lit =
-    insert_custom_type_query() |> sqlite.write_query_to_prepared_statement
+pub fn insert_records_prepared_statement_test() {
+  let pgo = insert_records_query() |> postgres.write_query_to_prepared_statement
+  let lit = insert_records_query() |> sqlite.write_query_to_prepared_statement
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("insert_custom_type_prepared_statement_test")
+  |> birdie.snap("insert_records_prepared_statement_test")
 }
 
-pub fn insert_custom_type_execution_result_test() {
-  let pgo =
-    insert_custom_type_query() |> postgres_test_helper.setup_and_run_write
-  let lit = insert_custom_type_query() |> sqlite_test_helper.setup_and_run_write
+pub fn insert_records_execution_result_test() {
+  let pgo = insert_records_query() |> postgres_test_helper.setup_and_run_write
+  let lit = insert_records_query() |> sqlite_test_helper.setup_and_run_write
 
   #(pgo, lit)
   |> to_string
-  |> birdie.snap("insert_custom_type_execution_result_test")
+  |> birdie.snap("insert_records_execution_result_test")
 }
