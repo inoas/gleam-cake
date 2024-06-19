@@ -41,11 +41,11 @@ pub fn to_insert_query(wibbles: List(Wibble)) -> WriteQuery(Wibble) {
   )
   |> write_query.to_insert_query
 }
+//
+// pub fn to_update_write_query(_wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+//   todo
+// }
 
-pub fn to_update_write_query(_wibbles: List(Wibble)) -> WriteQuery(Wibble) {
-  todo
-}
-
-pub fn to_delete_write_query(_wibbles: List(Wibble)) -> WriteQuery(Wibble) {
-  todo
-}
+// pub fn to_delete_write_query(_wibbles: List(Wibble)) -> WriteQuery(Wibble) {
+//   todo
+// }

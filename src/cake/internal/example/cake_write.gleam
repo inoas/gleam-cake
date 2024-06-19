@@ -62,67 +62,69 @@ pub fn exec_dummy_insert() {
 }
 
 pub fn exec_dummy_update() {
-  iox.print_dashes()
+  Nil
+  //   iox.print_dashes()
 
-  let query_decoder = dynamic.dynamic
+  //   let query_decoder = dynamic.dynamic
 
-  iox.println("SQLite")
+  //   iox.println("SQLite")
 
-  let _ =
-    run_write_on_sqlite(
-      [cake_write_queries.new()]
-        |> cake_write_queries.to_update_write_query(),
-      query_decoder,
-    )
-    |> iox.print_tap("Result: ")
-    |> iox.dbg
+  //   let _ =
+  //     run_write_on_sqlite(
+  //       [cake_write_queries.new()]
+  //         |> cake_write_queries.to_update_write_query(),
+  //       query_decoder,
+  //     )
+  //     |> iox.print_tap("Result: ")
+  //     |> iox.dbg
 
-  process.sleep(100)
+  //   process.sleep(100)
 
-  iox.println("Postgres")
+  //   iox.println("Postgres")
 
-  let _ =
-    run_write_on_postgres(
-      [cake_write_queries.new()]
-        |> cake_write_queries.to_update_write_query(),
-      query_decoder,
-    )
-    |> iox.print_tap("Result: ")
-    |> iox.dbg
+  //   let _ =
+  //     run_write_on_postgres(
+  //       [cake_write_queries.new()]
+  //         |> cake_write_queries.to_update_write_query(),
+  //       query_decoder,
+  //     )
+  //     |> iox.print_tap("Result: ")
+  //     |> iox.dbg
 }
 
 pub fn exec_dummy_delete() {
-  iox.print_dashes()
+  Nil
+  //   iox.print_dashes()
 
-  let query_decoder = dynamic.dynamic
+  //   let query_decoder = dynamic.dynamic
 
-  iox.println("SQLite")
+  //   iox.println("SQLite")
 
-  let _ =
-    run_write_on_sqlite(
-      [cake_write_queries.new()]
-        |> cake_write_queries.to_delete_write_query(),
-      query_decoder,
-    )
-    |> iox.print_tap("Result: ")
-    |> iox.dbg
+  //   let _ =
+  //     run_write_on_sqlite(
+  //       [cake_write_queries.new()]
+  //         |> cake_write_queries.to_delete_write_query(),
+  //       query_decoder,
+  //     )
+  //     |> iox.print_tap("Result: ")
+  //     |> iox.dbg
 
-  process.sleep(100)
+  //   process.sleep(100)
 
-  iox.println("Postgres")
+  //   iox.println("Postgres")
 
-  let _ =
-    run_write_on_postgres(
-      [
-        cake_write_queries.new(),
-        cake_write_queries.new(),
-        cake_write_queries.new(),
-      ]
-        |> cake_write_queries.to_delete_write_query(),
-      query_decoder,
-    )
-    |> iox.print_tap("Result: ")
-    |> iox.dbg
+  //   let _ =
+  //     run_write_on_postgres(
+  //       [
+  //         cake_write_queries.new(),
+  //         cake_write_queries.new(),
+  //         cake_write_queries.new(),
+  //       ]
+  //         |> cake_write_queries.to_delete_write_query(),
+  //       query_decoder,
+  //     )
+  //     |> iox.print_tap("Result: ")
+  //     |> iox.dbg
 }
 
 fn run_write_on_postgres(query: WriteQuery(t), query_decoder) {
