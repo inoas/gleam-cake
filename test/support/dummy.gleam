@@ -35,12 +35,12 @@ pub fn create_cats_table() {
 }
 
 pub fn insert_cats_rows() {
-  "INSERT INTO cats (name, age, is_wild, owner_id) VALUES
-    ('Nubi', 4, TRUE, 1),
-    ('Biffy', 10, NULL, 2),
-    ('Ginny', 6, FALSE, 3),
-    ('Karl', 8, TRUE, NULL),
-    ('Clara', 3, TRUE, NULL)
+  "INSERT INTO cats (name, age, is_wild, owner_id, rating) VALUES
+    ('Nubi', 4, TRUE, 1, 2.2),
+    ('Biffy', 10, NULL, 2, 1.1),
+    ('Ginny', 6, FALSE, 3, NULL),
+    ('Karl', 8, TRUE, NULL, 10.0),
+    ('Clara', 3, TRUE, NULL, 10.0)
   ;"
 }
 

@@ -7,7 +7,7 @@ test_name: where_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "SELECT * FROM cats WHERE (age = $1 AND 1 = 1 AND $2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= $3 AND $4 = rating)",
+    "SELECT * FROM cats WHERE (age = $1 AND 1 = 1 AND $2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= $3 AND NOT ($4 = rating))",
     [
       IntParam(10),
       StringParam("Hello"),
@@ -19,7 +19,7 @@ test_name: where_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE (age = ?1 AND 1 = 1 AND ?2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= ?3 AND ?4 = rating)",
+    "SELECT * FROM cats WHERE (age = ?1 AND 1 = 1 AND ?2 = name AND (is_wild IS FALSE OR is_wild IS TRUE) AND age >= ?3 AND NOT (?4 = rating))",
     [
       IntParam(10),
       StringParam("Hello"),

@@ -5,14 +5,6 @@ file: ./test/cake/internal/query/combined_test.gleam
 test_name: combined_union_all_execution_result_test
 ---
 #(
-  Ok([#("Clara", 3, True, Null, Null)]),
-  Ok([
-    #(
-      "Clara",
-      3,
-      1,
-      Undefined,
-      Undefined,
-    ),
-  ]),
+  Ok([#("Clara", 3, True, Null, 10.0)]),
+  Ok([#("Clara", 3, 1, Undefined, 10.0)]),
 )

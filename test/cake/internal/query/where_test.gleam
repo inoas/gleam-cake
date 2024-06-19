@@ -21,7 +21,7 @@ fn where_query() {
     ]),
   )
   |> s.where(sut.col("age") |> sut.gte(sut.int(0)))
-  |> s.where(sut.float(1.0) |> sut.eq(sut.col("rating")))
+  |> s.where(sut.not(sut.float(1.0) |> sut.eq(sut.col("rating"))))
   |> s.to_query
 }
 

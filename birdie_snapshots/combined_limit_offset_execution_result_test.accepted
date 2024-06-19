@@ -5,14 +5,14 @@ file: ./test/cake/internal/query/limit_offset_test.gleam
 test_name: combined_limit_offset_execution_result_test
 ---
 #(
-  Ok([#("Biffy", 10, Null, 2, Null)]),
   Ok([
     #(
       "Biffy",
       10,
-      Undefined,
+      Null,
       2,
-      Undefined,
+      1.100000023841858,
     ),
   ]),
+  Ok([#("Biffy", 10, Undefined, 2, 1.1)]),
 )

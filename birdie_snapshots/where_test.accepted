@@ -36,11 +36,11 @@ SelectQuery(Select(
       GreaterOrEqual,
       WhereParam(IntParam(0)),
     ),
-    WhereComparison(
+    NotWhere(WhereComparison(
       WhereParam(FloatParam(1.0)),
       Equal,
       WhereColumn("rating"),
-    ),
+    )),
   ]),
   NoGroupBy,
   NoWhere,
