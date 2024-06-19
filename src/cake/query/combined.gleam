@@ -61,7 +61,7 @@ pub type CombinedQueryOrderByDirection {
   Desc
 }
 
-fn map_order_by_direction_part_constructor(
+fn map_order_by_direction_constructor(
   in: CombinedQueryOrderByDirection,
 ) -> OrderByDirection {
   case in {
@@ -145,7 +145,7 @@ pub fn order(
   by ordb: String,
   direction dir: CombinedQueryOrderByDirection,
 ) -> Combined {
-  let dir = dir |> map_order_by_direction_part_constructor
+  let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
@@ -155,7 +155,7 @@ pub fn order_replace(
   by ordb: String,
   direction dir: CombinedQueryOrderByDirection,
 ) -> Combined {
-  let dir = dir |> map_order_by_direction_part_constructor
+  let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }

@@ -78,7 +78,7 @@ pub fn new_select(selects slcts: List(SelectValue)) -> Select {
 
 // ▒▒▒ FROM ▒▒▒
 
-pub fn set_from(query qry: Select, from frm: From) -> Select {
+pub fn replace_from(query qry: Select, from frm: From) -> Select {
   Select(..qry, from: frm)
 }
 
@@ -231,7 +231,7 @@ pub type SelectOrderByDirection {
   Desc
 }
 
-fn map_order_by_direction_part_constructor(
+fn map_order_by_direction_constructor(
   in: SelectOrderByDirection,
 ) -> OrderByDirection {
   case in {
@@ -315,7 +315,7 @@ pub fn order(
   by ordb: String,
   direction dir: SelectOrderByDirection,
 ) -> Select {
-  let dir = dir |> map_order_by_direction_part_constructor
+  let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
@@ -325,7 +325,7 @@ pub fn order_replace(
   by ordb: String,
   direction dir: SelectOrderByDirection,
 ) -> Select {
-  let dir = dir |> map_order_by_direction_part_constructor
+  let dir = dir |> map_order_by_direction_constructor
   qry
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
