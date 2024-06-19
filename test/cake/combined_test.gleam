@@ -1,7 +1,7 @@
 import birdie
 import cake/adapter/postgres
 import cake/adapter/sqlite
-import cake/query/combined as sut
+import cake/query/combined as c
 import cake/query/from as f
 import cake/query/select as s
 import pprint.{format as to_string}
@@ -18,11 +18,11 @@ fn query() {
 fn combined_union_all_query() {
   let query = query()
   query
-  |> sut.union_all(query)
-  |> sut.order_asc("age")
-  |> sut.limit(1)
-  |> sut.offset(2)
-  |> sut.to_query
+  |> c.union_all(query)
+  |> c.order_asc("age")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
 }
 
 pub fn combined_union_all_test() {
@@ -52,11 +52,11 @@ pub fn combined_union_all_execution_result_test() {
 fn combined_intersect_query() {
   let query = query()
   query
-  |> sut.intersect(query)
-  |> sut.order_asc("age")
-  |> sut.limit(1)
-  |> sut.offset(2)
-  |> sut.to_query
+  |> c.intersect(query)
+  |> c.order_asc("age")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
 }
 
 pub fn combined_intersect_test() {
@@ -86,11 +86,11 @@ pub fn combined_intersect_execution_result_test() {
 fn combined_except_query() {
   let query = query()
   query
-  |> sut.except(query)
-  |> sut.order_asc("age")
-  |> sut.limit(1)
-  |> sut.offset(2)
-  |> sut.to_query
+  |> c.except(query)
+  |> c.order_asc("age")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
 }
 
 pub fn combined_except_test() {

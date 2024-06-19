@@ -3,7 +3,7 @@ import cake/adapter/postgres
 import cake/adapter/sqlite
 import cake/query/fragment as frgmt
 import cake/query/from as f
-import cake/query/select as sut
+import cake/query/select as s
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
@@ -11,18 +11,18 @@ import test_helper/sqlite_test_helper
 const const_field = "age"
 
 fn select_query() {
-  sut.new_from(f.table("cats"))
-  |> sut.select([
-    sut.col("name"),
+  s.new_from(f.table("cats"))
+  |> s.selects([
+    s.col("name"),
     // TODO v1 check if this should work AT ALL, because it does not work in postgres
-    // sut.bool(True),
-    // sut.float(1.0),
-    // sut.int(1),
-    sut.string("hello"),
-    sut.fragment(frgmt.literal(const_field)),
-    sut.alias(sut.col("age"), "years_since_birth"),
+    // s.bool(True),
+    // s.float(1.0),
+    // s.int(1),
+    s.string("hello"),
+    s.fragment(frgmt.literal(const_field)),
+    s.alias(s.col("age"), "years_since_birth"),
   ])
-  |> sut.to_query
+  |> s.to_query
 }
 
 pub fn select_test() {
@@ -50,11 +50,11 @@ pub fn select_execution_result_test() {
 }
 
 fn select_distinct_query() {
-  sut.new_from(f.table("cats"))
-  |> sut.distinct
-  |> sut.select([sut.col("is_wild")])
-  |> sut.order_asc("is_wild")
-  |> sut.to_query
+  s.new_from(f.table("cats"))
+  |> s.distinct
+  |> s.selects([s.col("is_wild")])
+  |> s.order_asc("is_wild")
+  |> s.to_query
 }
 
 pub fn select_distinct_test() {

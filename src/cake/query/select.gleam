@@ -110,7 +110,7 @@ pub fn get_from(query qry: Select) -> From {
 
 // ▒▒▒ SELECT ▒▒▒
 
-pub fn select(query qry: Select, select_values sv: List(SelectValue)) -> Select {
+pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select {
   case sv, qry.select {
     [], _ -> qry
     sv, NoSelects -> Select(..qry, select: Selects(sv))
@@ -119,7 +119,7 @@ pub fn select(query qry: Select, select_values sv: List(SelectValue)) -> Select 
   }
 }
 
-pub fn select_replace(
+pub fn selects_replace(
   query qry: Select,
   select_values sv: List(SelectValue),
 ) -> Select {

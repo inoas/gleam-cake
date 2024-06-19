@@ -3,21 +3,21 @@ import cake/adapter/postgres
 import cake/adapter/sqlite
 import cake/query/combined as c
 import cake/query/from as f
-import cake/query/select as sut
+import cake/query/select as s
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 
 fn limit_offset_query() {
-  sut.new_from(f.table("cats"))
-  |> sut.order_asc("name")
-  |> sut.limit(4)
-  |> sut.offset(0)
+  s.new_from(f.table("cats"))
+  |> s.order_asc("name")
+  |> s.limit(4)
+  |> s.offset(0)
 }
 
 fn select_query() {
   limit_offset_query()
-  |> sut.to_query
+  |> s.to_query
 }
 
 pub fn select_limit_offset_test() {

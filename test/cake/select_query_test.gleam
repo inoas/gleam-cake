@@ -12,7 +12,7 @@ import test_helper/sqlite_test_helper
 pub fn select_query_query() {
   s.new()
   |> s.from(f.table("cats"))
-  |> s.select([s.col("cats.name")])
+  |> s.selects([s.col("cats.name")])
   // TODO v1: add s.cross_join s.inner_join etc
   |> s.join(j.cross(with: j.table("owners"), alias: "owners"))
   |> s.where(w.col("owners.name") |> w.like("%i%"))

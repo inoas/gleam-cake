@@ -108,7 +108,7 @@ pub fn run_dummy_select() {
     |> s.to_query
     |> f.sub_query(alias: "cats")
     |> s.new_from
-    |> s.select([
+    |> s.selects([
       s.col(cats_t("name")),
       s.col(cats_t("age")),
       s.col(owners_t("name")) |> s.alias("owner_name"),
@@ -162,7 +162,7 @@ pub fn run_dummy_union_all() {
 
   let select_query =
     s.new_from(f.table(name: "cats"))
-    |> s.select([s.col("name"), s.col("age")])
+    |> s.selects([s.col("name"), s.col("age")])
 
   let select_query_a =
     select_query
