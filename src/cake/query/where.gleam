@@ -2,7 +2,8 @@
 // TODO v1 tests
 
 import cake/internal/query.{
-  type Fragment, type Where, type WhereValue, RawWhereFragment,
+  type Fragment, type Where, type WhereValue, Equal, Greater, GreaterOrEqual,
+  Lower, LowerOrEqual, RawWhereFragment,
 }
 import cake/param
 
@@ -34,6 +35,7 @@ pub fn or(wheres whs: List(Where)) -> Where {
   whs |> query.OrWhere
 }
 
+// TODO v1
 // pub fn xor(wheres whs: List(Where)) -> Where {
 //   whs |> query.XorWhere
 // }
@@ -43,23 +45,23 @@ pub fn not(part: Where) -> Where {
 }
 
 pub fn eq(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereEqual(val_b)
+  val_a |> query.WhereComparison(Equal, val_b)
 }
 
 pub fn lt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereLower(val_b)
+  val_a |> query.WhereComparison(Lower, val_b)
 }
 
 pub fn lte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereLowerOrEqual(val_b)
+  val_a |> query.WhereComparison(LowerOrEqual, val_b)
 }
 
 pub fn gt(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereGreater(val_b)
+  val_a |> query.WhereComparison(Greater, val_b)
 }
 
 pub fn gte(value_a val_a: WhereValue, value_b val_b: WhereValue) -> Where {
-  val_a |> query.WhereGreaterOrEqual(val_b)
+  val_a |> query.WhereComparison(GreaterOrEqual, val_b)
 }
 
 pub fn in(value val: WhereValue, values vals: List(WhereValue)) -> Where {
@@ -115,7 +117,7 @@ pub fn similar(value val: WhereValue, to pttrn: String) -> Where {
 }
 
 pub fn fragment(fragment frgmt: Fragment) -> Where {
-  RawWhereFragment(frgmt)
+  frgmt |> RawWhereFragment
 }
 
 pub fn value_fragment(fragment frgmt: Fragment) -> WhereValue {

@@ -366,27 +366,43 @@ pub type Where {
   NotWhere(where: Where)
   AndWhere(wheres: List(Where))
   OrWhere(wheres: List(Where))
-  // TODO v2 XorWhere(List(Where))
-  WhereEqual(value_a: WhereValue, value_b: WhereValue)
-  WhereGreater(value_a: WhereValue, value_b: WhereValue)
-  WhereGreaterOrEqual(value_a: WhereValue, value_b: WhereValue)
-  WhereLower(value_a: WhereValue, value_b: WhereValue)
-  WhereLowerOrEqual(value_a: WhereValue, value_b: WhereValue)
-  WhereUnequal(value_a: WhereValue, value_b: WhereValue)
-  WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
+  // TODO v1 XorWhere(List(Where))
   WhereIsBool(value: WhereValue, bool: Bool)
   WhereIsNotBool(value: WhereValue, bool: Bool)
   WhereIsNull(value: WhereValue)
   WhereIsNotNull(value: WhereValue)
+  WhereComparison(
+    value_a: WhereValue,
+    operator: WhereComparisonOperator,
+    value_b: WhereValue,
+  )
+  WhereAnyOfSubQuery(
+    value_a: WhereValue,
+    operator: WhereComparisonOperator,
+    sub_query: Query,
+  )
+  WhereAllOfSubQuery(
+    value_a: WhereValue,
+    operator: WhereComparisonOperator,
+    sub_query: Query,
+  )
+  WhereIn(value: WhereValue, values: List(WhereValue))
+  WhereExistsInSubQuery(sub_query: Query)
+  WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, string: String)
   WhereILike(value: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilar(value: WhereValue, string: String)
-  WhereIn(value: WhereValue, values: List(WhereValue))
-  // WhereAny(value: WhereValue, values: List(WhereValue))
-  // WhereAll(value: WhereValue, values: List(WhereValue))
-  WhereExistsInSubQuery(sub_query: Query)
   RawWhereFragment(fragment: Fragment)
+}
+
+pub type WhereComparisonOperator {
+  Equal
+  Greater
+  GreaterOrEqual
+  Lower
+  LowerOrEqual
+  Unequal
 }
 
 pub type WhereValue {
@@ -435,18 +451,6 @@ fn where_apply(
       |> prepared_statement.append_sql("NOT (")
       |> where_apply(wh)
       |> prepared_statement.append_sql(")")
-    WhereEqual(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "=", val_b)
-    WhereGreater(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, ">", val_b)
-    WhereGreaterOrEqual(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, ">=", val_b)
-    WhereLower(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<", val_b)
-    WhereLowerOrEqual(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<=", val_b)
-    WhereUnequal(val_a, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<>", val_b)
     WhereIsBool(val, True) -> prp_stm |> where_literal_apply(val, "IS TRUE")
     WhereIsBool(val, False) -> prp_stm |> where_literal_apply(val, "IS FALSE")
     WhereIsNotBool(val, True) ->
@@ -455,6 +459,61 @@ fn where_apply(
       prp_stm |> where_literal_apply(val, "IS NOT FALSE")
     WhereIsNull(val) -> prp_stm |> where_literal_apply(val, "IS NULL")
     WhereIsNotNull(val) -> prp_stm |> where_literal_apply(val, "IS NOT NULL")
+    WhereComparison(val_a, Equal, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "=", val_b)
+    WhereComparison(val_a, Greater, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, ">", val_b)
+    WhereComparison(val_a, GreaterOrEqual, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, ">=", val_b)
+    WhereComparison(val_a, Lower, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "<", val_b)
+    WhereComparison(val_a, LowerOrEqual, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "<=", val_b)
+    WhereComparison(val_a, Unequal, val_b) ->
+      prp_stm |> where_comparison_apply(val_a, "<>", val_b)
+    WhereAnyOfSubQuery(val, Equal, qry) ->
+      prp_stm |> where_literal_apply(val, "= ANY") |> where_sub_query_apply(qry)
+    WhereAnyOfSubQuery(val, Greater, qry) ->
+      prp_stm |> where_literal_apply(val, "> ANY") |> where_sub_query_apply(qry)
+    WhereAnyOfSubQuery(val, GreaterOrEqual, qry) ->
+      prp_stm
+      |> where_literal_apply(val, ">= ANY")
+      |> where_sub_query_apply(qry)
+    WhereAnyOfSubQuery(val, Lower, qry) ->
+      prp_stm |> where_literal_apply(val, "< ANY") |> where_sub_query_apply(qry)
+    WhereAnyOfSubQuery(val, LowerOrEqual, qry) ->
+      prp_stm
+      |> where_literal_apply(val, "<= ANY")
+      |> where_sub_query_apply(qry)
+    WhereAnyOfSubQuery(val, Unequal, qry) ->
+      prp_stm
+      |> where_literal_apply(val, "<> ANY")
+      |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, Equal, qry) ->
+      prp_stm |> where_literal_apply(val, "= ALL") |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, Greater, qry) ->
+      prp_stm |> where_literal_apply(val, "> ALL") |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, GreaterOrEqual, qry) ->
+      prp_stm
+      |> where_literal_apply(val, ">= ALL")
+      |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, Lower, qry) ->
+      prp_stm |> where_literal_apply(val, "< ALL") |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, LowerOrEqual, qry) ->
+      prp_stm
+      |> where_literal_apply(val, "<= ALL")
+      |> where_sub_query_apply(qry)
+    WhereAllOfSubQuery(val, Unequal, qry) ->
+      prp_stm
+      |> where_literal_apply(val, "<> ALL")
+      |> where_sub_query_apply(qry)
+    WhereBetween(val_a, val_b, val_c) ->
+      prp_stm |> where_between_apply(val_a, val_b, val_c)
+    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
+    WhereExistsInSubQuery(qry) ->
+      prp_stm
+      |> prepared_statement.append_sql(" EXISTS ")
+      |> where_sub_query_apply(qry)
     WhereLike(val, prm) ->
       prp_stm
       |> where_comparison_apply(
@@ -477,22 +536,6 @@ fn where_apply(
         prm |> param.StringParam |> WhereParam,
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
-    WhereBetween(val_a, val_b, val_c) ->
-      prp_stm |> where_between_apply(val_a, val_b, val_c)
-    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
-    WhereExistsInSubQuery(qry) ->
-      prp_stm
-      |> prepared_statement.append_sql(" EXISTS ")
-      |> where_sub_query_apply(qry)
-    // TODO: need to support more operators, not just =
-    // WhereAllOfSubQuery(val, qry) ->
-    //   prp_stm
-    //   |> where_literal_apply(val, "= ALL")
-    //   |> where_sub_query_apply(qry)
-    // WhereAnyOfSubQuery(val, qry) ->
-    //   prp_stm
-    //   |> where_literal_apply(val, "= ANY")
-    //   |> where_sub_query_apply(qry)
     RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
   }
 }
