@@ -7,8 +7,7 @@ pub fn create_owners_table() {
     id INT,
     name TEXT,
     last_name TEXT,
-    age INT,
-    tags TEXT[]
+    age INT
   );"
 }
 

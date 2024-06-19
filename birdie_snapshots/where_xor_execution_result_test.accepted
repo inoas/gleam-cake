@@ -1,0 +1,14 @@
+---
+version: 1.1.6
+title: where_xor_execution_result_test
+file: ./test/cake_test/where_test.gleam
+test_name: where_xor_execution_result_test
+---
+#(
+  Ok([#("Ginny", 6, False, 3, Null)]),
+  Ok([#("Ginny", 6, 0, 3, Undefined)]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '?1 XOR is_wild IS TRUE XOR age <= ?2)' at line 1",
+  )),
+)

@@ -1,0 +1,25 @@
+---
+version: 1.1.6
+title: insert_records_test
+file: ./test/cake_test/insert_records_test.gleam
+test_name: insert_records_test
+---
+InsertQuery(Insert(
+  InsertIntoTable("cats"),
+  InsertColumns([
+    "name",
+    "age",
+    "is_wild",
+  ]),
+  NoInsertModifier,
+  InsertSourceRecords(
+    [
+      Cat("Whiskers", 3, False),
+      Cat("Mittens", 5, True),
+    ],
+    //fn(a) { ... },
+  ),
+  InsertConflictError,
+  Returning(["name"]),
+  NoComment,
+))

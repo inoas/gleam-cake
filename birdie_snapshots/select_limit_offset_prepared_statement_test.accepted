@@ -1,0 +1,29 @@
+---
+version: 1.1.6
+title: select_limit_offset_prepared_statement_test
+file: ./test/cake_test/limit_offset_test.gleam
+test_name: select_limit_offset_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4",
+    [],
+    0,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 4",
+    [],
+    0,
+    Maria,
+  ),
+)

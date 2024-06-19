@@ -1,0 +1,33 @@
+---
+version: 1.1.6
+title: select_query_test
+file: ./test/cake_test/select_query_test.gleam
+test_name: select_query_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([SelectColumn("cats.name")]),
+  FromTable("cats"),
+  Joins([
+    CrossJoin(
+      JoinTable("owners"),
+      "owners",
+    ),
+  ]),
+  WhereLike(
+    WhereColumnValue("owners.name"),
+    "%i%",
+  ),
+  GroupBy(["cats.name"]),
+  WhereLike(
+    WhereColumnValue("cats.name"),
+    "%i%",
+  ),
+  OrderBy([
+    OrderByColumn("cats.name", Asc),
+  ]),
+  Limit(10),
+  Offset(1),
+  Epilog(" /* an epilog such as FOR UPDATE could be here */"),
+  Comment(" my regular comment /* */"),
+))

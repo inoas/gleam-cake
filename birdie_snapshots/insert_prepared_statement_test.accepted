@@ -1,0 +1,41 @@
+---
+version: 1.1.6
+title: insert_prepared_statement_test
+file: ./test/cake_test/insert_values_test.gleam
+test_name: insert_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3) RETURNING name",
+    [
+      StringParam("Whiskers"),
+      IntParam(5),
+      BoolParam(False),
+    ],
+    3,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, age, is_wild) VALUES (?1, ?2, ?3) RETURNING name",
+    [
+      StringParam("Whiskers"),
+      IntParam(5),
+      BoolParam(False),
+    ],
+    3,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, age, is_wild) VALUES (?1, ?2, ?3) RETURNING name",
+    [
+      StringParam("Whiskers"),
+      IntParam(5),
+      BoolParam(False),
+    ],
+    3,
+    Maria,
+  ),
+)

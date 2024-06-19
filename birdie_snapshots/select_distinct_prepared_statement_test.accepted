@@ -1,0 +1,29 @@
+---
+version: 1.1.6
+title: select_distinct_prepared_statement_test
+file: ./test/cake_test/select_test.gleam
+test_name: select_distinct_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    [],
+    0,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    [],
+    0,
+    Maria,
+  ),
+)

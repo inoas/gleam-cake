@@ -1,0 +1,26 @@
+---
+version: 1.1.6
+title: update_execution_result_test
+file: ./test/cake_test/update_test.gleam
+test_name: update_execution_result_test
+---
+#(
+  Ok([
+    #("Nubi the elder", 5),
+    #("Biffy the elder", 11),
+    #("Ginny the elder", 7),
+    #("Karl the elder", 9),
+    #("Clara the elder", 4),
+  ]),
+  Ok([
+    #("Nubi the elder", 5),
+    #("Biffy the elder", 11),
+    #("Ginny the elder", 7),
+    #("Karl the elder", 9),
+    #("Clara the elder", 4),
+  ]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'RETURNING name, age' at line 1",
+  )),
+)

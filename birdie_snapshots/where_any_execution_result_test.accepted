@@ -1,0 +1,35 @@
+---
+version: 1.1.6
+title: where_any_execution_result_test
+file: ./test/cake_test/where_test.gleam
+test_name: where_any_execution_result_test
+---
+#(
+  Ok([
+    #(
+      "Nubi",
+      4,
+      True,
+      1,
+      2.200000047683716,
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.100000023841858,
+    ),
+    #("Ginny", 6, False, 3, Null),
+  ]),
+  Error(SqlightError(
+    GenericError,
+    "near "SELECT": syntax error",
+    40,
+  )),
+  Ok([
+    ["Nubi", 4, 1, 1, 2.2],
+    ["Biffy", 10, Null, 2, 1.1],
+    ["Ginny", 6, 0, 3, Null],
+  ]),
+)

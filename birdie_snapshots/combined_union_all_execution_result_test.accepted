@@ -1,0 +1,22 @@
+---
+version: 1.1.6
+title: combined_union_all_execution_result_test
+file: ./test/cake_test/combined_test.gleam
+test_name: combined_union_all_execution_result_test
+---
+#(
+  Ok([
+    #(
+      "Nubi",
+      4,
+      True,
+      1,
+      2.200000047683716,
+    ),
+  ]),
+  Ok([#("Nubi", 4, 1, 1, 2.2)]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'NULLS LAST LIMIT 10) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LA...' at line 1",
+  )),
+)

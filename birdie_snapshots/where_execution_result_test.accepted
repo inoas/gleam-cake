@@ -1,0 +1,20 @@
+---
+version: 1.1.6
+title: where_execution_result_test
+file: ./test/cake_test/where_test.gleam
+test_name: where_execution_result_test
+---
+#(
+  Ok([
+    #("Karl", 8, True, Null, 10.0),
+    #("Clara", 3, True, Null, 10.0),
+  ]),
+  Ok([
+    #("Karl", 8, 1, Undefined, 10.0),
+    #("Clara", 3, 1, Undefined, 10.0),
+  ]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '?1 OR age <= ?2 OR age = ?3 OR age < ?4 OR age <= ?5) AND 1 = 1 AND (name = ?...' at line 1",
+  )),
+)
