@@ -18,7 +18,7 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 ## Examples
 
-See cake's [tests](./test/cake_test/).
+See cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
 
 ## Development
 
