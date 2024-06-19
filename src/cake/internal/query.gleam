@@ -31,7 +31,7 @@
 //// the query structure when composing different queries.
 ////
 
-import cake/dialect.{type Dialect, Postgres, Sqlite}
+import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import gleam/int
@@ -724,7 +724,7 @@ fn where_xor_apply(
   where whs: List(Where),
 ) -> PreparedStatement {
   case prp_stm |> prepared_statement.get_dialect() {
-    // MysqlAdapter -> do_where_xor_apply(prp_stm, whs)
+    Maria -> do_where_xor_apply(prp_stm, whs)
     Postgres | Sqlite -> do_fake_where_xor_apply(prp_stm, whs)
   }
 }
@@ -759,9 +759,9 @@ fn do_fake_where_xor_apply(
               let new_prp_stm_per_xor = case wh_idx == xor_idx, wh_idx {
                 True, 0 ->
                   new_prp_stm_per_xor
-                  |> prepared_statement.append_sql("(")
+                  // |> prepared_statement.append_sql("(")
                   |> where_apply(wh)
-                  |> prepared_statement.append_sql(")")
+                // |> prepared_statement.append_sql(")")
                 True, _gt_0 ->
                   new_prp_stm_per_xor
                   |> prepared_statement.append_sql(" AND (")
@@ -792,27 +792,27 @@ fn do_fake_where_xor_apply(
 }
 
 // MySQL/MariaDB could take this instead:
-// fn do_where_xor_apply(
-//   prepared_statement prp_stm: PreparedStatement,
-//   where whs: List(Where),
-// ) -> PreparedStatement {
-//   let prp_stm = prp_stm |> prepared_statement.append_sql("(")
+fn do_where_xor_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  where whs: List(Where),
+) -> PreparedStatement {
+  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
-//   whs
-//   |> list.fold(
-//     prp_stm,
-//     fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
-//       case new_prp_stm == prp_stm {
-//         True -> new_prp_stm |> where_apply(wh)
-//         False ->
-//           new_prp_stm
-//           |> prepared_statement.append_sql(" XOR ")
-//           |> where_apply(wh)
-//       }
-//     },
-//   )
-//   |> prepared_statement.append_sql(")")
-// }
+  whs
+  |> list.fold(
+    prp_stm,
+    fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
+      case new_prp_stm == prp_stm {
+        True -> new_prp_stm |> where_apply(wh)
+        False ->
+          new_prp_stm
+          |> prepared_statement.append_sql(" XOR ")
+          |> where_apply(wh)
+      }
+    },
+  )
+  |> prepared_statement.append_sql(")")
+}
 
 fn where_value_in_values_apply(
   prepared_statement prp_stm: PreparedStatement,

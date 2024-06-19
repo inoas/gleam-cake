@@ -1,7 +1,7 @@
 ---
 version: 1.1.6
 title: combined_union_all_prepared_statement_test
-file: ./test/cake/combined_test.gleam
+file: ./test/cake_test/combined_test.gleam
 test_name: combined_union_all_prepared_statement_test
 ---
 #(
@@ -18,5 +18,12 @@ test_name: combined_union_all_prepared_statement_test
     [],
     0,
     Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "(SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) UNION ALL (SELECT * FROM cats ORDER BY name ASC NULLS LAST LIMIT 10) ORDER BY age ASC NULLS LAST LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Maria,
   ),
 )

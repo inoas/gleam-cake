@@ -1,7 +1,7 @@
 ---
 version: 1.1.6
 title: combined_union_all_test
-file: ./test/cake/combined_test.gleam
+file: ./test/cake_test/combined_test.gleam
 test_name: combined_union_all_test
 ---
 CombinedQuery(Combined(

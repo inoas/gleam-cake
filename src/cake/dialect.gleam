@@ -4,4 +4,5 @@
 pub type Dialect {
   Postgres
   Sqlite
+  Maria
 }
