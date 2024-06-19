@@ -45,15 +45,6 @@ fn where_query() {
       sut.not(sut.col("rating") |> sut.is_null),
     ]),
   )
-  // |> s.where(
-  //   sut.col("owner_id")
-  //   |> sut.lt_any_query(
-  //     s.new_from(f.table("dogs"))
-  //     |> s.selects([s.col("owner_id")])
-  //     |> s.limit(1)
-  //     |> s.to_query,
-  //   ),
-  // )
   |> s.to_query
 }
 
@@ -80,3 +71,40 @@ pub fn where_execution_result_test() {
   |> to_string
   |> birdie.snap("where_execution_result_test")
 }
+
+fn where_any_query() {
+  s.new_from(f.table("cats"))
+  |> s.where(
+    sut.col("owner_id")
+    |> sut.lt_any_query(
+      s.new_from(f.table("dogs"))
+      |> s.selects([s.col("owner_id")])
+      |> s.limit(1)
+      |> s.to_query,
+    ),
+  )
+  |> s.to_query
+}
+
+pub fn where_any_test() {
+  where_any_query()
+  |> to_string
+  |> birdie.snap("where_any_test")
+}
+
+pub fn where_any_prepared_statement_test() {
+  let pgo = where_any_query() |> postgres_adapter.to_prepared_statement
+  let lit = where_any_query() |> sqlite_adapter.to_prepared_statement
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("where_any_prepared_statement_test")
+}
+// pub fn where_any_execution_result_test() {
+//   let pgo = where_any_query() |> postgres_test_helper.setup_and_run
+//   let lit = where_any_query() |> sqlite_test_helper.setup_and_run
+
+//   #(pgo, lit)
+//   |> to_string
+//   |> birdie.snap("where_any_execution_result_test")
+// }

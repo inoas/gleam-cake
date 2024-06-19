@@ -1,0 +1,22 @@
+---
+version: 1.1.6
+title: where_any_prepared_statement_test
+file: ./test/cake/internal/query/where_test.gleam
+test_name: where_any_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats WHERE owner_id < ANY (SELECT owner_id FROM dogs LIMIT 1)",
+    [],
+    0,
+    PostgresAdapter,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE owner_id < ANY (SELECT owner_id FROM dogs LIMIT 1)",
+    [],
+    0,
+    SqliteAdapter,
+  ),
+)
