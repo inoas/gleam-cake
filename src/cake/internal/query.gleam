@@ -176,7 +176,7 @@ pub fn combined_order_by(
   append appnd: Bool,
 ) -> Combined {
   case appnd {
-    True -> Combined(..qry, order_by: order_by_append(qry.order_by, ordb))
+    True -> Combined(..qry, order_by: qry.order_by |> order_by_append(ordb))
     False -> Combined(..qry, order_by: ordb)
   }
 }
@@ -235,7 +235,7 @@ pub fn select_order_by(
   append appnd: Bool,
 ) -> Select {
   case appnd {
-    True -> Select(..qry, order_by: order_by_append(qry.order_by, ordb))
+    True -> Select(..qry, order_by: qry.order_by |> order_by_append(ordb))
     False -> Select(..qry, order_by: ordb)
   }
 }
@@ -363,6 +363,10 @@ fn from_clause_apply(
 
 pub type Where {
   NoWhere
+  NotWhere(where: Where)
+  AndWhere(wheres: List(Where))
+  OrWhere(wheres: List(Where))
+  // TODO v2 XorWhere(List(Where))
   WhereEqual(value_a: WhereValue, value_b: WhereValue)
   WhereGreater(value_a: WhereValue, value_b: WhereValue)
   WhereGreaterOrEqual(value_a: WhereValue, value_b: WhereValue)
@@ -377,26 +381,25 @@ pub type Where {
   WhereILike(value_a: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilar(value_a: WhereValue, string: String)
-  // TODO v2: Check if this works with sub queries
-  WhereIn(value_a: WhereValue, values: List(WhereValue))
+  // TODO v2 Check if this works with sub queries
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
-  AndWhere(wheres: List(Where))
-  OrWhere(wheres: List(Where))
-  // TODO v2: XorWhere(List(Where))
-  NotWhere(where: Where)
-  RawWhereFragment(fragment: Fragment)
+  WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereExistsInSubQuery(sub_query: Query)
-  // TODO v2:
+  // TODO v2
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
+  RawWhereFragment(fragment: Fragment)
 }
 
 pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
-  // TODO v1
-  // WhereSubQuery(sub_query: Query)
+  // TODO v2
+  // WhereAll(value: WhereValue)
+  // WhereAny(value: WhereValue)
+  // TODO v2
+  // WhereSubQueryValue(sub_query: Query)
   // NOTICE: For some commands, the return value must be scalar:
   // 1 column, 1 row (LIMIT 1)
   // If there are multiple, take the list of select parts
@@ -481,9 +484,9 @@ fn where_apply(
     WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
-    RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
     WhereExistsInSubQuery(sub_query) ->
       prp_stm |> where_exists_in_sub_query_apply(sub_query)
+    RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
   }
 }
 
