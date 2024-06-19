@@ -2,8 +2,8 @@
 
 import cake/internal/query.{
   type Combined, type Limit, type Offset, type OrderByDirection, type Query,
-  type Select, Combined, CombinedQuery, Except, ExceptAll, Intersect,
-  IntersectAll, OrderBy, OrderByColumn, Union, UnionAll,
+  type Select, Combined, CombinedQuery, ExceptAll, ExceptDistinct, IntersectAll,
+  IntersectDistinct, OrderBy, OrderByColumn, UnionAll, UnionDistinct,
 }
 
 pub fn to_query(combined_query qry: Combined) -> Query {
@@ -13,7 +13,7 @@ pub fn to_query(combined_query qry: Combined) -> Query {
 // ▒▒▒ Combined Kind ▒▒▒
 
 pub fn union(select_queries qrys: List(Select)) -> Combined {
-  Union |> query.combined_query_new(qrys)
+  UnionDistinct |> query.combined_query_new(qrys)
 }
 
 pub fn union_all(select_queries qrys: List(Select)) -> Combined {
@@ -21,7 +21,7 @@ pub fn union_all(select_queries qrys: List(Select)) -> Combined {
 }
 
 pub fn except(select_queries qrys: List(Select)) -> Combined {
-  Except |> query.combined_query_new(qrys)
+  ExceptDistinct |> query.combined_query_new(qrys)
 }
 
 pub fn except_all(select_queries qrys: List(Select)) -> Combined {
@@ -29,7 +29,7 @@ pub fn except_all(select_queries qrys: List(Select)) -> Combined {
 }
 
 pub fn intersect(select_queries qrys: List(Select)) -> Combined {
-  Intersect |> query.combined_query_new(qrys)
+  IntersectDistinct |> query.combined_query_new(qrys)
 }
 
 pub fn intersect_all(select_queries qrys: List(Select)) -> Combined {

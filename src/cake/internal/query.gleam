@@ -62,11 +62,11 @@ pub fn combined_clause_apply(
   combined_query qry: Combined,
 ) -> PreparedStatement {
   let sql_command = case qry.kind {
-    Union -> "UNION"
+    UnionDistinct -> "UNION"
     UnionAll -> "UNION ALL"
-    Except -> "EXCEPT"
+    ExceptDistinct -> "EXCEPT"
     ExceptAll -> "EXCEPT ALL"
-    Intersect -> "INTERSECT"
+    IntersectDistinct -> "INTERSECT"
     IntersectAll -> "INTERSECT ALL"
   }
 
@@ -144,12 +144,12 @@ pub type Combined {
 }
 
 pub type CombinedQueryKind {
-  Union
+  UnionDistinct
   UnionAll
-  Except
+  ExceptDistinct
   // NOTICE: ExceptAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   ExceptAll
-  Intersect
+  IntersectDistinct
   // NOTICE: IntersectAll Does not work on SQLite, TODO: add to query builder validator or build a workaround
   IntersectAll
 }
@@ -212,23 +212,32 @@ fn select_builder(
   select_query qry: Select,
 ) -> PreparedStatement {
   prp_stm
+  // TODO v1 make sure all of these are tested individually
+  // TODO v1 make sure there is a query with all of these
+  // TODO v1 make sure there is a combined query wrapping 2 full queries
   |> select_clause_apply(qry.select)
   |> from_clause_apply(qry.from)
   |> join_clause_apply(qry.join)
   |> where_clause_apply(qry.where)
+  |> group_by_clause_apply(qry.group_by)
+  |> having_clause_apply(qry.having)
   |> order_by_clause_apply(qry.order_by)
   |> limit_clause_apply(qry.limit)
   |> offset_clause_apply(qry.offset)
+  |> epilog_apply(qry.epilog)
+}
+
+pub type SelectKind {
+  SelectAll
+  SelectDistinct
 }
 
 pub type Select {
   Select(
-    // with: String, // v2
-    // with_recursive: String, // v2
+    // with (_recursive?): ?, // v2
+    kind: SelectKind,
     select: Selects,
-    // modifier: String, // v2
-    // distinct: String, // v1
-    // window: String, // v2
+    // window: ?, // v2
     from: From,
     join: Joins,
     where: Where,
@@ -383,15 +392,16 @@ pub type Where {
   WhereILike(value_a: WhereValue, string: String)
   // NOTICE: Sqlite does not support `SIMILAR TO` / TODO: add to query builder validator
   WhereSimilar(value_a: WhereValue, string: String)
-  // TODO: Check if this works with sub queries once WhereValue can also be a
+  // TODO v2: Check if this works with sub queries
   WhereIn(value_a: WhereValue, values: List(WhereValue))
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   AndWhere(wheres: List(Where))
   OrWhere(wheres: List(Where))
-  // TODO: XorWhere(List(Where))
+  // TODO v2: XorWhere(List(Where))
   NotWhere(where: Where)
   RawWhereFragment(fragment: Fragment)
   WhereExistsInSubQuery(sub_query: Query)
+  // TODO v2:
   // WhereAllOfSubQuery(value: WhereValue, sub_query: Query)
   // WhereAnyOfSubQuery(value: WhereValue, sub_query: Query)
 }
@@ -400,12 +410,32 @@ pub type WhereValue {
   WhereColumn(column: String)
   WhereParam(param: Param)
   WhereFragment(fragment: Fragment)
-  // TODO:
+  // TODO v1
   // WhereSubQuery(sub_query: Query)
   // NOTICE: For some commands, the return value must be scalar:
   // 1 column, 1 row (LIMIT 1)
   // If there are multiple, take the list of select parts
   // and return the last one, if there is none, return NULL
+}
+
+fn where_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  where wh: Where,
+) -> PreparedStatement {
+  case wh {
+    NoWhere -> prp_stm
+    _ -> prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(wh)
+  }
+}
+
+fn having_clause_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  where wh: Where,
+) -> PreparedStatement {
+  case wh {
+    NoWhere -> prp_stm
+    _ -> prp_stm |> prepared_statement.append_sql(" HAVING ") |> where_apply(wh)
+  }
 }
 
 fn where_apply(
@@ -469,16 +499,6 @@ fn where_apply(
     RawWhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
     WhereExistsInSubQuery(sub_query) ->
       prp_stm |> where_exists_in_sub_query_apply(sub_query)
-  }
-}
-
-fn where_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  where wh: Where,
-) -> PreparedStatement {
-  case wh {
-    NoWhere -> prp_stm
-    _ -> prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(wh)
   }
 }
 

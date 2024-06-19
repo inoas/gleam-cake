@@ -1,1 +1,1 @@
-// TODO v1.1: transactions
+// TODO v1 transactions

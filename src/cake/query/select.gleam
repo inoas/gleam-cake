@@ -3,10 +3,11 @@
 
 import cake/internal/query.{
   type Fragment, type From, type Join, type Joins, type Limit, type Offset,
-  type OrderByDirection, type Query, type Select, type SelectValue, type Selects,
-  type Where, GroupBy, Joins, Limit, NoEpilog, NoFrom, NoGroupBy, NoJoins,
-  NoLimit, NoOffset, NoOrderBy, NoSelects, NoWhere, Offset, OrderBy,
-  OrderByColumn, Select, SelectQuery, Selects,
+  type OrderByDirection, type Query, type Select, type SelectKind,
+  type SelectValue, type Selects, type Where, GroupBy, Joins, Limit, NoEpilog,
+  NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects, NoWhere,
+  Offset, OrderBy, OrderByColumn, Select, SelectAll, SelectDistinct, SelectQuery,
+  Selects,
 }
 import cake/param
 import gleam/list
@@ -47,6 +48,7 @@ pub fn alias(value v: SelectValue, alias als: String) -> SelectValue {
 
 pub fn from(from frm: From) -> Select {
   Select(
+    kind: SelectAll,
     select: NoSelects,
     from: frm,
     join: NoJoins,
@@ -60,13 +62,13 @@ pub fn from(from frm: From) -> Select {
   )
 }
 
-pub fn new_select(selects slcts: List(SelectValue)) -> Select {
-  let slcts = case slcts {
+pub fn select(selects slcts: List(SelectValue)) -> Select {
+  case slcts {
     [] -> NoSelects
     _ -> slcts |> Selects
   }
-  Select(
-    select: slcts,
+  |> Select(
+    kind: SelectAll,
     from: NoFrom,
     join: NoJoins,
     where: NoWhere,
@@ -77,6 +79,29 @@ pub fn new_select(selects slcts: List(SelectValue)) -> Select {
     offset: NoOffset,
     epilog: NoEpilog,
   )
+}
+
+pub fn select_distinct(selects slcts: List(SelectValue)) -> Select {
+  case slcts {
+    [] -> NoSelects
+    _ -> slcts |> Selects
+  }
+  |> Select(
+    kind: SelectDistinct,
+    from: NoFrom,
+    join: NoJoins,
+    where: NoWhere,
+    group_by: NoGroupBy,
+    having: NoWhere,
+    order_by: NoOrderBy,
+    limit: NoLimit,
+    offset: NoOffset,
+    epilog: NoEpilog,
+  )
+}
+
+pub fn kind(query qry: Select, kind knd: SelectKind) -> Select {
+  Select(..qry, kind: knd)
 }
 
 // ▒▒▒ FROM ▒▒▒
@@ -161,7 +186,7 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
   Select(..qry, where: new_where)
 }
 
-// TODO
+// TODO v2
 // pub fn xor_where(
 //   query qry: Select,
 //   where whr: Where,
