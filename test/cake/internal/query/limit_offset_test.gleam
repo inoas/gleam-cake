@@ -46,8 +46,8 @@ pub fn select_limit_offset_execution_result_test() {
 
 fn combined_query() {
   let limit_offset_query = limit_offset_query()
-  [limit_offset_query, limit_offset_query, limit_offset_query]
-  |> c.union_all
+  limit_offset_query
+  |> c.union_all(limit_offset_query)
   |> c.order_asc("name")
   |> c.limit(1)
   |> c.offset(2)

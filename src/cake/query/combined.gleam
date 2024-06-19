@@ -14,28 +14,76 @@ pub fn to_query(combined_query qry: Combined) -> Query {
 
 // TODO v1: make sure this is a non empty list
 // TODO v1: maybe if just one item unwrap the nested select at sql query building?
-pub fn union(select_queries qrys: List(Select)) -> Combined {
-  UnionDistinct |> query.combined_query_new(qrys)
+pub fn union(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  UnionDistinct |> query.combined_query_new([qry_a, qry_b])
 }
 
-pub fn union_all(select_queries qrys: List(Select)) -> Combined {
-  UnionAll |> query.combined_query_new(qrys)
+pub fn union_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  UnionDistinct |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-pub fn except(select_queries qrys: List(Select)) -> Combined {
-  ExceptDistinct |> query.combined_query_new(qrys)
+pub fn union_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  UnionAll |> query.combined_query_new([qry_a, qry_b])
 }
 
-pub fn except_all(select_queries qrys: List(Select)) -> Combined {
-  ExceptAll |> query.combined_query_new(qrys)
+pub fn union_all_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  UnionAll |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-pub fn intersect(select_queries qrys: List(Select)) -> Combined {
-  IntersectDistinct |> query.combined_query_new(qrys)
+pub fn except(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  ExceptDistinct |> query.combined_query_new([qry_a, qry_b])
 }
 
-pub fn intersect_all(select_queries qrys: List(Select)) -> Combined {
-  IntersectAll |> query.combined_query_new(qrys)
+pub fn except_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  ExceptDistinct |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+}
+
+pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  ExceptAll |> query.combined_query_new([qry_a, qry_b])
+}
+
+pub fn except_all_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  ExceptAll |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+}
+
+pub fn intersect(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  IntersectDistinct |> query.combined_query_new([qry_a, qry_b])
+}
+
+pub fn intersect_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  IntersectDistinct |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+}
+
+pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
+  IntersectAll |> query.combined_query_new([qry_a, qry_b])
+}
+
+pub fn intersect_all_many(
+  query_a qry_a: Select,
+  query_b qry_b: Select,
+  more_queries mr_qrys: List(Select),
+) -> Combined {
+  IntersectAll |> query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
 pub fn get_queries(combined_query qry: Combined) -> List(Select) {

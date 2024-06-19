@@ -186,8 +186,8 @@ pub fn run_dummy_union_all() {
     |> s.where(where_b)
 
   let union_query =
-    [select_query_a, select_query_b]
-    |> c.union_all
+    select_query_a
+    |> c.union_all(select_query_b)
     |> c.limit(1)
     |> c.order_replace(by: "age", direction: c.Asc)
     |> c.to_query

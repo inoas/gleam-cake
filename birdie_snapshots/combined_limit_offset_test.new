@@ -1,0 +1,43 @@
+---
+version: 1.1.6
+title: combined_limit_offset_test
+---
+CombinedQuery(Combined(
+  UnionAll,
+  [
+    Select(
+      SelectAll,
+      NoSelects,
+      FromTable("cats"),
+      NoJoins,
+      NoWhere,
+      NoGroupBy,
+      NoWhere,
+      OrderBy([
+        OrderByColumn("name", Asc),
+      ]),
+      Limit(4),
+      NoOffset,
+      NoEpilog,
+    ),
+    Select(
+      SelectAll,
+      NoSelects,
+      FromTable("cats"),
+      NoJoins,
+      NoWhere,
+      NoGroupBy,
+      NoWhere,
+      OrderBy([
+        OrderByColumn("name", Asc),
+      ]),
+      Limit(4),
+      NoOffset,
+      NoEpilog,
+    ),
+  ],
+  Limit(1),
+  Offset(2),
+  OrderBy([OrderByColumn("name", Asc)]),
+  NoEpilog,
+))

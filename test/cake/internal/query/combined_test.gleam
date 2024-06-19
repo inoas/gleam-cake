@@ -17,8 +17,8 @@ fn query() {
 
 fn combined_union_all_query() {
   let query = query()
-  [query, query, query]
-  |> sut.union_all
+  query
+  |> sut.union_all(query)
   |> sut.order_asc("age")
   |> sut.limit(1)
   |> sut.offset(2)
@@ -51,8 +51,8 @@ pub fn combined_union_all_execution_result_test() {
 
 fn combined_intersect_query() {
   let query = query()
-  [query, query, query]
-  |> sut.intersect
+  query
+  |> sut.intersect(query)
   |> sut.order_asc("age")
   |> sut.limit(1)
   |> sut.offset(2)
@@ -85,8 +85,8 @@ pub fn combined_intersect_execution_result_test() {
 
 fn combined_except_query() {
   let query = query()
-  [query, query, query]
-  |> sut.except
+  query
+  |> sut.except(query)
   |> sut.order_asc("age")
   |> sut.limit(1)
   |> sut.offset(2)
