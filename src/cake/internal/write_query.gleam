@@ -6,7 +6,8 @@ import cake/internal/prepared_statement.{
   type DatabaseAdapter, type PreparedStatement,
 }
 import cake/internal/query.{
-  type Comment, type From, type Joins, type Query, type Where,
+  type Comment, type From, type Joins, type Query, type Where, FromSubQuery,
+  FromTable, NoFrom,
 }
 import cake/param.{type Param}
 import gleam/list
@@ -26,7 +27,7 @@ import gleam/string
 pub type WriteQuery(a) {
   InsertQuery(Insert(a))
   UpdateQuery(Update(a))
-  // DeleteQuery
+  DeleteQuery(Delete(a))
 }
 
 pub fn to_prepared_statement(
@@ -46,6 +47,7 @@ fn apply(
   case qry {
     InsertQuery(insert) -> prp_stm |> insert_apply(insert)
     UpdateQuery(update) -> prp_stm |> update_apply(update)
+    DeleteQuery(delete) -> prp_stm |> delete_apply(delete)
   }
 }
 
@@ -116,7 +118,7 @@ pub type InsertValue {
   InsertDefault(column: String)
 }
 
-/// InsertConflictUpdate is also known as `INSERT or UPDATE` aka `UPSERT`.
+/// InsertConflictUpdate is also known as `INSERT OR UPDATE` aka `UPSERT`.
 ///
 pub type InsertConflictStrategy(a) {
   InsertConflictError
@@ -297,18 +299,32 @@ pub type Update(a) {
   Update(
     // with (_recursive?): ?, // v2
     modifier: UpdateModifier,
-    table: String,
+    table: UpdateTable,
     set: UpdateSets,
-    from: From,
-    join: Joins,
+    from: UpdateFrom,
     where: Where,
     returning: Returning,
     comment: Comment,
   )
 }
 
+pub type UpdateModifier {
+  NoUpdateModifier
+  UpdateModifier(modifier: String)
+}
+
+pub type UpdateTable {
+  UpdateTable(String)
+}
+
 pub type UpdateSets {
   UpdateSets(List(UpdateSet))
+}
+
+pub type UpdateFrom {
+  NoUpdateFrom
+  UpdateFrom(from: From)
+  UpdateFromJoins(from: From, joins: Joins)
 }
 
 pub type UpdateSet {
@@ -321,11 +337,6 @@ pub type UpdateValue {
   UpdateParam(param: Param)
 }
 
-pub type UpdateModifier {
-  NoUpdateModifier
-  UpdateModifier(modifier: String)
-}
-
 pub fn update_to_write_query(insert: Update(a)) -> WriteQuery(a) {
   insert |> UpdateQuery
 }
@@ -334,14 +345,15 @@ fn update_apply(
   prepared_statement prp_stm: PreparedStatement,
   update updt: Update(a),
 ) {
+  let UpdateTable(updt_tbl) = updt.table
   let UpdateSets(updt_sets) = updt.set
+
   prp_stm
-  |> prepared_statement.append_sql("UPDATE " <> updt.table)
+  |> prepared_statement.append_sql("UPDATE " <> updt_tbl)
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
   |> update_sets_apply(updt_sets)
-  |> query.from_clause_apply(updt.from)
-  |> query.join_clause_apply(updt.join)
+  |> update_from_apply(updt.from)
   |> query.where_clause_apply(updt.where)
   |> returning_apply(updt.returning)
   |> query.comment_apply(updt.comment)
@@ -391,6 +403,18 @@ fn update_sets_apply(
   )
 }
 
+fn update_from_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  update_from updt_frm: UpdateFrom,
+) -> PreparedStatement {
+  case updt_frm {
+    NoUpdateFrom -> prp_stm
+    UpdateFrom(from: frm) -> prp_stm |> query.from_clause_apply(frm)
+    UpdateFromJoins(from: frm, joins: jns) ->
+      prp_stm |> query.from_clause_apply(frm) |> query.join_clause_apply(jns)
+  }
+}
+
 fn update_expression_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_value updt_vl: UpdateValue,
@@ -400,5 +424,101 @@ fn update_expression_apply(
       prp_stm |> prepared_statement.append_sql(expr)
     UpdateParam(param: param) ->
       prp_stm |> prepared_statement.append_param(param)
+  }
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Delete                                                                   │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// SQlite does not support `Joins` in `Delete`.
+///
+pub type Delete(a) {
+  Delete(
+    // with (_recursive?): ?, // v2
+    modifier: DeleteModifier,
+    table: DeleteTable,
+    using: Using,
+    where: Where,
+    returning: Returning,
+    comment: Comment,
+  )
+}
+
+pub type DeleteModifier {
+  NoDeleteModifier
+  DeleteModifier(modifier: String)
+}
+
+pub type DeleteTable {
+  DeleteTable(name: String)
+}
+
+pub type Using {
+  NoUsing
+  Using(froms: List(From))
+}
+
+pub fn delete_to_write_query(insert: Delete(a)) -> WriteQuery(a) {
+  insert |> DeleteQuery
+}
+
+fn delete_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  delete dlt: Delete(a),
+) {
+  let DeleteTable(dlt_tbl) = dlt.table
+
+  prp_stm
+  |> prepared_statement.append_sql("DELETE " <> dlt_tbl)
+  |> delete_modifier_apply(dlt.modifier)
+  |> using_apply(dlt.using)
+  |> query.where_clause_apply(dlt.where)
+  |> returning_apply(dlt.returning)
+  |> query.comment_apply(dlt.comment)
+}
+
+fn delete_modifier_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  delete_modifer updt_mdfr: DeleteModifier,
+) -> PreparedStatement {
+  case updt_mdfr {
+    NoDeleteModifier -> prp_stm
+    DeleteModifier(modifier: mdfr) ->
+      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
+  }
+}
+
+fn using_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  using updt_usng: Using,
+) -> PreparedStatement {
+  case updt_usng {
+    NoUsing -> prp_stm
+    Using(froms: frms) -> {
+      let prp_stm = prp_stm |> prepared_statement.append_sql(" USING ")
+
+      frms
+      |> list.fold(
+        prp_stm,
+        fn(new_prp_stm: PreparedStatement, frm: From) -> PreparedStatement {
+          let new_prp_stm = case new_prp_stm == prp_stm, frm {
+            True, _ | _, NoFrom -> new_prp_stm
+            False, _ -> new_prp_stm |> prepared_statement.append_sql(", ")
+          }
+
+          case frm {
+            NoFrom -> new_prp_stm
+            FromTable(name: tbl) ->
+              new_prp_stm |> prepared_statement.append_sql(tbl)
+            FromSubQuery(qry, als) ->
+              prp_stm
+              |> prepared_statement.append_sql(" (")
+              |> query.apply(qry)
+              |> prepared_statement.append_sql(") AS " <> als)
+          }
+        },
+      )
+    }
   }
 }
