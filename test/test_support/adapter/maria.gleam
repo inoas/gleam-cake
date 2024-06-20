@@ -14,18 +14,21 @@ import gleam/list
 import gleam/option.{Some}
 import gmysql.{type Connection}
 
-const plchldr_bs = "?"
+const placeholder_base = "?"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.to_prepared_statement(plchldr_bs: plchldr_bs, dialect: Maria)
+  |> query.to_prepared_statement(plchldr_bs: placeholder_base, dialect: Maria)
 }
 
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(t),
 ) -> PreparedStatement {
   qry
-  |> write_query.to_prepared_statement(plchldr_bs: plchldr_bs, dialect: Maria)
+  |> write_query.to_prepared_statement(
+    plchldr_bs: placeholder_base,
+    dialect: Maria,
+  )
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
