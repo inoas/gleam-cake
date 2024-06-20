@@ -119,7 +119,7 @@ pub fn source_records(
   Insert(..qry, source: InsertSourceRecords(records: rcrds, caster: cstr))
 }
 
-// TODO v1: more getters, such as get_source
+// TODO v1 more getters, such as get_source
 
 pub fn source_values(
   query qry: Insert(a),
