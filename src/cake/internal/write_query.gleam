@@ -464,7 +464,7 @@ fn update_from_apply(
 // │  Delete                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// SQlite does not support `JOIN` in `DELETE`.
+/// NOTICE: SQlite does not support `JOIN` in `DELETE`.
 ///
 pub type Delete(a) {
   Delete(
