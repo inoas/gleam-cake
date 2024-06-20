@@ -5,12 +5,12 @@ import cake/internal/query.{
   type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
 }
 import cake/internal/write_query.{
-  type Insert, type InsertRow, type InsertValue, type Update, type WriteQuery,
-  Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
-  InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
-  InsertIntoTable, InsertModifier, InsertParam, InsertQuery, InsertRow,
-  InsertSourceRecords, InsertSourceRows, NoInsertModifier, NoReturning,
-  Returning,
+  type Insert, type InsertRow, type InsertSource, type InsertValue, type Update,
+  type WriteQuery, Insert, InsertColumns, InsertConflictError,
+  InsertConflictIgnore, InsertConflictTarget, InsertConflictTargetConstraint,
+  InsertConflictUpdate, InsertIntoTable, InsertModifier, InsertParam,
+  InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows,
+  NoInsertModifier, NoReturning, Returning,
 }
 import cake/param.{type Param}
 import gleam/string
@@ -24,7 +24,7 @@ pub fn row(a) -> InsertRow {
 }
 
 pub fn param(column col, param prm) -> InsertValue {
-  InsertParam(column: col, param: prm)
+  col |> InsertParam(param: prm)
 }
 
 pub fn bool(value vl: Bool) -> Param {
@@ -54,7 +54,7 @@ pub fn from_records(
   caster cstr: fn(a) -> InsertRow,
 ) -> Insert(a) {
   Insert(
-    table: InsertIntoTable(table: tbl_nm),
+    table: InsertIntoTable(name: tbl_nm),
     modifier: NoInsertModifier,
     source: InsertSourceRecords(records: rcrds, caster: cstr),
     columns: InsertColumns(columns: cols),
@@ -73,7 +73,7 @@ pub fn from_values(
   records rcrds: List(InsertRow),
 ) -> Insert(a) {
   Insert(
-    table: InsertIntoTable(table: tbl_nm),
+    table: InsertIntoTable(name: tbl_nm),
     modifier: NoInsertModifier,
     source: InsertSourceRows(records: rcrds),
     columns: InsertColumns(columns: cols),
@@ -85,11 +85,11 @@ pub fn from_values(
 }
 
 pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
-  Insert(..qry, table: InsertIntoTable(table: tbl_nm))
+  Insert(..qry, table: InsertIntoTable(name: tbl_nm))
 }
 
 pub fn get_table(query qry: Insert(a)) -> String {
-  qry.table.table
+  qry.table.name
 }
 
 pub fn modifier(query qry: Insert(a), modifier mdfr: String) -> Insert(a) {
@@ -126,6 +126,10 @@ pub fn source_values(
   records rcrds: List(InsertRow),
 ) -> Insert(a) {
   Insert(..qry, source: InsertSourceRows(records: rcrds))
+}
+
+pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
+  qry.source
 }
 
 /// Specify the columns to insert into.

@@ -1141,10 +1141,6 @@ pub fn limit_new(limit lmt: Int) -> Limit {
   }
 }
 
-pub fn limit_get(select_query qry: Select) -> Limit {
-  qry.limit
-}
-
 fn limit_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   limit lmt: Limit,
@@ -1170,10 +1166,6 @@ pub fn offset_new(offset offst: Int) -> Offset {
     False -> NoOffset
     True -> Offset(offset: offst)
   }
-}
-
-pub fn offset_get(select_query qry: Select) -> Offset {
-  qry.offset
 }
 
 fn offset_clause_apply(
@@ -1269,8 +1261,8 @@ pub fn comment_apply(
 ///         `FragmentPrepared` and only using literal strings in the `fragment`
 ///         field.
 ///
-///          As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS
-///          for any `fragment`-field string.
+///         As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS for
+///         any `fragment`-field string.
 ///
 pub type Fragment {
   FragmentLiteral(fragment: String)

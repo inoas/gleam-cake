@@ -665,7 +665,7 @@ pub fn replace_order(
 
 /// Removes the `OrderBy` from the `Select` query.
 ///
-pub fn no_order_by(query qry: Select) -> Select {
+pub fn no_order(query qry: Select) -> Select {
   Select(..qry, order_by: NoOrderBy)
 }
 

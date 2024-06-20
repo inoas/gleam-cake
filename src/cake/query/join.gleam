@@ -20,9 +20,6 @@
 //// - `EXCLUSIVE FULL JOIN`: `WHERE a.key IS NULL OR b.key IS NULL`
 ////
 
-// TODO v1 probably move this internal and call from select and other modules
-//
-
 import cake/internal/query.{
   type Join, type JoinKind, type Query, type Where, CrossJoin, FullJoin,
   InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,

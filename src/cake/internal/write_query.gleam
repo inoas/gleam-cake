@@ -91,7 +91,7 @@ pub type Insert(a) {
 }
 
 pub type InsertIntoTable {
-  InsertIntoTable(table: String)
+  InsertIntoTable(name: String)
 }
 
 pub type InsertColumns {
@@ -144,14 +144,14 @@ fn insert_apply(
   prepared_statement prp_stm: PreparedStatement,
   insert isrt: Insert(a),
 ) {
-  let InsertIntoTable(table: table) = isrt.table
+  let InsertIntoTable(name: tbl_name) = isrt.table
   let InsertColumns(columns: insert_columns) = isrt.columns
 
   let prp_stm =
     prp_stm
     |> prepared_statement.append_sql(
       "INSERT INTO "
-      <> table
+      <> tbl_name
       <> " ("
       <> insert_columns |> string.join(", ")
       <> ")",
