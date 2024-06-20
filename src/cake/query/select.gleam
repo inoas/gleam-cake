@@ -119,7 +119,7 @@ pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select
   }
 }
 
-pub fn selects_replace(
+pub fn replace_selects(
   query qry: Select,
   select_values sv: List(SelectValue),
 ) -> Select {
@@ -144,7 +144,7 @@ pub fn join(query qry: Select, join jn: Join) -> Select {
   }
 }
 
-pub fn join_replace(query qry: Select, join jn: Join) -> Select {
+pub fn replace_join(query qry: Select, join jn: Join) -> Select {
   Select(..qry, join: [jn] |> Joins)
 }
 
@@ -157,7 +157,7 @@ pub fn joins(query qry: Select, joins jns: List(Join)) -> Select {
   }
 }
 
-pub fn joins_replace(query qry: Select, joins jns: List(Join)) -> Select {
+pub fn replace_joins(query qry: Select, joins jns: List(Join)) -> Select {
   Select(..qry, join: jns |> Joins)
 }
 
@@ -194,7 +194,7 @@ pub fn xor_where(query qry: Select, where whr: Where) -> Select {
   Select(..qry, where: new_where)
 }
 
-pub fn where_replace(query qry: Select, where whr: Where) -> Select {
+pub fn replace_where(query qry: Select, where whr: Where) -> Select {
   Select(..qry, where: whr)
 }
 
@@ -239,7 +239,7 @@ pub fn xor_having(query qry: Select, having whr: Where) -> Select {
 
 /// See `having` on details why this takes a where
 ///
-pub fn having_replace(query qry: Select, having whr: Where) -> Select {
+pub fn replace_having(query qry: Select, having whr: Where) -> Select {
   Select(..qry, having: whr)
 }
 
@@ -259,7 +259,7 @@ pub fn group_by(query qry: Select, group_by grpb: String) -> Select {
   }
 }
 
-pub fn group_by_replace(query qry: Select, group_by grpb: String) -> Select {
+pub fn replace_group_by(query qry: Select, group_by grpb: String) -> Select {
   Select(..qry, group_by: GroupBy([grpb]))
 }
 
@@ -271,7 +271,7 @@ pub fn groups_by(query qry: Select, group_bys grpbs: List(String)) -> Select {
   }
 }
 
-pub fn group_bys_replace(
+pub fn replace_group_bys(
   query qry: Select,
   group_bys grpbs: List(String),
 ) -> Select {
@@ -315,70 +315,108 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 pub fn order_asc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    append: True,
   )
 }
 
 pub fn order_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_asc_replace(query qry: Select, by ordb: String) -> Select {
+pub fn order_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_asc_nulls_first_replace(
+pub fn replace_order_asc(query qry: Select, by ordb: String) -> Select {
+  qry
+  |> query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_asc_nulls_first(
   query qry: Select,
   by ordb: String,
 ) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_asc_nulls_last(
+  query qry: Select,
+  by ordb: String,
+) -> Select {
+  qry
+  |> query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: False,
   )
 }
 
 pub fn order_desc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    append: True,
   )
 }
 
 pub fn order_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_desc_replace(query qry: Select, by ordb: String) -> Select {
+pub fn order_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_desc_nulls_first_replace(
+pub fn replace_order_desc(query qry: Select, by ordb: String) -> Select {
+  qry
+  |> query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_desc_nulls_first(
   query qry: Select,
   by ordb: String,
 ) -> Select {
   qry
   |> query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_desc_nulls_last(
+  query qry: Select,
+  by ordb: String,
+) -> Select {
+  qry
+  |> query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: False,
   )
 }
 
@@ -392,7 +430,7 @@ pub fn order(
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
 
-pub fn order_replace(
+pub fn replace_order(
   query qry: Select,
   by ordb: String,
   direction dir: Direction,

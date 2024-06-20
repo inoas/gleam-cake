@@ -72,6 +72,9 @@ pub fn cols_to_sub_query(
   UpdateSubQuerySet(columns: cols, sub_query: qry)
 }
 
+/// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
+///         they do support it in `INSERT` (and `REPLACE`) queries, however.
+///
 pub fn returning(
   query qry: Update(a),
   returning rtrn: List(String),
@@ -82,6 +85,9 @@ pub fn returning(
   }
 }
 
+/// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
+///         they do support it in `INSERT` (and `REPLACE`) queries, however.
+///
 pub fn no_returning(query qry: Update(a)) -> Update(a) {
   Update(..qry, returning: NoReturning)
 }

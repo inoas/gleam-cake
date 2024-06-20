@@ -13,25 +13,18 @@ import cake/param.{
 import gleam/list
 import sqlight.{type Connection, type Value}
 
-// Could also be ? for SQLite
-const placeholder_prefix = "?"
+const plchldr_bs = "?"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.to_prepared_statement(
-    placeholder_prefix: placeholder_prefix,
-    dialect: Sqlite,
-  )
+  |> query.to_prepared_statement(plchldr_bs: plchldr_bs, dialect: Sqlite)
 }
 
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(t),
 ) -> PreparedStatement {
   qry
-  |> write_query.to_prepared_statement(
-    placeholder_prefix: placeholder_prefix,
-    dialect: Sqlite,
-  )
+  |> write_query.to_prepared_statement(plchldr_bs: plchldr_bs, dialect: Sqlite)
 }
 
 pub fn with_memory_connection(callback_fun: fn(Connection) -> a) -> a {

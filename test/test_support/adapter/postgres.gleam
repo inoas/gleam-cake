@@ -14,14 +14,11 @@ import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection, type Value}
 
-const placeholder_prefix = "$"
+const plchldr_bs = "$"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.to_prepared_statement(
-    placeholder_prefix: placeholder_prefix,
-    dialect: Postgres,
-  )
+  |> query.to_prepared_statement(plchldr_bs: plchldr_bs, dialect: Postgres)
 }
 
 pub fn write_query_to_prepared_statement(
@@ -29,7 +26,7 @@ pub fn write_query_to_prepared_statement(
 ) -> PreparedStatement {
   qry
   |> write_query.to_prepared_statement(
-    placeholder_prefix: placeholder_prefix,
+    plchldr_bs: plchldr_bs,
     dialect: Postgres,
   )
 }

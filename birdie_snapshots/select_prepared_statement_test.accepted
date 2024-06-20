@@ -21,7 +21,7 @@ test_name: select_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT name, ?1, age, age AS years_since_birth FROM cats",
+    "SELECT name, ?, age, age AS years_since_birth FROM cats",
     [StringParam("hello")],
     1,
     Maria,

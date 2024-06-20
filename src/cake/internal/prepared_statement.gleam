@@ -3,7 +3,7 @@
 //// values rather than raw SQL.
 ////
 
-import cake/dialect.{type Dialect}
+import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
@@ -26,7 +26,7 @@ pub fn append_param(
   prepared_statement prp_stm: PreparedStatement,
   param nw_prm: Param,
 ) {
-  let new_sql = prp_stm |> next_placeholder
+  let new_sql = prp_stm |> next_placeholder(prp_stm.dialect)
   prp_stm |> append_sql_and_param(new_sql, nw_prm)
 }
 
@@ -74,8 +74,15 @@ fn append_sql_and_params(
   )
 }
 
-fn next_placeholder(prepared_statement prp_stm: PreparedStatement) -> String {
-  prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
+fn next_placeholder(
+  prepared_statement prp_stm: PreparedStatement,
+  dialect dlct: Dialect,
+) -> String {
+  case dlct {
+    Postgres | Sqlite ->
+      prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
+    Maria -> prp_stm.prefix
+  }
 }
 //
 // TODO

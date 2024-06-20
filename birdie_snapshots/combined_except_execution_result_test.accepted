@@ -8,7 +8,7 @@ test_name: combined_except_execution_result_test
   Ok([]),
   Ok([]),
   Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'NULLS LAST LIMIT 10) EXCEPT (SELECT * FROM cats ORDER BY name ASC NULLS LAST ...' at line 1",
+    1317,
+    "Query execution was interrupted",
   )),
 )

@@ -13,10 +13,10 @@
 ////
 
 import cake/internal/query.{
-  type Combined, type Limit, type Offset, type OrderByDirection, type Query,
-  type Select, Combined, CombinedQuery, Epilog, ExceptAll, ExceptDistinct,
-  IntersectAll, IntersectDistinct, NoEpilog, OrderBy, OrderByColumn, UnionAll,
-  UnionDistinct,
+  type Combined, type Comment, type Limit, type Offset, type OrderByDirection,
+  type Query, type Select, Combined, CombinedQuery, Comment, Epilog, ExceptAll,
+  ExceptDistinct, IntersectAll, IntersectDistinct, NoComment, NoEpilog, OrderBy,
+  OrderByColumn, UnionAll, UnionDistinct,
 }
 import gleam/string
 
@@ -147,70 +147,108 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 pub fn order_asc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    append: True,
   )
 }
 
 pub fn order_asc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_asc_replace(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_asc_nulls_first_replace(
+pub fn replace_order_asc(query qry: Combined, by ordb: String) -> Combined {
+  qry
+  |> query.combined_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_asc_nulls_first(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_asc_nulls_last(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
+  qry
+  |> query.combined_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+    append: False,
   )
 }
 
 pub fn order_desc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    append: True,
   )
 }
 
 pub fn order_desc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
-    True,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_desc_replace(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_desc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: True,
   )
 }
 
-pub fn order_desc_nulls_first_replace(
+pub fn replace_order_desc(query qry: Combined, by ordb: String) -> Combined {
+  qry
+  |> query.combined_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_desc_nulls_first(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
   qry
   |> query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
-    False,
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: False,
+  )
+}
+
+pub fn replace_order_desc_nulls_last(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
+  qry
+  |> query.combined_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+    append: False,
   )
 }
 
@@ -224,7 +262,7 @@ pub fn order(
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
 
-pub fn order_replace(
+pub fn replace_order(
   query qry: Combined,
   by ordb: String,
   direction dir: Direction,
@@ -233,6 +271,8 @@ pub fn order_replace(
   qry
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
+
+// ▒▒▒ EPILOG ▒▒▒
 
 pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
   let eplg = eplg |> string.trim
@@ -244,4 +284,22 @@ pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
 
 pub fn no_epilog(query qry: Combined) -> Combined {
   Combined(..qry, epilog: NoEpilog)
+}
+
+// ▒▒▒ COMMENT ▒▒▒
+
+pub fn comment(query qry: Combined, comment cmmnt: String) -> Combined {
+  let cmmnt = cmmnt |> string.trim
+  case cmmnt {
+    "" -> Combined(..qry, comment: NoComment)
+    _ -> Combined(..qry, comment: { " " <> cmmnt } |> Comment)
+  }
+}
+
+pub fn no_comment(query qry: Combined) -> Combined {
+  Combined(..qry, comment: NoComment)
+}
+
+pub fn get_comment(query qry: Combined) -> Comment {
+  qry.comment
 }

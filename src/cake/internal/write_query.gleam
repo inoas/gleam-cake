@@ -31,7 +31,7 @@ pub type WriteQuery(a) {
 
 pub fn to_prepared_statement(
   query qry: WriteQuery(a),
-  placeholder_prefix prp_stm_prfx: String,
+  plchldr_bs prp_stm_prfx: String,
   dialect dlct: Dialect,
 ) -> PreparedStatement {
   prp_stm_prfx

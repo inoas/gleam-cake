@@ -8,7 +8,7 @@ test_name: select_query_execution_result_test
   Ok([#("Ginny"), #("Nubi")]),
   Ok([#("Ginny"), #("Nubi")]),
   Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '?1 GROUP BY cats.name HAVING cats.name LIKE ?2 ORDER BY cats.name ASC NULLS L...' at line 1",
+    1317,
+    "Query execution was interrupted",
   )),
 )

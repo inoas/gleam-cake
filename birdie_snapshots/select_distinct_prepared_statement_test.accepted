@@ -7,21 +7,21 @@ test_name: select_distinct_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC",
     [],
     0,
     Postgres,
   ),
   PreparedStatement(
     "?",
-    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC",
     [],
     0,
     Sqlite,
   ),
   PreparedStatement(
     "?",
-    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC NULLS LAST",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC",
     [],
     0,
     Maria,

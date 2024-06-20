@@ -21,7 +21,7 @@ test_name: fragment_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE LOWER(cats.name) = LOWER(?1)",
+    "SELECT * FROM cats WHERE LOWER(cats.name) = LOWER(?)",
     [StringParam("Clara")],
     1,
     Maria,

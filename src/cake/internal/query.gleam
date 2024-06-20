@@ -52,10 +52,12 @@ pub type Query {
 
 pub fn to_prepared_statement(
   query qry: Query,
-  placeholder_prefix prp_stm_prfx: String,
+  plchldr_bs prp_stm_prfx: String,
   dialect dlct: Dialect,
 ) -> PreparedStatement {
-  prp_stm_prfx |> prepared_statement.new(dlct) |> apply(qry)
+  prp_stm_prfx
+  |> prepared_statement.new(dialect: dlct)
+  |> apply(qry)
 }
 
 pub fn apply(
@@ -1032,9 +1034,11 @@ pub type OrderByValue {
 
 pub type OrderByDirection {
   Asc
-  Desc
   AscNullsFirst
+  AscNullsLast
+  Desc
   DescNullsFirst
+  DescNullsLast
 }
 
 fn order_by_append(query_ordb: OrderBy, new_ordb: OrderBy) -> OrderBy {
@@ -1103,14 +1107,21 @@ fn order_by_value_apply(
   }
 }
 
+/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` or `NULLS LAST`. Instead,
+/// `NULL`s are considered to have the lowest value, thus ordering in `DESC`
+/// order will see the `NULL`s appearing last. To force `NULL`s to be regarded
+/// as highest values, see <https://mariadb.com/kb/en/null-values/#ordering>.
+///
 fn order_by_direction_to_sql(
   order_by_direction ordbd: OrderByDirection,
 ) -> String {
   case ordbd {
-    Asc -> "ASC NULLS LAST"
+    Asc -> "ASC"
     AscNullsFirst -> "ASC NULLS FIRST"
-    Desc -> "DESC NULLS LAST"
+    AscNullsLast -> "ASC NULLS LAST"
+    Desc -> "DESC"
     DescNullsFirst -> "DESC NULLS FIRST"
+    DescNullsLast -> "DESC NULLS LAST"
   }
 }
 

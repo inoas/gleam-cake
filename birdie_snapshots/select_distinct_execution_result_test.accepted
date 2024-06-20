@@ -6,9 +6,6 @@ test_name: select_distinct_execution_result_test
 ---
 #(
   Ok([False, True, Null]),
-  Ok([#(0), #(1), Undefined]),
-  Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'NULLS LAST' at line 1",
-  )),
+  Ok([Undefined, #(0), #(1)]),
+  Ok([[Null], [0], [1]]),
 )

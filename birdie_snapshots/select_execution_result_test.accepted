@@ -19,8 +19,11 @@ test_name: select_execution_result_test
     #("Karl", "hello", 8, 8),
     #("Clara", "hello", 3, 3),
   ]),
-  Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '?1, age, age AS years_since_birth FROM cats' at line 1",
-  )),
+  Ok([
+    ["Nubi", "hello", 4, 4],
+    ["Biffy", "hello", 10, 10],
+    ["Ginny", "hello", 6, 6],
+    ["Karl", "hello", 8, 8],
+    ["Clara", "hello", 3, 3],
+  ]),
 )

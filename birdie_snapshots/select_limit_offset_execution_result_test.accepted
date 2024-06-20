@@ -23,8 +23,10 @@ test_name: select_limit_offset_execution_result_test
     #("Ginny", 6, 0, 3, Undefined),
     #("Karl", 8, 1, Undefined, 10.0),
   ]),
-  Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'NULLS LAST LIMIT 4' at line 1",
-  )),
+  Ok([
+    ["Biffy", 10, Null, 2, 1.1],
+    ["Clara", 3, 1, Null, 10.0],
+    ["Ginny", 6, 0, 3, Null],
+    ["Karl", 8, 1, Null, 10.0],
+  ]),
 )
