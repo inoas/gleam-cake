@@ -1,6 +1,5 @@
 import birdie
 import cake/query/fragment as frgmt
-import cake/query/from as f
 import cake/query/select as s
 import cake/query/where as w
 import pprint.{format as to_string}
@@ -12,7 +11,8 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 fn where_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.where(
     w.or([
       w.col("age") |> w.lt(w.int(100)),
@@ -77,11 +77,13 @@ pub fn where_execution_result_test() {
 }
 
 fn where_any_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.where(
     w.col("owner_id")
     |> w.eq_any_query(
-      s.new_from(f.table("dogs"))
+      s.new()
+      |> s.table("dogs")
       |> s.selects([s.col("owner_id")])
       |> s.to_query,
     ),
@@ -117,7 +119,8 @@ pub fn where_any_execution_result_test() {
 }
 
 fn where_xor_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.where(
     w.xor([
       w.col("name") |> w.eq(w.string("Karl")),

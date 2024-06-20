@@ -1,5 +1,4 @@
 import birdie
-import cake/query/from as f
 import cake/query/join as j
 import cake/query/select as s
 import cake/query/where as w
@@ -13,7 +12,7 @@ import test_support/adapter/sqlite
 
 pub fn select_query_query() {
   s.new()
-  |> s.from(f.table("cats"))
+  |> s.table("cats")
   |> s.selects([s.col("cats.name")])
   // TODO v1 add s.cross_join s.inner_join etc
   |> s.join(j.cross(with: j.table("owners"), alias: "owners"))

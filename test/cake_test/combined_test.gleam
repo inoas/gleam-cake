@@ -1,6 +1,5 @@
 import birdie
 import cake/query/combined as c
-import cake/query/from as f
 import cake/query/select as s
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
@@ -11,7 +10,8 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 fn query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.order_asc("name")
   |> s.limit(10)
   |> s.offset(0)
@@ -19,6 +19,7 @@ fn query() {
 
 fn combined_union_all_query() {
   let query = query()
+
   query
   |> c.union_all(query)
   |> c.order_asc("age")

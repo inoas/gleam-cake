@@ -1,2 +1,4 @@
+#!/usr/bin/env bash
+
 gleam test >/dev/null 2>&1
 gleam run --module birdie accept-all

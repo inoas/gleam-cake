@@ -1,6 +1,5 @@
 import birdie
 import cake/query/fragment as frgmt
-import cake/query/from as f
 import cake/query/select as s
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
@@ -13,7 +12,8 @@ import test_support/adapter/sqlite
 const const_field = "age"
 
 fn select_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.selects([
     s.col("name"),
     // TODO v1 check if this should work AT ALL, because it does not work in postgres
@@ -54,7 +54,8 @@ pub fn select_execution_result_test() {
 }
 
 fn select_distinct_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.distinct
   |> s.selects([s.col("is_wild")])
   |> s.order_asc("is_wild")

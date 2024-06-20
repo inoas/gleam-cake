@@ -1,7 +1,6 @@
 import birdie
 import cake/param as p
 import cake/query/fragment as frgmt
-import cake/query/from as f
 import cake/query/select as s
 import cake/query/where as w
 import pprint.{format as to_string}
@@ -13,7 +12,8 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 fn fragment_query() {
-  s.new_from(f.table("cats"))
+  s.new()
+  |> s.table("cats")
   |> s.where(
     w.fragment_value(frgmt.literal("LOWER(cats.name)"))
     |> w.eq(
