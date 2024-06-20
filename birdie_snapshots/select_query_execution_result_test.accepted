@@ -7,8 +7,5 @@ test_name: select_query_execution_result_test
 #(
   Ok([#("Ginny"), #("Nubi")]),
   Ok([#("Ginny"), #("Nubi")]),
-  Error(ServerError(
-    1317,
-    "Query execution was interrupted",
-  )),
+  Ok([["Ginny"], ["Nubi"]]),
 )

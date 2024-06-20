@@ -103,6 +103,6 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
   }
 }
 
-pub fn execute_raw_sql(query qry: String, connection conn: Connection) {
-  qry |> pgo.execute(conn, with: [], expecting: dynamic.dynamic)
+pub fn execute_raw_sql(sql sql: String, connection conn: Connection) {
+  sql |> pgo.execute(conn, with: [], expecting: dynamic.dynamic)
 }

@@ -77,6 +77,6 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
   sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
-pub fn execute_raw_sql(query qry: String, connection conn: Connection) {
-  qry |> sqlight.exec(conn)
+pub fn execute_raw_sql(sql sql: String, connection conn: Connection) {
+  sql |> sqlight.exec(conn)
 }

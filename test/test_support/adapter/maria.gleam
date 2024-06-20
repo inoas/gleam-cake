@@ -1,5 +1,5 @@
 //// MariaDB/MySQL adapter which which passes `PreparedStatements`
-//// to the `sqlight` library for execution.
+//// to the `gmysql` library for execution.
 ////
 
 import cake/dialect.{Maria}
@@ -30,19 +30,20 @@ pub fn write_query_to_prepared_statement(
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let assert Ok(connection) =
-    gmysql.connect(gmysql.Config(
+    gmysql.Config(
       host: "127.0.0.1",
       user: Some("root"),
       password: Some("secret"),
       database: "cake_gleam",
       port: 3306,
       connection_mode: gmysql.Synchronous,
-      connection_timeout: 90,
-      keep_alive: 30,
-    ))
+      connection_timeout: gmysql.Infinity,
+      keep_alive: 120_000,
+    )
+    |> gmysql.connect
 
   let value = f(connection)
-  gmysql.close(connection)
+  gmysql.disconnect(connection)
 
   value
 }
@@ -66,7 +67,7 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
     |> iox.print_tap("Params: ")
     |> iox.inspect_println_tap
 
-  gmysql.query(db_conn, sql, db_params, 0, dcdr)
+  sql |> gmysql.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
 pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) {
@@ -90,9 +91,9 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
     |> iox.print_tap("Params: ")
     |> iox.inspect_println_tap
 
-  gmysql.query(db_conn, sql, db_params, 999_999, dcdr)
+  sql |> gmysql.query(on: db_conn, with: db_params, expecting: dcdr)
 }
 
-pub fn execute_raw_sql(query qry: String, connection conn: Connection) {
-  gmysql.exec(conn, qry, 999_999)
+pub fn execute_raw_sql(sql sql: String, connection cnn: Connection) {
+  sql |> gmysql.exec(on: cnn)
 }
