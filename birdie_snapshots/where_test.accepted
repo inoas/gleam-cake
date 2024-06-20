@@ -28,12 +28,12 @@ SelectQuery(Select(
       ),
       WhereComparison(
         WhereColumnValue("age"),
-        Lower,
+        Greater,
         WhereParamValue(IntParam(10)),
       ),
       WhereComparison(
         WhereColumnValue("age"),
-        LowerOrEqual,
+        GreaterOrEqual,
         WhereParamValue(IntParam(9)),
       ),
     ]),

@@ -18,8 +18,8 @@ fn where_query() {
       w.col("age") |> w.lt(w.int(100)),
       w.col("age") |> w.lte(w.int(99)),
       w.col("age") |> w.eq(w.int(50)),
-      w.col("age") |> w.lt(w.int(10)),
-      w.col("age") |> w.lte(w.int(9)),
+      w.col("age") |> w.gt(w.int(10)),
+      w.col("age") |> w.gte(w.int(9)),
     ]),
   )
   |> s.where(w.fragment(frgmt.literal("1 = 1")))

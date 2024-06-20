@@ -1,4 +1,4 @@
-//// A DSL to build combined queries such as:
+//// A DSL to build combined queries, such as:
 ////
 //// - `UNION`
 //// - `UNION ALL`
@@ -13,10 +13,11 @@
 ////
 
 import cake/internal/query.{
-  type Combined, type Comment, type Limit, type Offset, type OrderByDirection,
-  type Query, type Select, Combined, CombinedQuery, Comment, Epilog, ExceptAll,
-  ExceptDistinct, IntersectAll, IntersectDistinct, NoComment, NoEpilog, OrderBy,
-  OrderByColumn, UnionAll, UnionDistinct,
+  type Combined, type Comment, type Epilog, type Limit, type Offset,
+  type OrderBy, type OrderByDirection, type Query, type Select, Combined,
+  CombinedQuery, Comment, Epilog, ExceptAll, ExceptDistinct, IntersectAll,
+  IntersectDistinct, NoComment, NoEpilog, OrderBy, OrderByColumn, UnionAll,
+  UnionDistinct,
 }
 import gleam/string
 
@@ -121,6 +122,10 @@ pub fn get_limit(query qry: Combined) -> Limit {
   qry.limit
 }
 
+pub fn no_limit(query qry: Combined) -> Combined {
+  Combined(..qry, limit: query.NoLimit)
+}
+
 pub fn offset(query qry: Combined, offst offst: Int) -> Combined {
   let offst = offst |> query.offset_new
   Combined(..qry, offset: offst)
@@ -128,6 +133,10 @@ pub fn offset(query qry: Combined, offst offst: Int) -> Combined {
 
 pub fn get_offset(query qry: Combined) -> Offset {
   qry.offset
+}
+
+pub fn no_offset(query qry: Combined) -> Combined {
+  Combined(..qry, offset: query.NoOffset)
 }
 
 // ▒▒▒ ORDER BY ▒▒▒
@@ -272,6 +281,14 @@ pub fn replace_order(
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
 
+pub fn get_order(query qry: Combined) -> OrderBy {
+  qry.order_by
+}
+
+pub fn no_order(query qry: Combined) -> Combined {
+  Combined(..qry, order_by: query.NoOrderBy)
+}
+
 // ▒▒▒ EPILOG ▒▒▒
 
 pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
@@ -284,6 +301,10 @@ pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
 
 pub fn no_epilog(query qry: Combined) -> Combined {
   Combined(..qry, epilog: NoEpilog)
+}
+
+pub fn get_epilog(query qry: Combined) -> Epilog {
+  qry.epilog
 }
 
 // ▒▒▒ COMMENT ▒▒▒

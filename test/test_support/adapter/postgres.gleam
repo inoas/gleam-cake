@@ -5,7 +5,6 @@
 import cake/dialect.{Postgres}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
-import cake/internal/stdlib/iox
 import cake/internal/write_query.{type WriteQuery}
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
@@ -13,6 +12,7 @@ import cake/param.{
 import gleam/dynamic
 import gleam/list
 import gleam/pgo.{type Connection, type Value}
+import test_support/iox
 
 const placeholder_base = "$"
 

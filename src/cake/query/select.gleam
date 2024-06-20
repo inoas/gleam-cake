@@ -263,7 +263,7 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
 /// NOTICE: This operator does not exist in Postgres or Sqlite,
-///         and cake generates equivalent SQL using `OR` and `AND` and `NOT`.
+///         and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 ///         This operator exists in MariaDB/MySQL.
 ///
 pub fn xor_where(query qry: Select, where whr: Where) -> Select {
@@ -350,7 +350,7 @@ pub fn or_having(query qry: Select, having whr: Where) -> Select {
 /// See function `having` on details why this takes a `Where`.
 ///
 /// NOTICE: This operator does not exist in Postgres or Sqlite,
-///         and cake generates equivalent SQL using `OR` and `AND` and `NOT`.
+///         and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 ///         This operator exists in MariaDB/MySQL.
 ///
 pub fn xor_having(query qry: Select, having whr: Where) -> Select {
@@ -663,13 +663,13 @@ pub fn replace_order(
   |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
 
-/// Removes the `OrderBy`.
+/// Removes the `OrderBy` from the `Select` query.
 ///
 pub fn no_order_by(query qry: Select) -> Select {
   Select(..qry, order_by: NoOrderBy)
 }
 
-/// Gets the `OrderBy`.
+/// Gets the `OrderBy` from the `Select` query.
 ///
 pub fn get_order_by(query qry: Select) -> OrderBy {
   qry.order_by
@@ -677,7 +677,7 @@ pub fn get_order_by(query qry: Select) -> OrderBy {
 
 // ▒▒▒ EPILOG ▒▒▒
 
-/// Appends an epilog to the query.
+/// Appends an `Epilog` to the `Select` query.
 ///
 pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
   let eplg = eplg |> string.trim
@@ -687,13 +687,13 @@ pub fn epilog(query qry: Select, epilog eplg: String) -> Select {
   }
 }
 
-/// Removes the epilog from the query.
+/// Removes the `Epilog` from the `Select` query.
 ///
 pub fn no_epilog(query qry: Select) -> Select {
   Select(..qry, epilog: NoEpilog)
 }
 
-/// Gets the epilog from the query.
+/// Gets the `Epilog` from the `Select` query.
 ///
 pub fn get_epilog(query qry: Select) -> Epilog {
   qry.epilog
@@ -701,7 +701,7 @@ pub fn get_epilog(query qry: Select) -> Epilog {
 
 // ▒▒▒ COMMENT ▒▒▒
 
-/// Appends a comment to the query.
+/// Appends a `Comment` to the `Select` query.
 ///
 pub fn comment(query qry: Select, comment cmmnt: String) -> Select {
   let cmmnt = cmmnt |> string.trim
@@ -711,13 +711,13 @@ pub fn comment(query qry: Select, comment cmmnt: String) -> Select {
   }
 }
 
-/// Removes the comment from the query.
+/// Removes the `Comment` from the `Select` query.
 ///
 pub fn no_comment(query qry: Select) -> Select {
   Select(..qry, comment: NoComment)
 }
 
-/// Gets the comment from the query.
+/// Gets the `Comment` from the `Select` query.
 ///
 pub fn get_comment(query qry: Select) -> Comment {
   qry.comment

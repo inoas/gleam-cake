@@ -47,29 +47,29 @@ pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
   )
 }
 
-pub fn col_to_param(column col: String, param prm: Param) -> UpdateSet {
+pub fn set_to_param(column col: String, param prm: Param) -> UpdateSet {
   UpdateParamSet(column: col, param: prm)
 }
 
-pub fn col_to_expression(
+pub fn set_to_expression(
   column col: String,
   expression exp: String,
 ) -> UpdateSet {
   UpdateExpressionSet(columns: [col], expression: exp)
 }
 
-pub fn col_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
+pub fn set_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
 }
 
-pub fn cols_to_expression(
+pub fn set_many_to_expression(
   columns cols: List(String),
   expression exp: String,
 ) -> UpdateSet {
   UpdateExpressionSet(columns: cols, expression: exp)
 }
 
-pub fn cols_to_sub_query(
+pub fn set_many_to_sub_query(
   columns cols: List(String),
   sub_query qry: Query,
 ) -> UpdateSet {

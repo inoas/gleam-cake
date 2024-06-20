@@ -1,11 +1,22 @@
+//// *Cake* is an SQL query building library for RDBMS:
+////
+//// - PostgreSQL
+//// - Sqlite
+//// - MariaDB / MySQL
+////
+//// For examples see the tests.
+////
+
 import gleam/io
 
+/// As a library *Cake* cannot be invoked directly in a meaningful way.
+///
 pub fn main() {
   {
     "\n"
     <> "cake is a query building library and cannot be invoked directly."
     <> "\n"
-    <> "For demos see cake/internal/examples/"
+    <> "For demos see the tests."
   }
   |> io.println
 }

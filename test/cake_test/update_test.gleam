@@ -14,8 +14,9 @@ import test_support/adapter/sqlite
 
 fn update() {
   u.new(table: "cats", sets: [
-    "age" |> u.col_to_expression("age + 1"),
-    "name" |> u.col_to_expression("CONCAT(name, ' the elder')"),
+    // TODO v1 param, sub_query
+    "age" |> u.set_to_expression("age + 1"),
+    "name" |> u.set_to_expression("CONCAT(name, ' the elder')"),
   ])
   |> u.returning(["name", "age"])
 }
@@ -26,8 +27,8 @@ fn update_query() {
 }
 
 fn update_maria_query() {
+  // MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries:
   update()
-  // MariaDB/MySQL do not support RETURNING in UPDATE queries
   |> u.no_returning
   |> u.to_query
 }
