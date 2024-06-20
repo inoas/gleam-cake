@@ -5,8 +5,8 @@
 import cake/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{
-  type Comment, type From, type Joins, type Query, type Where, FromSubQuery,
-  FromTable, NoFrom,
+  type Comment, type Epilog, type From, type Joins, type Query, type Where,
+  Epilog, FromSubQuery, FromTable, NoFrom,
 }
 import cake/param.{type Param}
 import gleam/list
@@ -85,6 +85,7 @@ pub type Insert(a) {
     source: InsertSource(a),
     on_conflict: InsertConflictStrategy(a),
     returning: Returning,
+    epilog: Epilog,
     comment: Comment,
   )
 }
@@ -178,6 +179,7 @@ fn insert_apply(
   |> on_conflict_apply(isrt.on_conflict)
   |> returning_apply(isrt.returning)
   |> query.comment_apply(isrt.comment)
+  |> query.epilog_apply(isrt.epilog)
 }
 
 fn insert_modifier_apply(
@@ -336,6 +338,7 @@ pub type Update(a) {
     from: UpdateFrom,
     where: Where,
     returning: Returning,
+    epilog: Epilog,
     comment: Comment,
   )
 }
@@ -385,6 +388,7 @@ fn update_apply(
   |> query.where_clause_apply(updt.where)
   |> returning_apply(updt.returning)
   |> query.comment_apply(updt.comment)
+  |> query.epilog_apply(updt.epilog)
 }
 
 fn update_modifier_apply(
@@ -470,6 +474,7 @@ pub type Delete(a) {
     using: Using,
     where: Where,
     returning: Returning,
+    epilog: Epilog,
     comment: Comment,
   )
 }
@@ -505,6 +510,7 @@ fn delete_apply(
   |> query.where_clause_apply(dlt.where)
   |> returning_apply(dlt.returning)
   |> query.comment_apply(dlt.comment)
+  |> query.epilog_apply(dlt.epilog)
 }
 
 fn delete_modifier_apply(

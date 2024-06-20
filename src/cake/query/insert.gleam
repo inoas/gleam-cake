@@ -1,7 +1,9 @@
 //// A DSL to build `INSERT` queries.
 ////
 
-import cake/internal/query.{type Where, Comment, NoComment}
+import cake/internal/query.{
+  type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
+}
 import cake/internal/write_query.{
   type Insert, type InsertRow, type InsertValue, type Update, type WriteQuery,
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
@@ -58,6 +60,7 @@ pub fn from_records(
     columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: NoReturning,
+    epilog: NoEpilog,
     comment: NoComment,
   )
 }
@@ -76,6 +79,7 @@ pub fn from_values(
     columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: NoReturning,
+    epilog: NoEpilog,
     comment: NoComment,
   )
 }
@@ -221,6 +225,8 @@ pub fn on_constraint_conflict_update(
   )
 }
 
+// ▒▒▒ RETURNING ▒▒▒
+
 pub fn returning(
   query qry: Insert(a),
   returning rtrn: List(String),
@@ -235,14 +241,38 @@ pub fn no_returning(query qry: Insert(a)) -> Insert(a) {
   Insert(..qry, returning: NoReturning)
 }
 
+// ▒▒▒ EPILOG ▒▒▒
+
+pub fn epilog(query qry: Insert(a), epilog eplg: String) -> Insert(a) {
+  let eplg = eplg |> string.trim
+  case eplg {
+    "" -> Insert(..qry, epilog: NoEpilog)
+    _ -> Insert(..qry, epilog: { " " <> eplg } |> Epilog)
+  }
+}
+
+pub fn no_epilog(query qry: Insert(a)) -> Insert(a) {
+  Insert(..qry, epilog: NoEpilog)
+}
+
+pub fn get_epilog(query qry: Insert(a)) -> Epilog {
+  qry.epilog
+}
+
+// ▒▒▒ COMMENT ▒▒▒
+
 pub fn comment(query qry: Insert(a), comment cmmnt: String) -> Insert(a) {
   let cmmnt = cmmnt |> string.trim
   case cmmnt {
     "" -> Insert(..qry, comment: NoComment)
-    _ -> Insert(..qry, comment: Comment(cmmnt))
+    _ -> Insert(..qry, comment: { " " <> cmmnt } |> Comment)
   }
 }
 
 pub fn no_comment(query qry: Insert(a)) -> Insert(a) {
   Insert(..qry, comment: NoComment)
+}
+
+pub fn get_comment(query qry: Insert(a)) -> Comment {
+  qry.comment
 }

@@ -19,8 +19,5 @@ test_name: update_execution_result_test
     #("Karl the elder", 9),
     #("Clara the elder", 4),
   ]),
-  Error(ServerError(
-    1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'RETURNING name, age' at line 1",
-  )),
+  Ok([]),
 )

@@ -12,7 +12,7 @@ import test_support/adapter/sqlite
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-fn insert_query() {
+fn insert_values_query() {
   let cat =
     [
       i.param(column: "name", param: "Whiskers" |> i.string),
@@ -34,28 +34,28 @@ fn insert_query() {
 // │  Test                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub fn insert_test() {
-  insert_query()
+pub fn insert_values_test() {
+  insert_values_query()
   |> to_string
-  |> birdie.snap("insert_test")
+  |> birdie.snap("insert_values_test")
 }
 
-pub fn insert_prepared_statement_test() {
-  let pgo = insert_query() |> postgres.write_query_to_prepared_statement
-  let lit = insert_query() |> sqlite.write_query_to_prepared_statement
-  let mdb = insert_query() |> maria.write_query_to_prepared_statement
+pub fn insert_values_prepared_statement_test() {
+  let pgo = insert_values_query() |> postgres.write_query_to_prepared_statement
+  let lit = insert_values_query() |> sqlite.write_query_to_prepared_statement
+  let mdb = insert_values_query() |> maria.write_query_to_prepared_statement
 
   #(pgo, lit, mdb)
   |> to_string
-  |> birdie.snap("insert_prepared_statement_test")
+  |> birdie.snap("insert_values_prepared_statement_test")
 }
 
-pub fn insert_execution_result_test() {
-  let pgo = insert_query() |> postgres_test_helper.setup_and_run_write
-  let lit = insert_query() |> sqlite_test_helper.setup_and_run_write
-  let mdb = insert_query() |> maria_test_helper.setup_and_run_write
+pub fn insert_values_execution_result_test() {
+  let pgo = insert_values_query() |> postgres_test_helper.setup_and_run_write
+  let lit = insert_values_query() |> sqlite_test_helper.setup_and_run_write
+  let mdb = insert_values_query() |> maria_test_helper.setup_and_run_write
 
   #(pgo, lit, mdb)
   |> to_string
-  |> birdie.snap("insert_execution_result_test")
+  |> birdie.snap("insert_values_execution_result_test")
 }

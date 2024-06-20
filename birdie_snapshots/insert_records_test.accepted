@@ -21,5 +21,6 @@ InsertQuery(Insert(
   ),
   InsertConflictError,
   Returning(["name"]),
+  NoEpilog,
   NoComment,
 ))

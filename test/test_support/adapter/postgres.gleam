@@ -33,13 +33,13 @@ pub fn write_query_to_prepared_statement(
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let connection =
-    pgo.connect(
-      pgo.Config(
-        ..pgo.default_config(),
-        host: "localhost",
-        database: "gleam_cake",
-      ),
+    // TODO v2 move this into docker-compose, use docker-compose in git actions/ci
+    pgo.Config(
+      ..pgo.default_config(),
+      host: "localhost",
+      database: "gleam_cake",
     )
+    |> pgo.connect
 
   let value = f(connection)
   pgo.disconnect(connection)

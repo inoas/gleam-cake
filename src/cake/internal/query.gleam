@@ -1202,7 +1202,7 @@ pub type Epilog {
   Epilog(string: String)
 }
 
-fn epilog_apply(
+pub fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
   epilog eplg: Epilog,
 ) -> PreparedStatement {

@@ -21,7 +21,7 @@ test_name: update_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "UPDATE cats SET age = age + 1, name = CONCAT(name, ' the elder') RETURNING name, age",
+    "UPDATE cats SET age = age + 1, name = CONCAT(name, ' the elder')",
     [],
     0,
     Maria,

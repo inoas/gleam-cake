@@ -4,21 +4,62 @@ title: update_test
 file: ./test/cake_test/update_test.gleam
 test_name: update_test
 ---
-UpdateQuery(Update(
-  UpdateTable("cats"),
-  NoUpdateModifier,
-  UpdateSets([
-    UpdateExpressionSet(
-      ["age"],
-      "age + 1",
-    ),
-    UpdateExpressionSet(
-      ["name"],
-      "CONCAT(name, ' the elder')",
-    ),
-  ]),
-  NoUpdateFrom,
-  NoWhere,
-  Returning(["name", "age"]),
-  NoComment,
-))
+#(
+  UpdateQuery(Update(
+    UpdateTable("cats"),
+    NoUpdateModifier,
+    UpdateSets([
+      UpdateExpressionSet(
+        ["age"],
+        "age + 1",
+      ),
+      UpdateExpressionSet(
+        ["name"],
+        "CONCAT(name, ' the elder')",
+      ),
+    ]),
+    NoUpdateFrom,
+    NoWhere,
+    Returning(["name", "age"]),
+    NoEpilog,
+    NoComment,
+  )),
+  UpdateQuery(Update(
+    UpdateTable("cats"),
+    NoUpdateModifier,
+    UpdateSets([
+      UpdateExpressionSet(
+        ["age"],
+        "age + 1",
+      ),
+      UpdateExpressionSet(
+        ["name"],
+        "CONCAT(name, ' the elder')",
+      ),
+    ]),
+    NoUpdateFrom,
+    NoWhere,
+    Returning(["name", "age"]),
+    NoEpilog,
+    NoComment,
+  )),
+  UpdateQuery(Update(
+    UpdateTable("cats"),
+    NoUpdateModifier,
+    UpdateSets([
+      UpdateExpressionSet(
+        ["age"],
+        "age + 1",
+      ),
+      UpdateExpressionSet(
+        ["name"],
+        "CONCAT(name, ' the elder')",
+      ),
+    ]),
+    NoUpdateFrom,
+    NoWhere,
+    NoReturning,
+    NoEpilog,
+    NoComment,
+  )),
+)

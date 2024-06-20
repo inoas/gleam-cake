@@ -1,7 +1,10 @@
 //// A DSL to build `UPDATE` queries.
 ////
 
-import cake/internal/query.{type Query, Comment, NoComment, NoWhere}
+import cake/internal/query.{
+  type Comment, type Epilog, type Query, Comment, Epilog, NoComment, NoEpilog,
+  NoWhere,
+}
 import cake/internal/write_query.{
   type Update, type UpdateSet, type UpdateSets, type WriteQuery, NoReturning,
   NoUpdateFrom, NoUpdateModifier, Returning, Update, UpdateExpressionSet,
@@ -39,6 +42,7 @@ pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
     from: NoUpdateFrom,
     where: NoWhere,
     returning: NoReturning,
+    epilog: NoEpilog,
     comment: NoComment,
   )
 }
@@ -92,14 +96,38 @@ pub fn no_returning(query qry: Update(a)) -> Update(a) {
   Update(..qry, returning: NoReturning)
 }
 
+// ▒▒▒ EPILOG ▒▒▒
+
+pub fn epilog(query qry: Update(a), epilog eplg: String) -> Update(a) {
+  let eplg = eplg |> string.trim
+  case eplg {
+    "" -> Update(..qry, epilog: NoEpilog)
+    _ -> Update(..qry, epilog: { " " <> eplg } |> Epilog)
+  }
+}
+
+pub fn no_epilog(query qry: Update(a)) -> Update(a) {
+  Update(..qry, epilog: NoEpilog)
+}
+
+pub fn get_epilog(query qry: Update(a)) -> Epilog {
+  qry.epilog
+}
+
+// ▒▒▒ COMMENT ▒▒▒
+
 pub fn comment(query qry: Update(a), comment cmmnt: String) -> Update(a) {
   let cmmnt = cmmnt |> string.trim
   case cmmnt {
     "" -> Update(..qry, comment: NoComment)
-    _ -> Update(..qry, comment: Comment(cmmnt))
+    _ -> Update(..qry, comment: { " " <> cmmnt } |> Comment)
   }
 }
 
 pub fn no_comment(query qry: Update(a)) -> Update(a) {
   Update(..qry, comment: NoComment)
+}
+
+pub fn get_comment(query qry: Update(a)) -> Comment {
+  qry.comment
 }
