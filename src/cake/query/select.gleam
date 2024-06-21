@@ -15,7 +15,7 @@ import cake/param
 import gleam/list
 import gleam/string
 
-/// Creates a `Query` from a `Select`.
+/// Creates a `Query` from a `Select` query.
 ///
 pub fn to_query(query qry: Select) -> Query {
   qry |> SelectQuery

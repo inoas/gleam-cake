@@ -15,7 +15,7 @@ import cake/internal/write_query.{
 import cake/param.{type Param}
 import gleam/string
 
-/// Creates a `WriteQuery` from an `Insert`.
+/// Creates a `WriteQuery` from an `Insert` query.
 ///
 pub fn to_query(insert isrt: Insert(a)) -> WriteQuery(a) {
   isrt |> InsertQuery

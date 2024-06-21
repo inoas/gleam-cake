@@ -12,7 +12,7 @@ import cake/internal/write_query.{
 import gleam/list
 import gleam/string
 
-/// Creates a `WriteQuery` from a `Delete`.
+/// Creates a `WriteQuery` from a `Delete` query.
 ///
 pub fn to_query(delete dlt: Delete(a)) -> WriteQuery(a) {
   dlt |> DeleteQuery

@@ -15,7 +15,7 @@ import cake/param.{type Param}
 import gleam/list
 import gleam/string
 
-/// Creates a `WriteQuery` from an `Update`.
+/// Creates a `WriteQuery` from an `Update` query.
 ///
 pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
   updt |> UpdateQuery
