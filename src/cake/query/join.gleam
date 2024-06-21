@@ -67,7 +67,7 @@ pub fn full(with wth: JoinKind, on on: Where, alias als: String) -> Join {
   wth |> FullJoin(alias: als, on: on)
 }
 
-/// Also called cartesian product.
+/// Also called _cartesian product_.
 ///
 pub fn cross(with wth: JoinKind, alias als: String) -> Join {
   wth |> CrossJoin(alias: als)

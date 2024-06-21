@@ -434,9 +434,10 @@ pub type WhereValue {
   // NOTICE: For some commands, the return value must be scalar:
   // e.g. a result of 1 column, 1 row (LIMIT 1, and a single
   // projection aka SELECT value)
-  // TODO v2 If there are multiple, take the list of select parts
+  //
+  // TODO v3 If there are multiple, take the list of select values (projections)
   // and return the last one, if there is none, return NULL
-  // And also potentially apply LIMIT 1
+  // And also potentially apply LIMIT 1?
   WhereSubQueryValue(sub_query: Query)
 }
 

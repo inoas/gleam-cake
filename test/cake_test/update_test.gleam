@@ -14,7 +14,7 @@ import test_support/adapter/sqlite
 
 fn update() {
   u.new(table: "cats", sets: [
-    // TODO v1 param, sub_query
+    // TODO v1 test param, sub_query
     "age" |> u.set_to_expression("age + 1"),
     "name" |> u.set_to_expression("CONCAT(name, ' the elder')"),
   ])

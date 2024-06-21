@@ -144,6 +144,9 @@ pub fn get_from(query qry: Update(a)) -> From {
 
 /// Adds a `Join` to the `Update` query.
 ///
+/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
 pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
   case qry.join {
     Joins(jns) -> Update(..qry, join: jns |> list.append([jn]) |> Joins)
@@ -153,11 +156,17 @@ pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
 
 /// Replaces any `Join`s of the `Update` query with a signle `Join`.
 ///
+/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
 pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
   Update(..qry, join: [jn] |> Joins)
 }
 
 /// Adds `Join`s to the `Update` query.
+///
+/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
 ///
 pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
   case jns, qry.join {
@@ -169,6 +178,9 @@ pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
 }
 
 /// Replaces any `Join`s of the `Update` query with the given `Join`s.
+///
+/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
 ///
 pub fn replace_joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
   Update(..qry, join: jns |> Joins)

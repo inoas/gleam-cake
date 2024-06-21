@@ -477,8 +477,8 @@ pub type DeleteTable {
 
 pub type DeleteUsing {
   NoDeleteUsing
-  // TODO v1 once FROM is a list
-  // this should not be a list anymore
+  // TODO v2 In case From wraps a list in future
+  // ... then this should not be a list anymore.
   DeleteUsing(froms: List(From))
 }
 

@@ -2,12 +2,14 @@
 ////
 
 import cake/internal/query.{
-  type Comment, type Epilog, type Where, AndWhere, Comment, Epilog, NoComment,
-  NoEpilog, NoWhere, OrWhere, XorWhere,
+  type Comment, type Epilog, type From, type Query, type Where, AndWhere,
+  Comment, Epilog, FromSubQuery, FromTable, NoComment, NoEpilog, NoWhere,
+  OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Delete, type WriteQuery, Delete, DeleteModifier, DeleteQuery, DeleteTable,
-  NoDeleteModifier, NoDeleteUsing, NoReturning, Returning,
+  type Delete, type DeleteUsing, type WriteQuery, Delete, DeleteModifier,
+  DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier, NoDeleteUsing,
+  NoReturning, Returning,
 }
 import gleam/list
 import gleam/string
@@ -36,6 +38,8 @@ pub fn new(table_name tbl_nm: String) -> Delete(a) {
 
 // ▒▒▒ Modifier ▒▒▒
 
+/// Sets the `DELETE` modifier.
+///
 pub fn modifier(query qry: Delete(a), modifier mdfr: String) -> Delete(a) {
   let mdfr = mdfr |> string.trim
   case mdfr {
@@ -44,10 +48,14 @@ pub fn modifier(query qry: Delete(a), modifier mdfr: String) -> Delete(a) {
   }
 }
 
+/// Removes the `DELETE` modifier.
+///
 pub fn no_modifier(query qry: Delete(a)) -> Delete(a) {
   Delete(..qry, modifier: NoDeleteModifier)
 }
 
+/// Gets the `DELETE` modifier.
+///
 pub fn get_modifier(query qry: Delete(a)) -> String {
   case qry.modifier {
     NoDeleteModifier -> ""
@@ -57,15 +65,116 @@ pub fn get_modifier(query qry: Delete(a)) -> String {
 
 // ▒▒▒ Table ▒▒▒
 
+/// Sets the table name of the `Delete` query, aka the table where
+/// the rows will be deleted from.
+///
 pub fn table(query qry: Delete(a), table_name tbl_nm: String) -> Delete(a) {
   Delete(..qry, table: DeleteTable(name: tbl_nm))
 }
 
+/// Gets the table name of the `Delete` query.
+///
 pub fn get_table(query qry: Delete(a)) -> String {
   qry.table.name
 }
 
-// TODO v1 Using
+// ▒▒▒ USING ▒▒▒
+
+/// Adds a `USING` clause to the `Delete` query specifing a table.
+///
+/// If the query already has a `USING` clause, the new `USING` clause
+/// will be appended to the existing one.
+///
+/// The `USING` clause is used to specify additional tables that are used
+/// to filter the rows to be deleted.
+///
+pub fn using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
+  case qry.using {
+    NoDeleteUsing -> Delete(..qry, using: [FromTable(name: tbl)] |> DeleteUsing)
+    DeleteUsing(qry_usngs) ->
+      Delete(
+        ..qry,
+        using: qry_usngs |> list.append([FromTable(name: tbl)]) |> DeleteUsing,
+      )
+  }
+}
+
+/// Adds a `USING` clause to the `Delete` query specifing a sub-query.
+///
+/// The sub-query must be aliased.
+///
+/// If the query already has a `USING` clause, the new `USING` clause
+/// will be appended to the existing one.
+///
+/// The `USING` clause is used to specify additional tables that are used
+/// to filter the rows to be deleted.
+///
+pub fn using_sub_query(
+  query qry: Delete(a),
+  sub_query sb_qry: Query,
+  alias als: String,
+) -> Delete(a) {
+  case qry.using {
+    NoDeleteUsing ->
+      Delete(
+        ..qry,
+        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+      )
+    DeleteUsing(qry_usngs) ->
+      Delete(
+        ..qry,
+        using: qry_usngs
+          |> list.append([FromSubQuery(sub_query: sb_qry, alias: als)])
+          |> DeleteUsing,
+      )
+  }
+}
+
+/// Replaces the `USING` clause of the `Delete` query with a table.
+///
+pub fn replace_using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
+  case qry.using {
+    NoDeleteUsing -> Delete(..qry, using: [FromTable(name: tbl)] |> DeleteUsing)
+    DeleteUsing(_) ->
+      Delete(..qry, using: [FromTable(name: tbl)] |> DeleteUsing)
+  }
+}
+
+/// Replaces the `USING` clause of the `Delete` query with a sub-query.
+///
+pub fn replace_using_sub_query(
+  query qry: Delete(a),
+  sub_query sb_qry: Query,
+  alias als: String,
+) -> Delete(a) {
+  case qry.using {
+    NoDeleteUsing ->
+      Delete(
+        ..qry,
+        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+      )
+    DeleteUsing(_) ->
+      Delete(
+        ..qry,
+        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+      )
+  }
+}
+
+/// Removes the `USING` clause from the `Delete` query.
+///
+pub fn no_using(query qry: Delete(a)) -> Delete(a) {
+  Delete(..qry, using: NoDeleteUsing)
+}
+
+/// Gets the `USING` clause of the `Delete` query.
+///
+pub fn get_using(query qry: Delete(a)) -> List(From) {
+  case qry.using {
+    NoDeleteUsing -> []
+    DeleteUsing(usng) -> usng
+  }
+}
 
 // ▒▒▒ WHERE ▒▒▒
 
@@ -147,6 +256,8 @@ pub fn get_where(query qry: Delete(a)) -> Where {
 
 // ▒▒▒ RETURNING ▒▒▒
 
+/// Specify the columns to return after the `Delete` query.
+///
 pub fn returning(
   query qry: Delete(a),
   returning rtrn: List(String),
@@ -157,12 +268,16 @@ pub fn returning(
   }
 }
 
+/// Specify that no columns should be returned after the `Delete` query.
+///
 pub fn no_returning(query qry: Delete(a)) -> Delete(a) {
   Delete(..qry, returning: NoReturning)
 }
 
 // ▒▒▒ Epilog ▒▒▒
 
+/// Specify an epilog for the `Delete` query.
+///
 pub fn epilog(query qry: Delete(a), epilog eplg: String) -> Delete(a) {
   let eplg = eplg |> string.trim
   case eplg {
@@ -171,16 +286,22 @@ pub fn epilog(query qry: Delete(a), epilog eplg: String) -> Delete(a) {
   }
 }
 
+/// Specify that no epilog should be added to the `Delete` query.
+///
 pub fn no_epilog(query qry: Delete(a)) -> Delete(a) {
   Delete(..qry, epilog: NoEpilog)
 }
 
+/// Get the epilog from an `Delete` query.
+///
 pub fn get_epilog(query qry: Delete(a)) -> Epilog {
   qry.epilog
 }
 
 // ▒▒▒ Comment ▒▒▒
 
+/// Specify a comment for the `Delete` query.
+///
 pub fn comment(query qry: Delete(a), comment cmmnt: String) -> Delete(a) {
   let cmmnt = cmmnt |> string.trim
   case cmmnt {
@@ -189,10 +310,14 @@ pub fn comment(query qry: Delete(a), comment cmmnt: String) -> Delete(a) {
   }
 }
 
+/// Specify that no comment should be added to the `Delete` query.
+///
 pub fn no_comment(query qry: Delete(a)) -> Delete(a) {
   Delete(..qry, comment: NoComment)
 }
 
+/// Get the comment from an `Delete` query.
+///
 pub fn get_comment(query qry: Delete(a)) -> Comment {
   qry.comment
 }
