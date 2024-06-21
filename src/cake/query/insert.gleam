@@ -19,6 +19,8 @@ pub fn to_query(insert isrt: Insert(a)) -> WriteQuery(a) {
   isrt |> InsertQuery
 }
 
+// ▒▒▒ Rows / Values / Params ▒▒▒
+
 pub fn row(a) -> InsertRow {
   a |> InsertRow
 }
@@ -42,6 +44,8 @@ pub fn int(value vl: Int) -> Param {
 pub fn string(value vl: String) -> Param {
   vl |> param.string
 }
+
+// ▒▒▒ Constructors ▒▒▒
 
 /// Create an `INSERT` query from a list of gleam records.
 ///
@@ -84,6 +88,8 @@ pub fn from_values(
   )
 }
 
+// ▒▒▒ Table ▒▒▒
+
 pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
   Insert(..qry, table: InsertIntoTable(name: tbl_nm))
 }
@@ -91,6 +97,8 @@ pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
 pub fn get_table(query qry: Insert(a)) -> String {
   qry.table.name
 }
+
+// ▒▒▒ Modifier ▒▒▒
 
 pub fn modifier(query qry: Insert(a), modifier mdfr: String) -> Insert(a) {
   let mdfr = mdfr |> string.trim
@@ -111,6 +119,8 @@ pub fn get_modifier(query qry: Insert(a)) -> String {
   }
 }
 
+// ▒▒▒ Source ▒▒▒
+
 pub fn source_records(
   query qry: Insert(a),
   source rcrds: List(a),
@@ -118,8 +128,6 @@ pub fn source_records(
 ) -> Insert(a) {
   Insert(..qry, source: InsertSourceRecords(records: rcrds, caster: cstr))
 }
-
-// TODO v1 more getters, such as get_source
 
 pub fn source_values(
   query qry: Insert(a),
@@ -142,6 +150,8 @@ pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
 pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {
   Insert(..qry, columns: InsertColumns(columns: cols))
 }
+
+// ▒▒▒ ON CONFLICT ▒▒▒
 
 /// This specifies that any conflicts result in the query to fail
 ///
@@ -245,7 +255,7 @@ pub fn no_returning(query qry: Insert(a)) -> Insert(a) {
   Insert(..qry, returning: NoReturning)
 }
 
-// ▒▒▒ EPILOG ▒▒▒
+// ▒▒▒ Epilog ▒▒▒
 
 pub fn epilog(query qry: Insert(a), epilog eplg: String) -> Insert(a) {
   let eplg = eplg |> string.trim
@@ -263,7 +273,7 @@ pub fn get_epilog(query qry: Insert(a)) -> Epilog {
   qry.epilog
 }
 
-// ▒▒▒ COMMENT ▒▒▒
+// ▒▒▒ Comment ▒▒▒
 
 pub fn comment(query qry: Insert(a), comment cmmnt: String) -> Insert(a) {
   let cmmnt = cmmnt |> string.trim

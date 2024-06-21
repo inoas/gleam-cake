@@ -1192,6 +1192,7 @@ fn offset_clause_apply(
 ///
 pub type Epilog {
   NoEpilog
+  // TODO v3 convert to List(String)
   Epilog(string: String)
 }
 
@@ -1213,6 +1214,7 @@ pub fn epilog_apply(
 ///
 pub type Comment {
   NoComment
+  // TODO v3 convert to List(String)
   Comment(string: String)
 }
 

@@ -17,6 +17,8 @@ pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
   updt |> UpdateQuery
 }
 
+// ▒▒▒ Rows / Values / Params ▒▒▒
+
 pub fn bool(value vl: Bool) -> Param {
   vl |> param.bool
 }
@@ -33,9 +35,10 @@ pub fn string(value vl: String) -> Param {
   vl |> param.string
 }
 
+// ▒▒▒ Constructor ▒▒▒
+
 pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
   Update(
-    // with (_recursive?): ?, // v2
     modifier: NoUpdateModifier,
     table: UpdateTable(tbl),
     set: UpdateSets(sts),
@@ -46,6 +49,8 @@ pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
     comment: NoComment,
   )
 }
+
+// ▒▒▒ Set ▒▒▒
 
 pub fn set_to_param(column col: String, param prm: Param) -> UpdateSet {
   UpdateParamSet(column: col, param: prm)
@@ -76,6 +81,11 @@ pub fn set_many_to_sub_query(
   UpdateSubQuerySet(columns: cols, sub_query: qry)
 }
 
+// TODO v1 From
+// TODO v1 Where
+
+// ▒▒▒ RETURNING ▒▒▒
+
 /// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
 ///         they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
@@ -96,7 +106,7 @@ pub fn no_returning(query qry: Update(a)) -> Update(a) {
   Update(..qry, returning: NoReturning)
 }
 
-// ▒▒▒ EPILOG ▒▒▒
+// ▒▒▒ Epilog ▒▒▒
 
 pub fn epilog(query qry: Update(a), epilog eplg: String) -> Update(a) {
   let eplg = eplg |> string.trim
@@ -114,7 +124,7 @@ pub fn get_epilog(query qry: Update(a)) -> Epilog {
   qry.epilog
 }
 
-// ▒▒▒ COMMENT ▒▒▒
+// ▒▒▒ Comment ▒▒▒
 
 pub fn comment(query qry: Update(a), comment cmmnt: String) -> Update(a) {
   let cmmnt = cmmnt |> string.trim
