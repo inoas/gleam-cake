@@ -11,7 +11,7 @@ import test_support/adapter/sqlite
 
 fn limit_offset_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.order_asc("name")
   |> s.limit(4)
   |> s.offset(0)

@@ -12,7 +12,7 @@ import test_support/adapter/sqlite
 
 fn where_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.where(
     w.or([
       w.col("age") |> w.lt(w.int(100)),
@@ -78,12 +78,12 @@ pub fn where_execution_result_test() {
 
 fn where_any_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.where(
     w.col("owner_id")
     |> w.eq_any_query(
       s.new()
-      |> s.table("dogs")
+      |> s.from_table("dogs")
       |> s.selects([s.col("owner_id")])
       |> s.to_query,
     ),
@@ -120,7 +120,7 @@ pub fn where_any_execution_result_test() {
 
 fn where_xor_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.where(
     w.xor([
       w.col("name") |> w.eq(w.string("Karl")),

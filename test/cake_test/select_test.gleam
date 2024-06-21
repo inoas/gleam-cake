@@ -13,7 +13,7 @@ const const_field = "age"
 
 fn select_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.selects([
     s.col("name"),
     // TODO v1 check if this should work AT ALL, because it does not work in postgres
@@ -55,7 +55,7 @@ pub fn select_execution_result_test() {
 
 fn select_distinct_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.distinct
   |> s.selects([s.col("is_wild")])
   |> s.order_asc("is_wild")

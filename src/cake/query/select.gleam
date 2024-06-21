@@ -112,13 +112,13 @@ pub fn get_kind(query qry: Select, kind knd: SelectKind) -> Select {
 
 /// Sets the `FROM` clause of the `Select` query to a table name.
 ///
-pub fn table(query qry: Select, name tbl_nm: String) -> Select {
+pub fn from_table(query qry: Select, name tbl_nm: String) -> Select {
   Select(..qry, from: FromTable(name: tbl_nm))
 }
 
 /// Sets the `FROM` clause of the `Select` query to an aliased sub-query.
 ///
-pub fn sub_query(
+pub fn from_sub_query(
   query qry: Select,
   sub_query sb_qry: Query,
   alias als: String,
@@ -140,16 +140,43 @@ pub fn get_from(query qry: Select) -> From {
 
 // ▒▒▒ SELECT ▒▒▒
 
+/// Add a `SelectValue` to the `Select` query.
+///
+/// If the query already any `SelectValue`s, the new one is appended.
+///
+pub fn select(query qry: Select, select_value sv: SelectValue) -> Select {
+  case qry.select {
+    NoSelects -> Select(..qry, select: Selects([sv]))
+    Selects(qry_slcts) ->
+      Select(..qry, select: qry_slcts |> list.append([sv]) |> Selects)
+  }
+}
+
+/// Add a `SelectValue`s to the `Select` query.
+///
+/// If the query already any `SelectValue`s, they are replaced.
+///
+pub fn replace_select(query qry: Select, select_value sv: SelectValue) -> Select {
+  case qry.select {
+    NoSelects -> Select(..qry, select: Selects([sv]))
+    Selects(qry_slcts) ->
+      Select(..qry, select: qry_slcts |> list.append([sv]) |> Selects)
+  }
+}
+
 /// Adds `SelectValue`s to the `Select` query.
 ///
 /// If the query already any `SelectValue`s, the new ones are appended.
 ///
-pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select {
-  case sv, qry.select {
+pub fn selects(
+  query qry: Select,
+  select_values svs: List(SelectValue),
+) -> Select {
+  case svs, qry.select {
     [], _ -> qry
-    sv, NoSelects -> Select(..qry, select: Selects(sv))
-    sv, Selects(qry_slcts) ->
-      Select(..qry, select: qry_slcts |> list.append(sv) |> Selects)
+    svs, NoSelects -> Select(..qry, select: Selects(svs))
+    svs, Selects(qry_slcts) ->
+      Select(..qry, select: qry_slcts |> list.append(svs) |> Selects)
   }
 }
 
@@ -159,13 +186,13 @@ pub fn selects(query qry: Select, select_values sv: List(SelectValue)) -> Select
 ///
 pub fn replace_selects(
   query qry: Select,
-  select_values sv: List(SelectValue),
+  select_values svs: List(SelectValue),
 ) -> Select {
-  case sv, qry.select {
+  case svs, qry.select {
     [], _ -> qry
-    sv, NoSelects -> Select(..qry, select: Selects(sv))
-    sv, Selects(qry_slcts) ->
-      Select(..qry, select: qry_slcts |> list.append(sv) |> Selects)
+    svs, NoSelects -> Select(..qry, select: Selects(svs))
+    svs, Selects(qry_slcts) ->
+      Select(..qry, select: qry_slcts |> list.append(svs) |> Selects)
   }
 }
 
@@ -209,13 +236,13 @@ pub fn replace_joins(query qry: Select, joins jns: List(Join)) -> Select {
   Select(..qry, join: jns |> Joins)
 }
 
-/// Removes any `Join`s from the `Select` query.
+/// Removes any `Joins` from the `Select` query.
 ///
-pub fn no_joins(query qry: Select) -> Select {
+pub fn no_join(query qry: Select) -> Select {
   Select(..qry, join: NoJoins)
 }
 
-/// Gets the `Join`s of the `Select` query.
+/// Gets the `Joins` of the `Select` query.
 ///
 pub fn get_joins(query qry: Select) -> Joins {
   qry.join

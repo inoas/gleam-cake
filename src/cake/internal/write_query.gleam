@@ -327,13 +327,17 @@ fn on_conflict_target_apply(
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// NOTICE: Postgres and Sqlite only support `JOIN` in `UPDATE` if `FROM` is
+/// also given.
+///
 pub type Update(a) {
   Update(
     // with (_recursive?): ?, // v2
     table: UpdateTable,
     modifier: UpdateModifier,
     set: UpdateSets,
-    from: UpdateFrom,
+    from: From,
+    join: Joins,
     where: Where,
     returning: Returning,
     epilog: Epilog,
@@ -360,15 +364,6 @@ pub type UpdateSet {
   UpdateSubQuerySet(columns: List(String), sub_query: Query)
 }
 
-/// NOTICE: Postgres and Sqlite only support `JOIN` in `UPDATE` if `FROM` is
-/// also given.
-///
-pub type UpdateFrom {
-  NoUpdateFrom
-  UpdateFrom(from: From)
-  UpdateFromWithJoins(from: From, joins: Joins)
-}
-
 pub fn update_to_write_query(insert: Update(a)) -> WriteQuery(a) {
   insert |> UpdateQuery
 }
@@ -385,7 +380,8 @@ fn update_apply(
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
   |> update_sets_apply(updt_sets)
-  |> update_from_apply(updt.from)
+  |> query.from_clause_apply(updt.from)
+  |> query.join_clause_apply(updt.join)
   |> query.where_clause_apply(updt.where)
   |> returning_apply(updt.returning)
   |> query.comment_apply(updt.comment)
@@ -447,18 +443,6 @@ fn update_sets_apply(
       }
     },
   )
-}
-
-fn update_from_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update_from updt_frm: UpdateFrom,
-) -> PreparedStatement {
-  case updt_frm {
-    NoUpdateFrom -> prp_stm
-    UpdateFrom(from: frm) -> prp_stm |> query.from_clause_apply(frm)
-    UpdateFromWithJoins(from: frm, joins: jns) ->
-      prp_stm |> query.from_clause_apply(frm) |> query.join_clause_apply(jns)
-  }
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

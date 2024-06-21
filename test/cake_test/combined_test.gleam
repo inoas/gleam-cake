@@ -11,7 +11,7 @@ import test_support/adapter/sqlite
 
 fn query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.order_asc("name")
   |> s.limit(10)
   |> s.offset(0)

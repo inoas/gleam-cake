@@ -13,7 +13,7 @@ import test_support/adapter/sqlite
 
 fn fragment_query() {
   s.new()
-  |> s.table("cats")
+  |> s.from_table("cats")
   |> s.where(
     w.fragment_value(frgmt.literal("LOWER(cats.name)"))
     |> w.eq(

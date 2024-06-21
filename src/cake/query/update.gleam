@@ -2,14 +2,13 @@
 ////
 
 import cake/internal/query.{
-  type Comment, type Epilog, type Joins, type Query, type Where, AndWhere,
-  Comment, Epilog, FromSubQuery, FromTable, NoComment, NoEpilog, NoFrom, NoWhere,
-  OrWhere, XorWhere,
+  type Comment, type Epilog, type From, type Join, type Joins, type Query,
+  type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
+  NoComment, NoEpilog, NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Update, type UpdateFrom, type UpdateSet, type UpdateSets, type WriteQuery,
-  NoReturning, NoUpdateFrom, NoUpdateModifier, Returning, Update,
-  UpdateExpressionSet, UpdateFrom, UpdateFromWithJoins, UpdateParamSet,
+  type Update, type UpdateSet, type UpdateSets, type WriteQuery, NoReturning,
+  NoUpdateModifier, Returning, Update, UpdateExpressionSet, UpdateParamSet,
   UpdateQuery, UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
 import cake/param.{type Param}
@@ -47,7 +46,8 @@ pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
     modifier: NoUpdateModifier,
     table: UpdateTable(tbl),
     set: UpdateSets(sts),
-    from: NoUpdateFrom,
+    from: NoFrom,
+    join: NoJoins,
     where: NoWhere,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -90,23 +90,8 @@ pub fn set_many_to_sub_query(
 
 /// Sets the `FROM` clause of the `Update` query to a table name.
 ///
-/// In addition this specifies `Joins`.
-///
 pub fn from_table(query qry: Update(a), name tbl_nm: String) -> Update(a) {
-  Update(..qry, from: FromTable(name: tbl_nm) |> UpdateFrom)
-}
-
-/// Sets the `FROM` clause of the `Update` query to a table name.
-///
-pub fn from_table_with_joins(
-  query qry: Update(a),
-  name tbl_nm: String,
-  joins jns: Joins,
-) -> Update(a) {
-  Update(
-    ..qry,
-    from: FromTable(name: tbl_nm) |> UpdateFromWithJoins(joins: jns),
-  )
+  Update(..qry, from: FromTable(name: tbl_nm))
 }
 
 /// Sets the `FROM` clause of the `Update` query to an aliased sub-query.
@@ -116,36 +101,65 @@ pub fn from_sub_query(
   sub_query sb_qry: Query,
   alias als: String,
 ) -> Update(a) {
-  Update(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als) |> UpdateFrom)
-}
-
-/// Sets the `FROM` clause of the `Update` query to an aliased sub-query.
-///
-/// In addition this specifies `Joins`.
-///
-pub fn from_sub_query_with_joins(
-  query qry: Update(a),
-  sub_query sb_qry: Query,
-  alias als: String,
-  joins jns: Joins,
-) -> Update(a) {
-  Update(
-    ..qry,
-    from: FromSubQuery(sub_query: sb_qry, alias: als)
-      |> UpdateFromWithJoins(joins: jns),
-  )
+  Update(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))
 }
 
 /// Removes the `FROM` clause of the `Update` query.
 ///
 pub fn no_from(query qry: Update(a)) -> Update(a) {
-  Update(..qry, from: NoFrom |> UpdateFrom)
+  Update(..qry, from: NoFrom)
 }
 
 /// Gets the `FROM` clause of the `Update` query.
 ///
-pub fn get_from(query qry: Update(a)) -> UpdateFrom {
+pub fn get_from(query qry: Update(a)) -> From {
   qry.from
+}
+
+// ▒▒▒ JOIN ▒▒▒
+
+/// Adds a `Join` to the `Update` query.
+///
+pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
+  case qry.join {
+    Joins(jns) -> Update(..qry, join: jns |> list.append([jn]) |> Joins)
+    NoJoins -> Update(..qry, join: [jn] |> Joins)
+  }
+}
+
+/// Replaces any `Join`s of the `Update` query with a signle `Join`.
+///
+pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
+  Update(..qry, join: [jn] |> Joins)
+}
+
+/// Adds `Join`s to the `Update` query.
+///
+pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
+  case jns, qry.join {
+    [], _ -> Update(..qry, join: Joins(jns))
+    jns, Joins(qry_joins) ->
+      Update(..qry, join: qry_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> Update(..qry, join: jns |> Joins)
+  }
+}
+
+/// Replaces any `Join`s of the `Update` query with the given `Join`s.
+///
+pub fn replace_joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
+  Update(..qry, join: jns |> Joins)
+}
+
+/// Removes any `Joins` from the `Update` query.
+///
+pub fn no_join(query qry: Update(a)) -> Update(a) {
+  Update(..qry, join: NoJoins)
+}
+
+/// Gets the `Joins` of the `Update` query.
+///
+pub fn get_joins(query qry: Update(a)) -> Joins {
+  qry.join
 }
 
 // ▒▒▒ WHERE ▒▒▒

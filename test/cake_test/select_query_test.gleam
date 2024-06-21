@@ -12,8 +12,8 @@ import test_support/adapter/sqlite
 
 pub fn select_query_query() {
   s.new()
-  |> s.table("cats")
-  |> s.selects([s.col("cats.name")])
+  |> s.from_table("cats")
+  |> s.select(s.col("cats.name"))
   |> s.join(j.cross(with: j.table("owners"), alias: "owners"))
   |> s.where(w.col("owners.name") |> w.like("%i%"))
   |> s.group_by("cats.name")

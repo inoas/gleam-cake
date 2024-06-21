@@ -285,6 +285,7 @@ pub type Selects {
 
 pub type SelectValue {
   SelectColumn(column: String)
+  // TODO v2 Investigate -> probably makes no sense to have params in SELECT?
   SelectParam(param: Param)
   SelectFragment(fragment: Fragment)
   SelectAlias(value: SelectValue, alias: String)
@@ -1004,7 +1005,7 @@ pub fn join_clause_apply(
   }
 }
 
-fn join_apply(
+pub fn join_apply(
   prepared_statement prp_stm: PreparedStatement,
   join jn: Join,
 ) -> PreparedStatement {
