@@ -13,6 +13,8 @@ import cake/internal/write_query.{
 import cake/param.{type Param}
 import gleam/string
 
+/// Creates a `WriteQuery` from an `Update`.
+///
 pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
   updt |> UpdateQuery
 }

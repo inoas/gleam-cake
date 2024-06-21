@@ -1,8 +1,6 @@
 //// A DSL to build `DELETE` queries.
 ////
 
-/// Creates an empty `Delete` query.
-///
 import cake/internal/query.{
   type Comment, type Epilog, Comment, Epilog, NoComment, NoEpilog, NoWhere,
 }
@@ -12,12 +10,16 @@ import cake/internal/write_query.{
 }
 import gleam/string
 
+/// Creates a `WriteQuery` from a `Delete`.
+///
 pub fn to_query(delete dlt: Delete(a)) -> WriteQuery(a) {
   dlt |> DeleteQuery
 }
 
 // ▒▒▒ Constructors ▒▒▒
 
+/// Creates an empty `Delete` query.
+///
 pub fn new(table_name tbl_nm: String) -> Delete(a) {
   Delete(
     modifier: NoDeleteModifier,
