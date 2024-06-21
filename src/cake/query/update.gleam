@@ -23,18 +23,26 @@ pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
 
 // ▒▒▒ Rows / Values / Params ▒▒▒
 
+/// Creates a `Param` from a `Bool`.
+///
 pub fn bool(value vl: Bool) -> Param {
   vl |> param.bool
 }
 
+/// Creates a `Param` from a `Float`.
+///
 pub fn float(value vl: Float) -> Param {
   vl |> param.float
 }
 
+/// Creates a `Param` from an `Int`.
+///
 pub fn int(value vl: Int) -> Param {
   vl |> param.int
 }
 
+/// Creates a `Param` from a `String`.
+///
 pub fn string(value vl: String) -> Param {
   vl |> param.string
 }
@@ -57,10 +65,14 @@ pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
 
 // ▒▒▒ Set ▒▒▒
 
+/// Sets a column to a param value.
+///
 pub fn set_to_param(column col: String, param prm: Param) -> UpdateSet {
   UpdateParamSet(column: col, param: prm)
 }
 
+/// Sets a column to an expression value.
+///
 pub fn set_to_expression(
   column col: String,
   expression exp: String,
@@ -68,10 +80,16 @@ pub fn set_to_expression(
   UpdateExpressionSet(columns: [col], expression: exp)
 }
 
+/// Sets a column to a sub-query value.
+///
 pub fn set_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
 }
 
+/// Sets many columns to an expression value.
+///
+/// NOTICE: the expression must return the same number of columns.
+///
 pub fn set_many_to_expression(
   columns cols: List(String),
   expression exp: String,
@@ -79,6 +97,10 @@ pub fn set_many_to_expression(
   UpdateExpressionSet(columns: cols, expression: exp)
 }
 
+/// Sets many columns to a sub-query value.
+///
+/// NOTICE: the sub-query must return the same number of columns.
+///
 pub fn set_many_to_sub_query(
   columns cols: List(String),
   sub_query qry: Query,
@@ -264,6 +286,8 @@ pub fn no_returning(query qry: Update(a)) -> Update(a) {
 
 // ▒▒▒ Epilog ▒▒▒
 
+/// Sets an `Epilog` or appends into an existing `Epilog`.
+///
 pub fn epilog(query qry: Update(a), epilog eplg: String) -> Update(a) {
   let eplg = eplg |> string.trim
   case eplg {
@@ -272,16 +296,22 @@ pub fn epilog(query qry: Update(a), epilog eplg: String) -> Update(a) {
   }
 }
 
+/// Removes the `Epilog` from the `Update` query.
+///
 pub fn no_epilog(query qry: Update(a)) -> Update(a) {
   Update(..qry, epilog: NoEpilog)
 }
 
+/// Gets the `Epilog` of the `Update` query.
+///
 pub fn get_epilog(query qry: Update(a)) -> Epilog {
   qry.epilog
 }
 
 // ▒▒▒ Comment ▒▒▒
 
+/// Sets a `Comment` or appends into an existing `Comment`.
+///
 pub fn comment(query qry: Update(a), comment cmmnt: String) -> Update(a) {
   let cmmnt = cmmnt |> string.trim
   case cmmnt {
@@ -290,10 +320,14 @@ pub fn comment(query qry: Update(a), comment cmmnt: String) -> Update(a) {
   }
 }
 
+/// Removes the `Comment` from the `Update` query.
+///
 pub fn no_comment(query qry: Update(a)) -> Update(a) {
   Update(..qry, comment: NoComment)
 }
 
+/// Gets the `Comment` of the `Update` query.
+///
 pub fn get_comment(query qry: Update(a)) -> Comment {
   qry.comment
 }
