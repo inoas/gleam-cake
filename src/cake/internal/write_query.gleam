@@ -472,7 +472,7 @@ pub type Delete(a) {
     // with (_recursive?): ?, // v2
     modifier: DeleteModifier,
     table: DeleteTable,
-    using: Using,
+    using: DeleteUsing,
     where: Where,
     returning: Returning,
     epilog: Epilog,
@@ -489,9 +489,11 @@ pub type DeleteTable {
   DeleteTable(name: String)
 }
 
-pub type Using {
-  NoUsing
-  Using(froms: List(From))
+pub type DeleteUsing {
+  NoDeleteUsing
+  // TODO v1 once FROM is a list
+  // this should not be a list anymore
+  DeleteUsing(froms: List(From))
 }
 
 pub fn delete_to_write_query(insert: Delete(a)) -> WriteQuery(a) {
@@ -527,11 +529,11 @@ fn delete_modifier_apply(
 
 fn using_apply(
   prepared_statement prp_stm: PreparedStatement,
-  using updt_usng: Using,
+  using updt_usng: DeleteUsing,
 ) -> PreparedStatement {
   case updt_usng {
-    NoUsing -> prp_stm
-    Using(froms: frms) -> {
+    NoDeleteUsing -> prp_stm
+    DeleteUsing(froms: frms) -> {
       let prp_stm = prp_stm |> prepared_statement.append_sql(" USING ")
 
       frms

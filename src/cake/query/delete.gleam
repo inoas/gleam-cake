@@ -7,7 +7,7 @@ import cake/internal/query.{
 }
 import cake/internal/write_query.{
   type Delete, type WriteQuery, Delete, DeleteModifier, DeleteQuery, DeleteTable,
-  NoDeleteModifier, NoReturning, NoUsing, Returning,
+  NoDeleteModifier, NoDeleteUsing, NoReturning, Returning,
 }
 import gleam/list
 import gleam/string
@@ -26,7 +26,7 @@ pub fn new(table_name tbl_nm: String) -> Delete(a) {
   Delete(
     modifier: NoDeleteModifier,
     table: DeleteTable(tbl_nm),
-    using: NoUsing,
+    using: NoDeleteUsing,
     where: NoWhere,
     returning: NoReturning,
     epilog: NoEpilog,
