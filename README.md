@@ -1,6 +1,6 @@
 # Cake Query Builder
 
-An SQL query builder for Gleam targeting Postgres and SQLite - a preview
+An SQL query builder for Gleam for SQL dialects PostgreSQL, SQLite, MariaDB and MySQL
 
 [![Package
 <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a>
@@ -9,6 +9,7 @@ An SQL query builder for Gleam targeting Postgres and SQLite - a preview
 Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
 ![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)
+![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)
 
 ```shell
 gleam add cake
