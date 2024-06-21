@@ -728,12 +728,12 @@ fn where_xor_apply(
   where whs: List(Where),
 ) -> PreparedStatement {
   case prp_stm |> prepared_statement.get_dialect() {
-    Postgres | Sqlite -> do_fake_where_xor_apply(prp_stm, whs)
-    Maria -> do_where_xor_apply(prp_stm, whs)
+    Postgres | Sqlite -> custom_where_xor_apply(prp_stm, whs)
+    Maria -> vanilla_where_xor_apply(prp_stm, whs)
   }
 }
 
-fn do_fake_where_xor_apply(
+fn custom_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
@@ -793,7 +793,7 @@ fn do_fake_where_xor_apply(
 }
 
 // MySQL/MariaDB could take this instead:
-fn do_where_xor_apply(
+fn vanilla_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
@@ -1400,13 +1400,4 @@ fn fragment_apply(
       new_prp_stm
     }
   }
-}
-
-// ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Helpers                                                                  │
-// └───────────────────────────────────────────────────────────────────────────┘
-
-// TODO v2 escaped_identifier, quote and escape table and column names
-pub fn qualified_identifier(scope scp: String) -> fn(String) -> String {
-  fn(identifier) -> String { scp <> "." <> identifier }
 }

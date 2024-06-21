@@ -2,6 +2,8 @@
 //// _write queries_, such as `INSERT`, `UPDATE` and `DELETE`.
 ////
 
+// TODO: Add to query validator in v2 or v3
+
 import cake/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{
