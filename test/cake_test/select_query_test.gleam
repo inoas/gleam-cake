@@ -14,7 +14,6 @@ pub fn select_query_query() {
   s.new()
   |> s.table("cats")
   |> s.selects([s.col("cats.name")])
-  // TODO v1 add s.cross_join s.inner_join etc
   |> s.join(j.cross(with: j.table("owners"), alias: "owners"))
   |> s.where(w.col("owners.name") |> w.like("%i%"))
   |> s.group_by("cats.name")

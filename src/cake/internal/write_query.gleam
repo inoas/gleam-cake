@@ -327,8 +327,6 @@ fn on_conflict_target_apply(
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// NOTICE: Postgres only supports `JOIN` in `UPDATE` if `FROM` is given.
-///
 pub type Update(a) {
   Update(
     // with (_recursive?): ?, // v2
@@ -362,10 +360,13 @@ pub type UpdateSet {
   UpdateSubQuerySet(columns: List(String), sub_query: Query)
 }
 
+/// NOTICE: Postgres and Sqlite only support `JOIN` in `UPDATE` if `FROM` is
+/// also given.
+///
 pub type UpdateFrom {
   NoUpdateFrom
   UpdateFrom(from: From)
-  UpdateFromJoins(from: From, joins: Joins)
+  UpdateFromWithJoins(from: From, joins: Joins)
 }
 
 pub fn update_to_write_query(insert: Update(a)) -> WriteQuery(a) {
@@ -455,7 +456,7 @@ fn update_from_apply(
   case updt_frm {
     NoUpdateFrom -> prp_stm
     UpdateFrom(from: frm) -> prp_stm |> query.from_clause_apply(frm)
-    UpdateFromJoins(from: frm, joins: jns) ->
+    UpdateFromWithJoins(from: frm, joins: jns) ->
       prp_stm |> query.from_clause_apply(frm) |> query.join_clause_apply(jns)
   }
 }

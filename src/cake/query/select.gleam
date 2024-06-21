@@ -126,6 +126,12 @@ pub fn sub_query(
   Select(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))
 }
 
+/// Removes the `FROM` clause of the `Select` query.
+///
+pub fn no_from(query qry: Select) -> Select {
+  Select(..qry, from: NoFrom)
+}
+
 /// Gets the `FROM` clause of the `Select` query.
 ///
 pub fn get_from(query qry: Select) -> From {
