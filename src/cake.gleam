@@ -20,7 +20,7 @@ pub fn main() {
   }
   |> io.println
 }
-// TODO v3:
+// TODO v3
 // pub fn table_exists(connection conn: Connection, table_name tbl_nm: String) -> Boolean {
 //   todo
 // }

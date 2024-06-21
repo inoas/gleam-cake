@@ -31,6 +31,8 @@
 //// the query structure when composing different queries.
 ////
 
+// TODO: Add to query validator in v2 or v3
+
 import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
@@ -101,11 +103,11 @@ pub fn combined_clause_apply(
   }
 
   // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL within queries nested
-  // in UNION and its siblings (Combined queries) but they do work on MariaDB
+  // in UNION and its siblings (combined queries) but they do work on MariaDB
   // and PostgreSQL out of the box,
   // see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
-  // For Sqlite we need to wrap these in sub queries, like so:
+  // For Sqlite we are wrapping them in sub-queries, like so:
   //
   // ```sql
   // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1
@@ -164,7 +166,7 @@ pub fn combined_clause_apply(
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    // TODO V2 If single list item, unwrap Combined to Select and warn user
+    // TODO v2 If single list item, unwrap Combined to Select and warn user
     queries: List(Select),
     limit: Limit,
     offset: Offset,
@@ -174,7 +176,6 @@ pub type Combined {
   )
 }
 
-// TODO: Add to query validator in v2 or v3
 /// NOTICE: SQLite does not support `EXCEPT ALL` (`ExceptAll`) nor
 /// `INTERSECT ALL` (`IntersectAll`).
 ///
@@ -1244,7 +1245,7 @@ pub fn comment_apply(
 // │  Fragment                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-// TODO v3: Create injection checker, something like:
+// TODO v3 Create injection checker, something like:
 //
 // `gleam run --module cake/sql-injection-check -- ./src`
 //
