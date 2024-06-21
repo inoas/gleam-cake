@@ -58,7 +58,7 @@ fn select_distinct_query() {
   |> s.from_table("cats")
   |> s.distinct
   |> s.selects([s.col("is_wild")])
-  |> s.order_asc("is_wild")
+  |> s.order_by_asc("is_wild")
   |> s.to_query
 }
 

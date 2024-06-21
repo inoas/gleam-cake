@@ -49,6 +49,8 @@ pub fn string(value vl: String) -> Param {
 
 // ▒▒▒ Constructor ▒▒▒
 
+/// Creates a minimal `Update` query specifying the table and the sets.
+///
 pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
   Update(
     modifier: NoUpdateModifier,

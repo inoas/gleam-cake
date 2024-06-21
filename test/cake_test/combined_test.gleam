@@ -12,7 +12,7 @@ import test_support/adapter/sqlite
 fn query() {
   s.new()
   |> s.from_table("cats")
-  |> s.order_asc("name")
+  |> s.order_by_asc("name")
   |> s.limit(10)
   |> s.offset(0)
 }
@@ -22,7 +22,7 @@ fn combined_union_all_query() {
 
   query
   |> c.union_all(query)
-  |> c.order_asc("age")
+  |> c.order_by_asc("age")
   |> c.limit(1)
   |> c.offset(2)
   |> c.to_query
@@ -58,7 +58,7 @@ fn combined_intersect_query() {
   let query = query()
   query
   |> c.intersect(query)
-  |> c.order_asc("age")
+  |> c.order_by_asc("age")
   |> c.limit(1)
   |> c.offset(2)
   |> c.to_query
@@ -94,7 +94,7 @@ fn combined_except_query() {
   let query = query()
   query
   |> c.except(query)
-  |> c.order_asc("age")
+  |> c.order_by_asc("age")
   |> c.limit(1)
   |> c.offset(2)
   |> c.to_query

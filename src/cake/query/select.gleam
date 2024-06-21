@@ -1,8 +1,5 @@
 //// A DSL to build `SELECT` queries.
 ////
-//// `HAVING` allows to specify constraints much like `WHERE`, but filters the
-//// results after `GROUP BY` is applied instead of before
-////
 
 import cake/internal/query.{
   type Comment, type Epilog, type Fragment, type From, type GroupBy, type Join,
@@ -524,7 +521,7 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 
 /// Creates or appends an ascending `OrderBy`.
 ///
-pub fn order_asc(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
@@ -536,7 +533,7 @@ pub fn order_asc(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn order_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
@@ -548,7 +545,7 @@ pub fn order_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn order_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
@@ -558,7 +555,7 @@ pub fn order_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
 
 /// Replaces the `OrderBy` a single ascending `OrderBy`.
 ///
-pub fn replace_order_asc(query qry: Select, by ordb: String) -> Select {
+pub fn replace_order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
@@ -570,7 +567,7 @@ pub fn replace_order_asc(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn replace_order_asc_nulls_first(
+pub fn replace_order_by_asc_nulls_first(
   query qry: Select,
   by ordb: String,
 ) -> Select {
@@ -585,7 +582,7 @@ pub fn replace_order_asc_nulls_first(
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn replace_order_asc_nulls_last(
+pub fn replace_order_by_asc_nulls_last(
   query qry: Select,
   by ordb: String,
 ) -> Select {
@@ -598,7 +595,7 @@ pub fn replace_order_asc_nulls_last(
 
 /// Creates or appends a descending `OrderBy`.
 ///
-pub fn order_desc(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
@@ -610,7 +607,7 @@ pub fn order_desc(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn order_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
@@ -622,7 +619,7 @@ pub fn order_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn order_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
+pub fn order_by_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
@@ -632,7 +629,7 @@ pub fn order_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
 
 /// Replaces the `OrderBy` a single descending order.
 ///
-pub fn replace_order_desc(query qry: Select, by ordb: String) -> Select {
+pub fn replace_order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
   |> query.select_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
@@ -644,7 +641,7 @@ pub fn replace_order_desc(query qry: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn replace_order_desc_nulls_first(
+pub fn replace_order_by_desc_nulls_first(
   query qry: Select,
   by ordb: String,
 ) -> Select {
@@ -659,7 +656,7 @@ pub fn replace_order_desc_nulls_first(
 ///
 /// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn replace_order_desc_nulls_last(
+pub fn replace_order_by_desc_nulls_last(
   query qry: Select,
   by ordb: String,
 ) -> Select {
@@ -674,7 +671,7 @@ pub fn replace_order_desc_nulls_last(
 ///
 /// The direction can either `ASC` or `DESC`.
 ///
-pub fn order(
+pub fn order_by(
   query qry: Select,
   by ordb: String,
   direction dir: Direction,
@@ -686,7 +683,7 @@ pub fn order(
 
 /// Replaces the `OrderBy` a column with a direction.
 ///
-pub fn replace_order(
+pub fn replace_order_by(
   query qry: Select,
   by ordb: String,
   direction dir: Direction,
@@ -698,7 +695,7 @@ pub fn replace_order(
 
 /// Removes the `OrderBy` from the `Select` query.
 ///
-pub fn no_order(query qry: Select) -> Select {
+pub fn no_order_by(query qry: Select) -> Select {
   Select(..qry, order_by: NoOrderBy)
 }
 

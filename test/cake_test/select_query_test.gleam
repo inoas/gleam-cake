@@ -18,7 +18,7 @@ pub fn select_query_query() {
   |> s.where(w.col("owners.name") |> w.like("%i%"))
   |> s.group_by("cats.name")
   |> s.having(w.col("cats.name") |> w.like("%i%"))
-  |> s.order_asc("cats.name")
+  |> s.order_by_asc("cats.name")
   |> s.limit(10)
   |> s.offset(1)
   |> s.epilog("/* an epilog such as FOR UPDATE could be here */")

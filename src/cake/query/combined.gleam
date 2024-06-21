@@ -153,7 +153,7 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
   }
 }
 
-pub fn order_asc(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_asc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
@@ -161,7 +161,10 @@ pub fn order_asc(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn order_asc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_asc_nulls_first(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
@@ -169,7 +172,7 @@ pub fn order_asc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn order_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
@@ -177,7 +180,7 @@ pub fn order_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn replace_order_asc(query qry: Combined, by ordb: String) -> Combined {
+pub fn replace_order_by_asc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
@@ -185,7 +188,7 @@ pub fn replace_order_asc(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn replace_order_asc_nulls_first(
+pub fn replace_order_by_asc_nulls_first(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
@@ -196,7 +199,7 @@ pub fn replace_order_asc_nulls_first(
   )
 }
 
-pub fn replace_order_asc_nulls_last(
+pub fn replace_order_by_asc_nulls_last(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
@@ -207,7 +210,7 @@ pub fn replace_order_asc_nulls_last(
   )
 }
 
-pub fn order_desc(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_desc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
@@ -215,7 +218,10 @@ pub fn order_desc(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn order_desc_nulls_first(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_desc_nulls_first(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
@@ -223,7 +229,10 @@ pub fn order_desc_nulls_first(query qry: Combined, by ordb: String) -> Combined 
   )
 }
 
-pub fn order_desc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_desc_nulls_last(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
@@ -231,7 +240,7 @@ pub fn order_desc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn replace_order_desc(query qry: Combined, by ordb: String) -> Combined {
+pub fn replace_order_by_desc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> query.combined_order_by(
     by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
@@ -239,7 +248,7 @@ pub fn replace_order_desc(query qry: Combined, by ordb: String) -> Combined {
   )
 }
 
-pub fn replace_order_desc_nulls_first(
+pub fn replace_order_by_desc_nulls_first(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
@@ -250,7 +259,7 @@ pub fn replace_order_desc_nulls_first(
   )
 }
 
-pub fn replace_order_desc_nulls_last(
+pub fn replace_order_by_desc_nulls_last(
   query qry: Combined,
   by ordb: String,
 ) -> Combined {
@@ -261,7 +270,7 @@ pub fn replace_order_desc_nulls_last(
   )
 }
 
-pub fn order(
+pub fn order_by(
   query qry: Combined,
   by ordb: String,
   direction dir: Direction,
@@ -271,7 +280,7 @@ pub fn order(
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
 
-pub fn replace_order(
+pub fn replace_order_by(
   query qry: Combined,
   by ordb: String,
   direction dir: Direction,
@@ -281,11 +290,11 @@ pub fn replace_order(
   |> query.combined_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
 
-pub fn get_order(query qry: Combined) -> OrderBy {
+pub fn get_order_by(query qry: Combined) -> OrderBy {
   qry.order_by
 }
 
-pub fn no_order(query qry: Combined) -> Combined {
+pub fn no_order_by(query qry: Combined) -> Combined {
   Combined(..qry, order_by: query.NoOrderBy)
 }
 

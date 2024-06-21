@@ -12,7 +12,7 @@ import test_support/adapter/sqlite
 fn limit_offset_query() {
   s.new()
   |> s.from_table("cats")
-  |> s.order_asc("name")
+  |> s.order_by_asc("name")
   |> s.limit(4)
   |> s.offset(0)
 }
@@ -52,7 +52,7 @@ fn combined_query() {
   let limit_offset_query = limit_offset_query()
   limit_offset_query
   |> c.union_all(limit_offset_query)
-  |> c.order_asc("name")
+  |> c.order_by_asc("name")
   |> c.limit(1)
   |> c.offset(2)
   |> c.to_query
