@@ -1,9 +1,9 @@
 //// A `Param` is a value that can be used in a query.
 ////
-//// Params (e.g. parameters) are wrapped (boxed) literal values, that can be
-//// used in SQL queries.
-////
 
+/// Params (e.g. parameters) are wrapped (boxed) literal values, that can be
+/// used in SQL queries.
+///
 pub type Param {
   BoolParam(Bool)
   FloatParam(Float)
