@@ -173,8 +173,8 @@ pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
 /// Specify the columns to insert into.
 ///
 /// NOTICE: You have to specify the columns and keep track if their names are
-///         correct, as well as their count which must be equal to the count of
-///         `InsertRows` the caster function returns or is given as source
+/// correct, as well as their count which must be equal to the count of
+/// `InsertRows` the caster function returns or is given as source
 ///          values.
 ///
 pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {

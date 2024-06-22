@@ -33,6 +33,8 @@
 
 // TODO: Add to query validator in v2 or v3
 
+// TODO v1 doc all public types, consts and functions in internal modules
+
 import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
@@ -1263,11 +1265,10 @@ pub fn comment_apply(
 /// Fragments are used to insert raw SQL into the query.
 ///
 /// NOTICE: Injecting input data into fragments is only safe when using
-///         `FragmentPrepared` and only using literal strings in the `fragment`
-///         field.
+/// `FragmentPrepared` and only using literal strings in the `fragment` field.
 ///
-///         As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS for
-///         any `fragment`-field string.
+/// As a strategy it is recommended to ALWAYS USE MODULE CONSTANTS for
+/// any `fragment`-field string.
 ///
 pub type Fragment {
   FragmentLiteral(fragment: String)

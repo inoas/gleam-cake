@@ -246,8 +246,8 @@ pub fn or_where(query qry: Update(a), where whr: Where) -> Update(a) {
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
 /// NOTICE: This operator does not exist in Postgres or Sqlite,
-///         and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-///         This operator exists in MariaDB/MySQL.
+/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
+/// This operator exists in MariaDB/MySQL.
 ///
 pub fn xor_where(query qry: Update(a), where whr: Where) -> Update(a) {
   case qry.where {
@@ -279,7 +279,7 @@ pub fn get_where(query qry: Update(a)) -> Where {
 // ▒▒▒ RETURNING ▒▒▒
 
 /// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
-///         they do support it in `INSERT` (and `REPLACE`) queries, however.
+/// they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn returning(
   query qry: Update(a),
@@ -292,7 +292,7 @@ pub fn returning(
 }
 
 /// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
-///         they do support it in `INSERT` (and `REPLACE`) queries, however.
+/// they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn no_returning(query qry: Update(a)) -> Update(a) {
   Update(..qry, returning: NoReturning)

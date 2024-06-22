@@ -293,8 +293,8 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
 /// NOTICE: This operator does not exist in Postgres or Sqlite,
-///         and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-///         This operator exists in MariaDB/MySQL.
+/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
+/// This operator exists in MariaDB/MySQL.
 ///
 pub fn xor_where(query qry: Select, where whr: Where) -> Select {
   case qry.where {
@@ -334,9 +334,9 @@ pub fn get_where(query qry: Select) -> Where {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `AndWhere`.
 ///
-/// NOTICE: `HAVING` allows to specify constraints much like `WHERE`,
-///         but filters the results after `GROUP BY` is applied instead of
-///         before. Because `HAVING` uses the same semantics as `WHERE`, it
+/// NOTICE: `HAVING` allows to specify constraints much like `WHERE`, but
+/// filters the results after `GROUP BY` is applied instead of before. Because
+/// `HAVING` uses the same semantics as `WHERE`, it
 ///         takes a `Where`.
 ///
 pub fn having(query qry: Select, having whr: Where) -> Select {
@@ -380,8 +380,8 @@ pub fn or_having(query qry: Select, having whr: Where) -> Select {
 /// See function `having` on details why this takes a `Where`.
 ///
 /// NOTICE: This operator does not exist in Postgres or Sqlite,
-///         and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-///         This operator exists in MariaDB/MySQL.
+/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
+/// This operator exists in MariaDB/MySQL.
 ///
 pub fn xor_having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
