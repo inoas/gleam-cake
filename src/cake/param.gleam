@@ -1,6 +1,8 @@
 //// A `Param` is a value that can be used in a query.
 ////
 
+// TODO v2 how to create DECIMAL, DATE, TIME and DATETIME
+
 /// Params (e.g. parameters) are wrapped (boxed) literal values, that can be
 /// used in SQL queries.
 ///
@@ -38,18 +40,26 @@ pub type Param {
   // CustomParam(caster_fn: Function(custom), custom)
 }
 
+/// Create a new `Param` with a `Bool` value.
+///
 pub fn bool(value: Bool) -> Param {
   BoolParam(value)
 }
 
+/// Create a new `Param` with a `Float` value.
+///
 pub fn float(value: Float) -> Param {
   FloatParam(value)
 }
 
+/// Create a new `Param` with an `Int` value.
+///
 pub fn int(value: Int) -> Param {
   IntParam(value)
 }
 
+/// Create a new `Param` with a `String` value.
+///
 pub fn string(value: String) -> Param {
   StringParam(value)
 }
