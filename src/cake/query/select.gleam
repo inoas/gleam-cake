@@ -139,7 +139,7 @@ pub fn get_from(query qry: Select) -> From {
 
 /// Add a `SelectValue` to the `Select` query.
 ///
-/// If the query already any `SelectValue`s, the new one is appended.
+/// If the query already has any `SelectValue`s, the new one is appended.
 ///
 pub fn select(query qry: Select, select_value sv: SelectValue) -> Select {
   case qry.select {
@@ -151,7 +151,7 @@ pub fn select(query qry: Select, select_value sv: SelectValue) -> Select {
 
 /// Add a `SelectValue`s to the `Select` query.
 ///
-/// If the query already any `SelectValue`s, they are replaced.
+/// If the query already has any `SelectValue`s, they are replaced.
 ///
 pub fn replace_select(query qry: Select, select_value sv: SelectValue) -> Select {
   case qry.select {
@@ -163,7 +163,7 @@ pub fn replace_select(query qry: Select, select_value sv: SelectValue) -> Select
 
 /// Adds `SelectValue`s to the `Select` query.
 ///
-/// If the query already any `SelectValue`s, the new ones are appended.
+/// If the query already has any `SelectValue`s, the new ones are appended.
 ///
 pub fn selects(
   query qry: Select,
@@ -179,7 +179,7 @@ pub fn selects(
 
 /// Adds `SelectValue`s to the `Select` query.
 ///
-/// If the query already any `SelectValue`s, they are replaced.
+/// If the query already has any `SelectValue`s, they are replaced.
 ///
 pub fn replace_selects(
   query qry: Select,
