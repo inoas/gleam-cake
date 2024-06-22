@@ -20,6 +20,7 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # blah
 # carpenter
 # cleam
+# comet = ">= 0.2.2 and < 2.0.0" # logging
 # commonmark
 # dot_env
 # dotenv_gleam
@@ -28,6 +29,7 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # fmt
 # formal
 # glam
+# gleam_erlang = ">= 0.25.0 and < 2.0.0"
 # gleam_json
 # gleamy_structures
 # gleamyshell
@@ -60,6 +62,7 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # rank
 # shellout
 # spinner
+# stacky = ">= 1.4.0 and < 2.0.0"
 # storch
 # temporary
 # tinyroute
@@ -67,8 +70,6 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # valid
 # wisp
 # youid
-# comet = ">= 0.2.2 and < 2.0.0" # logging
-# stacky = ">= 1.4.0 and < 2.0.0"
 
 # TODO v2 wrap prepared statement in a catch, return Result
 # TODO v2 run validator after building, return Result
@@ -79,7 +80,6 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # TODO v2   - safe small results in cache
 # TODO v2   - expire cache based on arg, which could also be 0 for no cache
 
-gleam_erlang = ">= 0.25.0 and < 2.0.0"
 gleam_stdlib = ">= 0.38.0 and < 2.0.0"
 
 [dev-dependencies]
