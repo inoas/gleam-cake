@@ -1,4 +1,4 @@
-# Cake Query Builder
+# Cake SQL Query Builder for Gleam
 
 An SQL query builder for Gleam for SQL dialects PostgreSQL, SQLite, MariaDB and MySQL
 
