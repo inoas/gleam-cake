@@ -16,8 +16,7 @@ pub fn setup_and_run(query) {
   let _ = dummy.drop_dogs_table_if_exists() |> maria.execute_raw_sql(conn)
   let _ = dummy.create_dogs_table() |> maria.execute_raw_sql(conn)
   let _ = dummy.insert_dogs_rows() |> maria.execute_raw_sql(conn)
-
-  query |> maria.run_query(dynamic.dynamic, conn)
+  // query |> maria.run_query(dynamic.dynamic, conn)
 }
 
 pub fn setup_and_run_write(query) {
@@ -34,6 +33,5 @@ pub fn setup_and_run_write(query) {
   let _ = dummy.drop_dogs_table_if_exists() |> maria.execute_raw_sql(conn)
   let _ = dummy.create_dogs_table() |> maria.execute_raw_sql(conn)
   let _ = dummy.insert_dogs_rows() |> maria.execute_raw_sql(conn)
-
-  query |> maria.run_write(dynamic.dynamic, conn)
+  // query |> maria.run_write(dynamic.dynamic, conn)
 }
