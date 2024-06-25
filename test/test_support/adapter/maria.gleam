@@ -41,7 +41,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
       port: 3306,
       connection_mode: gmysql.Synchronous,
       connection_timeout: gmysql.Infinity,
-      keep_alive: 120_000,
+      keep_alive: 999_999_999,
     )
     |> gmysql.connect
 

@@ -41,6 +41,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
       ..pgo.default_config(),
       host: "localhost",
       user: "postgres",
+      port: 5432,
       password: Some("postgres"),
       database: "gleam_cake_test",
     )
