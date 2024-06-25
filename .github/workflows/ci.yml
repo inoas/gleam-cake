@@ -64,7 +64,7 @@ jobs:
         run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
 
       - run: gleam build
-      - run: ./test/gleam-cake-postgres-db-reset.sh
+      - run: ./test/create-database-postgres-gleam_cake_test.sh
         env:
           PGHOST: localhost
           PGPORT: 5432
