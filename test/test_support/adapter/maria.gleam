@@ -10,7 +10,7 @@ import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/list
-import gleam/option.{Some}
+import gleam/option.{None, Some}
 import gmysql.{type Connection}
 import test_support/iox
 
@@ -33,12 +33,11 @@ pub fn write_query_to_prepared_statement(
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let assert Ok(connection) =
-    // TODO v2 move this into docker-compose, use docker-compose in git actions/ci
     gmysql.Config(
-      host: "127.0.0.1",
+      host: "localhost",
       user: Some("root"),
-      password: Some("secret"),
-      database: "cake_gleam",
+      password: None,
+      database: "cake_gleam_test",
       port: 3306,
       connection_mode: gmysql.Synchronous,
       connection_timeout: gmysql.Infinity,
