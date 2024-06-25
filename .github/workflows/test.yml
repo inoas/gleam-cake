@@ -1,5 +1,10 @@
 name: Test
 
+env:
+  gleam_version: 1.2.1
+  test_erlang: true
+  test_node: false
+
 on:
   push:
     branches:
@@ -7,21 +12,6 @@ on:
   pull_request:
     branches:
       - "*"
-  workflow_call:
-    inputs:
-      gleam_version:
-        type: string
-        required: true
-        default: "1"
-      test_erlang:
-        type: boolean
-        default: true
-      erlang_version:
-        type: string
-        default: "26"
-      test_node:
-        type: boolean
-        default: true
 
 jobs:
   format:
