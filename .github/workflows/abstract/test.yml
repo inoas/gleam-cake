@@ -1,0 +1,16 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+
+jobs:
+  test:
+    uses: ./workflows/abstract/test
+    with:
+      gleam_version: 1.2.1
+      test_erlang: true
+      test_node: false
