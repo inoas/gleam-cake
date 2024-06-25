@@ -1,23 +1,57 @@
-name: test
+name: CI
 
 on:
   push:
     branches:
-      - main
+      - "main"
   pull_request:
+    branches:
+      - "*"
+  workflow_dispatch:
+
+permissions:
+  contents: read # to fetch code (actions/checkout)
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  testsuite:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        db-type: [sqlite, pgsql, mariadb, mysql]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Run docker-compose
-        uses: hoverkraft-tech/compose-action@v2.0.1
-      - uses: erlef/setup-beam@v1
+      - name: Setup MySQL 8.0
+        if: matrix.db-type == 'mysql'
+        run: |
+          sudo service mysql start
+          mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE gleam_cake;'
+
+      - name: Setup PostgreSQL latest
+        if: matrix.db-type == 'pgsql'
+        run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gleam_cake -p 5432:5432 -d postgres
+
+      - uses: getong/mariadb-action@v1.1
+        if: matrix.db-type == 'mariadb'
         with:
-          otp-version: "27.0"
-          gleam-version: "1.2.1"
-          rebar3-version: "3"
-      - run: gleam deps download
-      - run: gleam test --target erlang
-      - run: gleam format --check src test
+          mysql database: "gleam_cake"
+          mysql root password: "root"
+
+      - uses: actions/checkout@v4
+
+      - name: Get date part for cache key
+        id: key-date
+        run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
+
+      - name: Get Gleam deps
+        run: gleam deps download
+
+      - name: Wait for MySQL
+        if: matrix.db-type == 'mysql' || matrix.db-type == 'mariadb'
+        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
+
+      - name: Test suite
+        run: gleam test --target erlang
+
+      - name: Code format check
+        run: gleam format --check src test
