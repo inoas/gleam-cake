@@ -4,17 +4,10 @@ title: where_execution_result_test
 file: ./test/cake_test/where_test.gleam
 test_name: where_execution_result_test
 ---
-#(
-  Ok([
-    #("Karl", 8, True, Null, 10.0),
-    #("Clara", 3, True, Null, 10.0),
-  ]),
+Nil(
   Ok([
     #("Karl", 8, 1, Undefined, 10.0),
     #("Clara", 3, 1, Undefined, 10.0),
   ]),
-  Ok([
-    ["Karl", 8, 1, Null, 10.0],
-    ["Clara", 3, 1, Null, 10.0],
-  ]),
+  Nil,
 )

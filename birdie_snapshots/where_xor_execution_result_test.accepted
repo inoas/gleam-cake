@@ -4,11 +4,7 @@ title: where_xor_execution_result_test
 file: ./test/cake_test/where_test.gleam
 test_name: where_xor_execution_result_test
 ---
-#(
-  Ok([#("Ginny", 6, False, 3, Null)]),
+Nil(
   Ok([#("Ginny", 6, 0, 3, Undefined)]),
-  Ok([
-    ["Ginny", 6, 0, 3, Null],
-    ["Karl", 8, 1, Null, 10.0],
-  ]),
+  Nil,
 )

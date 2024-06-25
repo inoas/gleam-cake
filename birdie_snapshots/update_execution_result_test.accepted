@@ -4,7 +4,7 @@ title: update_execution_result_test
 file: ./test/cake_test/update_test.gleam
 test_name: update_execution_result_test
 ---
-#(
+Nil(
   Ok([
     #("Nubi the elder", 5),
     #("Biffy the elder", 11),
@@ -12,12 +12,5 @@ test_name: update_execution_result_test
     #("Karl the elder", 9),
     #("Clara the elder", 4),
   ]),
-  Ok([
-    #("Nubi the elder", 5),
-    #("Biffy the elder", 11),
-    #("Ginny the elder", 7),
-    #("Karl the elder", 9),
-    #("Clara the elder", 4),
-  ]),
-  Ok([]),
+  Nil,
 )

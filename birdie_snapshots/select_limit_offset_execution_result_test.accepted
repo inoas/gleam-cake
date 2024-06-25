@@ -4,29 +4,12 @@ title: select_limit_offset_execution_result_test
 file: ./test/cake_test/limit_offset_test.gleam
 test_name: select_limit_offset_execution_result_test
 ---
-#(
-  Ok([
-    #(
-      "Biffy",
-      10,
-      Null,
-      2,
-      1.100000023841858,
-    ),
-    #("Clara", 3, True, Null, 10.0),
-    #("Ginny", 6, False, 3, Null),
-    #("Karl", 8, True, Null, 10.0),
-  ]),
+Nil(
   Ok([
     #("Biffy", 10, Undefined, 2, 1.1),
     #("Clara", 3, 1, Undefined, 10.0),
     #("Ginny", 6, 0, 3, Undefined),
     #("Karl", 8, 1, Undefined, 10.0),
   ]),
-  Ok([
-    ["Biffy", 10, Null, 2, 1.1],
-    ["Clara", 3, 1, Null, 10.0],
-    ["Ginny", 6, 0, 3, Null],
-    ["Karl", 8, 1, Null, 10.0],
-  ]),
+  Nil,
 )

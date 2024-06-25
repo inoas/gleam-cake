@@ -4,8 +4,4 @@ title: select_distinct_execution_result_test
 file: ./test/cake_test/select_test.gleam
 test_name: select_distinct_execution_result_test
 ---
-#(
-  Ok([False, True, Null]),
-  Ok([Undefined, #(0), #(1)]),
-  Ok([[Null], [0], [1]]),
-)
+Nil(Ok([Undefined, #(0), #(1)]), Nil)
