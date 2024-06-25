@@ -15,24 +15,24 @@ permissions:
 jobs:
   testsuite:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        db-type: [sqlite, pgsql, mariadb, mysql]
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     db-type: [sqlite, pgsql, mariadb, mysql]
 
     steps:
-      - name: Setup MySQL 8.0
-        if: matrix.db-type == 'mysql'
-        run: |
-          sudo service mysql start
-          mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE gleam_cake;'
+      # - name: Setup MySQL 8.0
+      #   if: matrix.db-type == 'mysql'
+      #   run: |
+      #     sudo service mysql start
+      #     mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE gleam_cake;'
 
       - name: Setup PostgreSQL latest
-        if: matrix.db-type == 'pgsql'
+        # if: matrix.db-type == 'pgsql'
         run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gleam_cake -p 5432:5432 -d postgres
 
       - uses: getong/mariadb-action@v1.1
-        if: matrix.db-type == 'mariadb'
+        # if: matrix.db-type == 'mariadb'
         with:
           mysql database: "gleam_cake"
           mysql root password: "root"
