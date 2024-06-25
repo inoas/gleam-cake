@@ -37,7 +37,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
       host: "localhost",
       user: Some("root"),
       password: None,
-      database: "cake_gleam_test",
+      database: "gleam_cake_test",
       port: 3306,
       connection_mode: gmysql.Synchronous,
       connection_timeout: gmysql.Infinity,
