@@ -1,17 +1,78 @@
 name: Test
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_call:
+    inputs:
+      gleam_version:
+        type: string
+        required: true
+        default: "1"
+      test_erlang:
+        type: boolean
+        default: true
+      erlang_version:
+        type: string
+        default: "26"
+      test_node:
+        type: boolean
+        default: true
 
 jobs:
-  test:
-    uses: ./workflows/abstract/test
-    with:
-      gleam_version: "1.2.1"
-      otp_version: "27.0"
-      test_erlang: true
-      test_node: false
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+        with:
+          gleam_version: ${{inputs.gleam_version}}
+          erlang_version: ${{inputs.erlang_version}}
+      - uses: TanklesXL/gleam_actions/.github/actions/format@main
+
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+        with:
+          gleam_version: ${{ inputs.gleam_version }}
+          erlang_version: ${{ inputs.erlang_version }}
+      - uses: TanklesXL/gleam_actions/.github/actions/deps_cache@main
+        with:
+          gleam_version: ${{ inputs.gleam_version }}
+
+  test_erlang:
+    if: inputs.test_erlang
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    needs: deps
+    strategy:
+      fail-fast: true
+      matrix:
+        erlang: ["26", "25", "27"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+        with:
+          gleam_version: ${{ inputs.gleam_version }}
+          erlang_version: ${{ matrix.erlang }}
+      - run: ./test/create-database-postgres-gleam_cake_test.sh
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGPASSWORD: postgres
+          PGUSER: postgres
+      - uses: TanklesXL/gleam_actions/.github/actions/test@main
+        with:
+          target: "erlang"
