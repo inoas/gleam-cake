@@ -3,7 +3,7 @@ import test_support/adapter/maria
 import test_support/dummy
 
 pub fn setup_and_run(query) {
-  use conn <- maria.with_connection
+  // use conn <- maria.with_connection
 
   let _ = dummy.drop_owners_table_if_exists() |> maria.execute_raw_sql(conn)
   let _ = dummy.create_owners_table() |> maria.execute_raw_sql(conn)

@@ -20,7 +20,7 @@ pub fn setup_and_run(query) {
 }
 
 pub fn setup_and_run_write(query) {
-  use conn <- postgres.with_connection
+  // use conn <- postgres.with_connection
 
   let _ = dummy.drop_owners_table_if_exists() |> postgres.execute_raw_sql(conn)
   let _ = dummy.create_owners_table() |> postgres.execute_raw_sql(conn)
