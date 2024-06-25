@@ -23,6 +23,12 @@ on:
         type: boolean
         default: true
 
+env:
+  gleam_version: "1.2.1"
+  test_erlang: true
+  erlang_version: "27"
+  test_node: false
+
 jobs:
   format:
     runs-on: ubuntu-latest
