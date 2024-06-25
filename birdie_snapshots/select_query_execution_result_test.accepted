@@ -4,4 +4,8 @@ title: select_query_execution_result_test
 file: ./test/cake_test/select_query_test.gleam
 test_name: select_query_execution_result_test
 ---
-Nil(Ok([#("Ginny"), #("Nubi")]), Nil)
+#(
+  Ok([#("Ginny"), #("Nubi")]),
+  Ok([#("Ginny"), #("Nubi")]),
+  Nil,
+)

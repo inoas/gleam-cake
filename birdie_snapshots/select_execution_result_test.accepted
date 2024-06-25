@@ -4,7 +4,14 @@ title: select_execution_result_test
 file: ./test/cake_test/select_test.gleam
 test_name: select_execution_result_test
 ---
-Nil(
+#(
+  Ok([
+    #("Nubi", "hello", 4, 4),
+    #("Biffy", "hello", 10, 10),
+    #("Ginny", "hello", 6, 6),
+    #("Karl", "hello", 8, 8),
+    #("Clara", "hello", 3, 3),
+  ]),
   Ok([
     #("Nubi", "hello", 4, 4),
     #("Biffy", "hello", 10, 10),

@@ -4,4 +4,8 @@ title: insert_values_execution_result_test
 file: ./test/cake_test/insert_values_test.gleam
 test_name: insert_values_execution_result_test
 ---
-Nil(Ok([#("Whiskers")]), Nil)
+#(
+  Ok([#("Whiskers")]),
+  Ok([#("Whiskers")]),
+  Nil,
+)
