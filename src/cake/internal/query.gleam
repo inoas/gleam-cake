@@ -937,26 +937,41 @@ fn group_by_apply(
 // │  Joins                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Tables, views and sub-queries can be joined together.
+///
+/// ## Supported join kinds
+///
+/// - `INNER JOIN`
+/// - `LEFT JOIN`, inclusive, same as `LEFT OUTER JOIN`,
+/// - `RIGHT JOIN`, inclusive, same as `RIGHT OUTER JOIN`,
+/// - `FULL JOIN`, inclusive, same as `FULL OUTER JOIN`,
+/// - `CROSS JOIN`
+///
+/// You can also build following joins using the provided query builder
+/// functions:
+///
+/// - `SELF JOIN`: Use the same table, view, or sub-query with a different
+///    alias.
+/// - `EXCLUSIVE LEFT JOIN`: `WHERE b.key IS NULL`
+/// - `EXCLUSIVE RIGHT JOIN`: `WHERE a.key IS NULL`
+/// - `EXCLUSIVE FULL JOIN`: `WHERE a.key IS NULL OR b.key IS NULL`
+///
 pub type Joins {
   NoJoins
   Joins(List(Join))
 }
 
-pub type JoinKind {
+pub type JoinTarget {
   JoinTable(table: String)
   JoinSubQuery(sub_query: Query)
 }
 
-/// `LEFT JOIN` is also called `LEFT OUTER JOIN`
-/// `RIGHT JOIN` is also called `RIGHT OUTER JOIN`
-/// `FULL JOIN` is also called `FULL OUTER JOIN`
-///
 pub type Join {
-  InnerJoin(with: JoinKind, alias: String, on: Where)
-  LeftJoin(with: JoinKind, alias: String, on: Where)
-  RightJoin(with: JoinKind, alias: String, on: Where)
-  FullJoin(with: JoinKind, alias: String, on: Where)
-  CrossJoin(with: JoinKind, alias: String)
+  InnerJoin(with: JoinTarget, alias: String, on: Where)
+  LeftJoin(with: JoinTarget, alias: String, on: Where)
+  RightJoin(with: JoinTarget, alias: String, on: Where)
+  FullJoin(with: JoinTarget, alias: String, on: Where)
+  CrossJoin(with: JoinTarget, alias: String)
 }
 
 pub fn join_clause_apply(

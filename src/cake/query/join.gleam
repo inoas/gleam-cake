@@ -21,54 +21,68 @@
 ////
 
 import cake/internal/query.{
-  type Join, type JoinKind, type Query, type Where, CrossJoin, FullJoin,
+  type Join, type JoinTarget, type Query, type Where, CrossJoin, FullJoin,
   InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,
 }
 
-pub fn table(table_name tbl_nm: String) -> JoinKind {
+/// Create a `JOIN` target from a table name.
+///
+pub fn table(table_name tbl_nm: String) -> JoinTarget {
   tbl_nm |> JoinTable
 }
 
-pub fn sub_query(sub_query sq: Query) -> JoinKind {
+/// Create a `JOIN` target from a sub-query.
+///
+pub fn sub_query(sub_query sq: Query) -> JoinTarget {
   sq |> JoinSubQuery
 }
 
-pub fn inner(with wth: JoinKind, on on: Where, alias als: String) -> Join {
+/// Create an `INNER JOIN`.
+///
+pub fn inner(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
   wth |> InnerJoin(alias: als, on: on)
 }
 
+/// Creates a `LEFT JOIN`.
+///
 /// Also called `LEFT OUTER JOIN`.
 ///
 /// _Inclusive_ by default.
 ///
 /// Set `on` to `WHERE a.key IS NULL` to make it _exclusive_.
 ///
-pub fn left(with wth: JoinKind, on on: Where, alias als: String) -> Join {
+pub fn left(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
   wth |> LeftJoin(alias: als, on: on)
 }
 
+/// Creates a `RIGHT JOIN`.
+///
 /// Also called `RIGHT OUTER JOIN`.
 ///
 /// _Inclusive_ by default.
 ///
 /// Set `on` to `WHERE b.key IS NULL` to make it _exclusive_.
 ///
-pub fn right(with wth: JoinKind, on on: Where, alias als: String) -> Join {
+pub fn right(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
   wth |> RightJoin(alias: als, on: on)
 }
 
+/// Creates a `FULL JOIN`.
+///
 /// Also called `FULL OUTER JOIN`.
 ///
 /// _Inclusive_ by default.
 ///
 /// Set `on` to `WHERE a.key IS NULL OR b.key IS NULL` to make it _exclusive_.
 ///
-pub fn full(with wth: JoinKind, on on: Where, alias als: String) -> Join {
+pub fn full(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
   wth |> FullJoin(alias: als, on: on)
 }
 
+/// Creates a `CROSS JOIN`.
+///
 /// Also called _cartesian product_.
 ///
-pub fn cross(with wth: JoinKind, alias als: String) -> Join {
+pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
   wth |> CrossJoin(alias: als)
 }
