@@ -1,4 +1,4 @@
-name: Continuous integration
+name: Test
 
 on:
   push:
@@ -40,6 +40,8 @@ jobs:
       #     mysql root password: "root"
 
       - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
 
       # - name: Get date part for cache key
       #   id: key-date
