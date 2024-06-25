@@ -52,7 +52,7 @@ jobs:
       - name: Get Gleam deps
         run: gleam deps download
 
-      - name: Wait for MySQL
+      - name: Wait for MariaDB and MySQL
         # if: matrix.db-type == 'mysql' || matrix.db-type == 'mariadb'
         run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
 
