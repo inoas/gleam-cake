@@ -1,4 +1,4 @@
-name: CI
+name: Continuous integration
 
 on:
   push:
@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   test-suite:
-    # runs-on: ubuntu-latest
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    # runs-on: ubuntu-22.04
     services:
       postgres:
         image: postgres
@@ -34,21 +34,16 @@ jobs:
       #   run: |
       #     sudo service mysql start
       #     mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE gleam_cake;'
-      # - name: Setup PostgreSQL latest
-      #   # if: matrix.db-type == 'pgsql'
-      #   run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gleam_cake -p 5432:5432 -d postgres
-
-      - uses: getong/mariadb-action@v1.1
-        # if: matrix.db-type == 'mariadb'
-        with:
-          mysql database: "gleam_cake"
-          mysql root password: "root"
+      # - uses: getong/mariadb-action@v1.1
+      #   with:
+      #     mysql database: "gleam_cake"
+      #     mysql root password: "root"
 
       - uses: actions/checkout@v4
 
-      - name: Get date part for cache key
-        id: key-date
-        run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
+      # - name: Get date part for cache key
+      #   id: key-date
+      #   run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
 
       - uses: erlef/setup-beam@v1
         with:
@@ -59,9 +54,9 @@ jobs:
       - name: Get Gleam deps
         run: gleam deps download
 
-      - name: Wait for MariaDB and MySQL
-        # if: matrix.db-type == 'mysql' || matrix.db-type == 'mariadb'
-        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
+      # - name: Wait for MariaDB and MySQL
+      #   # if: matrix.db-type == 'mysql' || matrix.db-type == 'mariadb'
+      #   run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
 
       - run: gleam build
       - run: ./test/create-database-postgres-gleam_cake_test.sh
