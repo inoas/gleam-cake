@@ -7,15 +7,48 @@ on:
   pull_request:
     branches:
       - "*"
-  workflow_dispatch:
-
-permissions:
-  contents: read # to fetch code (actions/checkout)
+  workflow_call:
+    inputs:
+      gleam_version:
+        type: string
+        required: true
+        default: "1"
+      test_erlang:
+        type: boolean
+        default: true
+      erlang_version:
+        type: string
+        default: "26"
+      test_node:
+        type: boolean
+        default: true
 
 jobs:
-  test-suite:
+  format:
     runs-on: ubuntu-latest
-    # runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+        with:
+          gleam_version: ${{inputs.gleam_version}}
+          erlang_version: ${{inputs.erlang_version}}
+      - uses: TanklesXL/gleam_actions/.github/actions/format@main
+
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+        with:
+          gleam_version: ${{ inputs.gleam_version }}
+          erlang_version: ${{ inputs.erlang_version }}
+      - uses: TanklesXL/gleam_actions/.github/actions/deps_cache@main
+        with:
+          gleam_version: ${{ inputs.gleam_version }}
+
+  test_erlang:
+    if: inputs.test_erlang
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres
@@ -28,48 +61,24 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+    needs: deps
+    strategy:
+      fail-fast: true
+      matrix:
+        erlang: ["26", "25", "27"]
     steps:
-      # - name: Setup MySQL 8.0
-      #   if: matrix.db-type == 'mysql'
-      #   run: |
-      #     sudo service mysql start
-      #     mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE gleam_cake;'
-      # - uses: getong/mariadb-action@v1.1
-      #   with:
-      #     mysql database: "gleam_cake"
-      #     mysql root password: "root"
-
       - uses: actions/checkout@v4
       - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
       - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
-
-      # - name: Get date part for cache key
-      #   id: key-date
-      #   run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
-
-      - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27.0"
-          gleam-version: "1.2.1"
-          rebar3-version: "3"
-
-      - name: Get Gleam deps
-        run: gleam deps download
-
-      # - name: Wait for MariaDB and MySQL
-      #   # if: matrix.db-type == 'mysql' || matrix.db-type == 'mariadb'
-      #   run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
-
-      - run: gleam build
+          gleam_version: ${{ inputs.gleam_version }}
+          erlang_version: ${{ matrix.erlang }}
       - run: ./test/create-database-postgres-gleam_cake_test.sh
         env:
           PGHOST: localhost
           PGPORT: 5432
           PGPASSWORD: postgres
           PGUSER: postgres
-
-      - name: Test suite
-        run: gleam test --target erlang
-
-      - name: Code format check
-        run: gleam format --check src test
+      - uses: TanklesXL/gleam_actions/.github/actions/test@main
+        with:
+          target: "erlang"
