@@ -19,5 +19,5 @@ test_name: update_execution_result_test
     #("Karl the elder", 9),
     #("Clara the elder", 4),
   ]),
-  Nil,
+  Ok([]),
 )

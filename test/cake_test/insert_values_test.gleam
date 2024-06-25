@@ -12,7 +12,7 @@ import test_support/adapter/sqlite
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-fn insert_values_query() {
+fn insert_values() {
   let cat =
     [
       i.param(column: "name", param: "Whiskers" |> i.string),
@@ -27,6 +27,17 @@ fn insert_values_query() {
     records: [cat],
   )
   |> i.returning(["name"])
+}
+
+fn insert_values_query() {
+  insert_values()
+  |> i.to_query
+}
+
+fn insert_values_maria_query() {
+  // MariaDB/MySQL do not support `RETURNING` in `INSERT` queries:
+  insert_values()
+  |> i.no_returning
   |> i.to_query
 }
 
@@ -35,7 +46,11 @@ fn insert_values_query() {
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn insert_values_test() {
-  insert_values_query()
+  let pgo = insert_values_query()
+  let lit = pgo
+  let mdb = insert_values_maria_query()
+
+  #(pgo, lit, mdb)
   |> to_string
   |> birdie.snap("insert_values_test")
 }
@@ -43,7 +58,8 @@ pub fn insert_values_test() {
 pub fn insert_values_prepared_statement_test() {
   let pgo = insert_values_query() |> postgres.write_query_to_prepared_statement
   let lit = insert_values_query() |> sqlite.write_query_to_prepared_statement
-  let mdb = insert_values_query() |> maria.write_query_to_prepared_statement
+  let mdb =
+    insert_values_maria_query() |> maria.write_query_to_prepared_statement
 
   #(pgo, lit, mdb)
   |> to_string
@@ -53,7 +69,7 @@ pub fn insert_values_prepared_statement_test() {
 pub fn insert_values_execution_result_test() {
   let pgo = insert_values_query() |> postgres_test_helper.setup_and_run_write
   let lit = insert_values_query() |> sqlite_test_helper.setup_and_run_write
-  let mdb = insert_values_query() |> maria_test_helper.setup_and_run_write
+  let mdb = insert_values_maria_query() |> maria_test_helper.setup_and_run_write
 
   #(pgo, lit, mdb)
   |> to_string

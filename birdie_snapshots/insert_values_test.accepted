@@ -4,29 +4,83 @@ title: insert_values_test
 file: ./test/cake_test/insert_values_test.gleam
 test_name: insert_values_test
 ---
-InsertQuery(Insert(
-  InsertIntoTable("cats"),
-  InsertColumns([
-    "name",
-    "age",
-    "is_wild",
-  ]),
-  NoInsertModifier,
-  InsertSourceRows([
-    InsertRow([
-      InsertParam(
-        "name",
-        StringParam("Whiskers"),
-      ),
-      InsertParam("age", IntParam(5)),
-      InsertParam(
-        "is_wild",
-        BoolParam(False),
-      ),
+#(
+  InsertQuery(Insert(
+    InsertIntoTable("cats"),
+    InsertColumns([
+      "name",
+      "age",
+      "is_wild",
     ]),
-  ]),
-  InsertConflictError,
-  Returning(["name"]),
-  NoEpilog,
-  NoComment,
-))
+    NoInsertModifier,
+    InsertSourceRows([
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Whiskers"),
+        ),
+        InsertParam("age", IntParam(5)),
+        InsertParam(
+          "is_wild",
+          BoolParam(False),
+        ),
+      ]),
+    ]),
+    InsertConflictError,
+    Returning(["name"]),
+    NoEpilog,
+    NoComment,
+  )),
+  InsertQuery(Insert(
+    InsertIntoTable("cats"),
+    InsertColumns([
+      "name",
+      "age",
+      "is_wild",
+    ]),
+    NoInsertModifier,
+    InsertSourceRows([
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Whiskers"),
+        ),
+        InsertParam("age", IntParam(5)),
+        InsertParam(
+          "is_wild",
+          BoolParam(False),
+        ),
+      ]),
+    ]),
+    InsertConflictError,
+    Returning(["name"]),
+    NoEpilog,
+    NoComment,
+  )),
+  InsertQuery(Insert(
+    InsertIntoTable("cats"),
+    InsertColumns([
+      "name",
+      "age",
+      "is_wild",
+    ]),
+    NoInsertModifier,
+    InsertSourceRows([
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Whiskers"),
+        ),
+        InsertParam("age", IntParam(5)),
+        InsertParam(
+          "is_wild",
+          BoolParam(False),
+        ),
+      ]),
+    ]),
+    InsertConflictError,
+    NoReturning,
+    NoEpilog,
+    NoComment,
+  )),
+)

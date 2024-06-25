@@ -23,5 +23,10 @@ test_name: select_limit_offset_execution_result_test
     #("Ginny", 6, 0, 3, Undefined),
     #("Karl", 8, 1, Undefined, 10.0),
   ]),
-  Nil,
+  Ok([
+    ["Biffy", 10, Null, 2, 1.1],
+    ["Clara", 3, 1, Null, 10.0],
+    ["Ginny", 6, 0, 3, Null],
+    ["Karl", 8, 1, Null, 10.0],
+  ]),
 )

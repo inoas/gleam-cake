@@ -7,5 +7,5 @@ test_name: fragment_execution_result_test
 #(
   Ok([#("Clara", 3, True, Null, 10.0)]),
   Ok([#("Clara", 3, 1, Undefined, 10.0)]),
-  Nil,
+  Ok([["Clara", 3, 1, Null, 10.0]]),
 )

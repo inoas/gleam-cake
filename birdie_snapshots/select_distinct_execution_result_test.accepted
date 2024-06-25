@@ -7,5 +7,5 @@ test_name: select_distinct_execution_result_test
 #(
   Ok([False, True, Null]),
   Ok([Undefined, #(0), #(1)]),
-  Nil,
+  Ok([[Null], [0], [1]]),
 )

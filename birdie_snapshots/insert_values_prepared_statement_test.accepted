@@ -29,7 +29,7 @@ test_name: insert_values_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO cats (name, age, is_wild) VALUES (?, ?, ?) RETURNING name",
+    "INSERT INTO cats (name, age, is_wild) VALUES (?, ?, ?)",
     [
       StringParam("Whiskers"),
       IntParam(5),
