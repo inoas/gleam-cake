@@ -12,6 +12,5 @@ jobs:
     uses: ./.github/workflows/abstract_test.yml
     with:
       gleam_version: "1.2.1"
-      otp_version: "27.0"
       test_erlang: true
       test_node: false
