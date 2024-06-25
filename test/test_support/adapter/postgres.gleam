@@ -11,6 +11,7 @@ import cake/param.{
 }
 import gleam/dynamic
 import gleam/list
+import gleam/option.{Some}
 import gleam/pgo.{type Connection, type Value}
 import test_support/iox
 
@@ -40,6 +41,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
     pgo.Config(
       ..pgo.default_config(),
       host: "localhost",
+      user: "postgres",
+      password: Some("postgres"),
       database: "gleam_cake_test",
     )
     |> pgo.connect
