@@ -11,6 +11,7 @@ jobs:
   test:
     uses: ./workflows/abstract/test
     with:
-      gleam_version: 1.2.1
+      gleam_version: "1.2.1"
+      otp_version: "27.0"
       test_erlang: true
       test_node: false
