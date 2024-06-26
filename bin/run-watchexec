@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Go to the root of the project
+cd "$(dirname "$0")" && cd ..
+
 if [ -z $@ ]
 then
     watchexec --restart --clear --quiet --no-process-group --stop-signal SIGKILL -- gleam run
