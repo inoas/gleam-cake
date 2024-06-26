@@ -20,6 +20,7 @@ gleam = ">= 1.0.0 and < 2.0.0"
 # blah
 # carpenter
 # cleam
+# chrobot browser automation and scaoping
 # comet = ">= 0.2.2 and < 2.0.0" # logging
 # commonmark
 # dot_env
