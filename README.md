@@ -41,4 +41,4 @@ bin/birdie/reject-all
 The best part of working with CakePHP 3+ used to be its Query Builder. This library is inspired by that and thus the name.
 
 Thank you @lorenzo and @markstory for creating and maintaining CakePHP and
-its query builder.
+its query builder over the years.
