@@ -36,7 +36,7 @@ bin/birdie/accept-all
 bin/birdie/reject-all
 ```
 
-## Name
+## Library naming
 
 The best part of working with CakePHP 3+ used to be its Query Builder. This library is inspired by that and thus the name.
 
