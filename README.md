@@ -1,6 +1,8 @@
 # Cake SQL Query Builder for Gleam
 
-An SQL query builder for Gleam for SQL dialects PostgreSQL, SQLite, MariaDB and MySQL
+Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL.
+
+While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with [sqlite3 WASM/JS](https://sqlite.org/wasm) you may run queries composed with this library in browsers.
 
 [![Package
 <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a>
@@ -19,7 +21,7 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 ## Examples
 
-See cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
+See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
 
 ## Development
 
