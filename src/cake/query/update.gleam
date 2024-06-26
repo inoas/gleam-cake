@@ -144,7 +144,7 @@ pub fn get_from(query qry: Update(a)) -> From {
 
 /// Adds a `Join` to the `Update` query.
 ///
-/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
 pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
@@ -156,7 +156,7 @@ pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
 
 /// Replaces any `Join`s of the `Update` query with a signle `Join`.
 ///
-/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
 pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
@@ -165,7 +165,7 @@ pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
 
 /// Adds `Join`s to the `Update` query.
 ///
-/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
 pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
@@ -179,7 +179,7 @@ pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
 
 /// Replaces any `Join`s of the `Update` query with the given `Join`s.
 ///
-/// NOTICE: On Postgres/Sqlite `Joins` are only allowed if the `FROM` clause is
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
 pub fn replace_joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
@@ -245,7 +245,7 @@ pub fn or_where(query qry: Update(a), where whr: Where) -> Update(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or Sqlite,
+/// NOTICE: This operator does not exist in Postgres or SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in MariaDB/MySQL.
 ///

@@ -1,7 +1,7 @@
 //// Supported Database Dialects
 ////
 
-/// Cake supports Postgres, Sqlite, and MariaDB/MySQL,
+/// Cake supports Postgres, SQLite, and MariaDB/MySQL,
 ///
 /// A few features are not supported by all dialects.
 ///

@@ -8,6 +8,11 @@ import cake/param.{type Param}
 import gleam/int
 import gleam/list
 
+/// A prepared statement is a SQL query with placeholders for parameters.
+///
+/// The parameters are then passed to the database adapter to be escaped
+/// and inserted into the query.
+///
 pub opaque type PreparedStatement {
   PreparedStatement(
     prefix: String,
@@ -18,10 +23,15 @@ pub opaque type PreparedStatement {
   )
 }
 
+/// Create a new prepared statement.
+///
 pub fn new(prefix prfx: String, dialect db_adptr: Dialect) -> PreparedStatement {
   prfx |> PreparedStatement(sql: "", params: [], index: 0, dialect: db_adptr)
 }
 
+/// Append a parameter to the prepared statement SQL and
+/// to the parameters list.
+///
 pub fn append_param(
   prepared_statement prp_stm: PreparedStatement,
   param nw_prm: Param,
@@ -30,6 +40,10 @@ pub fn append_param(
   prp_stm |> append_sql_and_param(new_sql, nw_prm)
 }
 
+/// Appends arbitrary SQL to the prepared statement.
+///
+/// NOTICE: IT IS FORBIDDEN TO USE THIS FUNCTION WITH USER INPUT.
+///
 pub fn append_sql(
   prepared_statement prp_stm: PreparedStatement,
   sql nw_sql: String,
@@ -37,22 +51,32 @@ pub fn append_sql(
   PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
 }
 
+/// Get the prefix of the prepared statement.
+///
 pub fn get_prefix(prepared_statement prp_stm: PreparedStatement) -> String {
   prp_stm.prefix
 }
 
+/// Get the SQL of the prepared statement.
+///
 pub fn get_sql(prepared_statement prp_stm: PreparedStatement) -> String {
   prp_stm.sql
 }
 
+/// Get the parameters of the prepared statement.
+///
 pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) {
   prp_stm.params
 }
 
+/// Get the dialect of the prepared statement.
+///
 pub fn get_dialect(prepared_statement prp_stm: PreparedStatement) -> Dialect {
   prp_stm.dialect
 }
 
+/// Append SQL and a parameter to the prepared statement.
+///
 fn append_sql_and_param(
   prepared_statement prp_stm: PreparedStatement,
   sql nw_sql: String,
@@ -61,6 +85,8 @@ fn append_sql_and_param(
   prp_stm |> append_sql_and_params(sql: nw_sql, params: [nw_prm])
 }
 
+/// Append SQL and parameters to the prepared statement.
+///
 fn append_sql_and_params(
   prepared_statement prp_stm: PreparedStatement,
   sql nw_sql: String,
@@ -85,7 +111,7 @@ fn next_placeholder(
   }
 }
 //
-// TODO
+// TODO v3
 // This should ONLY be used for debugging purposes
 // not to ever run actual queries in production.
 // pub fn to_debug(prepared_statement prp_stm: PreparedStatement) -> String {

@@ -292,7 +292,7 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or Sqlite,
+/// NOTICE: This operator does not exist in Postgres or SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in MariaDB/MySQL.
 ///
@@ -379,7 +379,7 @@ pub fn or_having(query qry: Select, having whr: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-/// NOTICE: This operator does not exist in Postgres or Sqlite,
+/// NOTICE: This operator does not exist in Postgres or SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in MariaDB/MySQL.
 ///

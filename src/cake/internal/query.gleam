@@ -33,8 +33,6 @@
 
 // TODO: Add to query validator in v2 or v3
 
-// TODO v1 doc all public types, consts and functions in internal modules
-
 import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
@@ -43,17 +41,26 @@ import gleam/list
 import gleam/order
 import gleam/string
 
+/// Used by cake internally to prefix computed aliases.
+///
 pub const computed_alias_prefix = "__cake_computed_alias_"
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Query                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// A query can be either a `SELECT` query or a combined query.
+///
+/// A combined query is a query that combines multiple `SELECT` queries into one
+/// query using `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`, etc.
+///
 pub type Query {
   SelectQuery(query: Select)
   CombinedQuery(query: Combined)
 }
 
+/// Creates a prepared statement from a query.
+///
 pub fn to_prepared_statement(
   query qry: Query,
   plchldr_bs prp_stm_prfx: String,
@@ -64,6 +71,8 @@ pub fn to_prepared_statement(
   |> apply(qry)
 }
 
+/// Applies a query to a prepared statement.
+///
 pub fn apply(
   prepared_statement prp_stm: PreparedStatement,
   query qry: Query,
@@ -91,6 +100,8 @@ fn combined_builder(
   |> comment_apply(qry.comment)
 }
 
+/// Applies a combined query to a prepared statement.
+///
 pub fn combined_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   combined_query qry: Combined,
@@ -109,7 +120,7 @@ pub fn combined_clause_apply(
   // and PostgreSQL out of the box,
   // see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
-  // For Sqlite we are wrapping them in sub-queries, like so:
+  // For SQLite we are wrapping them in sub-queries, like so:
   //
   // ```sql
   // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1
@@ -165,10 +176,11 @@ pub fn combined_clause_apply(
   new_prp_stm |> close_nested_query(nested_index + 1)
 }
 
+/// A combined query.
+///
 pub type Combined {
   Combined(
     kind: CombinedQueryKind,
-    // TODO v2 If single list item, unwrap Combined to Select and warn user
     queries: List(Select),
     limit: Limit,
     offset: Offset,
@@ -190,8 +202,11 @@ pub type CombinedQueryKind {
   IntersectAll
 }
 
-// v2: Also allow nested combined (aka UNION of UNIONs, etc)
+// TODO v2 Also allow nested combined (aka UNION of UNIONs, etc)
 // from any nested SELECT
+
+/// Creates a new combined query.
+///
 pub fn combined_query_new(
   kind knd: CombinedQueryKind,
   queries qrys: List(Select),
@@ -208,6 +223,8 @@ pub fn combined_query_new(
   )
 }
 
+/// Sets or appends an `ORDER BY` clause to a combined query.
+///
 pub fn combined_order_by(
   query qry: Combined,
   by ordb: OrderBy,
@@ -241,11 +258,15 @@ fn select_builder(
   |> comment_apply(qry.comment)
 }
 
+/// Decribes if a `SELECT` query should return all rows or only distinct rows.
+///
 pub type SelectKind {
   SelectAll
   SelectDistinct
 }
 
+/// A `SELECT` query.
+///
 pub type Select {
   Select(
     // with (_recursive?): ?, // v2
@@ -265,6 +286,8 @@ pub type Select {
   )
 }
 
+/// Sets or append an `ORDER BY` clause to a `SELECT` query.
+///
 pub fn select_order_by(
   select_query qry: Select,
   by ordb: OrderBy,
@@ -280,11 +303,20 @@ pub fn select_order_by(
 // │  Selects                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Declares the projection of a `SELECT` query.
+///
+/// If no columns are selected, all columns are returned, aka `SELECT *`.
+///
 pub type Selects {
   NoSelects
   Selects(List(SelectValue))
 }
 
+/// A value that can be selected in a `SELECT` query.
+/// It can be a column, a parameter, a fragment, or a value with an alias.
+///
+/// TODO v2 Investigate -> probably makes no sense to have params/values in SELECT?
+///
 pub type SelectValue {
   SelectColumn(column: String)
   // TODO v2 Investigate -> probably makes no sense to have params in SELECT?
@@ -349,6 +381,8 @@ fn select_value_apply(
 // │  From                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Describes the `FROM` clause of SQL queries.
+///
 pub type From {
   NoFrom
   // TODO v2 Check if the table or view does indeed exist
@@ -361,6 +395,8 @@ pub type From {
   FromSubQuery(sub_query: Query, alias: String)
 }
 
+/// Applies the `FROM` clause to a prepared statement by appending the SQL code.
+///
 pub fn from_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   from frm: From,
@@ -380,7 +416,9 @@ pub fn from_clause_apply(
 // │  Where                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// NOTICE: Sqlite does _not_ support:
+/// Describes the `WHERE` clause of SQL queries.
+///
+/// NOTICE: SQLite does _not_ support:
 ///
 /// - `ANY` (`WhereAny*`),
 /// - `ALL` (`WhereAny*`) and,
@@ -420,6 +458,8 @@ pub type Where {
   WhereFragment(fragment: Fragment)
 }
 
+/// Describes the comparison operators for the `WHERE` clause of SQL queries.
+///
 pub type WhereComparisonOperator {
   Equal
   Greater
@@ -429,6 +469,8 @@ pub type WhereComparisonOperator {
   Unequal
 }
 
+/// Describes the values for the `WHERE` clause of SQL queries.
+///
 pub type WhereValue {
   WhereColumnValue(column: String)
   WhereParamValue(param: Param)
@@ -443,6 +485,8 @@ pub type WhereValue {
   WhereSubQueryValue(sub_query: Query)
 }
 
+/// Applies the `WHERE` clause to a prepared statement by appending the SQL code.
+///
 pub fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   where wh: Where,
@@ -895,11 +939,15 @@ fn where_between_apply(
 // │  Group By                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Group by clause
+///
 pub type GroupBy {
   NoGroupBy
   GroupBy(columns: List(String))
 }
 
+/// Apply group by clause to prepared statement
+///
 pub fn group_by_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   group_by grpb: GroupBy,
@@ -961,11 +1009,21 @@ pub type Joins {
   Joins(List(Join))
 }
 
+/// The join target can be bei either a table or a sub-query.
+///
 pub type JoinTarget {
   JoinTable(table: String)
   JoinSubQuery(sub_query: Query)
 }
 
+/// A Join can be one of:
+///
+/// - `InnerJoin`: `INNER JOIN`
+/// - `LeftJoin`: `LEFT JOIN`
+/// - `RightJoin`: `RIGHT JOIN`
+/// - `FullJoin`: `FULL JOIN`
+/// - `CrossJoin`: `CROSS JOIN`
+///
 pub type Join {
   InnerJoin(with: JoinTarget, alias: String, on: Where)
   LeftJoin(with: JoinTarget, alias: String, on: Where)
@@ -974,6 +1032,8 @@ pub type Join {
   CrossJoin(with: JoinTarget, alias: String)
 }
 
+/// Apply join clauses to prepared statement.
+///
 pub fn join_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
   joins jns: Joins,
@@ -1042,16 +1102,33 @@ pub fn join_apply(
 // │  Order By                                                                 │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Declare an order by clause.
+///
 pub type OrderBy {
   NoOrderBy
   OrderBy(values: List(OrderByValue))
 }
 
+/// Order by values can be either a column or a fragment.
+///
 pub type OrderByValue {
   OrderByColumn(column: String, direction: OrderByDirection)
   OrderByFragment(fragment: Fragment, direction: OrderByDirection)
 }
 
+/// Order by direction can be one of:
+///
+/// - `Asc` - Ascending order
+/// - `AscNullsFirst` - Ascending order with nulls first, not supported by
+///   MariaDB/MySQL
+/// - `AscNullsLast` - Ascending order with nulls last, not supported by
+///   MariaDB/MySQL
+/// - `Desc` - Descending order
+/// - `DescNullsFirst` - Descending order with nulls first, not supported by
+///    MariaDB/MySQL
+/// - `DescNullsLast` - Descending order with nulls last, not supported by
+///    MariaDB/MySQL
+///
 pub type OrderByDirection {
   Asc
   AscNullsFirst
@@ -1149,11 +1226,15 @@ fn order_by_direction_to_sql(
 // │  Limit                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Declare a limit clause.
+///
 pub type Limit {
   NoLimit
   Limit(limit: Int)
 }
 
+/// Create a new limit clause.
+///
 pub fn limit_new(limit lmt: Int) -> Limit {
   case lmt > 0 {
     False -> NoLimit
@@ -1176,11 +1257,15 @@ fn limit_clause_apply(
 // │  Offset                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Declare an offset clause.
+///
 pub type Offset {
   NoOffset
   Offset(offset: Int)
 }
 
+/// Create a new offset clause.
+///
 pub fn offset_new(offset offst: Int) -> Offset {
   case offst > 0 {
     False -> NoOffset
@@ -1215,6 +1300,8 @@ pub type Epilog {
   Epilog(string: String)
 }
 
+/// Apply the epilog to the prepared statement.
+///
 pub fn epilog_apply(
   prepared_statement prp_stm: PreparedStatement,
   epilog eplg: Epilog,
@@ -1237,6 +1324,8 @@ pub type Comment {
   Comment(string: String)
 }
 
+/// Apply the comment to the prepared statement.
+///
 pub fn comment_apply(
   prepared_statement prp_stm: PreparedStatement,
   comment cmmnt: Comment,
@@ -1295,6 +1384,8 @@ pub type Fragment {
 ///
 pub const fragment_placeholder_grapheme = "$"
 
+/// Splits a fragment string into a list of placeholders and other strings.
+///
 /// Splits something like `GREATER($, $)` into
 /// `["GREATER(", "$", ", ", "$", ")"]`.
 ///
@@ -1318,18 +1409,6 @@ pub fn fragment_prepared_split_string(
     }
   })
   |> list.reverse
-}
-
-pub fn fragment_count_placeholders(
-  string_fragments s_frgmts: List(String),
-) -> Int {
-  s_frgmts
-  |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
-    case s_frgmt == fragment_placeholder_grapheme {
-      True -> count + 1
-      False -> count
-    }
-  })
 }
 
 fn fragment_apply(
@@ -1417,4 +1496,18 @@ fn fragment_apply(
       new_prp_stm
     }
   }
+}
+
+/// Count the number of placeholders in a list of string fragments.
+///
+pub fn fragment_count_placeholders(
+  string_fragments s_frgmts: List(String),
+) -> Int {
+  s_frgmts
+  |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
+    case s_frgmt == fragment_placeholder_grapheme {
+      True -> count + 1
+      False -> count
+    }
+  })
 }

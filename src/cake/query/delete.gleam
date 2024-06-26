@@ -223,7 +223,7 @@ pub fn or_where(query qry: Delete(a), where whr: Where) -> Delete(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or Sqlite, and *Cake*
+/// NOTICE: This operator does not exist in Postgres or SQLite, and *Cake*
 /// generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in MariaDB/MySQL.
 ///

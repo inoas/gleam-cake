@@ -329,7 +329,7 @@ fn on_conflict_target_apply(
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// NOTICE: Postgres and Sqlite only support `JOIN` in `UPDATE` if `FROM` is
+/// NOTICE: Postgres and SQLite only support `JOIN` in `UPDATE` if `FROM` is
 /// also given.
 ///
 pub type Update(a) {
