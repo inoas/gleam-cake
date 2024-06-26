@@ -21,25 +21,25 @@ import cake/internal/query.{
 }
 import cake/param
 
-/// Creates a WhereValue from a column name String.
+/// Creates a `WhereValue` from a column name `String`.
 ///
 pub fn col(name: String) -> WhereValue {
   name |> WhereColumnValue
 }
 
-/// Creates a WhereValue from a Float.
+/// Creates a `WhereValue` from a `Float`.
 ///
 pub fn float(v vl: Float) -> WhereValue {
   vl |> param.float |> WhereParamValue
 }
 
-/// Creates a WhereValue from an Int.
+/// Creates a `WhereValue` from an `Int`.
 ///
 pub fn int(v vl: Int) -> WhereValue {
   vl |> param.int |> WhereParamValue
 }
 
-/// Creates a WhereValue from a String.
+/// Creates a `WhereValue` from a `String`.
 ///
 pub fn string(v vl: String) -> WhereValue {
   vl |> param.string |> WhereParamValue
