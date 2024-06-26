@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2024-06-26
+
+- Fixed github CI and docker compose testing against Postgres and MariaDB.
+- Locally you should be able to install docker and then just run:
+  `bin/docker/detached/` and then `gleam test`.
+- Relaxed licence from AGPL 3.0 to Mozilla Public License 2.0 (MPL-2.0).
+
 ## 0.4.0 - 2024-06-22
 
 - Added support for deletes and interface modules

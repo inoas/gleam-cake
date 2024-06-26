@@ -1,11 +1,11 @@
 name = "cake"
-version = "0.4.0"
+version = "0.5.0"
 
 # Fill out these fields if you intend to generate HTML documentation or publish
 # your project to the Hex package manager.
 
 description = "An SQL query builder for Gleam for SQL dialects PostgreSQL, SQLite, MariaDB and MySQL"
-licences = ["AGPL-3.0-or-later"]
+licences = ["MPL-2.0"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 # links = [{ title = "Website", href = "https://gleam.run" }]
 gleam = ">= 1.0.0 and < 2.0.0"
