@@ -18,7 +18,7 @@ services:
         max-size: 10m
         max-file: "3"
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./docker/data/postgres-data:/var/lib/postgresql/data
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
@@ -29,7 +29,7 @@ services:
     image: mariadb:latest
     restart: unless-stopped
     ports:
-      - 3306:3306
+      - "127.0.0.1:3306:3306"
     environment:
       MARIADB_DATABASE: "gleam_cake_test"
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
