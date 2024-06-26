@@ -25,10 +25,24 @@ See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test)
 
 ## Development
 
-Helper commands:
+### Run test suite locally
 
 ```shell
-bin/run-watchexec
+bin/docker/attached
+# wait a few seconds until everything is ready
+# if you run gleam test too early, it will crash
+gleam test
+# or instead of gleam test, run:
+# gleam test -- --glacier
+# ...for incremental testing
+```
+
+### Helper commands
+
+```shell
+bin/docker/attached
+bin/docker/detached
+bin/docker/down
 
 bin/test
 bin/glacier
