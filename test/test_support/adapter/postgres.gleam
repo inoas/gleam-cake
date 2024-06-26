@@ -37,7 +37,13 @@ pub fn write_query_to_prepared_statement(
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let connection =
-    pgo.Config(..pgo.default_config(), port: 5432, database: "gleam_cake_test")
+    pgo.Config(
+      ..pgo.default_config(),
+      host: "localhost",
+      user: "postgres",
+      password: Some("postgres"),
+      database: "gleam_cake_test",
+    )
     |> pgo.connect
 
   let value = f(connection)
