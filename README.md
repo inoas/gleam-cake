@@ -14,6 +14,8 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 ![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)
 ![Unit tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)
 
+## Installation
+
 ```shell
 gleam add cake
 ```
