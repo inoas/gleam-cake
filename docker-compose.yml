@@ -1,7 +1,6 @@
 networks:
   gleam-cake-test:
     name: gleam-cake-test
-
 services:
   postgres:
     container_name: gleam-cake-test-postgres
@@ -22,24 +21,6 @@ services:
     volumes:
       - ./docker/data/postgres-data:/var/lib/postgresql/data
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  # mariadb:
-  #   container_name: gleam-cake-test-mariadb
-  #   networks:
-  #     - gleam-cake-test
-  #   image: mariadb:latest
-  #   restart: unless-stopped
-  #   ports:
-  #     - "127.0.0.1:3306:3306"
-  #   environment:
-  #     MARIADB_DATABASE: "gleam_cake_test"
-  #     MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-  #     MYSQL_ROOT_HOST: "%"
-  #     MARIADB_ROOT_HOST: "%"
-  #   dns:
-  #     - 1.1.1.1
-  #     - 127.0.0.11
-  #   command: "mysqld --log-bin-trust-function-creators=1 --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON --character-set-server=utf8mb4 --collation-server=utf8mb4_bin"
-
   mariadb:
     container_name: gleam-cake-test-mariadb
     dns:
@@ -55,6 +36,5 @@ services:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
       # MYSQL_DATABASE: "gleam_cake_test"
       # MYSQL_ALLOW_EMPTY_PASSWORD: true
-
 volumes:
   gleam-cake-test:
