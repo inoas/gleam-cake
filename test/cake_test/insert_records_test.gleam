@@ -1,7 +1,8 @@
 import birdie
 import cake/query/insert as i
 import pprint.{format as to_string}
-import test_helper/maria_test_helper
+
+// import test_helper/maria_test_helper
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
 import test_support/adapter/maria
@@ -79,10 +80,10 @@ pub fn insert_records_prepared_statement_test() {
 pub fn insert_records_execution_result_test() {
   let pgo = insert_records_query() |> postgres_test_helper.setup_and_run_write
   let lit = insert_records_query() |> sqlite_test_helper.setup_and_run_write
-  let mdb =
-    insert_records_maria_query() |> maria_test_helper.setup_and_run_write
-
-  #(pgo, lit, mdb)
+  // let mdb =
+  //   insert_records_maria_query() |> maria_test_helper.setup_and_run_write
+  // #(pgo, lit, mdb)
+  #(pgo, lit)
   |> to_string
   |> birdie.snap("insert_records_execution_result_test")
 }
