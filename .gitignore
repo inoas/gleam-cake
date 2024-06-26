@@ -3,5 +3,5 @@
 /build
 erl_crash.dump
 
-/docker/data/postgres/*
-!/docker/data/postgres/.gitkeep
+/docker/data/*
+!/docker/data/.gitkeep

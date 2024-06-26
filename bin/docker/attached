@@ -4,6 +4,8 @@
 cd "$(dirname "$0")" && cd ../..
 
 docker compose down
-rm -rf postgres-data
-rm -rf docker/data/postgres/pgdata
+docker rm gleam-cake-test-postgres --force --volumes 2>/dev/null
+docker rm gleam-cake-test-mariadb --force --volumes 2>/dev/null
+rm -rf docker/data/*
+touch docker/data/.keep
 docker compose up --remove-orphans
