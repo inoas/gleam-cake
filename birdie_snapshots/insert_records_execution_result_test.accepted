@@ -7,4 +7,5 @@ test_name: insert_records_execution_result_test
 #(
   Ok([#("Whiskers"), #("Mittens")]),
   Ok([#("Whiskers"), #("Mittens")]),
+  Ok([]),
 )

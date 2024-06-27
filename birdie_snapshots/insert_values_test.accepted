@@ -7,11 +7,7 @@ test_name: insert_values_test
 #(
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
@@ -20,10 +16,6 @@ test_name: insert_values_test
           StringParam("Whiskers"),
         ),
         InsertParam("age", IntParam(5)),
-        InsertParam(
-          "is_wild",
-          BoolParam(False),
-        ),
       ]),
     ]),
     InsertConflictError,
@@ -33,11 +25,7 @@ test_name: insert_values_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
@@ -46,10 +34,6 @@ test_name: insert_values_test
           StringParam("Whiskers"),
         ),
         InsertParam("age", IntParam(5)),
-        InsertParam(
-          "is_wild",
-          BoolParam(False),
-        ),
       ]),
     ]),
     InsertConflictError,
@@ -59,11 +43,7 @@ test_name: insert_values_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
@@ -72,10 +52,6 @@ test_name: insert_values_test
           StringParam("Whiskers"),
         ),
         InsertParam("age", IntParam(5)),
-        InsertParam(
-          "is_wild",
-          BoolParam(False),
-        ),
       ]),
     ]),
     InsertConflictError,

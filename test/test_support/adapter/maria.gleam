@@ -60,7 +60,11 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
     params
     |> list.map(fn(param: Param) {
       case param {
-        BoolParam(param) -> gmysql.to_param(param)
+        BoolParam(param) ->
+          case param {
+            True -> gmysql.to_param(1)
+            False -> gmysql.to_param(0)
+          }
         FloatParam(param) -> gmysql.to_param(param)
         IntParam(param) -> gmysql.to_param(param)
         StringParam(param) -> gmysql.to_param(param)

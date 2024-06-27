@@ -7,11 +7,7 @@ test_name: insert_records_test
 #(
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRecords(
       [
@@ -27,11 +23,7 @@ test_name: insert_records_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRecords(
       [
@@ -47,11 +39,7 @@ test_name: insert_records_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns([
-      "name",
-      "age",
-      "is_wild",
-    ]),
+    InsertColumns(["name", "age"]),
     NoInsertModifier,
     InsertSourceRecords(
       [

@@ -7,35 +7,32 @@ test_name: insert_values_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "INSERT INTO cats (name, age, is_wild) VALUES ($1, $2, $3) RETURNING name",
+    "INSERT INTO cats (name, age) VALUES ($1, $2) RETURNING name",
     [
       StringParam("Whiskers"),
       IntParam(5),
-      BoolParam(False),
     ],
-    3,
+    2,
     Postgres,
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO cats (name, age, is_wild) VALUES (?1, ?2, ?3) RETURNING name",
+    "INSERT INTO cats (name, age) VALUES (?1, ?2) RETURNING name",
     [
       StringParam("Whiskers"),
       IntParam(5),
-      BoolParam(False),
     ],
-    3,
+    2,
     Sqlite,
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO cats (name, age, is_wild) VALUES (?, ?, ?)",
+    "INSERT INTO cats (name, age) VALUES (?, ?)",
     [
       StringParam("Whiskers"),
       IntParam(5),
-      BoolParam(False),
     ],
-    3,
+    2,
     Maria,
   ),
 )
