@@ -50,7 +50,7 @@ fn insert_values_maria_query() {
 
 pub fn insert_values_test() {
   let pgo = insert_values_query()
-  let lit = pgo
+  let lit = insert_values_query()
   let mdb = insert_values_maria_query()
 
   #(pgo, lit, mdb)

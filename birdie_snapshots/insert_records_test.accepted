@@ -7,12 +7,16 @@ test_name: insert_records_test
 #(
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRecords(
       [
-        Cat("Whiskers", 3, False),
-        Cat("Mittens", 5, True),
+        Cat("Whiskers", 3, False, 5.0),
+        Cat("Mittens", 5, True, 4.5),
       ],
       //fn(a) { ... },
     ),
@@ -23,12 +27,16 @@ test_name: insert_records_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRecords(
       [
-        Cat("Whiskers", 3, False),
-        Cat("Mittens", 5, True),
+        Cat("Whiskers", 3, False, 5.0),
+        Cat("Mittens", 5, True, 4.5),
       ],
       //fn(a) { ... },
     ),
@@ -39,12 +47,16 @@ test_name: insert_records_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRecords(
       [
-        Cat("Whiskers", 3, False),
-        Cat("Mittens", 5, True),
+        Cat("Whiskers", 3, False, 5.0),
+        Cat("Mittens", 5, True, 4.5),
       ],
       //fn(a) { ... },
     ),

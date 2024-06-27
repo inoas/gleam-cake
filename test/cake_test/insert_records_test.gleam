@@ -62,7 +62,7 @@ fn insert_records_maria_query() {
 
 pub fn insert_records_test() {
   let pgo = insert_records_query()
-  let lit = pgo
+  let lit = insert_records_query()
   let mdb = insert_records_maria_query()
 
   #(pgo, lit, mdb)
