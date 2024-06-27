@@ -13,29 +13,31 @@ import test_support/adapter/sqlite
 // └───────────────────────────────────────────────────────────────────────────┘
 
 type Cat {
-  Cat(name: String, age: Int, is_wild: Bool)
+  Cat(name: String, age: Int, is_wild: Bool, rating: Float)
 }
 
 fn cat_caster(cat cat: Cat) {
   [
     i.param(column: "name", param: cat.name |> i.string),
+    i.param(column: "rating", param: cat.rating |> i.float),
     i.param(column: "age", param: cat.age |> i.int),
-    // i.param(column: "is_wild", param: cat.is_wild |> i.bool),
+    // i.param(column: "owner_id", param: i.null()),
+  // i.param(column: "iw_wild", param: cat.is_wild |> i.bool),
   ]
   |> i.row
 }
 
 fn insert_records() {
   let cats = [
-    Cat(name: "Whiskers", age: 3, is_wild: False),
-    Cat(name: "Mittens", age: 5, is_wild: True),
+    Cat(name: "Whiskers", age: 3, is_wild: False, rating: 5.0),
+    Cat(name: "Mittens", age: 5, is_wild: True, rating: 4.5),
   ]
 
   i.from_records(
     table_name: "cats",
     columns: [
-      "name", "age",
-      // "is_wild"
+      "name", "rating", "age",
+      // "owner_id", "is_wild"
     ],
     records: cats,
     caster: cat_caster,

@@ -58,6 +58,12 @@ pub fn string(value vl: String) -> Param {
   vl |> param.string
 }
 
+/// Create a NULL `InsertValue`.
+///
+pub fn null() -> Param {
+  param.NullParam
+}
+
 // ▒▒▒ Constructors ▒▒▒
 
 /// Create an `INSERT` query from a list of gleam records.

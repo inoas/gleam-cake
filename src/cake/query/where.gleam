@@ -45,6 +45,12 @@ pub fn string(v vl: String) -> WhereValue {
   vl |> param.string |> WhereParamValue
 }
 
+/// Creates a `NULL` `WhereValue`.
+///
+pub fn null() -> WhereValue {
+  param.NullParam |> WhereParamValue
+}
+
 /// Negates a `Where`.
 ///
 pub fn not(where whr: Where) -> Where {
