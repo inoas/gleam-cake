@@ -16,16 +16,18 @@ fn insert_values() {
   let cat =
     [
       i.param(column: "name", param: "Whiskers" |> i.string),
+      i.param(column: "rating", param: 5.0 |> i.float),
       i.param(column: "age", param: 5 |> i.int),
-      // i.param(column: "is_wild", param: False |> i.bool),
+      // i.param(column: "owner_id", param: i.null()),
+    // i.param(column: "is_wild", param: False |> i.bool),
     ]
     |> i.row
 
   i.from_values(
     table_name: "cats",
     columns: [
-      "name", "age",
-      // , "is_wild"
+      "name", "rating", "age",
+      // "owner_id", "is_wild"
     ],
     records: [cat],
   )

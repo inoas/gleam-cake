@@ -7,13 +7,21 @@ test_name: insert_values_test
 #(
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
         InsertParam(
           "name",
           StringParam("Whiskers"),
+        ),
+        InsertParam(
+          "rating",
+          FloatParam(5.0),
         ),
         InsertParam("age", IntParam(5)),
       ]),
@@ -25,13 +33,21 @@ test_name: insert_values_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
         InsertParam(
           "name",
           StringParam("Whiskers"),
+        ),
+        InsertParam(
+          "rating",
+          FloatParam(5.0),
         ),
         InsertParam("age", IntParam(5)),
       ]),
@@ -43,13 +59,21 @@ test_name: insert_values_test
   )),
   InsertQuery(Insert(
     InsertIntoTable("cats"),
-    InsertColumns(["name", "age"]),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
         InsertParam(
           "name",
           StringParam("Whiskers"),
+        ),
+        InsertParam(
+          "rating",
+          FloatParam(5.0),
         ),
         InsertParam("age", IntParam(5)),
       ]),

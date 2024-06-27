@@ -16,13 +16,12 @@ type Cat {
   Cat(name: String, age: Int, is_wild: Bool, rating: Float)
 }
 
-fn cat_caster(cat cat: Cat) {
+fn cat_caster(cat: Cat) {
   [
     i.param(column: "name", param: cat.name |> i.string),
     i.param(column: "rating", param: cat.rating |> i.float),
     i.param(column: "age", param: cat.age |> i.int),
-    // i.param(column: "owner_id", param: i.null()),
-  // i.param(column: "iw_wild", param: cat.is_wild |> i.bool),
+    // i.param(column: "owner_id", param: i.null()), i.param(column: "is_wild", param: cat.is_wild |> i.bool),
   ]
   |> i.row
 }
