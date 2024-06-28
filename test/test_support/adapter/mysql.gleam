@@ -1,8 +1,8 @@
-//// MariaDB adapter which which passes `PreparedStatements`
+//// MySQL adapter which which passes `PreparedStatements`
 //// to the `gmysql` library for execution.
 ////
 
-import cake/dialect.{Maria}
+import cake/dialect.{Mysql}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/write_query.{type WriteQuery}
@@ -18,7 +18,7 @@ const placeholder_base = "?"
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
   qry
-  |> query.to_prepared_statement(plchldr_bs: placeholder_base, dialect: Maria)
+  |> query.to_prepared_statement(plchldr_bs: placeholder_base, dialect: Mysql)
 }
 
 pub fn write_query_to_prepared_statement(
@@ -27,7 +27,7 @@ pub fn write_query_to_prepared_statement(
   qry
   |> write_query.to_prepared_statement(
     plchldr_bs: placeholder_base,
-    dialect: Maria,
+    dialect: Mysql,
   )
 }
 

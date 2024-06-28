@@ -20,4 +20,5 @@ test_name: update_execution_result_test
     #("Clara the elder", 4),
   ]),
   Ok([]),
+  Ok([]),
 )

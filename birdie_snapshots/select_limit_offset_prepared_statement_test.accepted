@@ -26,4 +26,11 @@ test_name: select_limit_offset_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats ORDER BY name ASC LIMIT 4",
+    [],
+    0,
+    Mysql,
+  ),
 )

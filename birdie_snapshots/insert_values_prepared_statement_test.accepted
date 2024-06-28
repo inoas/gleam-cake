@@ -38,4 +38,15 @@ test_name: insert_values_prepared_statement_test
     3,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, rating, age) VALUES (?, ?, ?)",
+    [
+      StringParam("Whiskers"),
+      FloatParam(5.0),
+      IntParam(5),
+    ],
+    3,
+    Mysql,
+  ),
 )

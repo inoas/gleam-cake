@@ -26,4 +26,11 @@ test_name: select_prepared_statement_test
     1,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT name, ?, age, age AS years_since_birth FROM cats",
+    [StringParam("hello")],
+    1,
+    Mysql,
+  ),
 )

@@ -65,4 +65,24 @@ test_name: insert_records_test
     NoEpilog,
     NoComment,
   )),
+  InsertQuery(Insert(
+    InsertIntoTable("cats"),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
+    NoInsertModifier,
+    InsertSourceRecords(
+      [
+        Cat("Whiskers", 3, False, 5.0),
+        Cat("Mittens", 5, True, 4.5),
+      ],
+      //fn(a) { ... },
+    ),
+    InsertConflictError,
+    NoReturning,
+    NoEpilog,
+    NoComment,
+  )),
 )

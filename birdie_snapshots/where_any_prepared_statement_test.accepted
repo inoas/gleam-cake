@@ -26,4 +26,11 @@ test_name: where_any_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE owner_id = ANY(SELECT owner_id FROM dogs)",
+    [],
+    0,
+    Mysql,
+  ),
 )

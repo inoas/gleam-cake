@@ -3,7 +3,7 @@
 //// values rather than raw SQL.
 ////
 
-import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
+import cake/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
 import cake/param.{type Param}
 import gleam/int
 import gleam/list
@@ -107,7 +107,7 @@ fn next_placeholder(
   case dlct {
     Postgres | Sqlite ->
       prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
-    Maria -> prp_stm.prefix
+    Maria | Mysql -> prp_stm.prefix
   }
 }
 //

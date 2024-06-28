@@ -26,4 +26,11 @@ test_name: combined_limit_offset_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "(SELECT * FROM cats ORDER BY name ASC LIMIT 4) UNION ALL (SELECT * FROM cats ORDER BY name ASC LIMIT 4) ORDER BY name ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Mysql,
+  ),
 )

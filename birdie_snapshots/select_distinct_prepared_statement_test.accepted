@@ -26,4 +26,11 @@ test_name: select_distinct_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT DISTINCT is_wild FROM cats ORDER BY is_wild ASC",
+    [],
+    0,
+    Mysql,
+  ),
 )

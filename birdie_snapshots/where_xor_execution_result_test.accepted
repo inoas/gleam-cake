@@ -11,4 +11,8 @@ test_name: where_xor_execution_result_test
     ["Ginny", 6, 0, 3, Null],
     ["Karl", 8, 1, Null, 10.0],
   ]),
+  Ok([
+    ["Ginny", 6, 0, 3, Null],
+    ["Karl", 8, 1, Null, 10.0],
+  ]),
 )

@@ -47,4 +47,18 @@ test_name: insert_records_prepared_statement_test
     6,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, rating, age) VALUES (?, ?, ?), (?, ?, ?)",
+    [
+      StringParam("Whiskers"),
+      FloatParam(5.0),
+      IntParam(3),
+      StringParam("Mittens"),
+      FloatParam(4.5),
+      IntParam(5),
+    ],
+    6,
+    Mysql,
+  ),
 )

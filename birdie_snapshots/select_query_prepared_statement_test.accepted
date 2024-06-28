@@ -35,4 +35,14 @@ test_name: select_query_prepared_statement_test
     2,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT cats.name FROM cats CROSS JOIN owners AS owners WHERE owners.name LIKE ? GROUP BY cats.name HAVING cats.name LIKE ? ORDER BY cats.name ASC LIMIT 10 OFFSET 1 /* an epilog such as FOR UPDATE could be here */ -- my regular comment /* */",
+    [
+      StringParam("%i%"),
+      StringParam("%i%"),
+    ],
+    2,
+    Mysql,
+  ),
 )

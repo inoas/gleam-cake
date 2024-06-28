@@ -83,4 +83,30 @@ test_name: insert_values_test
     NoEpilog,
     NoComment,
   )),
+  InsertQuery(Insert(
+    InsertIntoTable("cats"),
+    InsertColumns([
+      "name",
+      "rating",
+      "age",
+    ]),
+    NoInsertModifier,
+    InsertSourceRows([
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Whiskers"),
+        ),
+        InsertParam(
+          "rating",
+          FloatParam(5.0),
+        ),
+        InsertParam("age", IntParam(5)),
+      ]),
+    ]),
+    InsertConflictError,
+    NoReturning,
+    NoEpilog,
+    NoComment,
+  )),
 )

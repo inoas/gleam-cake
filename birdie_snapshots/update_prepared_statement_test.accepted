@@ -26,4 +26,11 @@ test_name: update_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "UPDATE cats SET age = age + 1, name = CONCAT(name, ' the elder')",
+    [],
+    0,
+    Mysql,
+  ),
 )

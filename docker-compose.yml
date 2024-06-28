@@ -1,3 +1,4 @@
+name: gleam-cake
 networks:
   gleam-cake-test:
     name: gleam-cake-test
@@ -36,5 +37,18 @@ services:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
       # MYSQL_DATABASE: "gleam_cake_test"
       # MYSQL_ALLOW_EMPTY_PASSWORD: true
+  mysql:
+    container_name: gleam-cake-test-mysql
+    dns:
+      - 1.1.1.1
+      - 127.0.0.11
+    image: "mysql:latest"
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - ./docker/data/mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "gleam_cake_test"
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
 volumes:
   gleam-cake-test:

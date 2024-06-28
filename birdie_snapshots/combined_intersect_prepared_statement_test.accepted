@@ -26,4 +26,11 @@ test_name: combined_intersect_prepared_statement_test
     0,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "(SELECT * FROM cats ORDER BY name ASC LIMIT 10) INTERSECT (SELECT * FROM cats ORDER BY name ASC LIMIT 10) ORDER BY age ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Mysql,
+  ),
 )

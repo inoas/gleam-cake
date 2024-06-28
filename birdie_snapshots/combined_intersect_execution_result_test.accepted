@@ -7,5 +7,6 @@ test_name: combined_intersect_execution_result_test
 #(
   Ok([#("Ginny", 6, False, 3, Null)]),
   Ok([#("Ginny", 6, 0, 3, Undefined)]),
-  Ok([#("Ginny", 6, 0, 3, Undefined)]),
+  Ok([["Ginny", 6, 0, 3, Null]]),
+  Ok([["Ginny", 6, 0, 3, Null]]),
 )

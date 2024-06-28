@@ -33,7 +33,7 @@
 
 // TODO: Add to query validator in v2 or v3
 
-import cake/dialect.{type Dialect, Maria, Postgres, Sqlite}
+import cake/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/param.{type Param}
 import gleam/int
@@ -776,7 +776,7 @@ fn where_xor_apply(
 ) -> PreparedStatement {
   case prp_stm |> prepared_statement.get_dialect() {
     Postgres | Sqlite -> custom_where_xor_apply(prp_stm, whs)
-    Maria -> vanilla_where_xor_apply(prp_stm, whs)
+    Maria | Mysql -> vanilla_where_xor_apply(prp_stm, whs)
   }
 }
 

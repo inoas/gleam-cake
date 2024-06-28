@@ -17,4 +17,8 @@ test_name: where_execution_result_test
     ["Karl", 8, 1, Null, 10.0],
     ["Clara", 3, 1, Null, 10.0],
   ]),
+  Ok([
+    ["Karl", 8, 1, Null, 10.0],
+    ["Clara", 3, 1, Null, 10.0],
+  ]),
 )

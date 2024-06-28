@@ -40,4 +40,11 @@ test_name: where_xor_prepared_statement_test
     2,
     Maria,
   ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (name = ? XOR is_wild IS TRUE XOR age <= ?)",
+    [StringParam("Karl"), IntParam(9)],
+    2,
+    Mysql,
+  ),
 )

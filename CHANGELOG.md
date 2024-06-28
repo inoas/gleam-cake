@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 - 2024-06-27
+
+- Added MySQL independent of MariaDB as first class supported.
+
 ## 0.5.0 - 2024-06-26
 
 - Fixed github CI and docker compose testing against Postgres and MariaDB.

@@ -32,4 +32,9 @@ test_name: where_any_execution_result_test
     ["Biffy", 10, Null, 2, 1.1],
     ["Ginny", 6, 0, 3, Null],
   ]),
+  Ok([
+    ["Nubi", 4, 1, 1, 2.2],
+    ["Biffy", 10, Null, 2, 1.1],
+    ["Ginny", 6, 0, 3, Null],
+  ]),
 )

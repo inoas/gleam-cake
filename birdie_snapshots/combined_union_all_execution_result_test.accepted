@@ -16,4 +16,5 @@ test_name: combined_union_all_execution_result_test
   ]),
   Ok([#("Nubi", 4, 1, 1, 2.2)]),
   Ok([["Nubi", 4, 1, 1, 2.2]]),
+  Ok([["Nubi", 4, 1, 1, 2.2]]),
 )
