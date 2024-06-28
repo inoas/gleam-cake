@@ -42,11 +42,12 @@ services:
       - 127.0.0.11
     image: "mysql:latest"
     ports:
-      - "127.0.0.1:3307:3306"
+      - "127.0.0.1:3307:3307"
     volumes:
       - ./docker/data/mysql-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: "gleam_cake_test"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_TCP_PORT: 3307
 volumes:
   gleam-cake-test:
