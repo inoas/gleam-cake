@@ -34,7 +34,7 @@ pub fn write_query_to_prepared_statement(
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let assert Ok(connection) =
     gmysql.Config(
-      host: "localhost",
+      host: "127.0.0.1",
       user: Some("root"),
       password: None,
       database: "gleam_cake_test",
