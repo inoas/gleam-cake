@@ -34,14 +34,14 @@ pub fn write_query_to_prepared_statement(
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let assert Ok(connection) =
     gmysql.Config(
+      ..gmysql.default_config(),
       host: "127.0.0.1",
       user: Some("root"),
       password: None,
       database: "gleam_cake_test",
       port: 3308,
-      connection_mode: gmysql.Synchronous,
       connection_timeout: gmysql.Infinity,
-      keep_alive: 999_999_999,
+      keep_alive: 100,
     )
     |> gmysql.connect
 

@@ -39,6 +39,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
   let connection =
     pgo.Config(
       ..pgo.default_config(),
+      // TODO: use 127.0.0.1
       host: "localhost",
       user: "postgres",
       password: Some("postgres"),
