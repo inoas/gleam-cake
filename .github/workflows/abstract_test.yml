@@ -62,7 +62,7 @@ jobs:
         env:
           MARIADB_DATABASE: gleam_cake_test
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=8
       mysql:
         image: mysql:latest
         ports:
@@ -71,7 +71,6 @@ jobs:
           MYSQL_DATABASE: "gleam_cake_test"
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_TCP_PORT: 3306
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
     needs: deps
     strategy:
       fail-fast: true
