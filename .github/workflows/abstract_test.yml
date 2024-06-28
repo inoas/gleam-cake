@@ -63,7 +63,7 @@ jobs:
           MARIADB_DATABASE: gleam_cake_test
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
-      mariadb:
+      mysql:
         image: mysql:latest
         ports:
           - 3307:3306
@@ -75,7 +75,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        erlang: ["26", "25", "27"]
+        erlang: ["26", "27"]
     steps:
       - uses: actions/checkout@v4
       - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
