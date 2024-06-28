@@ -35,8 +35,6 @@ services:
     environment:
       MARIADB_DATABASE: "gleam_cake_test"
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-      # MYSQL_DATABASE: "gleam_cake_test"
-      # MYSQL_ALLOW_EMPTY_PASSWORD: true
   mysql:
     container_name: gleam-cake-test-mysql
     dns:
