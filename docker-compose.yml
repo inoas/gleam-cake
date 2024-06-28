@@ -60,9 +60,9 @@ services:
     environment:
       MYSQL_DATABASE: "gleam_cake_test"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
-      MYSQL_TCP_PORT: 3308
+      MYSQL_TCP_PORT: 3306
     ports:
-      - "127.0.0.1:3308:3308"
+      - "127.0.0.1:3308:3306"
     volumes:
       - ./docker/data/mysql-data:/var/lib/mysql
     healthcheck:
