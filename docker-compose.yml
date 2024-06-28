@@ -13,41 +13,70 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=gleam_cake_test
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - ./docker/data/postgres-data:/var/lib/postgresql/data
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
   mariadb:
     container_name: gleam-cake-test-mariadb
     dns:
       - 1.1.1.1
       - 127.0.0.11
     image: "mariadb:latest"
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: "gleam_cake_test"
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
       - ./docker/data/maria-data:/var/lib/mysql
-    environment:
-      MARIADB_DATABASE: "gleam_cake_test"
-      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--lower_case_table_names=1",
+      ]
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      start_period: 5s
+      timeout: 5s
+      interval: 5s
+      retries: 5
   mysql:
     container_name: gleam-cake-test-mysql
     dns:
       - 1.1.1.1
       - 127.0.0.11
     image: "mysql:latest"
-    ports:
-      - "127.0.0.1:3307:3307"
-    volumes:
-      - ./docker/data/mysql-data:/var/lib/mysql
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: "gleam_cake_test"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
-      MYSQL_TCP_PORT: 3307
+      MYSQL_TCP_PORT: 3308
+    ports:
+      - "127.0.0.1:3308:3308"
+    volumes:
+      - ./docker/data/mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+      start_period: 5s
+      timeout: 5s
+      interval: 5s
+      retries: 5
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--lower_case_table_names=1",
+      ]
 volumes:
   gleam-cake-test:
