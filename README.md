@@ -2,8 +2,6 @@
 
 Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL.
 
-While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with [sqlite3 WASM/JS](https://sqlite.org/wasm) you may run queries composed with this library in browsers.
-
 [![Package
 <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a>
 <a href="https://discord.gg/Fm8Pwmy"><img src="https://img.shields.io/discord/768594524158427167?color=blue" alt="Discord chat"></a>
@@ -25,6 +23,16 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 ## Examples
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
+
+## Tested targets
+
+- Sqlite3 of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
+- [postgres:latest (Docker)](https://hub.docker.com/_/postgres)
+- [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb)
+- [mysql:latest (Docker)](https://hub.docker.com/_/mysql)
+
+The tests run on Erlang but are generally target agnostic:
+While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with [sqlite3 WASM/JS](https://sqlite.org/wasm) you may run queries composed with this library in browsers.
 
 ## Development
 
