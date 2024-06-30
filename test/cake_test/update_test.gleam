@@ -1,5 +1,8 @@
 import birdie
+import cake/query/fragment as f
+import cake/query/select as s
 import cake/query/update as u
+import gleam/string
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
 import test_helper/mysql_test_helper
@@ -15,10 +18,21 @@ import test_support/adapter/sqlite
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn update() {
+  let swap_bool_exp_sql =
+    "(CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild"
+    |> string.trim()
+
+  let sub_query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.select(s.fragment(f.literal(swap_bool_exp_sql)))
+    |> s.limit(1)
+    |> s.to_query
+
   u.new(table: "cats", sets: [
-    // TODO v1 test param, sub_query
     "age" |> u.set_to_expression("age + 1"),
-    "name" |> u.set_to_expression("CONCAT(name, ' the elder')"),
+    "name" |> u.set_to_param(u.string("Joe")),
+    "is_wild" |> u.set_to_sub_query(sub_query),
   ])
   |> u.returning(["name", "age"])
 }

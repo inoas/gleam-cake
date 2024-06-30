@@ -8,8 +8,8 @@ import cake/internal/query.{
 }
 import cake/internal/write_query.{
   type Update, type UpdateSet, type UpdateSets, type WriteQuery, NoReturning,
-  NoUpdateModifier, Returning, Update, UpdateExpressionSet, UpdateParamSet,
-  UpdateQuery, UpdateSets, UpdateSubQuerySet, UpdateTable,
+  NoUpdateModifier, NoUpdateSets, Returning, Update, UpdateExpressionSet,
+  UpdateParamSet, UpdateQuery, UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
 import cake/param.{type Param}
 import gleam/list
@@ -86,6 +86,13 @@ pub fn set_to_expression(
 ///
 pub fn set_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
+}
+
+pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
+  case qry.set {
+    NoUpdateSets -> []
+    UpdateSets(sets) -> sets
+  }
 }
 
 /// Sets many columns to an expression value.

@@ -357,6 +357,7 @@ pub type UpdateTable {
 }
 
 pub type UpdateSets {
+  NoUpdateSets
   UpdateSets(List(UpdateSet))
 }
 
@@ -375,13 +376,12 @@ fn update_apply(
   update updt: Update(a),
 ) {
   let UpdateTable(updt_tbl) = updt.table
-  let UpdateSets(updt_sets) = updt.set
 
   prp_stm
   |> prepared_statement.append_sql("UPDATE " <> updt_tbl)
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
-  |> update_sets_apply(updt_sets)
+  |> update_set_apply(updt.set)
   |> query.from_clause_apply(updt.from)
   |> query.join_clause_apply(updt.join)
   |> query.where_clause_apply(updt.where)
@@ -401,6 +401,16 @@ fn update_modifier_apply(
   }
 }
 
+fn update_set_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  update_sets updt_sts: UpdateSets,
+) {
+  case updt_sts {
+    NoUpdateSets -> prp_stm
+    UpdateSets(updt_sets) -> prp_stm |> update_sets_apply(updt_sets)
+  }
+}
+
 fn update_sets_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_sets updt_sts: List(UpdateSet),
@@ -408,7 +418,7 @@ fn update_sets_apply(
   let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
     case cols {
       [] -> new_prp_stm |> prepared_statement.append_sql(" ")
-      [col] -> new_prp_stm |> prepared_statement.append_sql(col <> " =")
+      [col] -> new_prp_stm |> prepared_statement.append_sql(" " <> col <> " =")
       [_col, ..] ->
         new_prp_stm
         |> prepared_statement.append_sql(
