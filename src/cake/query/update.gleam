@@ -51,11 +51,11 @@ pub fn string(value vl: String) -> Param {
 
 /// Creates a minimal `Update` query specifying the table and the sets.
 ///
-pub fn new(table tbl: String, sets sts: List(UpdateSet)) -> Update(a) {
+pub fn new(table tbl: String) -> Update(a) {
   Update(
     modifier: NoUpdateModifier,
     table: UpdateTable(tbl),
-    set: UpdateSets(sts),
+    set: NoUpdateSets,
     from: NoFrom,
     join: NoJoins,
     where: NoWhere,
@@ -88,6 +88,42 @@ pub fn set_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
 }
 
+/// Sets or appends one columne set in an `Update` query.
+///
+pub fn set(query qry: Update(a), set st: UpdateSet) -> Update(a) {
+  case qry.set {
+    NoUpdateSets -> Update(..qry, set: UpdateSets([st]))
+    UpdateSets(sets) ->
+      Update(..qry, set: UpdateSets(sets |> list.append([st])))
+  }
+}
+
+/// Sets or replaces one column set in an `Update` query.
+///
+pub fn set_replace(query qry: Update(a), set st: UpdateSet) -> Update(a) {
+  Update(..qry, set: UpdateSets([st]))
+}
+
+/// Sets or appends many column sets n an `Update` query.
+///
+pub fn sets(query qry: Update(a), set sts: List(UpdateSet)) -> Update(a) {
+  case qry.set {
+    NoUpdateSets -> Update(..qry, set: UpdateSets(sts))
+    UpdateSets(sets) -> Update(..qry, set: UpdateSets(sets |> list.append(sts)))
+  }
+}
+
+/// Sets or replaces many column sets in an `Update` query.
+///
+pub fn sets_replace(
+  query qry: Update(a),
+  sets sts: List(UpdateSet),
+) -> Update(a) {
+  Update(..qry, set: UpdateSets(sts))
+}
+
+/// Get the sets of the `Update` query.
+///
 pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
   case qry.set {
     NoUpdateSets -> []
@@ -97,7 +133,7 @@ pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
 
 /// Sets many columns to an expression value.
 ///
-/// NOTICE: the expression must return the same number of columns.
+/// NOTICE: the expression must return an equal count of columns.
 ///
 pub fn set_many_to_expression(
   columns cols: List(String),
@@ -108,7 +144,7 @@ pub fn set_many_to_expression(
 
 /// Sets many columns to a sub-query value.
 ///
-/// NOTICE: the sub-query must return the same number of columns.
+/// NOTICE: the sub-query must return an equal count of columns.
 ///
 pub fn set_many_to_sub_query(
   columns cols: List(String),

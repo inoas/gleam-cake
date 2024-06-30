@@ -28,9 +28,9 @@ test_name: update_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "UPDATE cats SET is_wild = (SELECT (CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild FROM cats LIMIT 1)",
-    [],
-    0,
+    "UPDATE cats SET  age = age + 1,  name = ?",
+    [StringParam("Joe")],
+    1,
     Mysql,
   ),
 )

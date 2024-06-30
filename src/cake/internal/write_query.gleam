@@ -353,6 +353,7 @@ pub type UpdateModifier {
 }
 
 pub type UpdateTable {
+  // TODO v1 NoUpdateTable
   UpdateTable(String)
 }
 
@@ -417,6 +418,7 @@ fn update_sets_apply(
 ) {
   let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
     case cols {
+      // TODO v1: something wrong about whitespace
       [] -> new_prp_stm |> prepared_statement.append_sql(" ")
       [col] -> new_prp_stm |> prepared_statement.append_sql(" " <> col <> " =")
       [_col, ..] ->
