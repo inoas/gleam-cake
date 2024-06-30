@@ -7,9 +7,10 @@ import cake/internal/query.{
   NoComment, NoEpilog, NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Update, type UpdateSet, type UpdateSets, type WriteQuery, NoReturning,
-  NoUpdateModifier, NoUpdateSets, Returning, Update, UpdateExpressionSet,
-  UpdateParamSet, UpdateQuery, UpdateSets, UpdateSubQuerySet, UpdateTable,
+  type Update, type UpdateSet, type UpdateSets, type UpdateTable,
+  type WriteQuery, NoReturning, NoUpdateModifier, NoUpdateSets, NoUpdateTable,
+  Returning, Update, UpdateExpressionSet, UpdateParamSet, UpdateQuery,
+  UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
 import cake/param.{type Param}
 import gleam/list
@@ -49,12 +50,12 @@ pub fn string(value vl: String) -> Param {
 
 // ▒▒▒ Constructor ▒▒▒
 
-/// Creates a minimal `Update` query specifying the table and the sets.
+/// Creates an empty `Update` query.
 ///
-pub fn new(table tbl: String) -> Update(a) {
+pub fn new() -> Update(a) {
   Update(
     modifier: NoUpdateModifier,
-    table: UpdateTable(tbl),
+    table: NoUpdateTable,
     set: NoUpdateSets,
     from: NoFrom,
     join: NoJoins,
@@ -63,6 +64,20 @@ pub fn new(table tbl: String) -> Update(a) {
     epilog: NoEpilog,
     comment: NoComment,
   )
+}
+
+// ▒▒▒ Table ▒▒▒
+
+/// Sets the table of the `Update` query.
+///
+pub fn table(query qry: Update(a), table_name tbl_nm: String) -> Update(a) {
+  Update(..qry, table: UpdateTable(tbl_nm))
+}
+
+/// Get the table of the `Update` query.
+///
+pub fn get_table(query qry: Update(a)) -> UpdateTable {
+  qry.table
 }
 
 // ▒▒▒ Set ▒▒▒

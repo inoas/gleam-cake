@@ -30,7 +30,8 @@ fn swap_is_wild_sub_query() {
 }
 
 fn update_postes_sqlite_query() {
-  u.new(table: "cats")
+  u.new()
+  |> u.table("cats")
   |> u.sets([
     "age" |> u.set_to_expression("age + 1"),
     "name" |> u.set_to_param(u.string("Joe")),
@@ -41,7 +42,8 @@ fn update_postes_sqlite_query() {
 }
 
 fn update_maria_query() {
-  u.new(table: "cats")
+  u.new()
+  |> u.table("cats")
   |> u.sets([
     "age" |> u.set_to_expression("age + 1"),
     "name" |> u.set_to_param(u.string("Joe")),
@@ -53,7 +55,8 @@ fn update_maria_query() {
 }
 
 fn update_mysql_query() {
-  u.new(table: "cats")
+  u.new()
+  |> u.table("cats")
   |> u.sets([
     "age" |> u.set_to_expression("age + 1"),
     "name" |> u.set_to_param(u.string("Joe")),

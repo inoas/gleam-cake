@@ -93,6 +93,7 @@ pub type Insert(a) {
 }
 
 pub type InsertIntoTable {
+  // TODO v1 NoInsertIntoTable
   InsertIntoTable(name: String)
 }
 
@@ -353,7 +354,7 @@ pub type UpdateModifier {
 }
 
 pub type UpdateTable {
-  // TODO v1 NoUpdateTable
+  NoUpdateTable
   UpdateTable(String)
 }
 
@@ -376,10 +377,8 @@ fn update_apply(
   prepared_statement prp_stm: PreparedStatement,
   update updt: Update(a),
 ) {
-  let UpdateTable(updt_tbl) = updt.table
-
   prp_stm
-  |> prepared_statement.append_sql("UPDATE " <> updt_tbl)
+  |> update_table_apply(updt.table)
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
   |> update_set_apply(updt.set)
@@ -389,6 +388,19 @@ fn update_apply(
   |> returning_apply(updt.returning)
   |> query.comment_apply(updt.comment)
   |> query.epilog_apply(updt.epilog)
+}
+
+fn update_table_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  table tbl: UpdateTable,
+) -> PreparedStatement {
+  case tbl {
+    NoUpdateTable -> prp_stm
+    UpdateTable(tbl) ->
+      prp_stm
+      |> prepared_statement.append_sql(" ")
+      |> prepared_statement.append_sql(tbl)
+  }
 }
 
 fn update_modifier_apply(
@@ -484,6 +496,7 @@ pub type DeleteModifier {
 }
 
 pub type DeleteTable {
+  // TODO v1 NoDeleteTable
   DeleteTable(name: String)
 }
 
