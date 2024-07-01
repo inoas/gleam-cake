@@ -44,7 +44,7 @@ This is an SQL query building library, thus it is not concerned about:
   - `sqlight`
   - `gleam_mysql`
 
-### Non-Goals
+### Non-goals
 
 - You can still craft invalid queries at any time, for example:
   - Omitting certain parts of queries required for them to run, such as
