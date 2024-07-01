@@ -26,10 +26,7 @@ See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test)
 
 ## Scope
 
-This is an SQL query building library, thus it is not concerned about:
-
-1. ~Executing queries.~
-2. ~Decoding return values from queries.~
+This is an SQL query building library, thus it is not concerned about executing queries or decoding return values from queries, but merely about being a flexible and powerful too to compose and craft SQL read and write queries.
 
 ### Goals
 
