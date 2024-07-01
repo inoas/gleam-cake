@@ -1,0 +1,34 @@
+---
+version: 1.1.6
+title: update_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "UPDATE cats SET  age = age + 1,  name = $1,  is_wild = (SELECT (CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild FROM cats LIMIT 1) RETURNING name, age",
+    [StringParam("Joe")],
+    1,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE cats SET  age = age + 1,  name = ?1,  is_wild = (SELECT (CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild FROM cats LIMIT 1) RETURNING name, age",
+    [StringParam("Joe")],
+    1,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE cats SET  age = age + 1,  name = ?,  is_wild = (SELECT (CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild FROM cats LIMIT 1)",
+    [StringParam("Joe")],
+    1,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE cats SET  age = age + 1,  name = ?",
+    [StringParam("Joe")],
+    1,
+    Mysql,
+  ),
+)

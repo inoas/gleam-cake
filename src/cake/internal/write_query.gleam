@@ -486,8 +486,7 @@ fn update_sets_apply(
 ) -> PreparedStatement {
   let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
     case cols {
-      // TODO v1: something wrong about whitespace
-      [] -> new_prp_stm |> prepared_statement.append_sql(" ")
+      [] -> new_prp_stm
       [col] -> new_prp_stm |> prepared_statement.append_sql(" " <> col <> " =")
       [_col, ..] ->
         new_prp_stm
@@ -517,7 +516,7 @@ fn update_sets_apply(
           |> apply_columns(cols)
           |> prepared_statement.append_sql(" " <> expr)
         UpdateSubQuerySet(columns: cols, sub_query: qry) ->
-          prp_stm
+          new_prp_stm
           |> apply_columns(cols)
           |> prepared_statement.append_sql(" (")
           |> query.apply(qry)

@@ -6,6 +6,8 @@
 - Added documentation for the `insert`, `update` and `delete` interface modules.
 - Improved tests for `UPDATE`.
 - Renamed `select.groups_by` to `select.group_bys`.
+- Fixed bugs when updating with sub-queries, where specifying a sub_query
+  while setting update columns to vales would remove all other settings.
 
 ## 0.6.0 - 2024-06-27
 
