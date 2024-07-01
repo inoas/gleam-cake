@@ -24,14 +24,13 @@ pub const placeholder = query.fragment_placeholder_grapheme
 ///
 /// If you missmatch the number of placeholders with the number of
 /// parameters, an error will be printed to the console and the fragment will be
-/// created with the given parameters.
+/// created with the given parameters:
 ///
-/// If there are too many placeholders, the fragment will be created with the
-/// given parameters and the last parameter will be repeated for the remaining
-/// placeholders.
-///
-/// If there are too many parameters, the fragment will be created with the
-/// given parameters and the remaining parameters will be ignored.
+/// - If there are too many placeholders, the fragment will be created with the
+///   given parameters and the last parameter will be repeated for the remaining
+///   placeholders.
+/// - If there are too many parameters, the fragment will be created with the
+///   given parameters and the remaining parameters will be ignored.
 ///
 /// ⛔ ⛔ ⛔
 ///
@@ -89,7 +88,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 ///
 /// ⛔ ⛔ ⛔
 ///
-/// WARNING: YOU ARE FORBIDDEN TO INSERT USER INPUT THIS WAY!
+/// WARNING: YOU ARE FORBIDDEN TO INSERT UNCONTROLLED USER INPUT THIS WAY!
 ///
 /// ⛔ ⛔ ⛔
 ///
