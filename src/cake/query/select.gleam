@@ -434,7 +434,7 @@ pub fn replace_group_by(query qry: Select, group_by grpb: String) -> Select {
 
 /// Sets or appends a list of `GroupBy` into an existing `GroupBy`.
 ///
-pub fn groups_by(query qry: Select, group_bys grpbs: List(String)) -> Select {
+pub fn group_bys(query qry: Select, group_bys grpbs: List(String)) -> Select {
   case qry.group_by {
     NoGroupBy -> Select(..qry, group_by: GroupBy(grpbs))
     GroupBy(grpbs) ->

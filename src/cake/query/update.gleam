@@ -137,15 +137,6 @@ pub fn sets_replace(
   Update(..qry, set: UpdateSets(sts))
 }
 
-/// Get the sets of the `Update` query.
-///
-pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
-  case qry.set {
-    NoUpdateSets -> []
-    UpdateSets(sets) -> sets
-  }
-}
-
 /// Sets many columns to an expression value.
 ///
 /// NOTICE: the expression must return an equal count of columns.
@@ -166,6 +157,15 @@ pub fn set_many_to_sub_query(
   sub_query qry: Query,
 ) -> UpdateSet {
   UpdateSubQuerySet(columns: cols, sub_query: qry)
+}
+
+/// Get the sets of the `Update` query.
+///
+pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
+  case qry.set {
+    NoUpdateSets -> []
+    UpdateSets(sets) -> sets
+  }
 }
 
 // ▒▒▒ FROM ▒▒▒

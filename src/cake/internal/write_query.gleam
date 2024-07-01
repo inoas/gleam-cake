@@ -93,11 +93,12 @@ pub type Insert(a) {
 }
 
 pub type InsertIntoTable {
-  // TODO v1 NoInsertIntoTable
+  NoInsertIntoTable
   InsertIntoTable(name: String)
 }
 
 pub type InsertColumns {
+  NoInsertColumns
   InsertColumns(columns: List(String))
 }
 
@@ -106,23 +107,43 @@ pub type InsertModifier {
   InsertModifier(modifier: String)
 }
 
+/// The `InsertSource` type is used to define the source of the data to be
+/// inserted into a table. It can be:
+///
+/// - `NoInsertSource` when no source is provided.
+/// - `InsertSourceDefault` when the default values are used.
+/// - `InsertSourceRecords` when a list of records is provided.
+/// - `InsertSourceRows` when a list of rows is provided.
+/// - `InsertSourceQuery` when a query is provided.
+///
 pub type InsertSource(a) {
+  NoInsertSource
   InsertSourceDefault
   InsertSourceRecords(records: List(a), caster: fn(a) -> InsertRow)
   InsertSourceRows(records: List(InsertRow))
   InsertSourceQuery(query: Query)
 }
 
+/// The `InsertRow` type is used to define a row to be inserted into a table.
+///
 pub type InsertRow {
   InsertRow(row: List(InsertValue))
 }
 
+/// The `InsertValue` type is used to define the values to be inserted into
+/// a table. It can be a parameter or a default value.
+///
 pub type InsertValue {
   InsertParam(column: String, param: Param)
   InsertDefault(column: String)
 }
 
-/// InsertConflictUpdate is also known as `INSERT OR UPDATE` aka `UPSERT`.
+/// The `InsertConflictStrategy` defines how to handle conflicts when inserting
+/// data into a table.
+///
+/// - `InsertConflictError` is the default behaviour, which will raise an error.
+/// - `InsertConflictUpdate` is also known as `INSERT OR UPDATE` aka `UPSERT`.
+/// - `InsertConflictIgnore` is also known as `INSERT IGNORE`.
 ///
 pub type InsertConflictStrategy(a) {
   InsertConflictError
@@ -147,21 +168,57 @@ fn insert_apply(
   prepared_statement prp_stm: PreparedStatement,
   insert isrt: Insert(a),
 ) {
-  let InsertIntoTable(name: tbl_name) = isrt.table
-  let InsertColumns(columns: insert_columns) = isrt.columns
+  prp_stm
+  |> insert_into_table_apply(isrt.table)
+  |> insert_columns_apply(isrt.columns)
+  |> insert_modifier_apply(isrt.modifier)
+  |> insert_source_apply(isrt.source)
+  |> insert_on_conflict_apply(isrt.on_conflict)
+  |> returning_apply(isrt.returning)
+  |> query.comment_apply(isrt.comment)
+  |> query.epilog_apply(isrt.epilog)
+}
 
-  let prp_stm =
-    prp_stm
-    |> prepared_statement.append_sql(
-      "INSERT INTO "
-      <> tbl_name
-      <> " ("
-      <> insert_columns |> string.join(", ")
-      <> ")",
-    )
-    |> insert_modifier_apply(isrt.modifier)
+fn insert_into_table_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  table tbl: InsertIntoTable,
+) -> PreparedStatement {
+  case tbl {
+    NoInsertIntoTable -> prp_stm |> prepared_statement.append_sql("INSERT INTO")
+    InsertIntoTable(name: tbl_name) ->
+      prp_stm |> prepared_statement.append_sql("INSERT INTO " <> tbl_name)
+  }
+}
 
-  let prp_stm = case isrt.source {
+fn insert_columns_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  columns cols: InsertColumns,
+) -> PreparedStatement {
+  case cols {
+    NoInsertColumns -> prp_stm
+    InsertColumns(columns: cols) ->
+      prp_stm
+      |> prepared_statement.append_sql(" (" <> cols |> string.join(", ") <> ")")
+  }
+}
+
+fn insert_modifier_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  insert_modifer isrt_mdfr: InsertModifier,
+) -> PreparedStatement {
+  case isrt_mdfr {
+    NoInsertModifier -> prp_stm
+    InsertModifier(modifier: mdfr) ->
+      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
+  }
+}
+
+fn insert_source_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  source src: InsertSource(a),
+) -> PreparedStatement {
+  case src {
+    NoInsertSource -> prp_stm
     InsertSourceRecords(records: src, caster: cstr) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
@@ -176,23 +233,6 @@ fn insert_apply(
       |> insert_from_query_apply(query: qry)
     InsertSourceDefault ->
       prp_stm |> prepared_statement.append_sql(" DEFAULT VALUES")
-  }
-
-  prp_stm
-  |> on_conflict_apply(isrt.on_conflict)
-  |> returning_apply(isrt.returning)
-  |> query.comment_apply(isrt.comment)
-  |> query.epilog_apply(isrt.epilog)
-}
-
-fn insert_modifier_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  insert_modifer isrt_mdfr: InsertModifier,
-) -> PreparedStatement {
-  case isrt_mdfr {
-    NoInsertModifier -> prp_stm
-    InsertModifier(modifier: mdfr) ->
-      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
   }
 }
 
@@ -292,7 +332,7 @@ fn insert_from_query_apply(
   |> prepared_statement.append_sql(")")
 }
 
-fn on_conflict_apply(
+fn insert_on_conflict_apply(
   prepared_statement prp_stm: PreparedStatement,
   on_conflict_strategy on_cnf: InsertConflictStrategy(a),
 ) {
@@ -301,20 +341,20 @@ fn on_conflict_apply(
     InsertConflictIgnore(target: cflt_trgt, where: whr) ->
       prp_stm
       |> prepared_statement.append_sql(" ON CONFLICT")
-      |> on_conflict_target_apply(cflt_trgt)
+      |> insert_on_conflict_target_apply(cflt_trgt)
       |> query.where_clause_apply(whr)
       |> prepared_statement.append_sql(" DO NOTHING")
     InsertConflictUpdate(target: cflt_trgt, where: whr, update: upt) ->
       prp_stm
       |> prepared_statement.append_sql(" ON CONFLICT (")
-      |> on_conflict_target_apply(cflt_trgt)
+      |> insert_on_conflict_target_apply(cflt_trgt)
       |> query.where_clause_apply(whr)
       |> prepared_statement.append_sql(" DO ")
       |> update_apply(upt)
   }
 }
 
-fn on_conflict_target_apply(
+fn insert_on_conflict_target_apply(
   prepared_statement prp_stm: PreparedStatement,
   target cflt_trgt: InsertConfictTarget,
 ) {
@@ -378,6 +418,7 @@ fn update_apply(
   update updt: Update(a),
 ) {
   prp_stm
+  |> prepared_statement.append_sql("UPDATE")
   |> update_table_apply(updt.table)
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
@@ -398,8 +439,7 @@ fn update_table_apply(
     NoUpdateTable -> prp_stm
     UpdateTable(tbl) ->
       prp_stm
-      |> prepared_statement.append_sql(" ")
-      |> prepared_statement.append_sql(tbl)
+      |> prepared_statement.append_sql(" " <> tbl)
   }
 }
 

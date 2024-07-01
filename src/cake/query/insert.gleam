@@ -5,12 +5,13 @@ import cake/internal/query.{
   type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
 }
 import cake/internal/write_query.{
-  type Insert, type InsertRow, type InsertSource, type InsertValue, type Update,
-  type WriteQuery, Insert, InsertColumns, InsertConflictError,
+  type Insert, type InsertColumns, type InsertConflictStrategy,
+  type InsertIntoTable, type InsertRow, type InsertSource, type InsertValue,
+  type Update, type WriteQuery, Insert, InsertColumns, InsertConflictError,
   InsertConflictIgnore, InsertConflictTarget, InsertConflictTargetConstraint,
   InsertConflictUpdate, InsertIntoTable, InsertModifier, InsertParam,
-  InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows,
-  NoInsertModifier, NoReturning, Returning,
+  InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
+  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
 import cake/param.{type Param}
 import gleam/string
@@ -66,6 +67,21 @@ pub fn null() -> Param {
 
 // ▒▒▒ Constructors ▒▒▒
 
+/// Create an empty `INSERT` query.
+///
+pub fn new() -> Insert(a) {
+  Insert(
+    table: NoInsertIntoTable,
+    modifier: NoInsertModifier,
+    source: NoInsertSource,
+    columns: NoInsertColumns,
+    on_conflict: InsertConflictError,
+    returning: NoReturning,
+    epilog: NoEpilog,
+    comment: NoComment,
+  )
+}
+
 /// Create an `INSERT` query from a list of gleam records.
 ///
 /// The `caster` function is used to convert each record into an `InsertRow`.
@@ -117,8 +133,8 @@ pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
 
 /// Get the table name to insert into from an `Insert` query.
 ///
-pub fn get_table(query qry: Insert(a)) -> String {
-  qry.table.name
+pub fn get_table(query qry: Insert(a)) -> InsertIntoTable {
+  qry.table
 }
 
 // ▒▒▒ Modifier ▒▒▒
@@ -185,6 +201,10 @@ pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
 ///
 pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {
   Insert(..qry, columns: InsertColumns(columns: cols))
+}
+
+pub fn get_columns(query qry: Insert(a)) -> InsertColumns {
+  qry.columns
 }
 
 // ▒▒▒ ON CONFLICT ▒▒▒
@@ -273,6 +293,12 @@ pub fn on_constraint_conflict_update(
       update: updt,
     ),
   )
+}
+
+/// Get the conflict strategy from an `Insert` query.
+///
+pub fn get_on_conflict(query qry: Insert(a)) -> InsertConflictStrategy(a) {
+  qry.on_conflict
 }
 
 // ▒▒▒ RETURNING ▒▒▒
