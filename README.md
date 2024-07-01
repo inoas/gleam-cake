@@ -28,8 +28,8 @@ See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test)
 
 This is an SQL query building library, thus it is not concerned about:
 
-1. executing queries
-2. decoding return values from queries
+1. ~Executing queries.~
+2. ~Decoding return values from queries.~
 
 ### Goals
 
