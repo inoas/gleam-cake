@@ -11,6 +11,7 @@
 //// - SQLite does not support `ANY`, `ALL` and `SIMILAR TO`.
 ////
 
+import cake/internal/param
 import cake/internal/query.{
   type Fragment, type Query, type Where, type WhereValue, AndWhere, Equal,
   Greater, GreaterOrEqual, Lower, LowerOrEqual, NotWhere, OrWhere,
@@ -19,7 +20,6 @@ import cake/internal/query.{
   WhereILike, WhereIn, WhereIsBool, WhereIsNotBool, WhereIsNotNull, WhereIsNull,
   WhereLike, WhereParamValue, WhereSimilarTo, XorWhere,
 }
-import cake/param
 
 /// Creates a `WhereValue` from a column name `String`.
 ///

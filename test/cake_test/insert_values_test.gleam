@@ -1,5 +1,5 @@
 import birdie
-import cake/query/insert as i
+import cake/insert as i
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
 import test_helper/mysql_test_helper

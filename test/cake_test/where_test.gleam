@@ -1,7 +1,7 @@
 import birdie
-import cake/query/fragment as frgmt
-import cake/query/select as s
-import cake/query/where as w
+import cake/fragment as frgmt
+import cake/select as s
+import cake/where as w
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
 import test_helper/mysql_test_helper

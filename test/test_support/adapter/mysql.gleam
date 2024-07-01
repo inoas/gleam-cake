@@ -2,13 +2,13 @@
 //// to the `gmysql` library for execution.
 ////
 
-import cake/dialect.{Mysql}
+import cake/internal/dialect.{Mysql}
+import cake/internal/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/write_query.{type WriteQuery}
-import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
-}
 import gleam/list
 import gleam/option.{None, Some}
 import gmysql.{type Connection}

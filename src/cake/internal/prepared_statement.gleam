@@ -3,8 +3,8 @@
 //// values rather than raw SQL.
 ////
 
-import cake/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
-import cake/param.{type Param}
+import cake/internal/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
+import cake/internal/param.{type Param}
 import gleam/int
 import gleam/list
 

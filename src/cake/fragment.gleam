@@ -7,8 +7,8 @@
 //// injections.
 ////
 
+import cake/internal/param.{type Param}
 import cake/internal/query.{type Fragment}
-import cake/param.{type Param}
 import gleam/int
 import gleam/io
 import gleam/list

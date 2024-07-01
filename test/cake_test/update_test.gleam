@@ -1,7 +1,7 @@
 import birdie
-import cake/query/fragment as f
-import cake/query/select as s
-import cake/query/update as u
+import cake/fragment as f
+import cake/select as s
+import cake/update as u
 import gleam/string
 import pprint.{format as to_string}
 import test_helper/maria_test_helper

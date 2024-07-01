@@ -4,13 +4,13 @@
 
 // TODO: Add to query validator in v2 or v3
 
-import cake/dialect.{type Dialect}
+import cake/internal/dialect.{type Dialect}
+import cake/internal/param.{type Param}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{
   type Comment, type Epilog, type From, type Joins, type Query, type Where,
   Epilog, FromSubQuery, FromTable, NoFrom,
 }
-import cake/param.{type Param}
 import gleam/list
 import gleam/string
 

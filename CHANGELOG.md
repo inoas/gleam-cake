@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 - 2024-07-02
+
+- Flattened the query interface/DSL modules into the base namespace of `cake/`.
+- Moved some modules only used internally into `cake/internal/` namespace.
+
 ## 0.7.0 - 2024-07-01
 
 - Improved builder flexibility for inserts and updates.

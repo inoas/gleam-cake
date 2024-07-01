@@ -2,13 +2,13 @@
 //// to the `gleam_pgo` library for execution.
 ////
 
-import cake/dialect.{Postgres}
+import cake/internal/dialect.{Postgres}
+import cake/internal/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/query.{type Query}
 import cake/internal/write_query.{type WriteQuery}
-import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
-}
 import gleam/dynamic
 import gleam/list
 import gleam/option.{Some}

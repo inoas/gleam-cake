@@ -1,6 +1,7 @@
 //// A DSL to build `INSERT` queries.
 ////
 
+import cake/internal/param.{type Param}
 import cake/internal/query.{
   type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
 }
@@ -13,7 +14,6 @@ import cake/internal/write_query.{
   InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
   NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
-import cake/param.{type Param}
 import gleam/string
 
 /// Creates a `WriteQuery` from an `Insert` query.

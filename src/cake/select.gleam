@@ -1,6 +1,7 @@
 //// A DSL to build `SELECT` queries.
 ////
 
+import cake/internal/param
 import cake/internal/query.{
   type Comment, type Epilog, type Fragment, type From, type GroupBy, type Join,
   type Joins, type Limit, type Offset, type OrderBy, type OrderByDirection,
@@ -11,7 +12,6 @@ import cake/internal/query.{
   SelectAlias, SelectAll, SelectColumn, SelectDistinct, SelectFragment,
   SelectParam, SelectQuery, Selects, XorWhere,
 }
-import cake/param
 import gleam/list
 import gleam/string
 

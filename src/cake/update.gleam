@@ -1,6 +1,7 @@
 //// A DSL to build `UPDATE` queries.
 ////
 
+import cake/internal/param.{type Param}
 import cake/internal/query.{
   type Comment, type Epilog, type From, type Join, type Joins, type Query,
   type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
@@ -12,7 +13,6 @@ import cake/internal/write_query.{
   Returning, Update, UpdateExpressionSet, UpdateParamSet, UpdateQuery,
   UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
-import cake/param.{type Param}
 import gleam/list
 import gleam/string
 

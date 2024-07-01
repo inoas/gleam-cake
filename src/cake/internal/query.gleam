@@ -10,8 +10,8 @@
 //// whatever you want in userland code, however the whole module is internal
 //// because you _SHOULD NOT_ build queries based on raw types manually.
 ////
-//// Because the likihood of creating invalid queries is mich higher than using
-//// the interface modules found in `cake/query/*`.
+//// Because the likihood of creating invalid queries is much higher than using
+//// the interface modules found in `cake/*`.
 ////
 //// WARNING: Once the library has matured, public access to these types _may_
 //// vanish.
@@ -33,9 +33,9 @@
 
 // TODO: Add to query validator in v2 or v3
 
-import cake/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
+import cake/internal/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
+import cake/internal/param.{type Param}
 import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/param.{type Param}
 import gleam/int
 import gleam/list
 import gleam/order
