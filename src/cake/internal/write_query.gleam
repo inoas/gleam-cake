@@ -383,6 +383,8 @@ fn insert_on_conflict_target_apply(
 // │  Update                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Represents an `UPDATE` statement.
+///
 /// NOTICE: Postgres and SQLite only support `JOIN` in `UPDATE` if `FROM` is
 /// also given.
 ///
@@ -423,6 +425,7 @@ pub type UpdateSets {
 }
 
 /// Specifies an update set
+///
 pub type UpdateSet {
   UpdateParamSet(column: String, param: Param)
   UpdateExpressionSet(columns: List(String), expression: String)
