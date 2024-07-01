@@ -24,6 +24,38 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
 
+## Scope
+
+This is an SQL query building library, thus it is not concerned about:
+
+1. executing queries
+2. decoding return values from queries
+
+### Goals
+
+- High degree of flexibility to compose queries:
+  While the focus is on building queries up there is also support for replacing
+  or removing parts of queries.
+- General support on these 4 large RDMS: PostgreSQL, SQLite, MariaDB and MySQL.
+- Not being tied to any specific dialect or dialect adapter library.
+- Documentation should be extensive and wholesome.
+- It should be easy to use with existing gleam dialect adapters such as:
+  - `gleam_pgo`
+  - `sqlight`
+  - `gleam_mysql`
+
+### Non-Goals
+
+- You can still craft invalid queries at any time, for example:
+  - Omitting certain parts of queries required for them to run, such as
+    not specifying a table name
+  - Comparing values incompatible by type
+- Making sure every possible feature runs on every database.
+  For example: While Cake supports `RETURNING` on PostgreSQL and SQLite,
+  it does not support it on MariaDB or MySQL.
+- Automagic optimization: This library is not here to replace SQL knowledge, but
+  to allow crafting and combining SQL queries in a mostly type safe way.
+
 ## Tested targets
 
 - Sqlite3 of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
