@@ -3,4 +3,4 @@
 # Go to the root of the project
 cd "$(dirname "$0")" && cd ..
 
-cloc ./src ./test
+cloc ./bin ./birdie_snapshots ./sh ./sql ./src ./test
