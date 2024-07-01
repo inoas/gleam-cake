@@ -7,9 +7,9 @@ import cake/internal/query.{
   OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Delete, type DeleteUsing, type WriteQuery, Delete, DeleteModifier,
-  DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier, NoDeleteUsing,
-  NoReturning, Returning, type DeleteTable
+  type Delete, type DeleteTable, type DeleteUsing, type WriteQuery, Delete,
+  DeleteModifier, DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier,
+  NoDeleteUsing, NoReturning, Returning,
 }
 import gleam/list
 import gleam/string
