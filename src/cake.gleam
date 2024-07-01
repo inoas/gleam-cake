@@ -2,7 +2,8 @@
 ////
 //// - PostgreSQL
 //// - SQLite
-//// - MariaDB / MySQL
+//// - MariaDB
+//// - MySQL
 ////
 //// For examples see the tests.
 ////
