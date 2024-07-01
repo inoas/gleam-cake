@@ -114,7 +114,7 @@ pub fn where_any_prepared_statement_test() {
 
 pub fn where_any_execution_result_test() {
   let pgo = where_any_query() |> postgres_test_helper.setup_and_run
-  // This is supposed to fail because SQLite does not support any:
+  // This is supposed to fail because SQLite does not support ´ANY´:
   let lit = where_any_query() |> sqlite_test_helper.setup_and_run
   let mdb = where_any_query() |> maria_test_helper.setup_and_run
   let myq = where_any_query() |> mysql_test_helper.setup_and_run
