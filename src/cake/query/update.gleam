@@ -161,7 +161,7 @@ pub fn set_many_to_sub_query(
 
 /// Get the sets of the `Update` query.
 ///
-pub fn get_sets(query qry: Update(a)) -> List(UpdateSet) {
+pub fn get_set(query qry: Update(a)) -> List(UpdateSet) {
   case qry.set {
     NoUpdateSets -> []
     UpdateSets(sets) -> sets
