@@ -502,8 +502,8 @@ fn update_sets_apply(
     prp_stm,
     fn(new_prp_stm: PreparedStatement, updt_st: UpdateSet) -> PreparedStatement {
       let new_prp_stm = case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> prepared_statement.append_sql(" ")
-        False -> new_prp_stm |> prepared_statement.append_sql(", ")
+        True -> new_prp_stm
+        False -> new_prp_stm |> prepared_statement.append_sql(",")
       }
       case updt_st {
         UpdateParamSet(column: col, param: prm) ->

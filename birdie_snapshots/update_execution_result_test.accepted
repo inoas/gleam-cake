@@ -6,18 +6,18 @@ test_name: update_execution_result_test
 ---
 #(
   Ok([
-    #("Nubi", 4),
-    #("Biffy", 10),
-    #("Ginny", 6),
-    #("Karl", 8),
-    #("Clara", 3),
+    #("Joe", 5),
+    #("Joe", 11),
+    #("Joe", 7),
+    #("Joe", 9),
+    #("Joe", 4),
   ]),
   Ok([
-    #("Nubi", 4),
-    #("Biffy", 10),
-    #("Ginny", 6),
-    #("Karl", 8),
-    #("Clara", 3),
+    #("Joe", 5),
+    #("Joe", 11),
+    #("Joe", 7),
+    #("Joe", 9),
+    #("Joe", 4),
   ]),
   Ok([]),
   Ok([]),
