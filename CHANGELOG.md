@@ -29,7 +29,6 @@
 - Removed the hard dependency on any RDMBS specific
   library. These are now only required when developing and testing
   this library, but when running you can chose any of the following adapters:
-
   - `gleam_pgo`
   - `sqlight`
   - `gmysql`
