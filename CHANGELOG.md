@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 - 2024-07-01
+
+- Improved builder flexibility for inserts and updates.
+- Added documentation for the `insert`, `update` and `delete` interface modules.
+
 ## 0.6.0 - 2024-06-27
 
 - Added MySQL independent of MariaDB as first class supported.

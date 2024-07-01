@@ -31,6 +31,8 @@ pub type WriteQuery(a) {
   DeleteQuery(Delete(a))
 }
 
+/// Converts a `WriteQuery` into a `PreparedStatement`.
+///
 pub fn to_prepared_statement(
   query qry: WriteQuery(a),
   plchldr_bs prp_stm_prfx: String,
@@ -56,6 +58,9 @@ fn apply(
 // │  Returning                                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// `Returning` is used to define the columns to be returned after a write query
+/// has been executed.
+///
 pub type Returning {
   NoReturning
   Returning(columns: List(String))
@@ -78,6 +83,8 @@ fn returning_apply(
 // │  Insert                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Defines an `INSERT` query.
+///
 pub type Insert(a) {
   Insert(
     // with (_recursive?): ?, // v2
@@ -92,16 +99,23 @@ pub type Insert(a) {
   )
 }
 
+/// The `InsertIntoTable` type is used to define the table to insert data into.
+///
 pub type InsertIntoTable {
   NoInsertIntoTable
   InsertIntoTable(name: String)
 }
 
+/// The `InsertColumns` type is used to define the columns to insert data into.
+///
 pub type InsertColumns {
   NoInsertColumns
   InsertColumns(columns: List(String))
 }
 
+/// The `InsertModifier` type is used to define the modifier to be used when
+/// inserting data into a table.
+///
 pub type InsertModifier {
   NoInsertModifier
   InsertModifier(modifier: String)
@@ -155,13 +169,12 @@ pub type InsertConflictStrategy(a) {
   )
 }
 
+/// The `InsertConfictTarget` type is used to define the target of the conflict
+/// resolution.
+///
 pub type InsertConfictTarget {
   InsertConflictTarget(columns: List(String))
   InsertConflictTargetConstraint(constraint: String)
-}
-
-pub fn to_insert_query(insert: Insert(a)) -> WriteQuery(a) {
-  insert |> InsertQuery
 }
 
 fn insert_apply(
@@ -388,29 +401,32 @@ pub type Update(a) {
   )
 }
 
+/// Sets an `UPDATE` modifier.
+///
 pub type UpdateModifier {
   NoUpdateModifier
   UpdateModifier(modifier: String)
 }
 
+/// Specifies the table to `UPDATE`.
+///
 pub type UpdateTable {
   NoUpdateTable
   UpdateTable(String)
 }
 
+/// Specifies the columns to `UPDATE` and their values.
+///
 pub type UpdateSets {
   NoUpdateSets
   UpdateSets(List(UpdateSet))
 }
 
+/// Specifies an update set
 pub type UpdateSet {
   UpdateParamSet(column: String, param: Param)
   UpdateExpressionSet(columns: List(String), expression: String)
   UpdateSubQuerySet(columns: List(String), sub_query: Query)
-}
-
-pub fn update_to_write_query(insert: Update(a)) -> WriteQuery(a) {
-  insert |> UpdateQuery
 }
 
 fn update_apply(
@@ -457,7 +473,7 @@ fn update_modifier_apply(
 fn update_set_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_sets updt_sts: UpdateSets,
-) {
+) -> PreparedStatement {
   case updt_sts {
     NoUpdateSets -> prp_stm
     UpdateSets(updt_sets) -> prp_stm |> update_sets_apply(updt_sets)
@@ -467,7 +483,7 @@ fn update_set_apply(
 fn update_sets_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_sets updt_sts: List(UpdateSet),
-) {
+) -> PreparedStatement {
   let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
     case cols {
       // TODO v1: something wrong about whitespace
@@ -515,6 +531,8 @@ fn update_sets_apply(
 // │  Delete                                                                   │
 // └───────────────────────────────────────────────────────────────────────────┘
 
+/// Represents a `DELETE` query.
+///
 /// NOTICE: SQlite does not support `JOIN` in `DELETE`.
 ///
 pub type Delete(a) {
@@ -530,16 +548,22 @@ pub type Delete(a) {
   )
 }
 
+/// Specifies the modifier for `DELETE`.
+///
 pub type DeleteModifier {
   NoDeleteModifier
   DeleteModifier(modifier: String)
 }
 
+/// Specifies the table to `DELETE` from.
+///
 pub type DeleteTable {
-  // TODO v1 NoDeleteTable
+  NoDeleteTable
   DeleteTable(name: String)
 }
 
+/// Specifies the `USING` clause for `DELETE`.
+///
 pub type DeleteUsing {
   NoDeleteUsing
   // TODO v2 In case From wraps a list in future
@@ -547,24 +571,31 @@ pub type DeleteUsing {
   DeleteUsing(froms: List(From))
 }
 
-pub fn delete_to_write_query(insert: Delete(a)) -> WriteQuery(a) {
-  insert |> DeleteQuery
-}
-
 fn delete_apply(
   prepared_statement prp_stm: PreparedStatement,
   delete dlt: Delete(a),
 ) {
-  let DeleteTable(dlt_tbl) = dlt.table
-
   prp_stm
-  |> prepared_statement.append_sql("DELETE " <> dlt_tbl)
+  |> prepared_statement.append_sql("DELETE")
+  |> delete_table_apply(dlt.table)
   |> delete_modifier_apply(dlt.modifier)
   |> using_apply(dlt.using)
   |> query.where_clause_apply(dlt.where)
   |> returning_apply(dlt.returning)
   |> query.comment_apply(dlt.comment)
   |> query.epilog_apply(dlt.epilog)
+}
+
+fn delete_table_apply(
+  prepared_statement prp_stm: PreparedStatement,
+  table tbl: DeleteTable,
+) -> PreparedStatement {
+  case tbl {
+    NoDeleteTable -> prp_stm
+    DeleteTable(tbl) ->
+      prp_stm
+      |> prepared_statement.append_sql(" " <> tbl)
+  }
 }
 
 fn delete_modifier_apply(

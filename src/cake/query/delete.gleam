@@ -9,7 +9,7 @@ import cake/internal/query.{
 import cake/internal/write_query.{
   type Delete, type DeleteUsing, type WriteQuery, Delete, DeleteModifier,
   DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier, NoDeleteUsing,
-  NoReturning, Returning,
+  NoReturning, Returning, type DeleteTable
 }
 import gleam/list
 import gleam/string
@@ -74,8 +74,8 @@ pub fn table(query qry: Delete(a), table_name tbl_nm: String) -> Delete(a) {
 
 /// Gets the table name of the `Delete` query.
 ///
-pub fn get_table(query qry: Delete(a)) -> String {
-  qry.table.name
+pub fn get_table(query qry: Delete(a)) -> DeleteTable {
+  qry.table
 }
 
 // ▒▒▒ USING ▒▒▒
