@@ -4,6 +4,8 @@
 
 - Improved builder flexibility for inserts and updates.
 - Added documentation for the `insert`, `update` and `delete` interface modules.
+- Improved tests for `UPDATE`.
+- Renamed `select.groups_by` to `select.group_bys`.
 
 ## 0.6.0 - 2024-06-27
 
