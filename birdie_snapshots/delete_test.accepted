@@ -1,12 +1,25 @@
 ---
 version: 1.1.6
 title: delete_test
+file: ./test/cake_test/delete_test.gleam
+test_name: delete_test
 ---
 #(
   DeleteQuery(Delete(
     NoDeleteModifier,
     DeleteTable("owners"),
     DeleteUsing([FromTable("cats")]),
+    Joins([
+      InnerJoin(
+        JoinTable("dogs"),
+        "dogs",
+        WhereComparison(
+          WhereColumnValue("dogs.name"),
+          Equal,
+          WhereColumnValue("cats.name"),
+        ),
+      ),
+    ]),
     AndWhere([
       WhereComparison(
         WhereColumnValue("owners.name"),
@@ -27,6 +40,7 @@ title: delete_test
     NoDeleteModifier,
     DeleteTable("owners"),
     NoDeleteUsing,
+    NoJoins,
     WhereComparison(
       WhereColumnValue("owners.name"),
       Equal,
@@ -42,6 +56,17 @@ title: delete_test
     DeleteUsing([
       FromTable("owners"),
       FromTable("cats"),
+    ]),
+    Joins([
+      InnerJoin(
+        JoinTable("dogs"),
+        "dogs",
+        WhereComparison(
+          WhereColumnValue("dogs.name"),
+          Equal,
+          WhereColumnValue("cats.name"),
+        ),
+      ),
     ]),
     AndWhere([
       WhereComparison(
@@ -65,6 +90,17 @@ title: delete_test
     DeleteUsing([
       FromTable("owners"),
       FromTable("cats"),
+    ]),
+    Joins([
+      InnerJoin(
+        JoinTable("dogs"),
+        "dogs",
+        WhereComparison(
+          WhereColumnValue("dogs.name"),
+          Equal,
+          WhereColumnValue("cats.name"),
+        ),
+      ),
     ]),
     AndWhere([
       WhereComparison(

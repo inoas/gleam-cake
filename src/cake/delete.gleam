@@ -2,9 +2,9 @@
 ////
 
 import cake/internal/query.{
-  type Comment, type Epilog, type From, type Query, type Where, AndWhere,
-  Comment, Epilog, FromSubQuery, FromTable, NoComment, NoEpilog, NoWhere,
-  OrWhere, XorWhere,
+  type Comment, type Epilog, type From, type Join, type Joins, type Query,
+  type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
+  NoComment, NoEpilog, NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
   type Delete, type DeleteTable, type DeleteUsing, type WriteQuery, Delete,
@@ -29,6 +29,7 @@ pub fn new() -> Delete(a) {
     modifier: NoDeleteModifier,
     table: NoDeleteTable,
     using: NoDeleteUsing,
+    join: NoJoins,
     where: NoWhere,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -92,9 +93,11 @@ pub fn get_table(query qry: Delete(a)) -> DeleteTable {
 /// The `USING` clause is used to specify additional tables that are used
 /// to filter the rows to be deleted.
 ///
+/// NOTICE: SQLite does not support `USING`.
+///
 /// NOTICE: For MariaDB and MySQL it is mandatory to specify the table specified
-///         in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
-///         `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
+/// in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
+/// `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
 ///
 pub fn using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
   case qry.using {
@@ -116,6 +119,12 @@ pub fn using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
 ///
 /// The `USING` clause is used to specify additional tables that are used
 /// to filter the rows to be deleted.
+///
+/// NOTICE: SQLite does not support `USING`.
+///
+/// NOTICE: MariaDB and MySQL may not support sub-queries in the `USING` clause.
+/// In such case you may use a sub-query in a `WHERE` clause,  or use a join
+/// instead.
 ///
 pub fn using_sub_query(
   query qry: Delete(a),
@@ -182,6 +191,64 @@ pub fn get_using(query qry: Delete(a)) -> List(From) {
     NoDeleteUsing -> []
     DeleteUsing(usng) -> usng
   }
+}
+
+// ▒▒▒ JOIN ▒▒▒
+
+/// Adds a `Join` to the `Delete` query.
+///
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
+pub fn join(query qry: Delete(a), join jn: Join) -> Delete(a) {
+  case qry.join {
+    Joins(jns) -> Delete(..qry, join: jns |> list.append([jn]) |> Joins)
+    NoJoins -> Delete(..qry, join: [jn] |> Joins)
+  }
+}
+
+/// Replaces any `Join`s of the `Delete` query with a signle `Join`.
+///
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
+pub fn replace_join(query qry: Delete(a), join jn: Join) -> Delete(a) {
+  Delete(..qry, join: [jn] |> Joins)
+}
+
+/// Adds `Join`s to the `Delete` query.
+///
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
+pub fn joins(query qry: Delete(a), joins jns: List(Join)) -> Delete(a) {
+  case jns, qry.join {
+    [], _ -> Delete(..qry, join: Joins(jns))
+    jns, Joins(qry_joins) ->
+      Delete(..qry, join: qry_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> Delete(..qry, join: jns |> Joins)
+  }
+}
+
+/// Replaces any `Join`s of the `Delete` query with the given `Join`s.
+///
+/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
+/// set as well.
+///
+pub fn replace_joins(query qry: Delete(a), joins jns: List(Join)) -> Delete(a) {
+  Delete(..qry, join: jns |> Joins)
+}
+
+/// Removes any `Joins` from the `Delete` query.
+///
+pub fn no_join(query qry: Delete(a)) -> Delete(a) {
+  Delete(..qry, join: NoJoins)
+}
+
+/// Gets the `Joins` of the `Delete` query.
+///
+pub fn get_joins(query qry: Delete(a)) -> Joins {
+  qry.join
 }
 
 // ▒▒▒ WHERE ▒▒▒

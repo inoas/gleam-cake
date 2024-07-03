@@ -537,13 +537,21 @@ fn update_sets_apply(
 ///
 /// NOTICE: SQLite does not support `USING` in `DELETE`.
 ///
+/// NOTICE: For MariaDB and MySQL it is mandatory to specify the table specified
+/// in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
+/// `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
+///
+/// NOTICE: MariaDB and MySQL may not support sub-queries in the `USING` clause.
+/// In such case you may use a sub-query in a `WHERE` clause, or use a join
+/// instead.
+///
 pub type Delete(a) {
   Delete(
     // with (_recursive?): ?, // v2
     modifier: DeleteModifier,
     table: DeleteTable,
     using: DeleteUsing,
-    // join: Joins, // TODO v1?
+    join: Joins,
     where: Where,
     returning: Returning,
     epilog: Epilog,
@@ -583,6 +591,7 @@ fn delete_apply(
   |> delete_table_apply(dlt.table)
   |> delete_modifier_apply(dlt.modifier)
   |> using_apply(dlt.using)
+  |> query.join_clause_apply(dlt.join)
   |> query.where_clause_apply(dlt.where)
   |> returning_apply(dlt.returning)
   |> query.comment_apply(dlt.comment)
