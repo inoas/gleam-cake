@@ -30,7 +30,7 @@ pub const placeholder = query.fragment_placeholder_grapheme
 ///   given parameters and the last parameter will be repeated for the remaining
 ///   placeholders.
 /// - If there are too many parameters, the fragment will be created with the
-///   given parameters and the remaining parameters will be ignored.
+///   given parameters and the excess parameters will be ignored.
 ///
 /// ⛔ ⛔ ⛔
 ///
