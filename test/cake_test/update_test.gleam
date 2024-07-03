@@ -29,7 +29,7 @@ fn swap_is_wild_sub_query() {
   |> s.to_query
 }
 
-fn update_postes_sqlite_query() {
+fn update_postgres_sqlite_query() {
   u.new()
   |> u.table("cats")
   |> u.sets([
@@ -72,7 +72,7 @@ fn update_mysql_query() {
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn update_test() {
-  let pgo = update_postes_sqlite_query()
+  let pgo = update_postgres_sqlite_query()
   let lit = pgo
   let mdb = update_maria_query()
   let myq = update_mysql_query()
@@ -84,9 +84,9 @@ pub fn update_test() {
 
 pub fn update_prepared_statement_test() {
   let pgo =
-    update_postes_sqlite_query() |> postgres.write_query_to_prepared_statement
+    update_postgres_sqlite_query() |> postgres.write_query_to_prepared_statement
   let lit =
-    update_postes_sqlite_query() |> sqlite.write_query_to_prepared_statement
+    update_postgres_sqlite_query() |> sqlite.write_query_to_prepared_statement
   let mdb = update_maria_query() |> maria.write_query_to_prepared_statement
   let myq = update_mysql_query() |> mysql.write_query_to_prepared_statement
 
@@ -97,9 +97,9 @@ pub fn update_prepared_statement_test() {
 
 pub fn update_execution_result_test() {
   let pgo =
-    update_postes_sqlite_query() |> postgres_test_helper.setup_and_run_write
+    update_postgres_sqlite_query() |> postgres_test_helper.setup_and_run_write
   let lit =
-    update_postes_sqlite_query() |> sqlite_test_helper.setup_and_run_write
+    update_postgres_sqlite_query() |> sqlite_test_helper.setup_and_run_write
   let mdb = update_maria_query() |> maria_test_helper.setup_and_run_write
   let myq = update_mysql_query() |> mysql_test_helper.setup_and_run_write
 
