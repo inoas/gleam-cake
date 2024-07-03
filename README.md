@@ -24,7 +24,22 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
 
-## Recommendations
+## Usage
+
+TODO v1 - one gleam code example each, for:
+
+- SELECT and decoding
+- UNION ALL and decoding
+- INSERT
+- UPDATE
+- INSERT ON CONFLICT UPDATE
+- DELETE
+- INNER JOIN
+- LEFT JOIN
+- literal fragment
+- prepared fragment
+
+### Tips
 
 Use the following aliases to make the library more ergonomic:
 
