@@ -12,6 +12,10 @@ import test_support/adapter/mysql
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Setup                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 fn where_query() {
   s.new()
   |> s.from_table("cats")
@@ -51,6 +55,10 @@ fn where_query() {
   )
   |> s.to_query
 }
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Tests                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn where_test() {
   where_query()

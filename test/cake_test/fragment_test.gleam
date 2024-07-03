@@ -13,6 +13,10 @@ import test_support/adapter/mysql
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Setup                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 fn fragment_query() {
   s.new()
   |> s.from_table("cats")
@@ -26,6 +30,10 @@ fn fragment_query() {
   )
   |> s.to_query
 }
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Tests                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn fragment_test() {
   fragment_query()

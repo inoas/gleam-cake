@@ -11,6 +11,10 @@ import test_support/adapter/mysql
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Setup                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 fn limit_offset_query() {
   s.new()
   |> s.from_table("cats")
@@ -23,6 +27,20 @@ fn select_query() {
   limit_offset_query()
   |> s.to_query
 }
+
+fn combined_query() {
+  let limit_offset_query = limit_offset_query()
+  limit_offset_query
+  |> c.union_all(limit_offset_query)
+  |> c.order_by_asc("name")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Tests                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn select_limit_offset_test() {
   select_query()
@@ -50,16 +68,6 @@ pub fn select_limit_offset_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("select_limit_offset_execution_result_test")
-}
-
-fn combined_query() {
-  let limit_offset_query = limit_offset_query()
-  limit_offset_query
-  |> c.union_all(limit_offset_query)
-  |> c.order_by_asc("name")
-  |> c.limit(1)
-  |> c.offset(2)
-  |> c.to_query
 }
 
 pub fn combined_limit_offset_test() {

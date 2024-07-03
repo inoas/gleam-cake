@@ -11,6 +11,10 @@ import test_support/adapter/mysql
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Setup                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 fn query() {
   s.new()
   |> s.from_table("cats")

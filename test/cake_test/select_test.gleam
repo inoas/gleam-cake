@@ -11,6 +11,10 @@ import test_support/adapter/mysql
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Setup                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 const const_field = "age"
 
 fn select_query() {
@@ -27,6 +31,19 @@ fn select_query() {
   ])
   |> s.to_query
 }
+
+fn select_distinct_query() {
+  s.new()
+  |> s.from_table("cats")
+  |> s.distinct
+  |> s.selects([s.col("is_wild")])
+  |> s.order_by_asc("is_wild")
+  |> s.to_query
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Tests                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn select_test() {
   select_query()
@@ -54,15 +71,6 @@ pub fn select_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("select_execution_result_test")
-}
-
-fn select_distinct_query() {
-  s.new()
-  |> s.from_table("cats")
-  |> s.distinct
-  |> s.selects([s.col("is_wild")])
-  |> s.order_by_asc("is_wild")
-  |> s.to_query
 }
 
 pub fn select_distinct_test() {
