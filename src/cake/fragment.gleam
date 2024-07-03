@@ -23,7 +23,7 @@ pub const placeholder = query.fragment_placeholder_grapheme
 /// ⛔ ⛔ ⛔
 ///
 /// If you missmatch the number of placeholders with the number of
-/// parameters, an error will be printed to the console and the fragment will be
+/// parameters, an error will be printed to stderr and the fragment will be
 /// created with the given parameters:
 ///
 /// - If there are too many placeholders, the fragment will be created with the
