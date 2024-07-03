@@ -1,5 +1,5 @@
 import birdie
-import cake/fragment as frgmt
+import cake/fragment as f
 import cake/select as s
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
@@ -22,7 +22,7 @@ fn select_query() {
     // s.float(1.0),
     // s.int(1),
     s.string("hello"),
-    s.fragment(frgmt.literal(const_field)),
+    s.fragment(f.literal(const_field)),
     s.alias(s.col("age"), "years_since_birth"),
   ])
   |> s.to_query

@@ -9,7 +9,7 @@ import cake/internal/query.{
 import cake/internal/write_query.{
   type Delete, type DeleteTable, type DeleteUsing, type WriteQuery, Delete,
   DeleteModifier, DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier,
-  NoDeleteUsing, NoReturning, Returning,
+  NoDeleteTable, NoDeleteUsing, NoReturning, Returning,
 }
 import gleam/list
 import gleam/string
@@ -24,10 +24,10 @@ pub fn to_query(delete dlt: Delete(a)) -> WriteQuery(a) {
 
 /// Creates an empty `Delete` query.
 ///
-pub fn new(table_name tbl_nm: String) -> Delete(a) {
+pub fn new() -> Delete(a) {
   Delete(
     modifier: NoDeleteModifier,
-    table: DeleteTable(tbl_nm),
+    table: NoDeleteTable,
     using: NoDeleteUsing,
     where: NoWhere,
     returning: NoReturning,
@@ -72,6 +72,10 @@ pub fn table(query qry: Delete(a), table_name tbl_nm: String) -> Delete(a) {
   Delete(..qry, table: DeleteTable(name: tbl_nm))
 }
 
+pub fn no_table(query qry: Delete(a)) -> Delete(a) {
+  Delete(..qry, table: NoDeleteTable)
+}
+
 /// Gets the table name of the `Delete` query.
 ///
 pub fn get_table(query qry: Delete(a)) -> DeleteTable {
@@ -87,6 +91,10 @@ pub fn get_table(query qry: Delete(a)) -> DeleteTable {
 ///
 /// The `USING` clause is used to specify additional tables that are used
 /// to filter the rows to be deleted.
+///
+/// NOTICE: For MariaDB and MySQL it is mandatory to specify the table specified
+///         in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
+///         `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
 ///
 pub fn using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
   case qry.using {

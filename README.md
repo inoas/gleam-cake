@@ -24,11 +24,28 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
 
-## Scope
+## Recommendations
+
+Use the following aliases to make the library more ergonomic:
+
+```gleam
+import cake/select as s // SELECT statements
+import cake/where as w // WHERE clauses
+import cake/join as j // JOIN clauses
+import cake/update as u // UPDATE statements
+import cake/insert as i // INSERT statements
+import cake/delete as d // DELETE statements
+import cake/combined as c // For combined queries such as UNION
+import cake/fragment as f // For arbitrary SQL code including functions
+```
+
+## Library Design
+
+### Scope
 
 This is an SQL query building library, thus it is not concerned about executing queries or decoding return values from queries, but merely about being a flexible and powerful too to compose and craft SQL read and write queries.
 
-### Goals
+#### Goals
 
 - High degree of flexibility to compose queries:
   While the focus is on building queries up there is also support for replacing
@@ -41,7 +58,7 @@ This is an SQL query building library, thus it is not concerned about executing 
   - [sqlight](https://hex.pm/packages/sqlight)
   - [gleam_mysql](https://hex.pm/packages/gmysql)
 
-### Non-goals
+#### Non-goals
 
 - You can still craft invalid queries at any time, for example:
   - Omitting certain parts of queries required for them to run, such as
@@ -55,7 +72,7 @@ This is an SQL query building library, thus it is not concerned about executing 
 - Automagic optimization: This library is not here to replace SQL knowledge, but
   to allow crafting and combining SQL queries in a mostly type safe way.
 
-## Tested targets
+### Tested targets
 
 - Sqlite3 of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
 - [postgres:latest (Docker)](https://hub.docker.com/_/postgres)

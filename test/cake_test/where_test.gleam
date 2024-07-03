@@ -1,5 +1,5 @@
 import birdie
-import cake/fragment as frgmt
+import cake/fragment as f
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}
@@ -24,7 +24,7 @@ fn where_query() {
       w.col("age") |> w.gte(w.int(9)),
     ]),
   )
-  |> s.where(w.fragment(frgmt.literal("1 = 1")))
+  |> s.where(w.fragment(f.literal("1 = 1")))
   |> s.where(
     w.or([
       w.col("name") |> w.eq(w.string("Karl")),

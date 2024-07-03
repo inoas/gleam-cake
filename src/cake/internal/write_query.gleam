@@ -2,7 +2,7 @@
 //// _write queries_, such as `INSERT`, `UPDATE` and `DELETE`.
 ////
 
-// TODO: Add to query validator in v2 or v3
+// TODO v3 Add to query validator?
 
 import cake/internal/dialect.{type Dialect}
 import cake/internal/param.{type Param}
@@ -535,7 +535,7 @@ fn update_sets_apply(
 
 /// Represents a `DELETE` query.
 ///
-/// NOTICE: SQlite does not support `JOIN` in `DELETE`.
+/// NOTICE: SQLite does not support `USING` in `DELETE`.
 ///
 pub type Delete(a) {
   Delete(
@@ -543,6 +543,7 @@ pub type Delete(a) {
     modifier: DeleteModifier,
     table: DeleteTable,
     using: DeleteUsing,
+    // join: Joins, // TODO v1?
     where: Where,
     returning: Returning,
     epilog: Epilog,
@@ -596,7 +597,7 @@ fn delete_table_apply(
     NoDeleteTable -> prp_stm
     DeleteTable(tbl) ->
       prp_stm
-      |> prepared_statement.append_sql(" " <> tbl)
+      |> prepared_statement.append_sql(" FROM " <> tbl)
   }
 }
 

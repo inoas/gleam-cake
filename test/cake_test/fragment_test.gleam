@@ -1,5 +1,5 @@
 import birdie
-import cake/fragment as frgmt
+import cake/fragment as f
 import cake/internal/param as p
 import cake/select as s
 import cake/where as w
@@ -17,10 +17,10 @@ fn fragment_query() {
   s.new()
   |> s.from_table("cats")
   |> s.where(
-    w.fragment_value(frgmt.literal("LOWER(cats.name)"))
+    w.fragment_value(f.literal("LOWER(cats.name)"))
     |> w.eq(
       w.fragment_value(
-        frgmt.prepared("LOWER(" <> frgmt.placeholder <> ")", [p.string("Clara")]),
+        f.prepared("LOWER(" <> f.placeholder <> ")", [p.string("Clara")]),
       ),
     ),
   )
