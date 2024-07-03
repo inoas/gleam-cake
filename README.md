@@ -22,7 +22,7 @@ Further documentation can be found at <https://hexdocs.pm/cake>.
 
 ## Examples
 
-See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test).
+See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test), especially the _Setup_ sections. You may also compare the tests with the [snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots) results.
 
 ## Usage
 
