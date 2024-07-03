@@ -34,6 +34,30 @@ fn combined_union_all_query() {
   |> c.to_query
 }
 
+fn combined_intersect_query() {
+  let query = query()
+  query
+  |> c.intersect(query)
+  |> c.order_by_asc("age")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
+}
+
+fn combined_except_query() {
+  let query = query()
+  query
+  |> c.except(query)
+  |> c.order_by_asc("age")
+  |> c.limit(1)
+  |> c.offset(2)
+  |> c.to_query
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Tests                                                                    │
+// └───────────────────────────────────────────────────────────────────────────┘
+
 pub fn combined_union_all_test() {
   combined_union_all_query()
   |> to_string
@@ -62,16 +86,6 @@ pub fn combined_union_all_execution_result_test() {
   |> birdie.snap("combined_union_all_execution_result_test")
 }
 
-fn combined_intersect_query() {
-  let query = query()
-  query
-  |> c.intersect(query)
-  |> c.order_by_asc("age")
-  |> c.limit(1)
-  |> c.offset(2)
-  |> c.to_query
-}
-
 pub fn combined_intersect_test() {
   combined_intersect_query()
   |> to_string
@@ -98,16 +112,6 @@ pub fn combined_intersect_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("combined_intersect_execution_result_test")
-}
-
-fn combined_except_query() {
-  let query = query()
-  query
-  |> c.except(query)
-  |> c.order_by_asc("age")
-  |> c.limit(1)
-  |> c.offset(2)
-  |> c.to_query
 }
 
 pub fn combined_except_test() {
