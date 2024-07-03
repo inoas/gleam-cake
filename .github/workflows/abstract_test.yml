@@ -83,7 +83,7 @@ jobs:
         with:
           gleam_version: ${{ inputs.gleam_version }}
           erlang_version: ${{ matrix.erlang }}
-      - run: ./sh/create-database-postgres-gleam_cake_test.sh
+      - run: ./sh/create-database-gleam_cake_test-postgres.sh
         env:
           PGHOST: localhost
           PGPORT: 5432
