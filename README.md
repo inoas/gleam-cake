@@ -72,24 +72,28 @@ This is an SQL query building library, thus it is not concerned about executing 
   - [gleam_pgo](https://hex.pm/packages/gleam_pgo)
   - [sqlight](https://hex.pm/packages/sqlight)
   - [gleam_mysql](https://hex.pm/packages/gmysql)
+- Allow to define custom SQL fragments while still being safe
+  from SQL injections by using prepared statements.
 
 #### Non-goals
 
-- You can still craft invalid queries at any time, for example:
+- Prohibition of invalid SQL queries: You can still craft invalid queries at
+  any time, for example:
   - Omitting certain parts of queries required for them to run, such as
     not specifying a table name
-  - Comparing values incompatible by type
-- Allow to define custom SQL fragments while still being safe
-  from SQL injections by using prepared statements.
-- Making sure every possible feature runs on every database.
-  For example: While Cake supports `RETURNING` on PostgreSQL and SQLite,
-  it does not support it on MariaDB or MySQL.
-- Automagic optimization: This library is not here to replace SQL knowledge, but
-  to allow crafting and combining SQL queries in a mostly type safe way.
+  - Comparing values incompatible by SQL type
+- Backporting many features between different RDMBS. For example, while Cake
+  supports `RETURNING` on PostgreSQL and SQLite, it does not support it on
+  MariaDB or MySQL.
+- No automagic optimization: This library is not here to replace SQL knowledge,
+  but to allow crafting and combining SQL queries in a flexible and type safe
+  way. It might however work as a gateway to obtain SQL knowlege because
+  the typed buidler functions help to some degree in understanding how SQL
+  queries can be crafted.
 
 ### Tested targets
 
-- Sqlite3 of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
+- Sqlite3 as part of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
 - [postgres:latest (Docker)](https://hub.docker.com/_/postgres)
 - [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb)
 - [mysql:latest (Docker)](https://hub.docker.com/_/mysql)
