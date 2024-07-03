@@ -5,6 +5,7 @@
 - Flattened the query interface/DSL modules into the base namespace of `cake/`.
 - Moved some modules only used internally into `cake/internal/` namespace.
 - Fixed and improved test suite for `DELETE` statements.
+- Improved general documentation.
 
 ## 0.7.0 - 2024-07-01
 
