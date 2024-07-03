@@ -79,7 +79,7 @@ This is an SQL query building library, thus it is not concerned about executing 
   - Omitting certain parts of queries required for them to run, such as
     not specifying a table name
   - Comparing values incompatible by type
-- Allow to define custom SQL fragments without while still being safe
+- Allow to define custom SQL fragments while still being safe
   from SQL injections by using prepared statements.
 - Making sure every possible feature runs on every database.
   For example: While Cake supports `RETURNING` on PostgreSQL and SQLite,
