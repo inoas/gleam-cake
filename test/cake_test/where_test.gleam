@@ -56,6 +56,19 @@ fn where_query() {
   |> s.to_query
 }
 
+fn where_xor_query() {
+  s.new()
+  |> s.from_table("cats")
+  |> s.where(
+    w.xor([
+      w.col("name") |> w.eq(w.string("Karl")),
+      w.col("is_wild") |> w.is_true,
+      w.col("age") |> w.lte(w.int(9)),
+    ]),
+  )
+  |> s.to_query
+}
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Tests                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
@@ -130,19 +143,6 @@ pub fn where_any_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("where_any_execution_result_test")
-}
-
-fn where_xor_query() {
-  s.new()
-  |> s.from_table("cats")
-  |> s.where(
-    w.xor([
-      w.col("name") |> w.eq(w.string("Karl")),
-      w.col("is_wild") |> w.is_true,
-      w.col("age") |> w.lte(w.int(9)),
-    ]),
-  )
-  |> s.to_query
 }
 
 pub fn where_xor_test() {
