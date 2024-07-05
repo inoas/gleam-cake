@@ -62,7 +62,7 @@ import cake/fragment as f // For arbitrary SQL code including functions
 
 ### Scope
 
-This is an SQL query building library, thus it is not concerned about executing queries or decoding return values from queries, but merely about being a flexible and powerful too to compose and craft SQL read and write queries.
+This is an SQL query building library, thus it is not concerned about executing queries or decoding return values from queries, but merely about being a flexible and powerful tool to compose and craft SQL read and write queries.
 
 #### Goals
 
