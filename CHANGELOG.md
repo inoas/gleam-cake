@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1 - 2024-07-05
+
+- Fix test suite.
+
 ## 0.9.0 - 2024-07-05
 
 - Improved documentation.
