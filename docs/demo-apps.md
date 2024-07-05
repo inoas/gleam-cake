@@ -35,13 +35,13 @@ bin/docker/attached
 ## Start the example app
 
 ```shell
-cd 01-demo-select-and-decode # or any other example app
+cd 01_demo_select_and_decode # or any other example app
 gleam run
 ```
 
 ### Available demos
 
-- [`SELECT` and decode into Cats](demo-apps/01-example-select-and-decode)
+- [`SELECT` and decode into Cats](demo-apps/01_demo_select_and_decode/README.md)
 
 ---
 
@@ -51,8 +51,8 @@ To just explore a single example app, open just that app in your editor, so that
 
 For example if you have `Zed` or `Visual Studio Code` installed you may run one of these form the `gleam-cake` directory cloned above:
 
-- `code docs/demo-apps/01-example-select-and-decode`
-- `zed docs/demo-apps/01-example-select-and-decode`
+- `code docs/demo-apps/01_demo_select_and_decode`
+- `zed docs/demo-apps/01_demo_select_and_decode`
 
 ## TODOs
 
