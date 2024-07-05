@@ -12,7 +12,7 @@ on:
         default: true
       erlang_version:
         type: string
-        default: "27"
+        default: "26"
       test_node:
         type: boolean
         default: true
@@ -75,7 +75,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        erlang: ["27"]
+        erlang: ["26"]
     steps:
       - uses: actions/checkout@v4
       - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
