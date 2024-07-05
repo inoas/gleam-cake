@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0 - 2024-??-??
+
+- Improved documentation
+
 ## 0.8.0 - 2024-07-03
 
 - Flattened the query interface/DSL modules into the base namespace of `cake/`.
