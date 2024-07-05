@@ -70,7 +70,7 @@ This is an SQL query building library, thus it is not concerned about executing 
 #### Goals
 
 - High degree of flexibility to compose queries:
-  While the focus is on building queries up there is also support for replacing
+  While the focus is on building queries there is also support for replacing
   or removing parts of queries.
 - General support on these 4 large RDMS: PostgreSQL, SQLite, MariaDB and MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
