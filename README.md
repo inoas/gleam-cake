@@ -26,20 +26,22 @@ See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test)
 
 You may also compare the tests with the [snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots) results.
 
+### Demo apps
+
+See [./docs/demo-apps.md](docs/demo-apps.md).
+
 ## Usage
 
-TODO v1 - one gleam code example each, for:
-
-- SELECT and decoding
-- UNION ALL and decoding
-- INSERT
-- UPDATE
-- INSERT ON CONFLICT UPDATE
-- DELETE
-- INNER JOIN
-- LEFT JOIN
-- literal fragment
-- prepared fragment
+- [SELECT and decoding](./docs/demo-apps/01-example-select-and-decode/README.md)
+- UNION ALL and decoding -- TODO v1
+- INSERT -- TODO v1
+- UPDATE -- TODO v1
+- INSERT ON CONFLICT UPDATE -- TODO v1
+- DELETE -- TODO v1
+- INNER JOIN -- TODO v1
+- LEFT JOIN -- TODO v1
+- literal fragment -- TODO v1
+- prepared fragment -- TODO v1
 
 ### Tips
 

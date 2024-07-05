@@ -1,8 +1,10 @@
 # Changelog
 
-## 0.9.0 - 2024-??-??
+## 0.9.0 - 2024-07-05
 
-- Improved documentation
+- Improved documentation.
+- Added demo app abstraction.
+- Added first runnable demo for `SELECT` and decode.
 
 ## 0.8.0 - 2024-07-03
 

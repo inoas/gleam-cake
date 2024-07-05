@@ -1,0 +1,28 @@
+name: gleam-cake-examples
+networks:
+  gleam-cake-examples:
+    name: gleam-cake-examples
+services:
+  postgres:
+    container_name: gleam-cake-examples-postgres
+    networks:
+      - gleam-cake-examples
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=gleam_cake_examples
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./docker/data/postgres-data:/var/lib/postgresql/data
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+volumes:
+  gleam-cake-examples:
