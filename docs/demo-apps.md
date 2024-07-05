@@ -9,7 +9,7 @@ The example apps come with a `docker-compose.yaml` file which contains a databas
 If not already installed, install:
 
 1. Install [Git](https://github.com/git-guides/install-git).
-2. Install Erlang, Rebar3, and Gleam, see [Installing](https://gleam.run/getting-started/installing/ chapter on the Gleam website.
+2. Install Erlang, Rebar3, and Gleam, see [Installing](https://gleam.run/getting-started/installing/) chapter on the Gleam website.
 3. Install [Docker Desktop](https://docs.docker.com/desktop/) or [Docker Engine](https://docs.docker.com/engine/install/).
 
 ### Obtaining a copy of Cake
