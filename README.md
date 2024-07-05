@@ -28,7 +28,7 @@ You may also compare the tests with the [snapshots](https://github.com/inoas/gle
 
 ### Demo apps
 
-See [https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps.md).
+See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps.md).
 
 ## Usage
 
