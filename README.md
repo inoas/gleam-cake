@@ -33,7 +33,9 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
 ## Usage
 
 - SELECT and decoding -  [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
-- UNION ALL and decoding -- TODO v1
+- ... more to come soon!
+<!--
+- UNION ALL -- TODO v1
 - INSERT -- TODO v1
 - UPDATE -- TODO v1
 - INSERT ON CONFLICT UPDATE -- TODO v1
@@ -42,6 +44,7 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
 - LEFT JOIN -- TODO v1
 - literal fragment -- TODO v1
 - prepared fragment -- TODO v1
+-->
 
 ### Tips
 
