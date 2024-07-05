@@ -28,11 +28,11 @@ You may also compare the tests with the [snapshots](https://github.com/inoas/gle
 
 ### Demo apps
 
-See [./docs/demo-apps.md](docs/demo-apps.md).
+See [docs/demo-apps.md](docs/demo-apps.md).
 
 ## Usage
 
-- SELECT and decoding [cake\_demo\_select\_and\_decode.gleam](./docs/demo-apps/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
+- SELECT and decoding -  [cake\_demo\_select\_and\_decode.gleam](./docs/demo-apps/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
 - UNION ALL and decoding -- TODO v1
 - INSERT -- TODO v1
 - UPDATE -- TODO v1
