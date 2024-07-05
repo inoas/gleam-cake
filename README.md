@@ -74,7 +74,7 @@ This is an SQL query building library, thus it is not concerned about executing 
   or removing parts of queries.
 - General support on these 4 large RDMS: PostgreSQL, SQLite, MariaDB and MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
-- Documentation should be extensive and comprehensive.
+- Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
   - [gleam_pgo](https://hex.pm/packages/gleam_pgo)
   - [sqlight](https://hex.pm/packages/sqlight)
