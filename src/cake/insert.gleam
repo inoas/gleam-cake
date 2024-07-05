@@ -203,6 +203,8 @@ pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {
   Insert(..qry, columns: InsertColumns(columns: cols))
 }
 
+/// Get the columns to insert into from an `Insert` query.
+///
 pub fn get_columns(query qry: Insert(a)) -> InsertColumns {
   qry.columns
 }

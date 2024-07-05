@@ -73,6 +73,8 @@ pub fn table(query qry: Delete(a), table_name tbl_nm: String) -> Delete(a) {
   Delete(..qry, table: DeleteTable(name: tbl_nm))
 }
 
+/// Removes the table name from the `Delete` query.
+///
 pub fn no_table(query qry: Delete(a)) -> Delete(a) {
   Delete(..qry, table: NoDeleteTable)
 }
