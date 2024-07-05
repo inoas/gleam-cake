@@ -78,7 +78,7 @@ This is an SQL query building library, thus it is not concerned about executing 
 - It should be easy to use with existing gleam dialect adapters such as:
   - [gleam_pgo](https://hex.pm/packages/gleam_pgo)
   - [sqlight](https://hex.pm/packages/sqlight)
-  - [gleam_mysql](https://hex.pm/packages/gmysql)
+  - [gmysql](https://hex.pm/packages/gmysql)
 - Allow to define custom SQL fragments while still being safe
   from SQL injections by using prepared statements.
 
