@@ -1,6 +1,5 @@
 # TODO
 
-
 - TODO v2 wrap prepared statement in a catch, return Result
 - TODO v2 run validator after building, return Result
   - hash the structure, safe hash as valid into cache
@@ -23,7 +22,6 @@
 ## Query validation
 
 - This could happen on an layer on top where a schema is defined, which would allow auto setting the table but also verifying if certain referenced columns exist. Aliases will make this different though.
-
 
 ## Consider to build libraries on top
 
