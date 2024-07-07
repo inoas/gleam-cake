@@ -34,14 +34,14 @@ above:
 ```shell
 cd docs
 cd demo-apps
-cd docker-setup-for-examples
+cd docker-setup-for-demos
 bin/docker/attached
 ```
 
-## Start the example app
+## Start the demo app
 
 ```shell
-cd 01_demo_select_and_decode # ...or any other example app!
+cd 01_demo_select_and_decode # ...or any other demo app!
 gleam run
 ```
 
@@ -52,14 +52,14 @@ gleam run
 
 ---
 
-If you want to edit and change the examples to try and explore _Cake_ you may
+If you want to edit and change the demos to try and explore _Cake_ you may
 chose whatever code editor you prefer but _Cake_ recommends chosing either
 [Zed](https://zed.dev/) or [Visual Studio Code](https://code.visualstudio.com/)
 — both feature _Gleam_ plugins and thus _Gleam_ specific _Language Server
 Protocol_ support — especially if you are new to _Gleam_.
 
-To just explore a single example app, open just that app in your editor, so that
-the _Gleam_ LSP can pick up that example projects's `gleam.toml` file.
+To just explore a single demo app, open just that app in your editor, so that
+the _Gleam_ LSP can pick up that demo projects's `gleam.toml` file.
 
 For example if you have `Zed` or `Visual Studio Code` installed you may run one
 of these form the `gleam-cake` directory cloned above:
