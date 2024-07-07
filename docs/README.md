@@ -1,5 +1,5 @@
 # Cake Documentation
 
-## Example apps
+## Demo apps
 
 See [docs/demo-apps.md](./demo-apps.md).

@@ -36,7 +36,7 @@ pub fn main() {
   use conn <- postgres.with_connection
   example_data.create_tables_and_insert_rows(conn)
 
-  // NOTICE: This will crash, if the SQL query fails
+  // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(cats) =
     select_query() |> postgres.run_query(dynamic.dynamic, conn)
 
@@ -44,6 +44,6 @@ pub fn main() {
   cats |> pprint.debug
 
   io.println("Decoded cats (name, age, is_wild, owners_name): ")
-  //  See cat.gleam for an example how to decode rows
+  //  See `cat.gleam` for an example how to decode rows.
   cats |> list.map(cat.from_postgres) |> pprint.debug
 }

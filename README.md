@@ -20,7 +20,7 @@ gleam add cake
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
 
-## Examples
+## Code examples
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test), especially the _Setup_ sections in each test module.
 
