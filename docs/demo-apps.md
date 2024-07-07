@@ -1,8 +1,8 @@
 # Cake Demo Apps
 
-## Running local example apps
+## Running local demo apps
 
-The example apps come with a `docker-compose.yaml` file which contains a
+The demo apps come with a `docker-compose.yaml` file which contains a
 database setup. You will need to install or have installed _Git_, _Erlang_,
 _Gleam_, and _Docker_ however, thus:
 
@@ -26,7 +26,7 @@ git clone https://github.com/inoas/gleam-cake.git
 cd gleam-cake
 ```
 
-### Starting the docker compose setup for example apps
+### Starting the docker compose setup for demo apps
 
 Open a terminal of your choice and within the `gleam-cake` directory cloned
 above:
