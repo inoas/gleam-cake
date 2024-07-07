@@ -18,7 +18,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 gleam add cake
 ```
 
-Further documentation can be found at <https://hexdocs.pm/cake>.
+Further documentation can be found on [https://hexdocs.pm/cake](hexdocs.pm/cake).
 
 ## Examples
 
