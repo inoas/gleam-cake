@@ -1,6 +1,6 @@
-# Cake demo app: SELECT and decode
+# Cake demo app: UNION and decode
 
-This demo of Cake shows how to `SELECT` and decode returning rows into
+This demo of Cake shows how to `UNION` and decode returning rows into
 Gleam records.
 
 To start postgres via docker compose, see

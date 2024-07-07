@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 - 2024-0?-??
+
+- Added more more applications.
+- Added tests and snapshots for upserts.
+
 ## 0.9.1 - 2024-07-05
 
 - Fix test suite.

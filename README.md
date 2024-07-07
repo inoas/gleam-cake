@@ -32,10 +32,12 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
 
 ## Usage
 
-- SELECT and decoding -  [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
+- SELECT and decoding -
+  [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
+- UNION and decoding -
+  [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/02_demo_union_and_decode/src/cake_demo_union_and_decode.gleam)
 - ... more to come soon!
 <!--
-- UNION ALL -- TODO v1
 - INSERT -- TODO v1
 - UPDATE -- TODO v1
 - INSERT ON CONFLICT UPDATE -- TODO v1
