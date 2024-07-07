@@ -9,18 +9,19 @@ import gleam/list
 import pprint
 
 fn union_query() {
-  let cats_query =
-    s.new()
-    |> s.select(s.col("CONCAT('Cat ', cats.name), age"))
-    |> s.from_table("cats")
-
   let owners_query =
     s.new()
     |> s.select(s.col("CONCAT('Owner ', owners.name), age"))
     |> s.from_table("owners")
 
-  cats_query
-  |> c.union(owners_query)
+    let cats_query =
+    s.new()
+    |> s.select(s.col("CONCAT('Cat ', cats.name), age"))
+    |> s.from_table("cats")
+
+
+  owners_query
+  |> c.union(cats_query)
   |> c.to_query
 }
 
@@ -28,7 +29,7 @@ pub fn main() {
   use conn <- postgres.with_connection
   example_data.create_tables_and_insert_rows(conn)
 
-  // NOTICE: This will crash, if the SQL query fails
+  // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(beings) =
     union_query() |> postgres.run_query(dynamic.dynamic, conn)
 
@@ -36,7 +37,7 @@ pub fn main() {
   beings |> pprint.debug
 
   io.println("Begins (name, age): ")
-  //  See cat.gleam for an example how to decode rows
+  //  See `being.gleam` for an example how to decode rows.
   beings
   |> list.map(being.from_postgres)
   |> pprint.debug
