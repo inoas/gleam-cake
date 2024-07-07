@@ -10,6 +10,10 @@ To start postgres via docker compose, see
 gleam run
 ```
 
+## Source code
+
+See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/02_demo_union_and_decode/src/)
+
 ---
 
 For further demos see [docs/demo-apps.md](../../demo-apps.md#available-demos).
