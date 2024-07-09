@@ -11,3 +11,14 @@ pub type Dialect {
   Maria
   Mysql
 }
+
+/// Returns the placeholder base for the given dialect.
+///
+pub fn placeholder_base(dialect dlct: Dialect) -> String {
+  case dlct {
+    Postgres -> "$"
+    Sqlite -> "?"
+    Maria -> "?"
+    Mysql -> "?"
+  }
+}

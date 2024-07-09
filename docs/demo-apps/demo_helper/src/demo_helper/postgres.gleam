@@ -2,7 +2,7 @@
 //// to the `gleam_pgo` library for execution.
 ////
 
-import cake/internal/dialect.{Postgres}
+import cake/dialect/postgres
 import cake/internal/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
@@ -16,24 +16,14 @@ import gleam/option.{Some}
 import gleam/pgo.{type Connection, type Value}
 import pprint
 
-const placeholder_base = "$"
-
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry
-  |> query.to_prepared_statement(
-    plchldr_bs: placeholder_base,
-    dialect: Postgres,
-  )
+  qry |> postgres.query_to_prepared_statement
 }
 
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(t),
 ) -> PreparedStatement {
-  qry
-  |> write_query.to_prepared_statement(
-    plchldr_bs: placeholder_base,
-    dialect: Postgres,
-  )
+  qry |> postgres.write_query_to_prepared_statement
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
@@ -44,7 +34,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
       host: "localhost",
       user: "postgres",
       password: Some("postgres"),
-      database: "gleam_cake_examples",
+      database: "gleam_cake_test",
     )
     |> pgo.connect
 

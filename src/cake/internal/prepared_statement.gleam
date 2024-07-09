@@ -25,8 +25,12 @@ pub opaque type PreparedStatement {
 
 /// Create a new prepared statement.
 ///
-pub fn new(prefix prfx: String, dialect db_adptr: Dialect) -> PreparedStatement {
-  prfx |> PreparedStatement(sql: "", params: [], index: 0, dialect: db_adptr)
+pub fn new(
+  placeholder_base plchldr_bs: String,
+  dialect db_adptr: Dialect,
+) -> PreparedStatement {
+  plchldr_bs
+  |> PreparedStatement(sql: "", params: [], index: 0, dialect: db_adptr)
 }
 
 /// Append a parameter to the prepared statement SQL and
@@ -110,6 +114,7 @@ fn next_placeholder(
     Maria | Mysql -> prp_stm.prefix
   }
 }
+// Maybe it is enough for this to be hidden in an internal module?
 //
 // TODO v3
 // This should ONLY be used for debugging purposes

@@ -23,7 +23,30 @@
 
 - This could happen on an layer on top where a schema is defined, which would allow auto setting the table but also verifying if certain referenced columns exist. Aliases will make this different though.
 
-## Consider to build libraries on top
+
+## Add utility functions?
+
+TODO v3:
+
+```
+pub fn table_exists(connection conn: Connection, table_name tbl_nm: String) -> Boolean {
+  todo
+}
+
+pub fn tables_exists(connection conn: Connection, table_names tbl_nms: List(String)) -> List(#(String, Boolean)) {
+  todo
+}
+
+pub fn view_exists(connection conn: Connection, view_name vw_nm: String) -> Boolean {
+  todo
+}
+
+pub fn views_exists(connection conn: Connection, view_names vw_nms: List(String)) -> List(#(String, Boolean)) {
+  todo
+}
+```
+
+## Consider to build libraries on top of cake and other deps
 
 Deps to consider:
 

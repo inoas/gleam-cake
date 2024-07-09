@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.0 - 2024-07-09
+
+- Provide public API to access the generated SQL and prepared statement
+  parameters in the base `cake` and new `dialect` modules.
+
 ## 0.9.2 - 2024-07-07
 
 - Added more more applications.

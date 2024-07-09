@@ -35,10 +35,10 @@ pub type WriteQuery(a) {
 ///
 pub fn to_prepared_statement(
   query qry: WriteQuery(a),
-  plchldr_bs prp_stm_prfx: String,
+  placeholder_base plchldr_bs: String,
   dialect dlct: Dialect,
 ) -> PreparedStatement {
-  prp_stm_prfx
+  plchldr_bs
   |> prepared_statement.new(dlct)
   |> apply(qry)
 }

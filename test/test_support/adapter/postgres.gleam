@@ -2,6 +2,7 @@
 //// to the `gleam_pgo` library for execution.
 ////
 
+import cake
 import cake/internal/dialect.{Postgres}
 import cake/internal/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
@@ -15,24 +16,14 @@ import gleam/option.{Some}
 import gleam/pgo.{type Connection, type Value}
 import test_support/iox
 
-const placeholder_base = "$"
-
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry
-  |> query.to_prepared_statement(
-    plchldr_bs: placeholder_base,
-    dialect: Postgres,
-  )
+  qry |> cake.query_to_prepared_statement(dialect: Postgres)
 }
 
 pub fn write_query_to_prepared_statement(
-  query qry: WriteQuery(t),
+  query qry: WriteQuery(a),
 ) -> PreparedStatement {
-  qry
-  |> write_query.to_prepared_statement(
-    plchldr_bs: placeholder_base,
-    dialect: Postgres,
-  )
+  qry |> cake.write_query_to_prepared_statement(dialect: Postgres)
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
@@ -81,7 +72,7 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
   }
 }
 
-pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) {
+pub fn run_write(query qry: WriteQuery(a), decoder dcdr, db_connection db_conn) {
   let prp_stm = write_query_to_prepared_statement(qry)
   let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
   let params = prepared_statement.get_params(prp_stm)
