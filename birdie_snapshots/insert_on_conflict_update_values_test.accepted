@@ -20,6 +20,26 @@ test_name: insert_on_conflict_update_values_test
           IntParam(1),
         ),
       ]),
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Karl"),
+        ),
+        InsertParam(
+          "counter",
+          IntParam(1),
+        ),
+      ]),
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Clara"),
+        ),
+        InsertParam(
+          "counter",
+          IntParam(1),
+        ),
+      ]),
     ]),
     InsertConflictUpdate(
       InsertConflictTarget(["name"]),
@@ -54,6 +74,26 @@ test_name: insert_on_conflict_update_values_test
         InsertParam(
           "name",
           StringParam("Whiskers"),
+        ),
+        InsertParam(
+          "counter",
+          IntParam(1),
+        ),
+      ]),
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Karl"),
+        ),
+        InsertParam(
+          "counter",
+          IntParam(1),
+        ),
+      ]),
+      InsertRow([
+        InsertParam(
+          "name",
+          StringParam("Clara"),
         ),
         InsertParam(
           "counter",

@@ -24,18 +24,33 @@ fn update_query() {
 }
 
 fn insert_on_conflict_update_values() {
-  let counter =
+  let counters = [
     [
       i.param(column: "name", param: "Whiskers" |> i.string),
       i.param(column: "counter", param: 1 |> i.int),
     ]
-    |> i.row
+      |> i.row,
+    [
+      i.param(column: "name", param: "Karl" |> i.string),
+      i.param(column: "counter", param: 1 |> i.int),
+    ]
+      |> i.row,
+    [
+      i.param(column: "name", param: "Clara" |> i.string),
+      i.param(column: "counter", param: 1 |> i.int),
+    ]
+      |> i.row,
+  ]
 
+  // TODO v1: add where and test how it works
+  // TODO v1: add convenience functions for where in insert/update
   let conflict_where = NoWhere
 
-  i.from_values(table_name: "counters", columns: ["name", "counter"], values: [
-    counter,
-  ])
+  i.from_values(
+    table_name: "counters",
+    columns: ["name", "counter"],
+    values: counters,
+  )
   |> i.on_columns_conflict_update(
     column: ["name"],
     where: conflict_where,

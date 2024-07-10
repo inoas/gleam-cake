@@ -80,8 +80,10 @@ pub fn create_counters_table() {
 
 pub fn insert_counters_rows() {
   "INSERT INTO counters (name, counter) VALUES
-    ('Fubi', 1),
-    ('Diffy', 2),
-    ('Tinny', 3)
+    ('Fubi', 9000),
+    ('Diffy', 9000),
+    ('Tinny', 9000),
+    ('Karl', 9000),
+    ('Clara', 9000)
   ;"
 }

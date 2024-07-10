@@ -7,22 +7,30 @@ test_name: insert_on_conflict_update_values_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "INSERT INTO counters (name, counter) VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET counter = counters.counter + 1 RETURNING name, counter",
+    "INSERT INTO counters (name, counter) VALUES ($1, $2), ($3, $4), ($5, $6) ON CONFLICT (name) DO UPDATE SET counter = counters.counter + 1 RETURNING name, counter",
     [
       StringParam("Whiskers"),
       IntParam(1),
+      StringParam("Karl"),
+      IntParam(1),
+      StringParam("Clara"),
+      IntParam(1),
     ],
-    2,
+    6,
     Postgres,
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO counters (name, counter) VALUES (?1, ?2) ON CONFLICT (name) DO UPDATE SET counter = counters.counter + 1 RETURNING name, counter",
+    "INSERT INTO counters (name, counter) VALUES (?1, ?2), (?3, ?4), (?5, ?6) ON CONFLICT (name) DO UPDATE SET counter = counters.counter + 1 RETURNING name, counter",
     [
       StringParam("Whiskers"),
       IntParam(1),
+      StringParam("Karl"),
+      IntParam(1),
+      StringParam("Clara"),
+      IntParam(1),
     ],
-    2,
+    6,
     Sqlite,
   ),
 )
