@@ -27,7 +27,7 @@ fn insert_on_conflict_update_values() {
   let counter =
     [
       i.param(column: "name", param: "Whiskers" |> i.string),
-      i.param(column: "counter", param: 0 |> i.int),
+      i.param(column: "counter", param: 1 |> i.int),
     ]
     |> i.row
 
