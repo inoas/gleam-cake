@@ -30,7 +30,6 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
   let connection =
     pgo.Config(
       ..pgo.default_config(),
-      // TODO: use 127.0.0.1
       host: "localhost",
       user: "postgres",
       password: Some("postgres"),
@@ -46,9 +45,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 
 pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
   let prp_stm = to_prepared_statement(qry)
-  let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
-
-  let params = prepared_statement.get_params(prp_stm)
+  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
+  let params = cake.get_params(prp_stm)
 
   let db_params =
     params
@@ -74,8 +72,8 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
 
 pub fn run_write(query qry: WriteQuery(a), decoder dcdr, db_connection db_conn) {
   let prp_stm = write_query_to_prepared_statement(qry)
-  let sql = prepared_statement.get_sql(prp_stm) |> iox.inspect_println_tap
-  let params = prepared_statement.get_params(prp_stm)
+  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
+  let params = cake.get_params(prp_stm)
 
   let db_params =
     params

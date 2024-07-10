@@ -2,7 +2,8 @@
 //// to the `gleam_pgo` library for execution.
 ////
 
-import cake/dialect/postgres
+import cake
+import cake/dialect/postgres_dialect
 import cake/internal/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
@@ -17,13 +18,13 @@ import gleam/pgo.{type Connection, type Value}
 import pprint
 
 pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> postgres.query_to_prepared_statement
+  qry |> postgres_dialect.query_to_prepared_statement
 }
 
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(t),
 ) -> PreparedStatement {
-  qry |> postgres.write_query_to_prepared_statement
+  qry |> postgres_dialect.write_query_to_prepared_statement
 }
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
@@ -46,9 +47,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
 
 pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
   let prp_stm = to_prepared_statement(qry)
-  let sql = prepared_statement.get_sql(prp_stm) |> pprint.debug
-
-  let params = prepared_statement.get_params(prp_stm)
+  let sql = cake.get_sql(prp_stm) |> pprint.debug
+  let params = cake.get_params(prp_stm)
 
   io.print("Params: ")
 
@@ -75,8 +75,8 @@ pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
 
 pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) {
   let prp_stm = write_query_to_prepared_statement(qry)
-  let sql = prepared_statement.get_sql(prp_stm) |> pprint.debug
-  let params = prepared_statement.get_params(prp_stm)
+  let sql = cake.get_sql(prp_stm) |> pprint.debug
+  let params = cake.get_params(prp_stm)
 
   io.print("Params: ")
 

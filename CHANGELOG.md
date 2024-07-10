@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.1 - 2024-07-10
+
+- Rename dialects such as `postgres` to `postgres_dialect`.
+- Fix demos and tests to use public APIs instead of internal ones.
+
 ## 0.10.0 - 2024-07-09
 
 - Provide public API to access the generated SQL and prepared statement
