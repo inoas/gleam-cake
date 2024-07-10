@@ -35,5 +35,10 @@ pub fn setup_and_run_write(query) {
   let _ = test_data.create_dogs_table() |> maria.execute_raw_sql(conn)
   let _ = test_data.insert_dogs_rows() |> maria.execute_raw_sql(conn)
 
+  let _ =
+    test_data.drop_counters_table_if_exists() |> maria.execute_raw_sql(conn)
+  let _ = test_data.create_counters_table() |> maria.execute_raw_sql(conn)
+  let _ = test_data.insert_counters_rows() |> maria.execute_raw_sql(conn)
+
   query |> maria.run_write(dynamic.dynamic, conn)
 }

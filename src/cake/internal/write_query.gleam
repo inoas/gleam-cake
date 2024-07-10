@@ -134,7 +134,7 @@ pub type InsertSource(a) {
   NoInsertSource
   InsertSourceDefault
   InsertSourceRecords(records: List(a), caster: fn(a) -> InsertRow)
-  InsertSourceRows(records: List(InsertRow))
+  InsertSourceRows(rows: List(InsertRow))
   InsertSourceQuery(query: Query)
 }
 
@@ -236,7 +236,7 @@ fn insert_source_apply(
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_params_apply(source: src, row_caster: cstr)
-    InsertSourceRows(records: src) ->
+    InsertSourceRows(rows: src) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
       |> insert_from_values_apply(source: src)

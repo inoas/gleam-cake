@@ -109,12 +109,12 @@ pub fn from_records(
 pub fn from_values(
   table_name tbl_nm: String,
   columns cols: List(String),
-  records rcrds: List(InsertRow),
+  values vls: List(InsertRow),
 ) -> Insert(a) {
   Insert(
     table: InsertIntoTable(name: tbl_nm),
     modifier: NoInsertModifier,
-    source: InsertSourceRows(records: rcrds),
+    source: InsertSourceRows(rows: vls),
     columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: NoReturning,
@@ -182,7 +182,7 @@ pub fn source_values(
   query qry: Insert(a),
   records rcrds: List(InsertRow),
 ) -> Insert(a) {
-  Insert(..qry, source: InsertSourceRows(records: rcrds))
+  Insert(..qry, source: InsertSourceRows(rows: rcrds))
 }
 
 /// Get the source from an `Insert` query which is either a list of records,
@@ -257,7 +257,7 @@ pub fn on_constraint_conflict_ignore(
   )
 }
 
-/// Inserts or updates on conflict, also called ´.UPSERT´.
+/// Inserts or updates on conflict, also called ´UPSERT´.
 ///
 /// Conflict Target: Columns
 ///
@@ -277,7 +277,7 @@ pub fn on_columns_conflict_update(
   )
 }
 
-/// Inserts or updates on conflict, also called ´.UPSERT´.
+/// Inserts or updates on conflict, also called ´UPSERT´.
 ///
 /// Conflict Target: Constraint
 ///
