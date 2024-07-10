@@ -309,6 +309,7 @@ fn row_apply(
     new_prp_stm,
     fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
       case insert_value {
+        // TODO v1: What is _column for here?
         InsertParam(column: _column, param: param) -> {
           case new_prp_stm_inner == new_prp_stm {
             True ->
@@ -320,6 +321,7 @@ fn row_apply(
               |> prepared_statement.append_param(param)
           }
         }
+        // TODO v1: What is _column for here?
         InsertDefault(column: _column) -> {
           case new_prp_stm_inner == new_prp_stm {
             True ->
