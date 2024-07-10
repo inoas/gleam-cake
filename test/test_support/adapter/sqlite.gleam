@@ -59,7 +59,6 @@ pub fn run_write(query qry: WriteQuery(a), decoder dcdr, db_connection db_conn) 
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
-        // If all we need is this, use based library
         BoolParam(param) -> sqlight.bool(param)
         FloatParam(param) -> sqlight.float(param)
         IntParam(param) -> sqlight.int(param)

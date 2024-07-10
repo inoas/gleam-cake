@@ -84,7 +84,6 @@ pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) 
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
-        // If all we need is this, use based library
         BoolParam(param) -> pgo.bool(param)
         FloatParam(param) -> pgo.float(param)
         IntParam(param) -> pgo.int(param)
