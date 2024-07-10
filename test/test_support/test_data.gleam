@@ -72,13 +72,14 @@ pub fn drop_counters_table_if_exists() {
 
 pub fn create_counters_table() {
   "CREATE TABLE counters (
-    user TEXT,
-    counter INT
+    name TEXT,
+    counter INT,
+    UNIQUE (name)
   );"
 }
 
 pub fn insert_counters_rows() {
-  "INSERT INTO counters (name, age, is_trained, owner_id) VALUES
+  "INSERT INTO counters (name, counter) VALUES
     ('Fubi', 1),
     ('Diffy', 2),
     ('Tinny', 3)

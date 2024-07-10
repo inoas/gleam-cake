@@ -353,17 +353,19 @@ fn insert_on_conflict_apply(
     InsertConflictError -> prp_stm
     InsertConflictIgnore(target: cflt_trgt, where: whr) ->
       prp_stm
-      |> prepared_statement.append_sql(" ON CONFLICT")
+      |> prepared_statement.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(cflt_trgt)
-      |> query.where_clause_apply(whr)
+      |> prepared_statement.append_sql(")")
       |> prepared_statement.append_sql(" DO NOTHING")
+      |> query.where_clause_apply(whr)
     InsertConflictUpdate(target: cflt_trgt, where: whr, update: upt) ->
       prp_stm
       |> prepared_statement.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(cflt_trgt)
-      |> query.where_clause_apply(whr)
+      |> prepared_statement.append_sql(")")
       |> prepared_statement.append_sql(" DO ")
       |> update_apply(upt)
+      |> query.where_clause_apply(whr)
   }
 }
 

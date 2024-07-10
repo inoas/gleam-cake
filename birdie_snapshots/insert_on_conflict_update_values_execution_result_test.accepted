@@ -1,0 +1,10 @@
+---
+version: 1.1.7
+title: insert_on_conflict_update_values_execution_result_test
+file: ./test/cake_test/insert_on_conflict_update_test.gleam
+test_name: insert_on_conflict_update_values_execution_result_test
+---
+#(
+  Ok([#("Whiskers", 1)]),
+  Ok([#("Whiskers", 1)]),
+)
