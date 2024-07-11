@@ -1,9 +1,8 @@
 //// A DSL to build `UPDATE` queries.
 ////
 
-import cake/internal/param.{type Param}
-import cake/internal/query.{
-  type Comment, type Epilog, type From, type Join, type Joins, type Query,
+import cake/internal/read_query.{
+  type Comment, type Epilog, type From, type Join, type Joins, type ReadQuery,
   type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
   NoComment, NoEpilog, NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
@@ -13,6 +12,7 @@ import cake/internal/write_query.{
   Returning, Update, UpdateExpressionSet, UpdateParamSet, UpdateQuery,
   UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
+import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import gleam/list
 import gleam/string
 
@@ -27,25 +27,25 @@ pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
 /// Creates a `Param` from a `Bool`.
 ///
 pub fn bool(value vl: Bool) -> Param {
-  vl |> param.bool
+  vl |> BoolParam
 }
 
 /// Creates a `Param` from a `Float`.
 ///
 pub fn float(value vl: Float) -> Param {
-  vl |> param.float
+  vl |> FloatParam
 }
 
 /// Creates a `Param` from an `Int`.
 ///
 pub fn int(value vl: Int) -> Param {
-  vl |> param.int
+  vl |> IntParam
 }
 
 /// Creates a `Param` from a `String`.
 ///
 pub fn string(value vl: String) -> Param {
-  vl |> param.string
+  vl |> StringParam
 }
 
 // ▒▒▒ Constructor ▒▒▒
@@ -99,7 +99,10 @@ pub fn set_to_expression(
 
 /// Sets a column to a sub-query value.
 ///
-pub fn set_to_sub_query(column col: String, sub_query qry: Query) -> UpdateSet {
+pub fn set_to_sub_query(
+  column col: String,
+  sub_query qry: ReadQuery,
+) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
 }
 
@@ -154,7 +157,7 @@ pub fn set_many_to_expression(
 ///
 pub fn set_many_to_sub_query(
   columns cols: List(String),
-  sub_query qry: Query,
+  sub_query qry: ReadQuery,
 ) -> UpdateSet {
   UpdateSubQuerySet(columns: cols, sub_query: qry)
 }
@@ -180,7 +183,7 @@ pub fn from_table(query qry: Update(a), name tbl_nm: String) -> Update(a) {
 ///
 pub fn from_sub_query(
   query qry: Update(a),
-  sub_query sb_qry: Query,
+  sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Update(a) {
   Update(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))

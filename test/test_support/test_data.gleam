@@ -65,3 +65,25 @@ pub fn insert_dogs_rows() {
     ('Clara', 5, TRUE, NULL)
   ;"
 }
+
+pub fn drop_counters_table_if_exists() {
+  "DROP TABLE IF EXISTS counters;"
+}
+
+pub fn create_counters_table() {
+  "CREATE TABLE counters (
+    name TEXT,
+    counter INT,
+    UNIQUE (name)
+  );"
+}
+
+pub fn insert_counters_rows() {
+  "INSERT INTO counters (name, counter) VALUES
+    ('Fubi', 9000),
+    ('Diffy', 9000),
+    ('Tinny', 9000),
+    ('Karl', 9000),
+    ('Clara', 9000)
+  ;"
+}

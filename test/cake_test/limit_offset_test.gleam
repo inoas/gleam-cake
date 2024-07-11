@@ -49,10 +49,10 @@ pub fn select_limit_offset_test() {
 }
 
 pub fn select_limit_offset_prepared_statement_test() {
-  let pgo = select_query() |> postgres.to_prepared_statement
-  let lit = select_query() |> sqlite.to_prepared_statement
-  let mdb = select_query() |> maria.to_prepared_statement
-  let myq = select_query() |> mysql.to_prepared_statement
+  let pgo = select_query() |> postgres.read_query_to_prepared_statement
+  let lit = select_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = select_query() |> maria.read_query_to_prepared_statement
+  let myq = select_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -77,10 +77,10 @@ pub fn combined_limit_offset_test() {
 }
 
 pub fn combined_limit_offset_prepared_statement_test() {
-  let pgo = combined_query() |> postgres.to_prepared_statement
-  let lit = combined_query() |> sqlite.to_prepared_statement
-  let mdb = combined_query() |> maria.to_prepared_statement
-  let myq = combined_query() |> mysql.to_prepared_statement
+  let pgo = combined_query() |> postgres.read_query_to_prepared_statement
+  let lit = combined_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = combined_query() |> maria.read_query_to_prepared_statement
+  let myq = combined_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string

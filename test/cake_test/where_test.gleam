@@ -95,10 +95,10 @@ pub fn where_test() {
 }
 
 pub fn where_prepared_statement_test() {
-  let pgo = where_query() |> postgres.to_prepared_statement
-  let lit = where_query() |> sqlite.to_prepared_statement
-  let mdb = where_query() |> maria.to_prepared_statement
-  let myq = where_query() |> mysql.to_prepared_statement
+  let pgo = where_query() |> postgres.read_query_to_prepared_statement
+  let lit = where_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = where_query() |> maria.read_query_to_prepared_statement
+  let myq = where_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -123,10 +123,10 @@ pub fn where_any_test() {
 }
 
 pub fn where_any_prepared_statement_test() {
-  let pgo = where_any_query() |> postgres.to_prepared_statement
-  let lit = where_any_query() |> sqlite.to_prepared_statement
-  let mdb = where_any_query() |> maria.to_prepared_statement
-  let myq = where_any_query() |> mysql.to_prepared_statement
+  let pgo = where_any_query() |> postgres.read_query_to_prepared_statement
+  let lit = where_any_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = where_any_query() |> maria.read_query_to_prepared_statement
+  let myq = where_any_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -152,10 +152,10 @@ pub fn where_xor_test() {
 }
 
 pub fn where_xor_prepared_statement_test() {
-  let pgo = where_xor_query() |> postgres.to_prepared_statement
-  let lit = where_xor_query() |> sqlite.to_prepared_statement
-  let mdb = where_xor_query() |> maria.to_prepared_statement
-  let myq = where_xor_query() |> mysql.to_prepared_statement
+  let pgo = where_xor_query() |> postgres.read_query_to_prepared_statement
+  let lit = where_xor_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = where_xor_query() |> maria.read_query_to_prepared_statement
+  let myq = where_xor_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string

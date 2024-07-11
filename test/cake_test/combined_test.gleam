@@ -65,10 +65,12 @@ pub fn combined_union_all_test() {
 }
 
 pub fn combined_union_all_prepared_statement_test() {
-  let pgo = combined_union_all_query() |> postgres.to_prepared_statement
-  let lit = combined_union_all_query() |> sqlite.to_prepared_statement
-  let mdb = combined_union_all_query() |> maria.to_prepared_statement
-  let myq = combined_union_all_query() |> mysql.to_prepared_statement
+  let pgo =
+    combined_union_all_query() |> postgres.read_query_to_prepared_statement
+  let lit =
+    combined_union_all_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = combined_union_all_query() |> maria.read_query_to_prepared_statement
+  let myq = combined_union_all_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -93,10 +95,12 @@ pub fn combined_intersect_test() {
 }
 
 pub fn combined_intersect_prepared_statement_test() {
-  let pgo = combined_intersect_query() |> postgres.to_prepared_statement
-  let lit = combined_intersect_query() |> sqlite.to_prepared_statement
-  let mdb = combined_intersect_query() |> maria.to_prepared_statement
-  let myq = combined_intersect_query() |> mysql.to_prepared_statement
+  let pgo =
+    combined_intersect_query() |> postgres.read_query_to_prepared_statement
+  let lit =
+    combined_intersect_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = combined_intersect_query() |> maria.read_query_to_prepared_statement
+  let myq = combined_intersect_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -121,10 +125,10 @@ pub fn combined_except_test() {
 }
 
 pub fn combined_except_prepared_statement_test() {
-  let pgo = combined_except_query() |> postgres.to_prepared_statement
-  let lit = combined_except_query() |> sqlite.to_prepared_statement
-  let mdb = combined_except_query() |> maria.to_prepared_statement
-  let myq = combined_except_query() |> mysql.to_prepared_statement
+  let pgo = combined_except_query() |> postgres.read_query_to_prepared_statement
+  let lit = combined_except_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = combined_except_query() |> maria.read_query_to_prepared_statement
+  let myq = combined_except_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string

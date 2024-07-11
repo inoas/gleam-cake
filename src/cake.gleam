@@ -9,17 +9,17 @@
 ////
 
 import cake/internal/dialect.{type Dialect}
-import cake/internal/param.{type Param}
 import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/query.{type Query}
+import cake/internal/read_query.{type ReadQuery}
 import cake/internal/write_query.{type WriteQuery}
+import cake/param.{type Param}
 import gleam/io
 
 /// Wrapper type to be able to pass around read and write queries at the same
 /// time.
 ///
 pub type CakeQuery(a) {
-  CakeReadQuery(Query)
+  CakeReadQuery(ReadQuery)
   CakeWriteQuery(WriteQuery(a))
 }
 
@@ -27,7 +27,7 @@ pub type CakeQuery(a) {
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn cake_read_query(query qry: Query) -> CakeQuery(a) {
+pub fn cake_read_query(query qry: ReadQuery) -> CakeQuery(a) {
   qry |> CakeReadQuery
 }
 
@@ -50,22 +50,22 @@ pub fn cake_query_to_prepared_statement(
   case qry {
     CakeReadQuery(rd_qry) ->
       rd_qry
-      |> query_to_prepared_statement(dialect: dlct)
+      |> read_query_to_prepared_statement(dialect: dlct)
     CakeWriteQuery(wt_qry) ->
       wt_qry
       |> write_query_to_prepared_statement(dialect: dlct)
   }
 }
 
-/// Create a prepared statement from a (read) query.
+/// Create a prepared statement from a read query.
 ///
-pub fn query_to_prepared_statement(
-  query qry: Query,
+pub fn read_query_to_prepared_statement(
+  query qry: ReadQuery,
   dialect dlct: Dialect,
 ) -> PreparedStatement {
   dlct
   |> dialect.placeholder_base()
-  |> query.to_prepared_statement(query: qry, dialect: dlct)
+  |> read_query.to_prepared_statement(query: qry, dialect: dlct)
 }
 
 /// Create a prepared statement from a write query.

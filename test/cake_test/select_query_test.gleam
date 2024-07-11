@@ -43,10 +43,10 @@ pub fn select_query_test() {
 }
 
 pub fn select_query_prepared_statement_test() {
-  let pgo = select_query_query() |> postgres.to_prepared_statement
-  let lit = select_query_query() |> sqlite.to_prepared_statement
-  let mdb = select_query_query() |> maria.to_prepared_statement
-  let myq = select_query_query() |> mysql.to_prepared_statement
+  let pgo = select_query_query() |> postgres.read_query_to_prepared_statement
+  let lit = select_query_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = select_query_query() |> maria.read_query_to_prepared_statement
+  let myq = select_query_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string

@@ -31,7 +31,7 @@ fn insert_values() {
       "name", "rating", "age",
       // "owner_id", "is_wild"
     ],
-    records: [cat],
+    values: [cat],
   )
   |> i.returning(["name"])
 }

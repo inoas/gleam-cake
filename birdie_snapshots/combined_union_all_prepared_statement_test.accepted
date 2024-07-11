@@ -1,5 +1,5 @@
 ---
-version: 1.1.6
+version: 1.1.7
 title: combined_union_all_prepared_statement_test
 file: ./test/cake_test/combined_test.gleam
 test_name: combined_union_all_prepared_statement_test

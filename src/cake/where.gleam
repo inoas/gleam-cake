@@ -11,15 +11,15 @@
 //// - SQLite does not support `ANY`, `ALL` and `SIMILAR TO`.
 ////
 
-import cake/internal/param
-import cake/internal/query.{
-  type Fragment, type Query, type Where, type WhereValue, AndWhere, Equal,
+import cake/internal/read_query.{
+  type Fragment, type ReadQuery, type Where, type WhereValue, AndWhere, Equal,
   Greater, GreaterOrEqual, Lower, LowerOrEqual, NotWhere, OrWhere,
   WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween, WhereColumnValue,
   WhereComparison, WhereExistsInSubQuery, WhereFragment, WhereFragmentValue,
   WhereILike, WhereIn, WhereIsBool, WhereIsNotBool, WhereIsNotNull, WhereIsNull,
   WhereLike, WhereParamValue, WhereSimilarTo, XorWhere,
 }
+import cake/param.{FloatParam, IntParam, StringParam}
 
 /// Creates a `WhereValue` from a column name `String`.
 ///
@@ -30,19 +30,19 @@ pub fn col(name: String) -> WhereValue {
 /// Creates a `WhereValue` from a `Float`.
 ///
 pub fn float(v vl: Float) -> WhereValue {
-  vl |> param.float |> WhereParamValue
+  vl |> FloatParam |> WhereParamValue
 }
 
 /// Creates a `WhereValue` from an `Int`.
 ///
 pub fn int(v vl: Int) -> WhereValue {
-  vl |> param.int |> WhereParamValue
+  vl |> IntParam |> WhereParamValue
 }
 
 /// Creates a `WhereValue` from a `String`.
 ///
 pub fn string(v vl: String) -> WhereValue {
-  vl |> param.string |> WhereParamValue
+  vl |> StringParam |> WhereParamValue
 }
 
 /// Creates a `NULL` `WhereValue`.
@@ -147,7 +147,7 @@ pub fn gte(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn eq_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn eq_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(Equal, qry)
 }
 
@@ -156,7 +156,7 @@ pub fn eq_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn lt_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn lt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(Lower, qry)
 }
 
@@ -165,7 +165,7 @@ pub fn lt_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn lte_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn lte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(LowerOrEqual, qry)
 }
 
@@ -174,7 +174,7 @@ pub fn lte_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn gt_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn gt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(Greater, qry)
 }
 
@@ -183,7 +183,7 @@ pub fn gt_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn gte_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn gte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(GreaterOrEqual, qry)
 }
 
@@ -192,7 +192,7 @@ pub fn gte_any_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn eq_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn eq_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(Equal, qry)
 }
 
@@ -201,7 +201,7 @@ pub fn eq_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn lt_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn lt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(Lower, qry)
 }
 
@@ -210,7 +210,7 @@ pub fn lt_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn lte_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn lte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(LowerOrEqual, qry)
 }
 
@@ -219,7 +219,7 @@ pub fn lte_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn gt_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(Greater, qry)
 }
 
@@ -228,7 +228,7 @@ pub fn gt_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn gte_all_query(value vl: WhereValue, sub_query qry: Query) -> Where {
+pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(GreaterOrEqual, qry)
 }
 
@@ -241,7 +241,7 @@ pub fn in(value vl: WhereValue, values vals: List(WhereValue)) -> Where {
 
 /// Creates a `WHERE` clause that checks if it exists in a sub-query.
 ///
-pub fn exists_in_query(sub_query qry: Query) -> Where {
+pub fn exists_in_query(sub_query qry: ReadQuery) -> Where {
   qry |> WhereExistsInSubQuery
 }
 

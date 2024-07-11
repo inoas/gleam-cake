@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0 - 2024-07-11
+
+- Renamed `Query` and the internal query module to `ReadQuery` and `read_query`.
+- Fixed some issues around upserts (INSERT ON CONFLICT UPDATE).
+- Moved internal/params module into public namespace.
+
 ## 0.10.1 - 2024-07-10
 
 - Rename dialects such as `postgres` to `postgres_dialect`.
