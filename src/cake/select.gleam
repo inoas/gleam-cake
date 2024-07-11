@@ -684,7 +684,10 @@ pub fn order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> read_query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
+  |> read_query.select_order_by(
+    OrderBy(values: [OrderByColumn(ordb, dir)]),
+    True,
+  )
 }
 
 /// Replaces the `OrderBy` a column with a direction.
@@ -696,7 +699,10 @@ pub fn replace_order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> read_query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
+  |> read_query.select_order_by(
+    OrderBy(values: [OrderByColumn(ordb, dir)]),
+    False,
+  )
 }
 
 /// Removes the `OrderBy` from the `Select` query.

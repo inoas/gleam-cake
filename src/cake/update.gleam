@@ -99,7 +99,10 @@ pub fn set_to_expression(
 
 /// Sets a column to a sub-query value.
 ///
-pub fn set_to_sub_query(column col: String, sub_query qry: ReadQuery) -> UpdateSet {
+pub fn set_to_sub_query(
+  column col: String,
+  sub_query qry: ReadQuery,
+) -> UpdateSet {
   UpdateSubQuerySet(columns: [col], sub_query: qry)
 }
 

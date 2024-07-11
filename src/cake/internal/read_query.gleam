@@ -35,9 +35,7 @@
 
 import cake/internal/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
 import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/param.{
-  type Param, StringParam,
-}
+import cake/param.{type Param, StringParam}
 import gleam/int
 import gleam/list
 import gleam/order

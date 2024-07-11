@@ -19,9 +19,7 @@ import cake/internal/read_query.{
   WhereILike, WhereIn, WhereIsBool, WhereIsNotBool, WhereIsNotNull, WhereIsNull,
   WhereLike, WhereParamValue, WhereSimilarTo, XorWhere,
 }
-import cake/param.{
-  FloatParam, IntParam, StringParam,
-}
+import cake/param.{FloatParam, IntParam, StringParam}
 
 /// Creates a `WhereValue` from a column name `String`.
 ///
