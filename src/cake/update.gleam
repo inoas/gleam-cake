@@ -2,19 +2,61 @@
 ////
 
 import cake/internal/read_query.{
-  type Comment, type Epilog, type From, type Join, type Joins, type ReadQuery,
-  type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
-  NoComment, NoEpilog, NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
+  AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,
+  NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Update, type UpdateSet, type UpdateSets, type UpdateTable,
-  type WriteQuery, NoReturning, NoUpdateModifier, NoUpdateSets, NoUpdateTable,
-  Returning, Update, UpdateExpressionSet, UpdateParamSet, UpdateQuery,
-  UpdateSets, UpdateSubQuerySet, UpdateTable,
+  NoReturning, NoUpdateModifier, NoUpdateSets, NoUpdateTable, Returning, Update,
+  UpdateExpressionSet, UpdateParamSet, UpdateQuery, UpdateSets,
+  UpdateSubQuerySet, UpdateTable,
 }
 import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
 import gleam/list
 import gleam/string
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Comment =
+  read_query.Comment
+
+pub type Epilog =
+  read_query.Epilog
+
+pub type From =
+  read_query.From
+
+pub type Join =
+  read_query.Join
+
+pub type Joins =
+  read_query.Joins
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Where =
+  read_query.Where
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  write_query type re-exports                                              │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Update(a) =
+  write_query.Update(a)
+
+pub type UpdateSet =
+  write_query.UpdateSet
+
+pub type UpdateSets =
+  write_query.UpdateSets
+
+pub type UpdateTable =
+  write_query.UpdateTable
+
+pub type WriteQuery(a) =
+  write_query.WriteQuery(a)
 
 /// Creates a `WriteQuery` from an `Update` query.
 ///

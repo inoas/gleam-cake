@@ -2,17 +2,56 @@
 ////
 
 import cake/internal/read_query.{
-  type Comment, type Epilog, type From, type Join, type Joins, type ReadQuery,
-  type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
-  NoComment, NoEpilog, NoJoins, NoWhere, OrWhere, XorWhere,
+  AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,
+  NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
-  type Delete, type DeleteTable, type DeleteUsing, type WriteQuery, Delete,
-  DeleteModifier, DeleteQuery, DeleteTable, DeleteUsing, NoDeleteModifier,
-  NoDeleteTable, NoDeleteUsing, NoReturning, Returning,
+  Delete, DeleteModifier, DeleteQuery, DeleteTable, DeleteUsing,
+  NoDeleteModifier, NoDeleteTable, NoDeleteUsing, NoReturning, Returning,
 }
 import gleam/list
 import gleam/string
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Comment =
+  read_query.Comment
+
+pub type Epilog =
+  read_query.Epilog
+
+pub type From =
+  read_query.From
+
+pub type Join =
+  read_query.Join
+
+pub type Joins =
+  read_query.Joins
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Where =
+  read_query.Where
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  write_query type re-exports                                              │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Delete(a) =
+  write_query.Delete(a)
+
+pub type DeleteTable =
+  write_query.DeleteTable
+
+pub type DeleteUsing =
+  write_query.DeleteUsing
+
+pub type WriteQuery(a) =
+  write_query.WriteQuery(a)
 
 /// Creates a `WriteQuery` from a `Delete` query.
 ///

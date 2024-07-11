@@ -1,22 +1,62 @@
 //// A DSL to build `INSERT` queries.
 ////
 
-import cake/internal/read_query.{
-  type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
-}
+import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/internal/write_query.{
-  type Insert, type InsertColumns, type InsertConflictStrategy,
-  type InsertIntoTable, type InsertRow, type InsertSource, type InsertValue,
-  type Update, type WriteQuery, Insert, InsertColumns, InsertConflictError,
-  InsertConflictIgnore, InsertConflictTarget, InsertConflictTargetConstraint,
-  InsertConflictUpdate, InsertIntoTable, InsertModifier, InsertParam,
-  InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
-  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
+  Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
+  InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
+  InsertIntoTable, InsertModifier, InsertParam, InsertQuery, InsertRow,
+  InsertSourceRecords, InsertSourceRows, NoInsertColumns, NoInsertIntoTable,
+  NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/string
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Comment =
+  read_query.Comment
+
+pub type Epilog =
+  read_query.Epilog
+
+pub type Where =
+  read_query.Where
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  write_query type re-exports                                              │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Insert(a) =
+  write_query.Insert(a)
+
+pub type InsertColumns =
+  write_query.InsertColumns
+
+pub type InsertConflictStrategy(a) =
+  write_query.InsertConflictStrategy(a)
+
+pub type InsertIntoTable =
+  write_query.InsertIntoTable
+
+pub type InsertRow =
+  write_query.InsertRow
+
+pub type InsertSource(a) =
+  write_query.InsertSource(a)
+
+pub type InsertValue =
+  write_query.InsertValue
+
+pub type Update(a) =
+  write_query.Update(a)
+
+pub type WriteQuery(a) =
+  write_query.WriteQuery(a)
 
 /// Creates a `WriteQuery` from an `Insert` query.
 ///

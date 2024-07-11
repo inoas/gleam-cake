@@ -15,7 +15,7 @@ import gleam/list
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Write ReadQuery                                                              │
+// │  Write Query                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Write queries encapsulate the different types of write operations

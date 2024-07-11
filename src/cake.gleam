@@ -8,12 +8,24 @@
 //// For examples see the tests.
 ////
 
-import cake/internal/dialect.{type Dialect}
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/read_query.{type ReadQuery}
-import cake/internal/write_query.{type WriteQuery}
+import cake/internal/dialect
+import cake/internal/prepared_statement
+import cake/internal/read_query
+import cake/internal/write_query
 import cake/param.{type Param}
 import gleam/io
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type WriteQuery(a) =
+  write_query.WriteQuery(a)
+
+pub type Dialect =
+  dialect.Dialect
+
+pub type PreparedStatement =
+  prepared_statement.PreparedStatement
 
 /// Wrapper type to be able to pass around read and write queries at the same
 /// time.

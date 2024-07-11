@@ -7,12 +7,19 @@
 //// injections.
 ////
 
-import cake/internal/read_query.{type Fragment}
+import cake/internal/read_query
 import cake/param.{type Param}
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/order
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Fragment =
+  read_query.Fragment
 
 /// This placeholder must be used when building fragments with parameters.
 ///

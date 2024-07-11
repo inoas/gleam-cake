@@ -12,14 +12,30 @@
 ////
 
 import cake/internal/read_query.{
-  type Fragment, type ReadQuery, type Where, type WhereValue, AndWhere, Equal,
-  Greater, GreaterOrEqual, Lower, LowerOrEqual, NotWhere, OrWhere,
-  WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween, WhereColumnValue,
-  WhereComparison, WhereExistsInSubQuery, WhereFragment, WhereFragmentValue,
-  WhereILike, WhereIn, WhereIsBool, WhereIsNotBool, WhereIsNotNull, WhereIsNull,
-  WhereLike, WhereParamValue, WhereSimilarTo, XorWhere,
+  AndWhere, Equal, Greater, GreaterOrEqual, Lower, LowerOrEqual, NotWhere,
+  OrWhere, WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween,
+  WhereColumnValue, WhereComparison, WhereExistsInSubQuery, WhereFragment,
+  WhereFragmentValue, WhereILike, WhereIn, WhereIsBool, WhereIsNotBool,
+  WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
+  XorWhere,
 }
 import cake/param.{FloatParam, IntParam, StringParam}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Fragment =
+  read_query.Fragment
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Where =
+  read_query.Where
+
+pub type WhereValue =
+  read_query.WhereValue
 
 /// Creates a `WhereValue` from a column name `String`.
 ///

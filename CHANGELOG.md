@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0 - 2024-07-11
+
+- Re-export types which can be used in public APIs.
+
 ## 0.11.0 - 2024-07-11
 
 - Renamed `Query` and the internal query module to `ReadQuery` and `read_query`.

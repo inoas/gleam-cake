@@ -13,13 +13,42 @@
 ////
 
 import cake/internal/read_query.{
-  type Combined, type Comment, type Epilog, type Limit, type Offset,
-  type OrderBy, type OrderByDirection, type ReadQuery, type Select, Combined,
-  CombinedQuery, Comment, Epilog, ExceptAll, ExceptDistinct, IntersectAll,
-  IntersectDistinct, NoComment, NoEpilog, NoLimit, NoOffset, NoOrderBy, OrderBy,
-  OrderByColumn, UnionAll, UnionDistinct,
+  Combined, CombinedQuery, Comment, Epilog, ExceptAll, ExceptDistinct,
+  IntersectAll, IntersectDistinct, NoComment, NoEpilog, NoLimit, NoOffset,
+  NoOrderBy, OrderBy, OrderByColumn, UnionAll, UnionDistinct,
 }
 import gleam/string
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Combined =
+  read_query.Combined
+
+pub type Comment =
+  read_query.Comment
+
+pub type Epilog =
+  read_query.Epilog
+
+pub type Limit =
+  read_query.Limit
+
+pub type Offset =
+  read_query.Offset
+
+pub type OrderBy =
+  read_query.OrderBy
+
+pub type OrderByDirection =
+  read_query.OrderByDirection
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Select =
+  read_query.Select
 
 /// Creates a `Query` from a `Combined` read_query.
 ///
