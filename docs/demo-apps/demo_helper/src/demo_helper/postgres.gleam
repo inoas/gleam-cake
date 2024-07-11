@@ -4,12 +4,12 @@
 
 import cake
 import cake/dialect/postgres_dialect
-import cake/internal/param.{
+import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/internal/read_query.{type ReadQuery}
+import cake/internal/write_query.{type WriteQuery}
+import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/query.{type Query}
-import cake/internal/write_query.{type WriteQuery}
 import gleam/dynamic
 import gleam/io
 import gleam/list
@@ -17,7 +17,7 @@ import gleam/option.{Some}
 import gleam/pgo.{type Connection, type Value}
 import pprint
 
-pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
+pub fn to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
   qry |> postgres_dialect.query_to_prepared_statement
 }
 
@@ -45,7 +45,7 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
   value
 }
 
-pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
+pub fn run_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
   let prp_stm = to_prepared_statement(qry)
   let sql = cake.get_sql(prp_stm) |> pprint.debug
   let params = cake.get_params(prp_stm)

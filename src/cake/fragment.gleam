@@ -7,8 +7,8 @@
 //// injections.
 ////
 
-import cake/internal/param.{type Param}
-import cake/internal/query.{type Fragment}
+import cake/internal/read_query.{type Fragment}
+import cake/param.{type Param}
 import gleam/int
 import gleam/io
 import gleam/list
@@ -16,7 +16,7 @@ import gleam/order
 
 /// This placeholder must be used when building fragments with parameters.
 ///
-pub const placeholder = query.fragment_placeholder_grapheme
+pub const placeholder = read_query.fragment_placeholder_grapheme
 
 /// Create a new fragment from a string and a list of parameters.
 ///
@@ -37,17 +37,17 @@ pub const placeholder = query.fragment_placeholder_grapheme
 pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
   let plchldr_count =
     str
-    |> query.fragment_prepared_split_string
-    |> query.fragment_count_placeholders
+    |> read_query.fragment_prepared_split_string
+    |> read_query.fragment_count_placeholders
 
   let param_count = prms |> list.length
 
   case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {
     0, 0, order.Eq -> {
-      str |> query.FragmentLiteral
+      str |> read_query.FragmentLiteral
     }
     _n, _n, order.Eq -> {
-      str |> query.FragmentPrepared(prms)
+      str |> read_query.FragmentPrepared(prms)
     }
     0, _n, _not_eq -> {
       io.println_error(
@@ -57,7 +57,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> param_count |> int.to_string
         <> " params given!",
       )
-      str |> query.FragmentLiteral
+      str |> read_query.FragmentLiteral
     }
     _n, 0, _not_eq -> {
       io.println_error(
@@ -67,7 +67,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> placeholder
         <> "-placeholders, but there were 0 params given!",
       )
-      str |> query.FragmentLiteral
+      str |> read_query.FragmentLiteral
     }
     _n, _m, _not_eq -> {
       io.println_error(
@@ -79,7 +79,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> param_count |> int.to_string
         <> " params given!",
       )
-      str |> query.FragmentPrepared(prms)
+      str |> read_query.FragmentPrepared(prms)
     }
   }
 }
@@ -93,5 +93,5 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 /// ⛔ ⛔ ⛔
 ///
 pub fn literal(string str: String) -> Fragment {
-  str |> query.FragmentLiteral
+  str |> read_query.FragmentLiteral
 }

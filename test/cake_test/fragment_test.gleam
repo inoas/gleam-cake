@@ -1,6 +1,6 @@
 import birdie
 import cake/fragment as f
-import cake/internal/param as p
+import cake/param as p
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}

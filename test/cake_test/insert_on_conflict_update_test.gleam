@@ -1,6 +1,6 @@
 import birdie
 import cake/insert as i
-import cake/internal/query.{NoWhere}
+import cake/internal/read_query.{NoWhere}
 import cake/update as u
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper

@@ -31,13 +31,13 @@
 //// the query structure when composing different queries.
 ////
 
-// TODO v1: probably rename to read_query and type to ReadQuery
-
 // TODO: Add to query validator in v2 or v3
 
 import cake/internal/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}
-import cake/internal/param.{type Param}
 import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/param.{
+  type Param, StringParam,
+}
 import gleam/int
 import gleam/list
 import gleam/order
@@ -48,15 +48,15 @@ import gleam/string
 pub const computed_alias_prefix = "__cake_computed_alias_"
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Query                                                                    │
+// │  Read Query                                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// A query can be either a `SELECT` query or a combined query.
+/// A read query can be either a `SELECT` query or a combined query.
 ///
 /// A combined query is a query that combines multiple `SELECT` queries into one
 /// query using `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`, etc.
 ///
-pub type Query {
+pub type ReadQuery {
   SelectQuery(query: Select)
   CombinedQuery(query: Combined)
 }
@@ -64,7 +64,7 @@ pub type Query {
 /// Creates a prepared statement from a query.
 ///
 pub fn to_prepared_statement(
-  query qry: Query,
+  query qry: ReadQuery,
   placeholder_base plchldr_bs: String,
   dialect dlct: Dialect,
 ) -> PreparedStatement {
@@ -77,7 +77,7 @@ pub fn to_prepared_statement(
 ///
 pub fn apply(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: Query,
+  query qry: ReadQuery,
 ) -> PreparedStatement {
   case qry {
     SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
@@ -391,10 +391,10 @@ pub type From {
   // => should be a function somewhere but not here
   // TODO v2 Could be a list of tables/views
   // TODO v2 FromTable(names: List(String))
-  // TODO v2 FromSubQuery(sub_queries: List(#(sub_query: Query, alias: String)))
+  // TODO v2 FromSubQuery(sub_queries: List(#(sub_query: ReadQuery, alias: String)))
   // interfacing functions should exist to specify a single item or a list
   FromTable(name: String)
-  FromSubQuery(sub_query: Query, alias: String)
+  FromSubQuery(sub_query: ReadQuery, alias: String)
 }
 
 /// Applies the `FROM` clause to a prepared statement by appending the SQL code.
@@ -444,15 +444,15 @@ pub type Where {
   WhereAnyOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    sub_query: Query,
+    sub_query: ReadQuery,
   )
   WhereAllOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    sub_query: Query,
+    sub_query: ReadQuery,
   )
   WhereIn(value: WhereValue, values: List(WhereValue))
-  WhereExistsInSubQuery(sub_query: Query)
+  WhereExistsInSubQuery(sub_query: ReadQuery)
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, string: String)
   WhereILike(value: WhereValue, string: String)
@@ -484,7 +484,7 @@ pub type WhereValue {
   // TODO v3 If there are multiple, take the list of select values (projections)
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1?
-  WhereSubQueryValue(sub_query: Query)
+  WhereSubQueryValue(sub_query: ReadQuery)
 }
 
 /// Applies the `WHERE` clause to a prepared statement by appending the SQL code.
@@ -591,21 +591,22 @@ fn where_apply(
       |> where_comparison_apply(
         val,
         "LIKE",
-        prm |> param.StringParam |> WhereParamValue,
+        prm |> StringParam |> WhereParamValue,
       )
     WhereILike(val, prm) ->
       prp_stm
       |> where_comparison_apply(
         val,
         "ILIKE",
-        prm |> param.StringParam |> WhereParamValue,
+        prm |> StringParam |> WhereParamValue,
       )
     WhereSimilarTo(val, prm) ->
+      // TODO v1: Let user pass in escape character
       prp_stm
       |> where_comparison_apply(
         val,
         "SIMILAR TO",
-        prm |> param.StringParam |> WhereParamValue,
+        prm |> StringParam |> WhereParamValue,
       )
       |> prepared_statement.append_sql(" ESCAPE '/'")
     WhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
@@ -730,7 +731,7 @@ fn where_param_apply(
 
 fn where_sub_query_apply(
   prepared_statement prp_stm: PreparedStatement,
-  sub_query qry: Query,
+  sub_query qry: ReadQuery,
 ) -> PreparedStatement {
   prp_stm
   |> prepared_statement.append_sql("(")
@@ -1015,7 +1016,7 @@ pub type Joins {
 ///
 pub type JoinTarget {
   JoinTable(table: String)
-  JoinSubQuery(sub_query: Query)
+  JoinSubQuery(sub_query: ReadQuery)
 }
 
 /// A Join can be one of:

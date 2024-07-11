@@ -20,8 +20,8 @@
 //// - `EXCLUSIVE FULL JOIN`: `WHERE a.key IS NULL OR b.key IS NULL`
 ////
 
-import cake/internal/query.{
-  type Join, type JoinTarget, type Query, type Where, CrossJoin, FullJoin,
+import cake/internal/read_query.{
+  type Join, type JoinTarget, type ReadQuery, type Where, CrossJoin, FullJoin,
   InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,
 }
 
@@ -33,7 +33,7 @@ pub fn table(table_name tbl_nm: String) -> JoinTarget {
 
 /// Create a `JOIN` target from a sub-query.
 ///
-pub fn sub_query(sub_query sq: Query) -> JoinTarget {
+pub fn sub_query(sub_query sq: ReadQuery) -> JoinTarget {
   sq |> JoinSubQuery
 }
 

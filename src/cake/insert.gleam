@@ -1,8 +1,7 @@
 //// A DSL to build `INSERT` queries.
 ////
 
-import cake/internal/param.{type Param}
-import cake/internal/query.{
+import cake/internal/read_query.{
   type Comment, type Epilog, type Where, Comment, Epilog, NoComment, NoEpilog,
 }
 import cake/internal/write_query.{
@@ -13,6 +12,9 @@ import cake/internal/write_query.{
   InsertConflictUpdate, InsertIntoTable, InsertModifier, InsertParam,
   InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
   NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
+}
+import cake/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/string
 
@@ -38,31 +40,31 @@ pub fn param(column col: String, param prm: Param) -> InsertValue {
 /// Create an `InsertValue` from a column `String` and a `Bool` value.
 ///
 pub fn bool(value vl: Bool) -> Param {
-  vl |> param.bool
+  vl |> BoolParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `Float` value.
 ///
 pub fn float(value vl: Float) -> Param {
-  vl |> param.float
+  vl |> FloatParam
 }
 
 /// Create an `InsertValue` from a column `String` and an `Int` value.
 ///
 pub fn int(value vl: Int) -> Param {
-  vl |> param.int
+  vl |> IntParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `String` value.
 ///
 pub fn string(value vl: String) -> Param {
-  vl |> param.string
+  vl |> StringParam
 }
 
 /// Create a NULL `InsertValue`.
 ///
 pub fn null() -> Param {
-  param.NullParam
+  NullParam
 }
 
 // ▒▒▒ Constructors ▒▒▒

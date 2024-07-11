@@ -1,23 +1,23 @@
 //// A DSL to build `SELECT` queries.
 ////
 
-import cake/internal/param
-import cake/internal/query.{
+import cake/internal/read_query.{
   type Comment, type Epilog, type Fragment, type From, type GroupBy, type Join,
   type Joins, type Limit, type Offset, type OrderBy, type OrderByDirection,
-  type Query, type Select, type SelectKind, type SelectValue, type Selects,
+  type ReadQuery, type Select, type SelectKind, type SelectValue, type Selects,
   type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, GroupBy, Joins,
   Limit, NoComment, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset,
   NoOrderBy, NoSelects, NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select,
   SelectAlias, SelectAll, SelectColumn, SelectDistinct, SelectFragment,
   SelectParam, SelectQuery, Selects, XorWhere,
 }
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/list
 import gleam/string
 
 /// Creates a `Query` from a `Select` query.
 ///
-pub fn to_query(query qry: Select) -> Query {
+pub fn to_query(query qry: Select) -> ReadQuery {
   qry |> SelectQuery
 }
 
@@ -36,25 +36,31 @@ pub fn alias(value vl: SelectValue, alias als: String) -> SelectValue {
 /// Creates a boolean `Param` off a `Bool`.
 ///
 pub fn bool(value vl: Bool) -> SelectValue {
-  vl |> param.bool |> SelectParam
+  vl |> BoolParam |> SelectParam
 }
 
 /// Creates a float `Param` off a `Float`.
 ///
 pub fn float(value vl: Float) -> SelectValue {
-  vl |> param.float |> SelectParam
+  vl |> FloatParam |> SelectParam
 }
 
 /// Creates an integer `Param` off an `Int`.
 ///
 pub fn int(value vl: Int) -> SelectValue {
-  vl |> param.int |> SelectParam
+  vl |> IntParam |> SelectParam
 }
 
 /// Creates a string `Param` off a `String`.
 ///
 pub fn string(value vl: String) -> SelectValue {
-  vl |> param.string |> SelectParam
+  vl |> StringParam |> SelectParam
+}
+
+/// Creates an SQL `NULL` `Param`.
+///
+pub fn null() -> SelectValue {
+  NullParam |> SelectParam
 }
 
 /// Creates a `SelectFragment` off a `Fragment`.
@@ -117,7 +123,7 @@ pub fn from_table(query qry: Select, name tbl_nm: String) -> Select {
 ///
 pub fn from_sub_query(
   query qry: Select,
-  sub_query sb_qry: Query,
+  sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Select {
   Select(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))
@@ -468,7 +474,7 @@ pub fn get_group_by(query qry: Select) -> GroupBy {
 /// Sets a `Limit` in the `Select` query.
 ///
 pub fn limit(query qry: Select, limit lmt: Int) -> Select {
-  let lmt = lmt |> query.limit_new
+  let lmt = lmt |> read_query.limit_new
   Select(..qry, limit: lmt)
 }
 
@@ -487,7 +493,7 @@ pub fn get_limit(query qry: Select) -> Limit {
 /// Sets an `Offset` in the `Select` query.
 ///
 pub fn offset(query qry: Select, offst offst: Int) -> Select {
-  let offst = offst |> query.offset_new
+  let offst = offst |> read_query.offset_new
   Select(..qry, offset: offst)
 }
 
@@ -514,8 +520,8 @@ pub type Direction {
 
 fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
   case in {
-    Asc -> query.Asc
-    Desc -> query.Desc
+    Asc -> read_query.Asc
+    Desc -> read_query.Desc
   }
 }
 
@@ -523,8 +529,8 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 ///
 pub fn order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
     append: True,
   )
 }
@@ -535,8 +541,8 @@ pub fn order_by_asc(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn order_by_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
     append: True,
   )
 }
@@ -547,8 +553,8 @@ pub fn order_by_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn order_by_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
     append: True,
   )
 }
@@ -557,8 +563,8 @@ pub fn order_by_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn replace_order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.Asc)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
     append: False,
   )
 }
@@ -572,8 +578,8 @@ pub fn replace_order_by_asc_nulls_first(
   by ordb: String,
 ) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
     append: False,
   )
 }
@@ -587,8 +593,8 @@ pub fn replace_order_by_asc_nulls_last(
   by ordb: String,
 ) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.AscNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
     append: False,
   )
 }
@@ -597,8 +603,8 @@ pub fn replace_order_by_asc_nulls_last(
 ///
 pub fn order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
     append: True,
   )
 }
@@ -609,8 +615,8 @@ pub fn order_by_desc(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn order_by_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
     append: True,
   )
 }
@@ -621,8 +627,8 @@ pub fn order_by_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn order_by_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
     append: True,
   )
 }
@@ -631,8 +637,8 @@ pub fn order_by_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
 ///
 pub fn replace_order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.Desc)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
     append: False,
   )
 }
@@ -646,8 +652,8 @@ pub fn replace_order_by_desc_nulls_first(
   by ordb: String,
 ) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
     append: False,
   )
 }
@@ -661,8 +667,8 @@ pub fn replace_order_by_desc_nulls_last(
   by ordb: String,
 ) -> Select {
   qry
-  |> query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, query.DescNullsFirst)]),
+  |> read_query.select_order_by(
+    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
     append: False,
   )
 }
@@ -678,7 +684,7 @@ pub fn order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
+  |> read_query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), True)
 }
 
 /// Replaces the `OrderBy` a column with a direction.
@@ -690,7 +696,7 @@ pub fn replace_order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
+  |> read_query.select_order_by(OrderBy(values: [OrderByColumn(ordb, dir)]), False)
 }
 
 /// Removes the `OrderBy` from the `Select` query.

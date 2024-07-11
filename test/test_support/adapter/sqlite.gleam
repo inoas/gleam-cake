@@ -4,18 +4,18 @@
 
 import cake
 import cake/internal/dialect.{Sqlite}
-import cake/internal/param.{
+import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/internal/read_query.{type ReadQuery}
+import cake/internal/write_query.{type WriteQuery}
+import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/query.{type Query}
-import cake/internal/write_query.{type WriteQuery}
 import gleam/list
 import sqlight.{type Connection, type Value}
 import test_support/iox
 
-pub fn to_prepared_statement(query qry: Query) -> PreparedStatement {
-  qry |> cake.query_to_prepared_statement(dialect: Sqlite)
+pub fn to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
+  qry |> cake.read_query_to_prepared_statement(dialect: Sqlite)
 }
 
 pub fn write_query_to_prepared_statement(
@@ -28,7 +28,7 @@ pub fn with_memory_connection(callback_fun: fn(Connection) -> a) -> a {
   sqlight.with_connection(":memory:", callback_fun)
 }
 
-pub fn run_query(query qry: Query, decoder dcdr, db_connection db_conn) {
+pub fn run_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
   let prp_stm = to_prepared_statement(qry)
   let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
   let params = cake.get_params(prp_stm)

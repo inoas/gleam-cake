@@ -5,17 +5,17 @@
 // TODO v3 Add to query validator?
 
 import cake/internal/dialect.{type Dialect}
-import cake/internal/param.{type Param}
 import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/query.{
-  type Comment, type Epilog, type From, type Joins, type Query, type Where,
+import cake/internal/read_query.{
+  type Comment, type Epilog, type From, type Joins, type ReadQuery, type Where,
   Epilog, FromSubQuery, FromTable, NoFrom,
 }
+import cake/param.{type Param}
 import gleam/list
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Write Query                                                              │
+// │  Write ReadQuery                                                              │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Write queries encapsulate the different types of write operations
@@ -135,7 +135,7 @@ pub type InsertSource(a) {
   InsertSourceDefault
   InsertSourceRecords(records: List(a), caster: fn(a) -> InsertRow)
   InsertSourceRows(rows: List(InsertRow))
-  InsertSourceQuery(query: Query)
+  InsertSourceQuery(query: ReadQuery)
 }
 
 /// The `InsertRow` type is used to define a row to be inserted into a table.
@@ -188,8 +188,8 @@ fn insert_apply(
   |> insert_source_apply(isrt.source)
   |> insert_on_conflict_apply(isrt.on_conflict)
   |> returning_apply(isrt.returning)
-  |> query.comment_apply(isrt.comment)
-  |> query.epilog_apply(isrt.epilog)
+  |> read_query.comment_apply(isrt.comment)
+  |> read_query.epilog_apply(isrt.epilog)
 }
 
 fn insert_into_table_apply(
@@ -339,11 +339,11 @@ fn row_apply(
 
 fn insert_from_query_apply(
   prepared_statement prp_stm: PreparedStatement,
-  query qry: Query,
+  query qry: ReadQuery,
 ) {
   prp_stm
   |> prepared_statement.append_sql(" (")
-  |> query.apply(qry)
+  |> read_query.apply(qry)
   |> prepared_statement.append_sql(")")
 }
 
@@ -359,7 +359,7 @@ fn insert_on_conflict_apply(
       |> insert_on_conflict_target_apply(cflt_trgt)
       |> prepared_statement.append_sql(")")
       |> prepared_statement.append_sql(" DO NOTHING")
-      |> query.where_clause_apply(whr)
+      |> read_query.where_clause_apply(whr)
     InsertConflictUpdate(target: cflt_trgt, where: whr, update: upt) ->
       prp_stm
       |> prepared_statement.append_sql(" ON CONFLICT (")
@@ -367,7 +367,7 @@ fn insert_on_conflict_apply(
       |> prepared_statement.append_sql(")")
       |> prepared_statement.append_sql(" DO ")
       |> update_apply(upt)
-      |> query.where_clause_apply(whr)
+      |> read_query.where_clause_apply(whr)
   }
 }
 
@@ -433,7 +433,7 @@ pub type UpdateSets {
 pub type UpdateSet {
   UpdateParamSet(column: String, param: Param)
   UpdateExpressionSet(columns: List(String), expression: String)
-  UpdateSubQuerySet(columns: List(String), sub_query: Query)
+  UpdateSubQuerySet(columns: List(String), sub_query: ReadQuery)
 }
 
 fn update_apply(
@@ -446,12 +446,12 @@ fn update_apply(
   |> update_modifier_apply(updt.modifier)
   |> prepared_statement.append_sql(" SET")
   |> update_set_apply(updt.set)
-  |> query.from_clause_apply(updt.from)
-  |> query.join_clause_apply(updt.join)
-  |> query.where_clause_apply(updt.where)
+  |> read_query.from_clause_apply(updt.from)
+  |> read_query.join_clause_apply(updt.join)
+  |> read_query.where_clause_apply(updt.where)
   |> returning_apply(updt.returning)
-  |> query.comment_apply(updt.comment)
-  |> query.epilog_apply(updt.epilog)
+  |> read_query.comment_apply(updt.comment)
+  |> read_query.epilog_apply(updt.epilog)
 }
 
 fn update_table_apply(
@@ -526,7 +526,7 @@ fn update_sets_apply(
           new_prp_stm
           |> apply_columns(cols)
           |> prepared_statement.append_sql(" (")
-          |> query.apply(qry)
+          |> read_query.apply(qry)
           |> prepared_statement.append_sql(")")
       }
     },
@@ -595,11 +595,11 @@ fn delete_apply(
   |> delete_table_apply(dlt.table)
   |> delete_modifier_apply(dlt.modifier)
   |> using_apply(dlt.using)
-  |> query.join_clause_apply(dlt.join)
-  |> query.where_clause_apply(dlt.where)
+  |> read_query.join_clause_apply(dlt.join)
+  |> read_query.where_clause_apply(dlt.where)
   |> returning_apply(dlt.returning)
-  |> query.comment_apply(dlt.comment)
-  |> query.epilog_apply(dlt.epilog)
+  |> read_query.comment_apply(dlt.comment)
+  |> read_query.epilog_apply(dlt.epilog)
 }
 
 fn delete_table_apply(
@@ -650,7 +650,7 @@ fn using_apply(
             FromSubQuery(qry, als) ->
               prp_stm
               |> prepared_statement.append_sql(" (")
-              |> query.apply(qry)
+              |> read_query.apply(qry)
               |> prepared_statement.append_sql(") AS " <> als)
           }
         },

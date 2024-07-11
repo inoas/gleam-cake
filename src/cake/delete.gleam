@@ -1,8 +1,8 @@
 //// A DSL to build `DELETE` queries.
 ////
 
-import cake/internal/query.{
-  type Comment, type Epilog, type From, type Join, type Joins, type Query,
+import cake/internal/read_query.{
+  type Comment, type Epilog, type From, type Join, type Joins, type ReadQuery,
   type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins,
   NoComment, NoEpilog, NoJoins, NoWhere, OrWhere, XorWhere,
 }
@@ -130,7 +130,7 @@ pub fn using_table(query qry: Delete(a), table tbl: String) -> Delete(a) {
 ///
 pub fn using_sub_query(
   query qry: Delete(a),
-  sub_query sb_qry: Query,
+  sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Delete(a) {
   case qry.using {
@@ -163,7 +163,7 @@ pub fn replace_using_table(query qry: Delete(a), table tbl: String) -> Delete(a)
 ///
 pub fn replace_using_sub_query(
   query qry: Delete(a),
-  sub_query sb_qry: Query,
+  sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Delete(a) {
   case qry.using {

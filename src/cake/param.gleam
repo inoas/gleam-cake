@@ -63,6 +63,12 @@ pub fn int(value: Int) -> Param {
 pub fn string(value: String) -> Param {
   StringParam(value)
 }
+
+/// Create a new `Param` with an SQL `NULL` value.
+///
+pub fn null() -> Param {
+  NullParam
+}
 //
 // // This should ONLY be used for debugging purposes
 // // not to ever run actual queries.
