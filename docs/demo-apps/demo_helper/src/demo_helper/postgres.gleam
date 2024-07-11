@@ -17,7 +17,9 @@ import gleam/option.{Some}
 import gleam/pgo.{type Connection, type Value}
 import pprint
 
-pub fn to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
+pub fn read_query_to_prepared_statement(
+  query qry: ReadQuery,
+) -> PreparedStatement {
   qry |> postgres_dialect.query_to_prepared_statement
 }
 
@@ -45,8 +47,8 @@ pub fn with_connection(f: fn(Connection) -> a) -> a {
   value
 }
 
-pub fn run_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
-  let prp_stm = to_prepared_statement(qry)
+pub fn run_read_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
+  let prp_stm = read_query_to_prepared_statement(qry)
   let sql = cake.get_sql(prp_stm) |> pprint.debug
   let params = cake.get_params(prp_stm)
 
@@ -73,7 +75,11 @@ pub fn run_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
   }
 }
 
-pub fn run_write(query qry: WriteQuery(t), decoder dcdr, db_connection db_conn) {
+pub fn run_write_query(
+  query qry: WriteQuery(t),
+  decoder dcdr,
+  db_connection db_conn,
+) {
   let prp_stm = write_query_to_prepared_statement(qry)
   let sql = cake.get_sql(prp_stm) |> pprint.debug
   let params = cake.get_params(prp_stm)

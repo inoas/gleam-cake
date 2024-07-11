@@ -17,7 +17,9 @@ pub fn cake_query_to_prepared_statement(
 
 /// Converts a (read) query to a MariaDB prepared statement.
 ///
-pub fn query_to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
+pub fn read_query_to_prepared_statement(
+  query qry: ReadQuery,
+) -> PreparedStatement {
   qry |> cake.read_query_to_prepared_statement(dialect: Maria)
 }
 

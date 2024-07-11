@@ -42,10 +42,10 @@ pub fn fragment_test() {
 }
 
 pub fn fragment_prepared_statement_test() {
-  let pgo = fragment_query() |> postgres.to_prepared_statement
-  let lit = fragment_query() |> sqlite.to_prepared_statement
-  let mdb = fragment_query() |> maria.to_prepared_statement
-  let myq = fragment_query() |> mysql.to_prepared_statement
+  let pgo = fragment_query() |> postgres.read_query_to_prepared_statement
+  let lit = fragment_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = fragment_query() |> maria.read_query_to_prepared_statement
+  let myq = fragment_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string

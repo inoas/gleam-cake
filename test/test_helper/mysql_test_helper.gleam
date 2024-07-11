@@ -17,7 +17,7 @@ pub fn setup_and_run(query) {
   let _ = test_data.create_dogs_table() |> mysql.execute_raw_sql(conn)
   let _ = test_data.insert_dogs_rows() |> mysql.execute_raw_sql(conn)
 
-  query |> mysql.run_query(dynamic.dynamic, conn)
+  query |> mysql.run_read_query(dynamic.dynamic, conn)
 }
 
 pub fn setup_and_run_write(query) {
@@ -40,5 +40,5 @@ pub fn setup_and_run_write(query) {
   let _ = test_data.create_counters_table() |> mysql.execute_raw_sql(conn)
   let _ = test_data.insert_counters_rows() |> mysql.execute_raw_sql(conn)
 
-  query |> mysql.run_write(dynamic.dynamic, conn)
+  query |> mysql.run_write_query(dynamic.dynamic, conn)
 }

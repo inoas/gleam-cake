@@ -9,7 +9,7 @@ import cake/internal/write_query.{type WriteQuery}
 
 /// Converts a cake query to a Sqlite prepared statement.
 ///
-pub fn cake_query_to_prepared_statement(
+pub fn read_cake_query_to_prepared_statement(
   query qry: CakeQuery(a),
 ) -> PreparedStatement {
   qry |> cake.cake_query_to_prepared_statement(dialect: Sqlite)

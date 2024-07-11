@@ -14,11 +14,10 @@ fn union_query() {
     |> s.select(s.col("CONCAT('Owner ', owners.name), age"))
     |> s.from_table("owners")
 
-    let cats_query =
+  let cats_query =
     s.new()
     |> s.select(s.col("CONCAT('Cat ', cats.name), age"))
     |> s.from_table("cats")
-
 
   owners_query
   |> c.union(cats_query)
@@ -31,7 +30,7 @@ pub fn main() {
 
   // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(beings) =
-    union_query() |> postgres.run_query(dynamic.dynamic, conn)
+    union_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
   io.println("Returned rows: ")
   beings |> pprint.debug

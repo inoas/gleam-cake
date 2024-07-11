@@ -38,7 +38,7 @@ pub fn main() {
 
   // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(cats) =
-    select_query() |> postgres.run_query(dynamic.dynamic, conn)
+    select_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
   io.println("Returned rows: ")
   cats |> pprint.debug

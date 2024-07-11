@@ -52,10 +52,10 @@ pub fn select_test() {
 }
 
 pub fn select_prepared_statement_test() {
-  let pgo = select_query() |> postgres.to_prepared_statement
-  let lit = select_query() |> sqlite.to_prepared_statement
-  let mdb = select_query() |> maria.to_prepared_statement
-  let myq = select_query() |> mysql.to_prepared_statement
+  let pgo = select_query() |> postgres.read_query_to_prepared_statement
+  let lit = select_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = select_query() |> maria.read_query_to_prepared_statement
+  let myq = select_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
@@ -80,10 +80,10 @@ pub fn select_distinct_test() {
 }
 
 pub fn select_distinct_prepared_statement_test() {
-  let pgo = select_distinct_query() |> postgres.to_prepared_statement
-  let lit = select_distinct_query() |> sqlite.to_prepared_statement
-  let mdb = select_distinct_query() |> maria.to_prepared_statement
-  let myq = select_distinct_query() |> mysql.to_prepared_statement
+  let pgo = select_distinct_query() |> postgres.read_query_to_prepared_statement
+  let lit = select_distinct_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = select_distinct_query() |> maria.read_query_to_prepared_statement
+  let myq = select_distinct_query() |> mysql.read_query_to_prepared_statement
 
   #(pgo, lit, mdb, myq)
   |> to_string
