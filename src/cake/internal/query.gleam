@@ -31,6 +31,8 @@
 //// the query structure when composing different queries.
 ////
 
+// TODO v1: probably rename to read_query and type to ReadQuery
+
 // TODO: Add to query validator in v2 or v3
 
 import cake/internal/dialect.{type Dialect, Maria, Mysql, Postgres, Sqlite}

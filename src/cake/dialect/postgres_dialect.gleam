@@ -1,6 +1,8 @@
 //// Postgres dialect to be used in conjunction with the `gleam_pgo` library.
 ////
 
+// TODO v1: move out of the dialect namespace if it has the name already?
+
 import cake.{type CakeQuery}
 import cake/internal/dialect.{Postgres}
 import cake/internal/prepared_statement.{type PreparedStatement}
