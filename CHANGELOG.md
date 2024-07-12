@@ -1,8 +1,12 @@
 # Changelog
 
-## 0.12.0 - 2024-07-11
+## 0.12.0 - 2024-07-12
 
-- Re-export types which can be used in public APIs.
+- Re-export types which can be used in public APIs, this should hopefully
+  close the last gaps to never be required to use `cake/internal/*` modules.
+
+  In case you are tempted to do so, please get in touch to see what we can do
+  about it.
 
 ## 0.11.0 - 2024-07-11
 
