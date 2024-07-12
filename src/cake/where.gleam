@@ -17,7 +17,7 @@ import cake/internal/read_query.{
   WhereColumnValue, WhereComparison, WhereExistsInSubQuery, WhereFragment,
   WhereFragmentValue, WhereILike, WhereIn, WhereIsBool, WhereIsNotBool,
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
-  XorWhere,
+  WhereSubQueryValue, XorWhere,
 }
 import cake/param.{FloatParam, IntParam, StringParam}
 
@@ -246,6 +246,12 @@ pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 ///
 pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(GreaterOrEqual, qry)
+}
+
+/// Creates a `WHERE` clause that checks if a `WhereValue` is IN a sub-query.
+///
+pub fn in_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
+  vl |> WhereIn([qry |> WhereSubQueryValue])
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is in a list of

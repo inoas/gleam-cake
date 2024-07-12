@@ -542,48 +542,60 @@ fn where_apply(
     WhereComparison(val_a, Unequal, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "<>", val_b)
     WhereAnyOfSubQuery(val, Equal, qry) ->
-      prp_stm |> where_literal_apply(val, "= ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "= ANY")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAnyOfSubQuery(val, Greater, qry) ->
-      prp_stm |> where_literal_apply(val, "> ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "> ANY")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAnyOfSubQuery(val, GreaterOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, ">= ANY")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAnyOfSubQuery(val, Lower, qry) ->
-      prp_stm |> where_literal_apply(val, "< ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "< ANY")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAnyOfSubQuery(val, LowerOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, "<= ANY")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAnyOfSubQuery(val, Unequal, qry) ->
       prp_stm
       |> where_literal_apply(val, "<> ANY")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, Equal, qry) ->
-      prp_stm |> where_literal_apply(val, "= ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "= ALL")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, Greater, qry) ->
-      prp_stm |> where_literal_apply(val, "> ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "> ALL")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, GreaterOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, ">= ALL")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, Lower, qry) ->
-      prp_stm |> where_literal_apply(val, "< ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "< ALL")
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, LowerOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, "<= ALL")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereAllOfSubQuery(val, Unequal, qry) ->
       prp_stm
       |> where_literal_apply(val, "<> ALL")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereBetween(val_a, val_b, val_c) ->
       prp_stm |> where_between_apply(val_a, val_b, val_c)
     WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
     WhereExistsInSubQuery(qry) ->
       prp_stm
       |> prepared_statement.append_sql(" EXISTS ")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereLike(val, prm) ->
       prp_stm
       |> where_comparison_apply(
@@ -626,7 +638,7 @@ fn where_literal_apply(
       |> prepared_statement.append_sql(" " <> lt)
     WhereSubQueryValue(qry) ->
       prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
       |> prepared_statement.append_sql(" " <> lt)
   }
 }
@@ -679,35 +691,35 @@ fn where_comparison_apply(
       |> fragment_apply(frgmt_b)
     WhereSubQueryValue(qry_a), WhereSubQueryValue(qry_b) ->
       prp_stm
-      |> where_sub_query_apply(qry_a)
+      |> where_sub_query_apply(qry_a, True)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry_b)
+      |> where_sub_query_apply(qry_b, True)
     WhereColumnValue(col), WhereSubQueryValue(qry) ->
       prp_stm
       |> where_string_apply(col <> " " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereSubQueryValue(qry), WhereColumnValue(col) ->
       prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
       |> where_string_apply(" " <> oprtr <> " " <> col)
     WhereParamValue(prm), WhereSubQueryValue(qry) ->
       prp_stm
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereSubQueryValue(qry), WhereParamValue(prm) ->
       prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm)
     WhereFragmentValue(frgmt), WhereSubQueryValue(qry) ->
       prp_stm
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     WhereSubQueryValue(qry), WhereFragmentValue(frgmt) ->
       prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(qry, wrap_in_parentheses: True)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt)
   }
@@ -730,11 +742,16 @@ fn where_param_apply(
 fn where_sub_query_apply(
   prepared_statement prp_stm: PreparedStatement,
   sub_query qry: ReadQuery,
+  wrap_in_parentheses wrp_prns: Bool,
 ) -> PreparedStatement {
-  prp_stm
-  |> prepared_statement.append_sql("(")
-  |> apply(qry)
-  |> prepared_statement.append_sql(")")
+  case wrp_prns {
+    True ->
+      prp_stm
+      |> prepared_statement.append_sql("(")
+      |> apply(qry)
+      |> prepared_statement.append_sql(")")
+    False -> prp_stm |> apply(qry)
+  }
 }
 
 fn where_logical_operator_apply(
@@ -840,7 +857,6 @@ fn custom_where_xor_apply(
   prp_stm
 }
 
-// MySQL/MariaDB could take this instead:
 fn vanilla_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
@@ -873,7 +889,8 @@ fn where_value_in_values_apply(
       WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
       WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
       WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+      WhereSubQueryValue(qry) ->
+        prp_stm |> where_sub_query_apply(qry, wrap_in_parentheses: True)
     }
     |> prepared_statement.append_sql(" IN (")
 
@@ -895,7 +912,8 @@ fn where_value_in_values_apply(
           |> prepared_statement.append_sql(new_prp_stm, _)
           |> prepared_statement.append_param(prm)
         WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-        WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+        WhereSubQueryValue(qry) ->
+          prp_stm |> where_sub_query_apply(qry, wrap_in_parentheses: False)
       }
     },
   )
@@ -912,7 +930,8 @@ fn where_between_apply(
     WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
     WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
     WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+    WhereSubQueryValue(qry) ->
+      prp_stm |> where_sub_query_apply(qry, wrap_in_parentheses: True)
   }
 
   let prp_stm = prp_stm |> prepared_statement.append_sql(" BETWEEN ")
@@ -921,7 +940,8 @@ fn where_between_apply(
     WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
     WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
     WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+    WhereSubQueryValue(qry) ->
+      prp_stm |> where_sub_query_apply(qry, wrap_in_parentheses: True)
   }
 
   let prp_stm = prp_stm |> prepared_statement.append_sql(" AND ")
@@ -930,7 +950,8 @@ fn where_between_apply(
     WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
     WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
     WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+    WhereSubQueryValue(qry) ->
+      prp_stm |> where_sub_query_apply(qry, wrap_in_parentheses: True)
   }
 
   prp_stm

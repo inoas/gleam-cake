@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0 - 2024-07-12
+
+- Add `where.in_query` which allows to use a sub-query as the right hand side
+  of an `IN` clause.
+
 ## 0.12.0 - 2024-07-12
 
 - Re-export types which can be used in public APIs, this should hopefully
