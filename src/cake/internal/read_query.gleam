@@ -542,15 +542,21 @@ fn where_apply(
     WhereComparison(val_a, Unequal, val_b) ->
       prp_stm |> where_comparison_apply(val_a, "<>", val_b)
     WhereAnyOfSubQuery(val, Equal, qry) ->
-      prp_stm |> where_literal_apply(val, "= ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "= ANY")
+      |> where_sub_query_apply(qry)
     WhereAnyOfSubQuery(val, Greater, qry) ->
-      prp_stm |> where_literal_apply(val, "> ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "> ANY")
+      |> where_sub_query_apply(qry)
     WhereAnyOfSubQuery(val, GreaterOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, ">= ANY")
       |> where_sub_query_apply(qry)
     WhereAnyOfSubQuery(val, Lower, qry) ->
-      prp_stm |> where_literal_apply(val, "< ANY") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "< ANY")
+      |> where_sub_query_apply(qry)
     WhereAnyOfSubQuery(val, LowerOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, "<= ANY")
@@ -560,15 +566,21 @@ fn where_apply(
       |> where_literal_apply(val, "<> ANY")
       |> where_sub_query_apply(qry)
     WhereAllOfSubQuery(val, Equal, qry) ->
-      prp_stm |> where_literal_apply(val, "= ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "= ALL")
+      |> where_sub_query_apply(qry)
     WhereAllOfSubQuery(val, Greater, qry) ->
-      prp_stm |> where_literal_apply(val, "> ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "> ALL")
+      |> where_sub_query_apply(qry)
     WhereAllOfSubQuery(val, GreaterOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, ">= ALL")
       |> where_sub_query_apply(qry)
     WhereAllOfSubQuery(val, Lower, qry) ->
-      prp_stm |> where_literal_apply(val, "< ALL") |> where_sub_query_apply(qry)
+      prp_stm
+      |> where_literal_apply(val, "< ALL")
+      |> where_sub_query_apply(qry)
     WhereAllOfSubQuery(val, LowerOrEqual, qry) ->
       prp_stm
       |> where_literal_apply(val, "<= ALL")
@@ -840,7 +852,6 @@ fn custom_where_xor_apply(
   prp_stm
 }
 
-// MySQL/MariaDB could take this instead:
 fn vanilla_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),

@@ -5,7 +5,7 @@ pub type Being {
 }
 
 pub fn from_postgres(row) {
-  // NOTICE: This\ will crash, if the returned data from the SQL query does not match
+  // NOTICE: This will crash, if the returned data from the SQL query does not match
   let assert Ok(couple) =
     row
     |> from

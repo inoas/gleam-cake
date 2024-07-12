@@ -27,8 +27,8 @@ pub type Dialect =
 pub type PreparedStatement =
   prepared_statement.PreparedStatement
 
-/// Wrapper type to be able to pass around read and write queries at the same
-/// time.
+/// Base wrapper query type to be able to pass around read and write queries in
+/// the same way.
 ///
 pub type CakeQuery(a) {
   CakeReadQuery(ReadQuery)
