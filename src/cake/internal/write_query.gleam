@@ -21,7 +21,7 @@ import gleam/string
 /// Write queries encapsulate the different types of write operations
 /// in SQL Databases, such as `INSERT`, `UPDATE` and `DELETE`.
 ///
-/// While read queries never use write queries, write queries can use (read)
+/// While read queries never use write queries, write queries can use read
 /// queries, as they can use subqueries to define the data to be written or for
 /// atomic updates or conflict resolution.
 ///
