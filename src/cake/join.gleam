@@ -21,9 +21,24 @@
 ////
 
 import cake/internal/read_query.{
-  type Join, type JoinTarget, type ReadQuery, type Where, CrossJoin, FullJoin,
-  InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,
+  CrossJoin, FullJoin, InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,
 }
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Join =
+  read_query.Join
+
+pub type JoinTarget =
+  read_query.JoinTarget
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Where =
+  read_query.Where
 
 /// Create a `JOIN` target from a table name.
 ///

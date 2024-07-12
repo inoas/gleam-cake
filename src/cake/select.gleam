@@ -2,18 +2,70 @@
 ////
 
 import cake/internal/read_query.{
-  type Comment, type Epilog, type Fragment, type From, type GroupBy, type Join,
-  type Joins, type Limit, type Offset, type OrderBy, type OrderByDirection,
-  type ReadQuery, type Select, type SelectKind, type SelectValue, type Selects,
-  type Where, AndWhere, Comment, Epilog, FromSubQuery, FromTable, GroupBy, Joins,
-  Limit, NoComment, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset,
-  NoOrderBy, NoSelects, NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select,
+  AndWhere, Comment, Epilog, FromSubQuery, FromTable, GroupBy, Joins, Limit,
+  NoComment, NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy,
+  NoSelects, NoWhere, Offset, OrWhere, OrderBy, OrderByColumn, Select,
   SelectAlias, SelectAll, SelectColumn, SelectDistinct, SelectFragment,
   SelectParam, SelectQuery, Selects, XorWhere,
 }
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/list
 import gleam/string
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  read_query type re-exports                                               │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type Comment =
+  read_query.Comment
+
+pub type Epilog =
+  read_query.Epilog
+
+pub type Fragment =
+  read_query.Fragment
+
+pub type From =
+  read_query.From
+
+pub type GroupBy =
+  read_query.GroupBy
+
+pub type Join =
+  read_query.Join
+
+pub type Joins =
+  read_query.Joins
+
+pub type Limit =
+  read_query.Limit
+
+pub type Offset =
+  read_query.Offset
+
+pub type OrderBy =
+  read_query.OrderBy
+
+pub type OrderByDirection =
+  read_query.OrderByDirection
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type Select =
+  read_query.Select
+
+pub type SelectKind =
+  read_query.SelectKind
+
+pub type SelectValue =
+  read_query.SelectValue
+
+pub type Selects =
+  read_query.Selects
+
+pub type Where =
+  read_query.Where
 
 /// Creates a `Query` from a `Select` query.
 ///

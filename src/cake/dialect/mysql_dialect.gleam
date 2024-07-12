@@ -1,11 +1,27 @@
 //// MySQL dialect to be used in conjunction with the `gmysql` library.
 ////
 
-import cake.{type CakeQuery}
+import cake
 import cake/internal/dialect.{Mysql}
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/read_query.{type ReadQuery}
-import cake/internal/write_query.{type WriteQuery}
+import cake/internal/prepared_statement
+import cake/internal/read_query
+import cake/internal/write_query
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │ type re-exports                                                           │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+pub type CakeQuery(a) =
+  cake.CakeQuery(a)
+
+pub type PreparedStatement =
+  prepared_statement.PreparedStatement
+
+pub type ReadQuery =
+  read_query.ReadQuery
+
+pub type WriteQuery(a) =
+  write_query.WriteQuery(a)
 
 /// Converts a cake query to a MySQL prepared statement.
 ///
