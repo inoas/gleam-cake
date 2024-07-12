@@ -31,7 +31,7 @@ pub fn read_cake_query_to_prepared_statement(
   qry |> cake.cake_query_to_prepared_statement(dialect: Sqlite)
 }
 
-/// Converts a (read) query to a Sqlite prepared statement.
+/// Converts read query to a Sqlite prepared statement.
 ///
 pub fn query_to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
   qry |> cake.read_query_to_prepared_statement(dialect: Sqlite)
