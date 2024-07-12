@@ -19,7 +19,7 @@ import cake/internal/read_query.{
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
   WhereSubQueryValue, XorWhere,
 }
-import cake/param.{FloatParam, IntParam, StringParam}
+import cake/param.{FloatParam, IntParam, StringParam, NullParam}
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  read_query type re-exports                                               │
@@ -64,7 +64,15 @@ pub fn string(v vl: String) -> WhereValue {
 /// Creates a `NULL` `WhereValue`.
 ///
 pub fn null() -> WhereValue {
-  param.NullParam |> WhereParamValue
+  NullParam |> WhereParamValue
+}
+
+/// Creates a `WhereValue` off a `ReadQuery`.
+///
+/// NOTICE: Usually the sub-query must return a single column.
+///
+pub fn sub_query(query qry: ReadQuery) -> WhereValue {
+  qry |> WhereSubQueryValue
 }
 
 /// Negates a `Where`.
@@ -249,6 +257,8 @@ pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is IN a sub-query.
+///
+/// NOTICE: Usually the sub-query must return a single column.
 ///
 pub fn in_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereIn([qry |> WhereSubQueryValue])
