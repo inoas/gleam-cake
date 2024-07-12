@@ -32,7 +32,9 @@ fn where_in_query_query() {
   // IN sub_query
   |> s.or_where(w.col("name") |> w.in_query(sub_query()))
   // IN sub_query could also work like such:
-  |> s.or_where(w.col("name") |> w.in([w.string("Hello"), w.sub_query(sub_query())]))
+  |> s.or_where(
+    w.col("name") |> w.in([w.string("Hello"), w.sub_query(sub_query())]),
+  )
   |> s.to_query
 }
 
