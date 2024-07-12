@@ -2,11 +2,8 @@
 //// to the `gleam_pgo` library for execution.
 ////
 
-import cake
+import cake.{type PreparedStatement, type ReadQuery, type WriteQuery}
 import cake/dialect/postgres_dialect
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/read_query.{type ReadQuery}
-import cake/internal/write_query.{type WriteQuery}
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
