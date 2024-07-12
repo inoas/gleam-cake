@@ -5,8 +5,6 @@
 - Added `where.in_query` which allows to use a sub-query as the right hand side
   of an `IN` clause.
 - Added `where.sub_query` which allows to use a sub-query as a `WhereValue`.
-  Notice that thee sub-query usually must return a single column and you are
-  responsible to make sure that happens.
 
 ## 0.12.0 - 2024-07-12
 
