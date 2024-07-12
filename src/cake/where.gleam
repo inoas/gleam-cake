@@ -19,7 +19,7 @@ import cake/internal/read_query.{
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
   WhereSubQueryValue, XorWhere,
 }
-import cake/param.{FloatParam, IntParam, StringParam, NullParam}
+import cake/param.{FloatParam, IntParam, NullParam, StringParam}
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  read_query type re-exports                                               │
