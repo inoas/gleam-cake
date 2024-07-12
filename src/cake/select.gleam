@@ -67,7 +67,7 @@ pub type Selects =
 pub type Where =
   read_query.Where
 
-/// Creates a `Query` from a `Select` query.
+/// Creates a `ReadQuery` from a `Select` query.
 ///
 pub fn to_query(query qry: Select) -> ReadQuery {
   qry |> SelectQuery
