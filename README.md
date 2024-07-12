@@ -10,7 +10,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
 ![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)
 ![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)
-![Unit tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)
+![CI](https://github.com/github/docs/actions/workflows/test.yml/badge.svg?branch=main))
 
 ## Installation
 
