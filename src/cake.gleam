@@ -76,7 +76,7 @@ pub fn read_query_to_prepared_statement(
   dialect dlct: Dialect,
 ) -> PreparedStatement {
   dlct
-  |> dialect.placeholder_base()
+  |> dialect.placeholder_base
   |> read_query.to_prepared_statement(query: qry, dialect: dlct)
 }
 
@@ -87,7 +87,7 @@ pub fn write_query_to_prepared_statement(
   dialect dlct: Dialect,
 ) -> PreparedStatement {
   dlct
-  |> dialect.placeholder_base()
+  |> dialect.placeholder_base
   |> write_query.to_prepared_statement(query: qry, dialect: dlct)
 }
 

@@ -130,14 +130,14 @@ pub fn combined_clause_apply(
   // ```
 
   let open_nested_query = fn(prp_stm: PreparedStatement) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_dialect() {
+    case prp_stm |> prepared_statement.get_dialect {
       Sqlite -> prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
       _ -> prp_stm |> prepared_statement.append_sql("(")
     }
   }
 
   let close_nested_query = fn(prp_stm: PreparedStatement, nested_index: Int) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_dialect() {
+    case prp_stm |> prepared_statement.get_dialect {
       Sqlite ->
         prp_stm
         |> prepared_statement.append_sql(
@@ -787,7 +787,7 @@ fn where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  case prp_stm |> prepared_statement.get_dialect() {
+  case prp_stm |> prepared_statement.get_dialect {
     Postgres | Sqlite -> custom_where_xor_apply(prp_stm, whs)
     Maria | Mysql -> vanilla_where_xor_apply(prp_stm, whs)
   }

@@ -108,14 +108,14 @@ pub fn delete_execution_result_test() {
     delete_sqlite() |> d.to_query |> sqlite_test_helper.setup_and_run_write
   let mdb_exec =
     delete_maria_mysql()
-    |> d.to_query()
+    |> d.to_query
     |> maria_test_helper.setup_and_run_write
   let mdb_cnt =
     delete_affected_row_count_maria_mysql_query()
     |> maria_test_helper.setup_and_run
   let myq_exec =
     delete_maria_mysql()
-    |> d.to_query()
+    |> d.to_query
     |> mysql_test_helper.setup_and_run_write
   let myq_cnt =
     delete_affected_row_count_maria_mysql_query()
