@@ -277,6 +277,11 @@ pub fn exists_in_query(sub_query qry: ReadQuery) -> Where {
   qry |> WhereExistsInSubQuery
 }
 
+// TODO v1
+// pub fn wrap_in_parentheses(where: Where) -> Where {
+//   where |> WhereParentheses
+// }
+
 /// Creates a `WHERE` clause that checks if a `WhereValue` A is between two
 /// `WhereValue`s B and C.
 ///

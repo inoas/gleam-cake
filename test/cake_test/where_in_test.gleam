@@ -35,6 +35,8 @@ fn where_in_query_query() {
   |> s.or_where(
     w.col("name") |> w.in([w.string("Clara"), w.sub_query(sub_query())]),
   )
+  // `WHERE a NOT IN b` (or rather `WHERE NOT(a IN b)`)
+  |> s.where(w.not(w.col("age") |> w.in([w.int(99), w.int(98), w.int(97)])))
   |> s.to_query
 }
 
