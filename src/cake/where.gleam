@@ -300,7 +300,7 @@ pub fn between(
 /// - `_` matches any single character.
 ///
 pub fn like(value vl: WhereValue, pattern pttrn: String) -> Where {
-  vl |> WhereLike(pttrn)
+  vl |> WhereLike(pattern: pttrn)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches a pattern.
@@ -308,7 +308,7 @@ pub fn like(value vl: WhereValue, pattern pttrn: String) -> Where {
 /// `ilike` is the same as `like` but case-insensitive.
 ///
 pub fn ilike(value vl: WhereValue, pattern pttrn: String) -> Where {
-  vl |> WhereILike(pttrn)
+  vl |> WhereILike(pattern: pttrn)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is similar to a
@@ -316,8 +316,12 @@ pub fn ilike(value vl: WhereValue, pattern pttrn: String) -> Where {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn similar_to(value vl: WhereValue, to pttrn: String) -> Where {
-  vl |> WhereSimilarTo(pttrn)
+pub fn similar_to(
+  value vl: WhereValue,
+  to pttrn: String,
+  escape_with escp_char: String,
+) -> Where {
+  vl |> WhereSimilarTo(pattern: pttrn, escape_char: escp_char)
 }
 
 /// Creates a `WhereFragment` from a `Fragment`.

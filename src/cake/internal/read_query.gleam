@@ -452,9 +452,9 @@ pub type Where {
   WhereIn(value: WhereValue, values: List(WhereValue))
   WhereExistsInSubQuery(sub_query: ReadQuery)
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
-  WhereLike(value: WhereValue, string: String)
-  WhereILike(value: WhereValue, string: String)
-  WhereSimilarTo(value: WhereValue, string: String)
+  WhereLike(value: WhereValue, pattern: String)
+  WhereILike(value: WhereValue, pattern: String)
+  WhereSimilarTo(value: WhereValue, pattern: String, escape_char: String)
   WhereFragment(fragment: Fragment)
 }
 
@@ -603,22 +603,21 @@ fn where_apply(
         "LIKE",
         prm |> StringParam |> WhereParamValue,
       )
-    WhereILike(val, prm) ->
+    WhereILike(value: val, pattern: prm) ->
       prp_stm
       |> where_comparison_apply(
         val,
         "ILIKE",
         prm |> StringParam |> WhereParamValue,
       )
-    WhereSimilarTo(val, prm) ->
-      // TODO v1: Let user pass in escape character
+    WhereSimilarTo(value: val, pattern: prm, escape_char: ecp_chr) ->
       prp_stm
       |> where_comparison_apply(
         val,
         "SIMILAR TO",
         prm |> StringParam |> WhereParamValue,
       )
-      |> prepared_statement.append_sql(" ESCAPE '/'")
+      |> prepared_statement.append_sql(" ESCAPE '" <> ecp_chr <> "'")
     WhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
   }
 }
