@@ -80,7 +80,8 @@ pub fn where_like_similar_to_execution_result_test() {
   let pgo =
     where_like_similar_to_pg_query() |> postgres_test_helper.setup_and_run
   let lit =
-    where_like_similar_to_sqlite_mariadb_mysql_query() |> sqlite_test_helper.setup_and_run
+    where_like_similar_to_sqlite_mariadb_mysql_query()
+    |> sqlite_test_helper.setup_and_run
   let mdb =
     where_like_similar_to_sqlite_mariadb_mysql_query()
     |> maria_test_helper.setup_and_run
