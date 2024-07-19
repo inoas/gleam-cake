@@ -74,16 +74,17 @@ pub fn create_counters_table() {
   "CREATE TABLE counters (
     name TEXT,
     counter INT,
+    is_active BOOLEAN,
     UNIQUE (name)
   );"
 }
 
 pub fn insert_counters_rows() {
-  "INSERT INTO counters (name, counter) VALUES
-    ('Fubi', 9000),
-    ('Diffy', 9000),
-    ('Tinny', 9000),
-    ('Karl', 9000),
-    ('Clara', 9000)
+  "INSERT INTO counters (name, counter, is_active) VALUES
+    ('Fubi', 8999, true),
+    ('Diffy', 9000, false),
+    ('Tinny', 9001, true),
+    ('Karl', 9002, false),
+    ('Clara', 9003, true)
   ;"
 }

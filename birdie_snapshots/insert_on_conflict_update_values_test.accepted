@@ -1,5 +1,5 @@
 ---
-version: 1.1.7
+version: 1.1.8
 title: insert_on_conflict_update_values_test
 file: ./test/cake_test/insert_on_conflict_update_test.gleam
 test_name: insert_on_conflict_update_values_test
@@ -43,7 +43,10 @@ test_name: insert_on_conflict_update_values_test
     ]),
     InsertConflictUpdate(
       InsertConflictTarget(["name"]),
-      NoWhere,
+      WhereIsBool(
+        WhereColumnValue("counters.is_active"),
+        True,
+      ),
       Update(
         NoUpdateTable,
         NoUpdateModifier,
@@ -103,7 +106,10 @@ test_name: insert_on_conflict_update_values_test
     ]),
     InsertConflictUpdate(
       InsertConflictTarget(["name"]),
-      NoWhere,
+      WhereIsBool(
+        WhereColumnValue("counters.is_active"),
+        True,
+      ),
       Update(
         NoUpdateTable,
         NoUpdateModifier,

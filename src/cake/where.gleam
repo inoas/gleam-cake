@@ -12,14 +12,14 @@
 ////
 
 import cake/internal/read_query.{
-  AndWhere, Equal, Greater, GreaterOrEqual, Lower, LowerOrEqual, NotWhere,
-  OrWhere, WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween,
+  AndWhere, Equal, Greater, GreaterOrEqual, Lower, LowerOrEqual, NoWhere,
+  NotWhere, OrWhere, WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween,
   WhereColumnValue, WhereComparison, WhereExistsInSubQuery, WhereFragment,
   WhereFragmentValue, WhereILike, WhereIn, WhereIsBool, WhereIsNotBool,
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
   WhereSubQueryValue, XorWhere,
 }
-import cake/param.{FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  read_query type re-exports                                               │
@@ -36,6 +36,10 @@ pub type Where =
 
 pub type WhereValue =
   read_query.WhereValue
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Where Value constructors                                                 │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 /// Creates a `WhereValue` from a column name `String`.
 ///
@@ -67,6 +71,22 @@ pub fn null() -> WhereValue {
   NullParam |> WhereParamValue
 }
 
+/// Creates a `TRUE` `WhereValue`.
+///
+/// Notice: You probably want to use `where.is_true()` instead.
+///
+pub fn true() -> WhereValue {
+  True |> BoolParam |> WhereParamValue
+}
+
+/// Creates a `FALSE` `WhereValue`.
+///
+/// Notice: You probably want to use `where.is_false()` instead.
+///
+pub fn false() -> WhereValue {
+  False |> BoolParam |> WhereParamValue
+}
+
 /// Creates a `WhereValue` off a `ReadQuery`.
 ///
 /// NOTICE: Usually the sub-query must return a single column.
@@ -74,6 +94,16 @@ pub fn null() -> WhereValue {
 pub fn sub_query(query qry: ReadQuery) -> WhereValue {
   qry |> WhereSubQueryValue
 }
+
+/// Creates a `WhereValue` from a `Fragment`.
+///
+pub fn fragment_value(fragment frgmt: Fragment) -> WhereValue {
+  frgmt |> WhereFragmentValue
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  Where constructors                                                       │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 /// Negates a `Where`.
 ///
@@ -97,6 +127,12 @@ pub fn or(wheres whrs: List(Where)) -> Where {
 ///
 pub fn xor(wheres whrs: List(Where)) -> Where {
   whrs |> XorWhere
+}
+
+/// No where condition.
+///
+pub fn none() -> Where {
+  NoWhere
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches a `Bool`.
@@ -328,10 +364,4 @@ pub fn similar_to(
 ///
 pub fn fragment(fragment frgmt: Fragment) -> Where {
   frgmt |> WhereFragment
-}
-
-/// Creates a `WhereValue` from a `Fragment`.
-///
-pub fn fragment_value(fragment frgmt: Fragment) -> WhereValue {
-  frgmt |> WhereFragmentValue
 }

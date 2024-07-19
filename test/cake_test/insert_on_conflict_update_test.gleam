@@ -1,7 +1,7 @@
 import birdie
 import cake/insert as i
-import cake/internal/read_query.{NoWhere}
 import cake/update as u
+import cake/where as w
 import pprint.{format as to_string}
 import test_helper/postgres_test_helper
 import test_helper/sqlite_test_helper
@@ -42,10 +42,6 @@ fn insert_on_conflict_update_values() {
       |> i.row,
   ]
 
-  // TODO v1: add where and test how it works
-  // TODO v1: add convenience functions for where in insert/update
-  let conflict_where = NoWhere
-
   i.from_values(
     table_name: "counters",
     columns: ["name", "counter"],
@@ -53,7 +49,7 @@ fn insert_on_conflict_update_values() {
   )
   |> i.on_columns_conflict_update(
     column: ["name"],
-    where: conflict_where,
+    where: w.col("counters.is_active") |> w.is_true,
     update: update_query(),
   )
   |> i.returning(["name", "counter"])
