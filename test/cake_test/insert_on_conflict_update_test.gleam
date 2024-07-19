@@ -8,12 +8,6 @@ import test_helper/sqlite_test_helper
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
-// import cake/where as w
-// import test_helper/maria_test_helper
-// import test_helper/mysql_test_helper
-// import test_support/adapter/maria
-// import test_support/adapter/mysql
-
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
