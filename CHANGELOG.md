@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   `except_many` to `excepts`, `except_all_many` to `excepts_all`, and
   `intersect_many` to `intersects`, `intersect_all_many` to `intersects_all`
   in module `combined`.
+- Made `where.similar_to` `escape_char` an argument.
 
 ## [0.13.0] - 2024-07-12
 
