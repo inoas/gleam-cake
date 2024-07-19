@@ -186,19 +186,18 @@ pub fn sets_replace(
 ///
 /// NOTICE: the expression must return an equal count of columns.
 ///
-pub fn set_many_to_expression(
+pub fn sets_to_expression(
   columns cols: List(String),
   expression exp: String,
 ) -> UpdateSet {
   UpdateExpressionSet(columns: cols, expression: exp)
 }
 
-// TODO v1 rename set_many_ to sets_
 /// Sets many columns to a sub-query value.
 ///
 /// NOTICE: the sub-query must return an equal count of columns.
 ///
-pub fn set_many_to_sub_query(
+pub fn sets_to_sub_query(
   columns cols: List(String),
   sub_query qry: ReadQuery,
 ) -> UpdateSet {

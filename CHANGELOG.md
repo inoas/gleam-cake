@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Added more utility to the `where` module, such as `where.none`, `where.true` and `where.false`.
 - Fixed unit tests around `INSERT...ON CONFLICT...UPDATE` with `WHERE` clause.
+- Renamed `update.set_many_to_expression` to `update.sets_to_expression` and `update.set_many_to_sub_query` to `update.sets_to_sub_query`.
+- Renamed `union_many` to `unions`, `union_all_many` to `unions_all`,
+  `except_many` to `excepts`, `except_all_many` to `excepts_all`, and
+  `intersect_many` to `intersects`, `intersect_all_many` to `intersects_all`
+  in module `combined`.
 
 ## [0.13.0] - 2024-07-12
 

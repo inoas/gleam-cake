@@ -219,7 +219,7 @@ pub fn replace_select(query qry: Select, select_value sv: SelectValue) -> Select
   }
 }
 
-/// Adds `SelectValue`s to the `Select` query.
+/// Adds many `SelectValue`s to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, the new ones are appended.
 ///
@@ -235,7 +235,7 @@ pub fn selects(
   }
 }
 
-/// Adds `SelectValue`s to the `Select` query.
+/// Adds many `SelectValue`s to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///

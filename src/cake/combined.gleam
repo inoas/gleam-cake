@@ -66,7 +66,7 @@ pub fn union(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 
 /// Creates a `UNION` query out of two or more queries as a `Combined` read_query.
 ///
-pub fn union_many(
+pub fn unions(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),
@@ -85,7 +85,7 @@ pub fn union_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn union_all_many(
+pub fn unions_all(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),
@@ -101,7 +101,7 @@ pub fn except(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 
 /// Creates an `EXCEPT` query out of two or more queries as a `Combined` read_query.
 ///
-pub fn except_many(
+pub fn excepts(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),
@@ -139,7 +139,7 @@ pub fn intersect(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 /// Creates an `INTERSECT` query out of two or more queries as a `Combined`
 /// read_query.
 ///
-pub fn intersect_many(
+pub fn intersects(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),
@@ -160,7 +160,7 @@ pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn intersect_all_many(
+pub fn intersects_all(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),
