@@ -8,6 +8,8 @@ import test_helper/sqlite_test_helper
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
+// Notice: Only supports PostgresSQL and SQLite
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
@@ -61,10 +63,7 @@ fn insert_on_conflict_update_values_query() {
 pub fn insert_on_conflict_update_values_test() {
   let pgo = insert_on_conflict_update_values_query()
   let lit = pgo
-  // let mdb = insert_on_conflict_update_values_maria_mysql_query()
-  // let myq = mdb
 
-  // #(pgo, lit, mdb, myq)
   #(pgo, lit)
   |> to_string
   |> birdie.snap("insert_on_conflict_update_values_test")
@@ -77,14 +76,7 @@ pub fn insert_on_conflict_update_values_prepared_statement_test() {
   let lit =
     insert_on_conflict_update_values_query()
     |> sqlite.write_query_to_prepared_statement
-  // let mdb =
-  //   insert_on_conflict_update_values_maria_mysql_query()
-  //   |> maria.write_query_to_prepared_statement
-  // let myq =
-  //   insert_on_conflict_update_values_maria_mysql_query()
-  //   |> mysql.write_query_to_prepared_statement
 
-  // #(pgo, lit, mdb, myq)
   #(pgo, lit)
   |> to_string
   |> birdie.snap("insert_on_conflict_update_values_prepared_statement_test")
@@ -97,14 +89,7 @@ pub fn insert_on_conflict_update_values_execution_result_test() {
   let lit =
     insert_on_conflict_update_values_query()
     |> sqlite_test_helper.setup_and_run_write
-  // let mdb =
-  //   insert_on_conflict_update_values_maria_mysql_query()
-  //   |> maria_test_helper.setup_and_run_write
-  // let myq =
-  //   insert_on_conflict_update_values_maria_mysql_query()
-  //   |> mysql_test_helper.setup_and_run_write
 
-  // #(pgo, lit, mdb, myq)
   #(pgo, lit)
   |> to_string
   |> birdie.snap("insert_on_conflict_update_values_execution_result_test")
