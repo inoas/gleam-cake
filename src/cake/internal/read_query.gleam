@@ -403,7 +403,8 @@ pub fn from_clause_apply(
 ) -> PreparedStatement {
   case frm {
     NoFrom -> prp_stm
-    FromTable(tbl_nm) -> prp_stm |> prepared_statement.append_sql(" FROM " <> tbl_nm)
+    FromTable(tbl_nm) ->
+      prp_stm |> prepared_statement.append_sql(" FROM " <> tbl_nm)
     FromSubQuery(qry, als) ->
       prp_stm
       |> prepared_statement.append_sql(" FROM (")

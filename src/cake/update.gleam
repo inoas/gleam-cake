@@ -141,10 +141,7 @@ pub fn set_to_expression(
 
 /// Sets a column to a sub-query value.
 ///
-pub fn set_to_sub_query(
-  column col: String,
-  query qry: ReadQuery,
-) -> UpdateSet {
+pub fn set_to_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
   [col] |> UpdateSubQuerySet(query: qry)
 }
 
@@ -336,7 +333,7 @@ pub fn or_where(update updt: Update(a), where whr: Where) -> Update(a) {
     NoWhere -> Update(..updt, where: whr)
     OrWhere(wheres) ->
       Update(..updt, where: wheres |> list.append([whr]) |> OrWhere)
-      _ -> Update(..updt, where: [updt.where, whr] |> OrWhere)
+    _ -> Update(..updt, where: [updt.where, whr] |> OrWhere)
   }
 }
 
@@ -358,7 +355,7 @@ pub fn xor_where(update updt: Update(a), where whr: Where) -> Update(a) {
     NoWhere -> Update(..updt, where: whr)
     XorWhere(wheres) ->
       Update(..updt, where: wheres |> list.append([whr]) |> XorWhere)
-      _ -> Update(..updt, where: [updt.where, whr] |> XorWhere)
+    _ -> Update(..updt, where: [updt.where, whr] |> XorWhere)
   }
 }
 
