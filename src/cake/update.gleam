@@ -228,7 +228,7 @@ pub fn from_sub_query(
   sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Update(a) {
-  Update(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))
+  Update(..qry, from: FromSubQuery(query: sb_qry, alias: als))
 }
 
 /// Removes the `FROM` clause of the `Update` query.

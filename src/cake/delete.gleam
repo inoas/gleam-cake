@@ -176,13 +176,13 @@ pub fn using_sub_query(
     NoDeleteUsing ->
       Delete(
         ..qry,
-        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+        using: [FromSubQuery(query: sb_qry, alias: als)] |> DeleteUsing,
       )
     DeleteUsing(qry_usngs) ->
       Delete(
         ..qry,
         using: qry_usngs
-          |> list.append([FromSubQuery(sub_query: sb_qry, alias: als)])
+          |> list.append([FromSubQuery(query: sb_qry, alias: als)])
           |> DeleteUsing,
       )
   }
@@ -209,12 +209,12 @@ pub fn replace_using_sub_query(
     NoDeleteUsing ->
       Delete(
         ..qry,
-        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+        using: [FromSubQuery(query: sb_qry, alias: als)] |> DeleteUsing,
       )
     DeleteUsing(_) ->
       Delete(
         ..qry,
-        using: [FromSubQuery(sub_query: sb_qry, alias: als)] |> DeleteUsing,
+        using: [FromSubQuery(query: sb_qry, alias: als)] |> DeleteUsing,
       )
   }
 }
@@ -380,7 +380,7 @@ pub fn returning(
 ) -> Delete(a) {
   case rtrn {
     [] -> Delete(..qry, returning: NoReturning)
-    _ -> Delete(..qry, returning: Returning(rtrn))
+    _ -> Delete(..qry, returning: rtrn |> Returning)
   }
 }
 

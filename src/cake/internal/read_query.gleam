@@ -392,7 +392,7 @@ pub type From {
   // TODO v2 FromSubQuery(sub_queries: List(#(sub_query: ReadQuery, alias: String)))
   // interfacing functions should exist to specify a single item or a list
   FromTable(name: String)
-  FromSubQuery(sub_query: ReadQuery, alias: String)
+  FromSubQuery(query: ReadQuery, alias: String)
 }
 
 /// Applies the `FROM` clause to a prepared statement by appending the SQL code.
@@ -442,15 +442,15 @@ pub type Where {
   WhereAnyOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    sub_query: ReadQuery,
+    query: ReadQuery,
   )
   WhereAllOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    sub_query: ReadQuery,
+    query: ReadQuery,
   )
   WhereIn(value: WhereValue, values: List(WhereValue))
-  WhereExistsInSubQuery(sub_query: ReadQuery)
+  WhereExistsInSubQuery(query: ReadQuery)
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, pattern: String)
   WhereILike(value: WhereValue, pattern: String)
@@ -482,7 +482,7 @@ pub type WhereValue {
   // TODO v3 If there are multiple, take the list of select values (projections)
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1?
-  WhereSubQueryValue(sub_query: ReadQuery)
+  WhereSubQueryValue(query: ReadQuery)
 }
 
 /// Applies the `WHERE` clause to a prepared statement by appending the SQL code.
@@ -1024,7 +1024,7 @@ pub type Joins {
 ///
 pub type JoinTarget {
   JoinTable(table: String)
-  JoinSubQuery(sub_query: ReadQuery)
+  JoinSubQuery(query: ReadQuery)
 }
 
 /// A Join can be one of:
@@ -1101,7 +1101,7 @@ pub fn join_apply(
   case jn.with {
     JoinTable(table: tbl) ->
       prp_stm |> prepared_statement.append_sql(tbl <> " AS " <> jn.alias)
-    JoinSubQuery(sub_query: qry) ->
+    JoinSubQuery(query: qry) ->
       prp_stm
       |> prepared_statement.append_sql("(")
       |> apply(qry)

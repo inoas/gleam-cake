@@ -132,13 +132,13 @@ pub fn from_records(
   table_name tbl_nm: String,
   columns cols: List(String),
   records rcrds: List(a),
-  encoder cstr: fn(a) -> InsertRow,
+  encoder encdr: fn(a) -> InsertRow,
 ) -> Insert(a) {
   Insert(
-    table: InsertIntoTable(name: tbl_nm),
+    table: tbl_nm |> InsertIntoTable,
     modifier: NoInsertModifier,
-    source: InsertSourceRecords(records: rcrds, encoder: cstr),
-    columns: InsertColumns(columns: cols),
+    source: rcrds |> InsertSourceRecords(encoder: encdr),
+    columns: cols |> InsertColumns,
     on_conflict: InsertConflictError,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -154,10 +154,10 @@ pub fn from_values(
   values vls: List(InsertRow),
 ) -> Insert(a) {
   Insert(
-    table: InsertIntoTable(name: tbl_nm),
+    table: tbl_nm |> InsertIntoTable,
     modifier: NoInsertModifier,
-    source: InsertSourceRows(rows: vls),
-    columns: InsertColumns(columns: cols),
+    source: vls |> InsertSourceRows,
+    columns: cols |> InsertColumns,
     on_conflict: InsertConflictError,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -170,7 +170,7 @@ pub fn from_values(
 /// Specify the table to insert into.
 ///
 pub fn table(query qry: Insert(a), table_name tbl_nm: String) -> Insert(a) {
-  Insert(..qry, table: InsertIntoTable(name: tbl_nm))
+  Insert(..qry, table: tbl_nm |> InsertIntoTable)
 }
 
 /// Get the table name to insert into from an `Insert` query.
@@ -187,7 +187,7 @@ pub fn modifier(query qry: Insert(a), modifier mdfr: String) -> Insert(a) {
   let mdfr = mdfr |> string.trim
   case mdfr {
     "" -> Insert(..qry, modifier: NoInsertModifier)
-    _ -> Insert(..qry, modifier: InsertModifier(mdfr))
+    _ -> Insert(..qry, modifier: mdfr |> InsertModifier)
   }
 }
 
@@ -213,18 +213,18 @@ pub fn get_modifier(query qry: Insert(a)) -> String {
 pub fn source_records(
   query qry: Insert(a),
   source rcrds: List(a),
-  encoder cstr: fn(a) -> InsertRow,
+  encoder encdr: fn(a) -> InsertRow,
 ) -> Insert(a) {
-  Insert(..qry, source: InsertSourceRecords(records: rcrds, encoder: cstr))
+  Insert(..qry, source: rcrds |> InsertSourceRecords(encoder: encdr))
 }
 
 /// Specify the source values to insert.
 ///
 pub fn source_values(
   query qry: Insert(a),
-  records rcrds: List(InsertRow),
+  source rws: List(InsertRow),
 ) -> Insert(a) {
-  Insert(..qry, source: InsertSourceRows(rows: rcrds))
+  Insert(..qry, source: rws |> InsertSourceRows)
 }
 
 /// Get the source from an `Insert` query which is either a list of records,
@@ -242,7 +242,7 @@ pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
 ///          values.
 ///
 pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {
-  Insert(..qry, columns: InsertColumns(columns: cols))
+  Insert(..qry, columns: cols |> InsertColumns)
 }
 
 /// Get the columns to insert into from an `Insert` query.
@@ -274,7 +274,7 @@ pub fn on_columns_conflict_ignore(
   Insert(
     ..qry,
     on_conflict: InsertConflictIgnore(
-      target: InsertConflictTarget(columns: cols),
+      target: cols |> InsertConflictTarget,
       where: whr,
     ),
   )
@@ -293,7 +293,7 @@ pub fn on_constraint_conflict_ignore(
   Insert(
     ..qry,
     on_conflict: InsertConflictIgnore(
-      target: InsertConflictTargetConstraint(constraint: cnstrt),
+      target: cnstrt |> InsertConflictTargetConstraint,
       where: whr,
     ),
   )
@@ -312,7 +312,7 @@ pub fn on_columns_conflict_update(
   Insert(
     ..qry,
     on_conflict: InsertConflictUpdate(
-      target: InsertConflictTarget(columns: cols),
+      target: cols |> InsertConflictTarget,
       where: whr,
       update: updt,
     ),
@@ -332,7 +332,7 @@ pub fn on_constraint_conflict_update(
   Insert(
     ..qry,
     on_conflict: InsertConflictUpdate(
-      target: InsertConflictTargetConstraint(constraint: cnstrt),
+      target: cnstrt |> InsertConflictTargetConstraint,
       where: whr,
       update: updt,
     ),
@@ -355,7 +355,7 @@ pub fn returning(
 ) -> Insert(a) {
   case rtrn {
     [] -> Insert(..qry, returning: NoReturning)
-    _ -> Insert(..qry, returning: Returning(rtrn))
+    _ -> Insert(..qry, returning: rtrn |> Returning)
   }
 }
 

@@ -1,5 +1,7 @@
 //// Helper functions
 ////
+//// TODO v2: Think about if this makes any sense for v2
+////
 
 // TODO v2 escaped_identifier, quote and escape table and column names
 

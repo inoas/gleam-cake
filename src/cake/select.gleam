@@ -173,12 +173,12 @@ pub fn from_table(query qry: Select, name tbl_nm: String) -> Select {
 
 /// Sets the `FROM` clause of the `Select` query to an aliased sub-query.
 ///
-pub fn from_sub_query(
+pub fn from_query(
   query qry: Select,
   sub_query sb_qry: ReadQuery,
   alias als: String,
 ) -> Select {
-  Select(..qry, from: FromSubQuery(sub_query: sb_qry, alias: als))
+  Select(..qry, from: sb_qry |> FromSubQuery(alias: als))
 }
 
 /// Removes the `FROM` clause of the `Select` query.
@@ -201,7 +201,7 @@ pub fn get_from(query qry: Select) -> From {
 ///
 pub fn select(query qry: Select, select_value sv: SelectValue) -> Select {
   case qry.select {
-    NoSelects -> Select(..qry, select: Selects([sv]))
+    NoSelects -> Select(..qry, select: [sv] |> Selects)
     Selects(qry_slcts) ->
       Select(..qry, select: qry_slcts |> list.append([sv]) |> Selects)
   }
@@ -213,7 +213,7 @@ pub fn select(query qry: Select, select_value sv: SelectValue) -> Select {
 ///
 pub fn replace_select(query qry: Select, select_value sv: SelectValue) -> Select {
   case qry.select {
-    NoSelects -> Select(..qry, select: Selects([sv]))
+    NoSelects -> Select(..qry, select: [sv] |> Selects)
     Selects(qry_slcts) ->
       Select(..qry, select: qry_slcts |> list.append([sv]) |> Selects)
   }
@@ -229,7 +229,7 @@ pub fn selects(
 ) -> Select {
   case svs, qry.select {
     [], _ -> qry
-    svs, NoSelects -> Select(..qry, select: Selects(svs))
+    svs, NoSelects -> Select(..qry, select: svs |> Selects)
     svs, Selects(qry_slcts) ->
       Select(..qry, select: qry_slcts |> list.append(svs) |> Selects)
   }
@@ -245,7 +245,7 @@ pub fn replace_selects(
 ) -> Select {
   case svs, qry.select {
     [], _ -> qry
-    svs, NoSelects -> Select(..qry, select: Selects(svs))
+    svs, NoSelects -> Select(..qry, select: svs |> Selects)
     svs, Selects(qry_slcts) ->
       Select(..qry, select: qry_slcts |> list.append(svs) |> Selects)
   }
@@ -278,7 +278,7 @@ pub fn replace_join(query qry: Select, join jn: Join) -> Select {
 ///
 pub fn joins(query qry: Select, joins jns: List(Join)) -> Select {
   case jns, qry.join {
-    [], _ -> Select(..qry, join: Joins(jns))
+    [], _ -> Select(..qry, join: jns |> Joins)
     jns, Joins(qry_joins) ->
       Select(..qry, join: qry_joins |> list.append(jns) |> Joins)
     jns, NoJoins -> Select(..qry, join: jns |> Joins)
@@ -318,8 +318,8 @@ pub fn where(query qry: Select, where whr: Where) -> Select {
   case qry.where {
     NoWhere -> Select(..qry, where: whr)
     AndWhere(wheres) ->
-      Select(..qry, where: AndWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, where: AndWhere([qry.where, whr]))
+      Select(..qry, where: wheres |> list.append([whr]) |> AndWhere)
+    _ -> Select(..qry, where: [qry.where, whr] |> AndWhere)
   }
 }
 
@@ -336,8 +336,8 @@ pub fn or_where(query qry: Select, where whr: Where) -> Select {
   case qry.where {
     NoWhere -> Select(..qry, where: whr)
     OrWhere(wheres) ->
-      Select(..qry, where: OrWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, where: OrWhere([qry.where, whr]))
+      Select(..qry, where: wheres |> list.append([whr]) |> OrWhere)
+    _ -> Select(..qry, where: [qry.where, whr] |> OrWhere)
   }
 }
 
@@ -358,8 +358,8 @@ pub fn xor_where(query qry: Select, where whr: Where) -> Select {
   case qry.where {
     NoWhere -> Select(..qry, where: whr)
     XorWhere(wheres) ->
-      Select(..qry, where: XorWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, where: XorWhere([qry.where, whr]))
+      Select(..qry, where: wheres |> list.append([whr]) |> XorWhere)
+    _ -> Select(..qry, where: [qry.where, whr] |> XorWhere)
   }
 }
 
@@ -401,8 +401,8 @@ pub fn having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
     NoWhere -> Select(..qry, having: whr)
     AndWhere(wheres) ->
-      Select(..qry, having: AndWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, having: AndWhere([qry.having, whr]))
+      Select(..qry, having: wheres |> list.append([whr]) |> AndWhere)
+    _ -> Select(..qry, having: [qry.having, whr] |> AndWhere)
   }
 }
 
@@ -421,8 +421,8 @@ pub fn or_having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
     NoWhere -> Select(..qry, having: whr)
     OrWhere(wheres) ->
-      Select(..qry, having: OrWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, having: OrWhere([qry.having, whr]))
+      Select(..qry, having: wheres |> list.append([whr]) |> OrWhere)
+    _ -> Select(..qry, having: [qry.having, whr] |> OrWhere)
   }
 }
 
@@ -445,8 +445,8 @@ pub fn xor_having(query qry: Select, having whr: Where) -> Select {
   case qry.having {
     NoWhere -> Select(..qry, having: whr)
     XorWhere(wheres) ->
-      Select(..qry, having: XorWhere(wheres |> list.append([whr])))
-    _ -> Select(..qry, having: XorWhere([qry.having, whr]))
+      Select(..qry, having: wheres |> list.append([whr]) |> XorWhere)
+    _ -> Select(..qry, having: [qry.having, whr] |> XorWhere)
   }
 }
 
@@ -478,25 +478,25 @@ pub fn get_having(query qry: Select) -> Where {
 ///
 pub fn group_by(query qry: Select, group_by grpb: String) -> Select {
   case qry.group_by {
-    NoGroupBy -> Select(..qry, group_by: GroupBy([grpb]))
+    NoGroupBy -> Select(..qry, group_by: [grpb] |> GroupBy)
     GroupBy(grpbs) ->
-      Select(..qry, group_by: GroupBy(grpbs |> list.append([grpb])))
+      Select(..qry, group_by: grpbs |> list.append([grpb]) |> GroupBy)
   }
 }
 
 /// Replaces `GroupBy` with a single `GroupBy`.
 ///
 pub fn replace_group_by(query qry: Select, group_by grpb: String) -> Select {
-  Select(..qry, group_by: GroupBy([grpb]))
+  Select(..qry, group_by: [grpb] |> GroupBy)
 }
 
 /// Sets or appends a list of `GroupBy` into an existing `GroupBy`.
 ///
 pub fn group_bys(query qry: Select, group_bys grpbs: List(String)) -> Select {
   case qry.group_by {
-    NoGroupBy -> Select(..qry, group_by: GroupBy(grpbs))
+    NoGroupBy -> Select(..qry, group_by: grpbs |> GroupBy)
     GroupBy(grpbs) ->
-      Select(..qry, group_by: GroupBy(grpbs |> list.append(grpbs)))
+      Select(..qry, group_by: grpbs |> list.append(grpbs) |> GroupBy)
   }
 }
 
@@ -506,7 +506,7 @@ pub fn replace_group_bys(
   query qry: Select,
   group_bys grpbs: List(String),
 ) -> Select {
-  Select(..qry, group_by: GroupBy(grpbs))
+  Select(..qry, group_by: grpbs |> GroupBy)
 }
 
 /// Removes `GroupBy` from the `Select` query.
@@ -563,6 +563,8 @@ pub fn get_offset(query qry: Select) -> Offset {
 
 // ▒▒▒ ORDER BY ▒▒▒
 
+// FIXME: This should be reexported from `read_query` once gleam allows it.
+//
 /// Defines the direction of an `OrderBy`.
 ///
 pub type Direction {
@@ -582,7 +584,7 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 pub fn order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
+    by: [ordb |> OrderByColumn(direction: read_query.Asc)] |> OrderBy,
     append: True,
   )
 }
@@ -594,7 +596,7 @@ pub fn order_by_asc(query qry: Select, by ordb: String) -> Select {
 pub fn order_by_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -606,7 +608,7 @@ pub fn order_by_asc_nulls_first(query qry: Select, by ordb: String) -> Select {
 pub fn order_by_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -616,7 +618,7 @@ pub fn order_by_asc_nulls_last(query qry: Select, by ordb: String) -> Select {
 pub fn replace_order_by_asc(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
+    by: [ordb |> OrderByColumn(direction: read_query.Asc)] |> OrderBy,
     append: False,
   )
 }
@@ -631,7 +633,7 @@ pub fn replace_order_by_asc_nulls_first(
 ) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -646,7 +648,7 @@ pub fn replace_order_by_asc_nulls_last(
 ) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -656,7 +658,7 @@ pub fn replace_order_by_asc_nulls_last(
 pub fn order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
+    by: [ordb |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
     append: True,
   )
 }
@@ -668,7 +670,7 @@ pub fn order_by_desc(query qry: Select, by ordb: String) -> Select {
 pub fn order_by_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -680,7 +682,7 @@ pub fn order_by_desc_nulls_first(query qry: Select, by ordb: String) -> Select {
 pub fn order_by_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -690,7 +692,7 @@ pub fn order_by_desc_nulls_last(query qry: Select, by ordb: String) -> Select {
 pub fn replace_order_by_desc(query qry: Select, by ordb: String) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
+    by: [ordb |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
     append: False,
   )
 }
@@ -705,7 +707,7 @@ pub fn replace_order_by_desc_nulls_first(
 ) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -720,7 +722,7 @@ pub fn replace_order_by_desc_nulls_last(
 ) -> Select {
   qry
   |> read_query.select_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -736,10 +738,7 @@ pub fn order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> read_query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, dir)]),
-    True,
-  )
+  |> read_query.select_order_by([ordb |> OrderByColumn(dir)] |> OrderBy, True)
 }
 
 /// Replaces the `OrderBy` a column with a direction.
@@ -751,10 +750,7 @@ pub fn replace_order_by(
 ) -> Select {
   let dir = dir |> map_order_by_direction_constructor
   qry
-  |> read_query.select_order_by(
-    OrderBy(values: [OrderByColumn(ordb, dir)]),
-    False,
-  )
+  |> read_query.select_order_by([ordb |> OrderByColumn(dir)] |> OrderBy, False)
 }
 
 /// Removes the `OrderBy` from the `Select` query.

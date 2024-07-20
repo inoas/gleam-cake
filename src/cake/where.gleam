@@ -137,22 +137,22 @@ pub fn none() -> Where {
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches a `Bool`.
 pub fn is_bool(value vl: WhereValue, bool b: Bool) -> Where {
-  vl |> WhereIsBool(b)
+  vl |> WhereIsBool(bool: b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` does not match a `Bool`.
 pub fn is_not_bool(value vl: WhereValue, bool b: Bool) -> Where {
-  vl |> WhereIsNotBool(b)
+  vl |> WhereIsNotBool(bool: b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is `False`.
 pub fn is_false(value vl: WhereValue) -> Where {
-  vl |> WhereIsBool(False)
+  vl |> WhereIsBool(bool: False)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is `True`.
 pub fn is_true(value vl: WhereValue) -> Where {
-  vl |> WhereIsBool(True)
+  vl |> WhereIsBool(bool: True)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is SQL `NULL`.
@@ -171,35 +171,35 @@ pub fn is_not_null(value vl: WhereValue) -> Where {
 /// `WhereValue`.
 ///
 pub fn eq(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
-  vl_a |> WhereComparison(Equal, vl_b)
+  vl_a |> WhereComparison(operator: Equal, value_b: vl_b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` lower than another
 /// `WhereValue`.
 ///
 pub fn lt(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
-  vl_a |> WhereComparison(Lower, vl_b)
+  vl_a |> WhereComparison(operator: Lower, value_b: vl_b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` lower or equal to
 /// another `WhereValue`.
 ///
 pub fn lte(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
-  vl_a |> WhereComparison(LowerOrEqual, vl_b)
+  vl_a |> WhereComparison(operator: LowerOrEqual, value_b: vl_b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than
 /// another `WhereValue`.
 ///
 pub fn gt(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
-  vl_a |> WhereComparison(Greater, vl_b)
+  vl_a |> WhereComparison(operator: Greater, value_b: vl_b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
 /// to another `WhereValue`.
 ///
 pub fn gte(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
-  vl_a |> WhereComparison(GreaterOrEqual, vl_b)
+  vl_a |> WhereComparison(operator: GreaterOrEqual, value_b: vl_b)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches any
@@ -208,7 +208,7 @@ pub fn gte(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn eq_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAnyOfSubQuery(Equal, qry)
+  vl |> WhereAnyOfSubQuery(operator: Equal, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than an any
@@ -217,7 +217,7 @@ pub fn eq_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn lt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAnyOfSubQuery(Lower, qry)
+  vl |> WhereAnyOfSubQuery(operator: Lower, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
@@ -226,7 +226,7 @@ pub fn lt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn lte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAnyOfSubQuery(LowerOrEqual, qry)
+  vl |> WhereAnyOfSubQuery(operator: LowerOrEqual, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than any
@@ -235,7 +235,7 @@ pub fn lte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn gt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAnyOfSubQuery(Greater, qry)
+  vl |> WhereAnyOfSubQuery(operator: Greater, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal to
@@ -244,7 +244,7 @@ pub fn gt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn gte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAnyOfSubQuery(GreaterOrEqual, qry)
+  vl |> WhereAnyOfSubQuery(operator: GreaterOrEqual, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches all
@@ -253,7 +253,7 @@ pub fn gte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn eq_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAllOfSubQuery(Equal, qry)
+  vl |> WhereAllOfSubQuery(operator: Equal, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than all
@@ -262,7 +262,7 @@ pub fn eq_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn lt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAllOfSubQuery(Lower, qry)
+  vl |> WhereAllOfSubQuery(operator: Lower, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
@@ -271,7 +271,7 @@ pub fn lt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn lte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAllOfSubQuery(LowerOrEqual, qry)
+  vl |> WhereAllOfSubQuery(operator: LowerOrEqual, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than all
@@ -280,7 +280,7 @@ pub fn lte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAllOfSubQuery(Greater, qry)
+  vl |> WhereAllOfSubQuery(operator: Greater, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
@@ -289,7 +289,7 @@ pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Not supported by SQLite.
 ///
 pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereAllOfSubQuery(GreaterOrEqual, qry)
+  vl |> WhereAllOfSubQuery(operator: GreaterOrEqual, query: qry)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is IN a sub-query.
@@ -297,14 +297,14 @@ pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// NOTICE: Usually the sub-query must return a single column.
 ///
 pub fn in_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
-  vl |> WhereIn([qry |> WhereSubQueryValue])
+  vl |> WhereIn(values: [qry |> WhereSubQueryValue])
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is in a list of
 /// `WhereValue`s.
 ///
 pub fn in(value vl: WhereValue, values vals: List(WhereValue)) -> Where {
-  vl |> WhereIn(vals)
+  vl |> WhereIn(values: vals)
 }
 
 /// Creates a `WHERE` clause that checks if it exists in a sub-query.
@@ -326,7 +326,7 @@ pub fn between(
   value_b vl_b: WhereValue,
   value_c vl_c: WhereValue,
 ) -> Where {
-  vl_a |> WhereBetween(vl_b, vl_c)
+  vl_a |> WhereBetween(value_b: vl_b, value_c: vl_c)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches a pattern.
