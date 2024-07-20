@@ -37,7 +37,7 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
 - UNION and decoding -
   [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/02_demo_union_and_decode/src/cake_demo_union_and_decode.gleam)
 - INSERT -
-  [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/03_demo_insert/src/cake_insert.gleam)
+  [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/03_demo_insert/src/cake_demo_insert.gleam)
 - ... more to come soon!
 <!--
 - UPDATE -- TODO v1
