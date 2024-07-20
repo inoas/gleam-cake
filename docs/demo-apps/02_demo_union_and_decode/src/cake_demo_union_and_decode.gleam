@@ -1,7 +1,7 @@
 import being
 import cake/combined as c
 import cake/select as s
-import demo_helper/example_data
+import demo_helper/demo_data
 import demo_helper/postgres
 import gleam/dynamic
 import gleam/io
@@ -26,7 +26,7 @@ fn union_query() {
 
 pub fn main() {
   use conn <- postgres.with_connection
-  example_data.create_tables_and_insert_rows(conn)
+  demo_data.create_tables_and_insert_rows(conn)
 
   // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(beings) =
