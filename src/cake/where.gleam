@@ -313,7 +313,7 @@ pub fn exists_in_query(sub_query qry: ReadQuery) -> Where {
   qry |> WhereExistsInSubQuery
 }
 
-// TODO v1
+// TODO v2 consider adding this
 // pub fn wrap_in_parentheses(where: Where) -> Where {
 //   where |> WhereParentheses
 // }
