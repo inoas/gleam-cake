@@ -11,34 +11,16 @@ test_name: insert_on_conflict_update_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(IntParam(1)),
       ]),
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Karl"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Karl")),
+        InsertParam(IntParam(1)),
       ]),
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Clara"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Clara")),
+        InsertParam(IntParam(1)),
       ]),
     ]),
     InsertConflictUpdate(
@@ -74,34 +56,16 @@ test_name: insert_on_conflict_update_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(IntParam(1)),
       ]),
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Karl"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Karl")),
+        InsertParam(IntParam(1)),
       ]),
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Clara"),
-        ),
-        InsertParam(
-          "counter",
-          IntParam(1),
-        ),
+        InsertParam(StringParam("Clara")),
+        InsertParam(IntParam(1)),
       ]),
     ]),
     InsertConflictUpdate(

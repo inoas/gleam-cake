@@ -21,21 +21,9 @@ fn update_query() {
 
 fn insert_on_conflict_update_values() {
   let counters = [
-    [
-      i.param(column: "name", param: "Whiskers" |> i.string),
-      i.param(column: "counter", param: 1 |> i.int),
-    ]
-      |> i.row,
-    [
-      i.param(column: "name", param: "Karl" |> i.string),
-      i.param(column: "counter", param: 1 |> i.int),
-    ]
-      |> i.row,
-    [
-      i.param(column: "name", param: "Clara" |> i.string),
-      i.param(column: "counter", param: 1 |> i.int),
-    ]
-      |> i.row,
+    i.row([i.string("Whiskers") |> i.param, i.int(1) |> i.param]),
+    i.row([i.string("Karl") |> i.param, i.int(1) |> i.param]),
+    i.row([i.string("Clara") |> i.param, i.int(1) |> i.param]),
   ]
 
   i.from_values(

@@ -18,12 +18,11 @@ type Cat {
   Cat(name: String, age: Int, is_wild: Bool, rating: Float)
 }
 
-fn cat_caster(cat: Cat) {
+fn cat_encoder(cat: Cat) {
   [
-    i.param(column: "name", param: cat.name |> i.string),
-    i.param(column: "rating", param: cat.rating |> i.float),
-    i.param(column: "age", param: cat.age |> i.int),
-    // i.param(column: "owner_id", param: i.null()), i.param(column: "is_wild", param: cat.is_wild |> i.bool),
+    i.string(cat.name) |> i.param,
+    i.float(cat.rating) |> i.param,
+    i.int(cat.age) |> i.param,
   ]
   |> i.row
 }
@@ -36,12 +35,9 @@ fn insert_records() {
 
   i.from_records(
     table_name: "cats",
-    columns: [
-      "name", "rating", "age",
-      // "owner_id", "is_wild"
-    ],
+    columns: ["name", "rating", "age"],
     records: cats,
-    caster: cat_caster,
+    encoder: cat_encoder,
   )
   |> i.returning(["name"])
 }

@@ -37,7 +37,7 @@ pub type Param {
   // ArrayParam(Param)
   // ObjectParam(String, Param)
   // XmlParam(String)
-  // CustomParam(caster_fn: Function(custom), custom)
+  // CustomParam(encoder_fn: Function(custom), custom)
 }
 
 /// Create a new `Param` with a `Bool` value.

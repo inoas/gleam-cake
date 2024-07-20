@@ -17,11 +17,11 @@ import test_support/adapter/sqlite
 fn insert_values() {
   let cat =
     [
-      i.param(column: "name", param: "Whiskers" |> i.string),
-      i.param(column: "rating", param: 5.0 |> i.float),
-      i.param(column: "age", param: 5 |> i.int),
-      // i.param(column: "owner_id", param: i.null()),
-    // i.param(column: "is_wild", param: False |> i.bool),
+      i.param(param: "Whiskers" |> i.string),
+      i.param(param: 5.0 |> i.float),
+      i.param(param: 5 |> i.int),
+      // i.param(param: i.null()),
+    // i.param(param: False |> i.bool),
     ]
     |> i.row
 

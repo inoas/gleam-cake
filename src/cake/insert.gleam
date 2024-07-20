@@ -72,9 +72,9 @@ pub fn row(values vls: List(InsertValue)) -> InsertRow {
   vls |> InsertRow
 }
 
-/// Create an `InsertValue` from a column `String` and a `Param`.
-pub fn param(column col: String, param prm: Param) -> InsertValue {
-  col |> InsertParam(param: prm)
+/// Create an `InsertValue` from a `Param`.
+pub fn param(param prm: Param) -> InsertValue {
+  prm |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `Bool` value.
@@ -126,18 +126,18 @@ pub fn new() -> Insert(a) {
 
 /// Create an `INSERT` query from a list of gleam records.
 ///
-/// The `caster` function is used to convert each record into an `InsertRow`.
+/// The `encoder` function is used to convert each record into an `InsertRow`.
 ///
 pub fn from_records(
   table_name tbl_nm: String,
   columns cols: List(String),
   records rcrds: List(a),
-  caster cstr: fn(a) -> InsertRow,
+  encoder cstr: fn(a) -> InsertRow,
 ) -> Insert(a) {
   Insert(
     table: InsertIntoTable(name: tbl_nm),
     modifier: NoInsertModifier,
-    source: InsertSourceRecords(records: rcrds, caster: cstr),
+    source: InsertSourceRecords(records: rcrds, encoder: cstr),
     columns: InsertColumns(columns: cols),
     on_conflict: InsertConflictError,
     returning: NoReturning,
@@ -213,9 +213,9 @@ pub fn get_modifier(query qry: Insert(a)) -> String {
 pub fn source_records(
   query qry: Insert(a),
   source rcrds: List(a),
-  caster cstr: fn(a) -> InsertRow,
+  encoder cstr: fn(a) -> InsertRow,
 ) -> Insert(a) {
-  Insert(..qry, source: InsertSourceRecords(records: rcrds, caster: cstr))
+  Insert(..qry, source: InsertSourceRecords(records: rcrds, encoder: cstr))
 }
 
 /// Specify the source values to insert.
@@ -228,7 +228,7 @@ pub fn source_values(
 }
 
 /// Get the source from an `Insert` query which is either a list of records,
-/// accompanied by a caster function or a list of `InsertRow`s.
+/// accompanied by a encoder function or a list of `InsertRow`s.
 ///
 pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
   qry.source
@@ -238,7 +238,7 @@ pub fn get_source(query qry: Insert(a)) -> InsertSource(a) {
 ///
 /// NOTICE: You have to specify the columns and keep track if their names are
 /// correct, as well as their count which must be equal to the count of
-/// `InsertRows` the caster function returns or is given as source
+/// `InsertRows` the encoder function returns or is given as source
 ///          values.
 ///
 pub fn columns(query qry: Insert(a), columns cols: List(String)) -> Insert(a) {

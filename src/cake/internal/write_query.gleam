@@ -133,7 +133,7 @@ pub type InsertModifier {
 pub type InsertSource(a) {
   NoInsertSource
   InsertSourceDefault
-  InsertSourceRecords(records: List(a), caster: fn(a) -> InsertRow)
+  InsertSourceRecords(records: List(a), encoder: fn(a) -> InsertRow)
   InsertSourceRows(rows: List(InsertRow))
   InsertSourceQuery(query: ReadQuery)
 }
@@ -148,8 +148,8 @@ pub type InsertRow {
 /// a table. It can be a parameter or a default value.
 ///
 pub type InsertValue {
-  InsertParam(column: String, param: Param)
-  InsertDefault(column: String)
+  InsertParam(param: Param)
+  InsertDefault
 }
 
 /// The `InsertConflictStrategy` defines how to handle conflicts when inserting
@@ -232,10 +232,10 @@ fn insert_source_apply(
 ) -> PreparedStatement {
   case src {
     NoInsertSource -> prp_stm
-    InsertSourceRecords(records: src, caster: cstr) ->
+    InsertSourceRecords(records: src, encoder: cstr) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
-      |> insert_from_params_apply(source: src, row_caster: cstr)
+      |> insert_from_params_apply(source: src, row_encoder: cstr)
     InsertSourceRows(rows: src) ->
       prp_stm
       |> prepared_statement.append_sql(" VALUES")
@@ -252,7 +252,7 @@ fn insert_source_apply(
 fn insert_from_params_apply(
   prepared_statement prp_stm: PreparedStatement,
   source src: List(a),
-  row_caster cstr: fn(a) -> InsertRow,
+  row_encoder cstr: fn(a) -> InsertRow,
 ) {
   let prp_stm = prp_stm |> prepared_statement.append_sql(" (")
   let prp_stm =
@@ -309,8 +309,7 @@ fn row_apply(
     new_prp_stm,
     fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
       case insert_value {
-        // TODO v1: What is _column for here?
-        InsertParam(column: _column, param: param) -> {
+        InsertParam(param: param) -> {
           case new_prp_stm_inner == new_prp_stm {
             True ->
               new_prp_stm_inner
@@ -321,8 +320,7 @@ fn row_apply(
               |> prepared_statement.append_param(param)
           }
         }
-        // TODO v1: What is _column for here?
-        InsertDefault(column: _column) -> {
+        InsertDefault -> {
           case new_prp_stm_inner == new_prp_stm {
             True ->
               new_prp_stm_inner

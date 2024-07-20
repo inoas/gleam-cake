@@ -15,15 +15,9 @@ test_name: insert_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "rating",
-          FloatParam(5.0),
-        ),
-        InsertParam("age", IntParam(5)),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(FloatParam(5.0)),
+        InsertParam(IntParam(5)),
       ]),
     ]),
     InsertConflictError,
@@ -41,15 +35,9 @@ test_name: insert_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "rating",
-          FloatParam(5.0),
-        ),
-        InsertParam("age", IntParam(5)),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(FloatParam(5.0)),
+        InsertParam(IntParam(5)),
       ]),
     ]),
     InsertConflictError,
@@ -67,15 +55,9 @@ test_name: insert_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "rating",
-          FloatParam(5.0),
-        ),
-        InsertParam("age", IntParam(5)),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(FloatParam(5.0)),
+        InsertParam(IntParam(5)),
       ]),
     ]),
     InsertConflictError,
@@ -93,15 +75,9 @@ test_name: insert_values_test
     NoInsertModifier,
     InsertSourceRows([
       InsertRow([
-        InsertParam(
-          "name",
-          StringParam("Whiskers"),
-        ),
-        InsertParam(
-          "rating",
-          FloatParam(5.0),
-        ),
-        InsertParam("age", IntParam(5)),
+        InsertParam(StringParam("Whiskers")),
+        InsertParam(FloatParam(5.0)),
+        InsertParam(IntParam(5)),
       ]),
     ]),
     InsertConflictError,
