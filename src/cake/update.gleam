@@ -112,14 +112,14 @@ pub fn new() -> Update(a) {
 
 /// Sets the table of the `Update` query.
 ///
-pub fn table(query qry: Update(a), table_name tbl_nm: String) -> Update(a) {
-  Update(..qry, table: UpdateTable(tbl_nm))
+pub fn table(update updt: Update(a), table_name tbl_nm: String) -> Update(a) {
+  Update(..updt, table: tbl_nm |> UpdateTable)
 }
 
 /// Get the table of the `Update` query.
 ///
-pub fn get_table(query qry: Update(a)) -> UpdateTable {
-  qry.table
+pub fn get_table(update updt: Update(a)) -> UpdateTable {
+  updt.table
 }
 
 // ▒▒▒ Set ▒▒▒
@@ -127,7 +127,7 @@ pub fn get_table(query qry: Update(a)) -> UpdateTable {
 /// Sets a column to a param value.
 ///
 pub fn set_to_param(column col: String, param prm: Param) -> UpdateSet {
-  UpdateParamSet(column: col, param: prm)
+  col |> UpdateParamSet(param: prm)
 }
 
 /// Sets a column to an expression value.
@@ -136,50 +136,51 @@ pub fn set_to_expression(
   column col: String,
   expression exp: String,
 ) -> UpdateSet {
-  UpdateExpressionSet(columns: [col], expression: exp)
+  [col] |> UpdateExpressionSet(expression: exp)
 }
 
 /// Sets a column to a sub-query value.
 ///
 pub fn set_to_sub_query(
   column col: String,
-  sub_query qry: ReadQuery,
+  query qry: ReadQuery,
 ) -> UpdateSet {
-  UpdateSubQuerySet(columns: [col], sub_query: qry)
+  [col] |> UpdateSubQuerySet(query: qry)
 }
 
 /// Sets or appends one columne set in an `Update` query.
 ///
-pub fn set(query qry: Update(a), set st: UpdateSet) -> Update(a) {
-  case qry.set {
-    NoUpdateSets -> Update(..qry, set: UpdateSets([st]))
+pub fn set(update updt: Update(a), set st: UpdateSet) -> Update(a) {
+  case updt.set {
+    NoUpdateSets -> Update(..updt, set: [st] |> UpdateSets)
     UpdateSets(sets) ->
-      Update(..qry, set: UpdateSets(sets |> list.append([st])))
+      Update(..updt, set: sets |> list.append([st]) |> UpdateSets)
   }
 }
 
 /// Sets or replaces one column set in an `Update` query.
 ///
-pub fn set_replace(query qry: Update(a), set st: UpdateSet) -> Update(a) {
-  Update(..qry, set: UpdateSets([st]))
+pub fn set_replace(update updt: Update(a), set st: UpdateSet) -> Update(a) {
+  Update(..updt, set: [st] |> UpdateSets)
 }
 
 /// Sets or appends many column sets n an `Update` query.
 ///
-pub fn sets(query qry: Update(a), set sts: List(UpdateSet)) -> Update(a) {
-  case qry.set {
-    NoUpdateSets -> Update(..qry, set: UpdateSets(sts))
-    UpdateSets(sets) -> Update(..qry, set: UpdateSets(sets |> list.append(sts)))
+pub fn sets(update updt: Update(a), set sts: List(UpdateSet)) -> Update(a) {
+  case updt.set {
+    NoUpdateSets -> Update(..updt, set: sts |> UpdateSets)
+    UpdateSets(sets) ->
+      Update(..updt, set: sets |> list.append(sts) |> UpdateSets)
   }
 }
 
 /// Sets or replaces many column sets in an `Update` query.
 ///
 pub fn sets_replace(
-  query qry: Update(a),
+  update updt: Update(a),
   sets sts: List(UpdateSet),
 ) -> Update(a) {
-  Update(..qry, set: UpdateSets(sts))
+  Update(..updt, set: sts |> UpdateSets)
 }
 
 /// Sets many columns to an expression value.
@@ -190,7 +191,7 @@ pub fn sets_to_expression(
   columns cols: List(String),
   expression exp: String,
 ) -> UpdateSet {
-  UpdateExpressionSet(columns: cols, expression: exp)
+  cols |> UpdateExpressionSet(expression: exp)
 }
 
 /// Sets many columns to a sub-query value.
@@ -199,15 +200,15 @@ pub fn sets_to_expression(
 ///
 pub fn sets_to_sub_query(
   columns cols: List(String),
-  sub_query qry: ReadQuery,
+  query qry: ReadQuery,
 ) -> UpdateSet {
-  UpdateSubQuerySet(columns: cols, sub_query: qry)
+  cols |> UpdateSubQuerySet(query: qry)
 }
 
 /// Get the sets of the `Update` query.
 ///
-pub fn get_set(query qry: Update(a)) -> List(UpdateSet) {
-  case qry.set {
+pub fn get_set(update updt: Update(a)) -> List(UpdateSet) {
+  case updt.set {
     NoUpdateSets -> []
     UpdateSets(sets) -> sets
   }
@@ -217,30 +218,30 @@ pub fn get_set(query qry: Update(a)) -> List(UpdateSet) {
 
 /// Sets the `FROM` clause of the `Update` query to a table name.
 ///
-pub fn from_table(query qry: Update(a), name tbl_nm: String) -> Update(a) {
-  Update(..qry, from: FromTable(name: tbl_nm))
+pub fn from_table(update updt: Update(a), name tbl_nm: String) -> Update(a) {
+  Update(..updt, from: tbl_nm |> FromTable)
 }
 
 /// Sets the `FROM` clause of the `Update` query to an aliased sub-query.
 ///
 pub fn from_sub_query(
-  query qry: Update(a),
-  sub_query sb_qry: ReadQuery,
+  update updt: Update(a),
+  query qry: ReadQuery,
   alias als: String,
 ) -> Update(a) {
-  Update(..qry, from: FromSubQuery(query: sb_qry, alias: als))
+  Update(..updt, from: qry |> FromSubQuery(alias: als))
 }
 
 /// Removes the `FROM` clause of the `Update` query.
 ///
-pub fn no_from(query qry: Update(a)) -> Update(a) {
-  Update(..qry, from: NoFrom)
+pub fn no_from(update updt: Update(a)) -> Update(a) {
+  Update(..updt, from: NoFrom)
 }
 
 /// Gets the `FROM` clause of the `Update` query.
 ///
-pub fn get_from(query qry: Update(a)) -> From {
-  qry.from
+pub fn get_from(update updt: Update(a)) -> From {
+  updt.from
 }
 
 // ▒▒▒ JOIN ▒▒▒
@@ -250,10 +251,10 @@ pub fn get_from(query qry: Update(a)) -> From {
 /// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
-pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
-  case qry.join {
-    Joins(jns) -> Update(..qry, join: jns |> list.append([jn]) |> Joins)
-    NoJoins -> Update(..qry, join: [jn] |> Joins)
+pub fn join(update updt: Update(a), join jn: Join) -> Update(a) {
+  case updt.join {
+    Joins(jns) -> Update(..updt, join: jns |> list.append([jn]) |> Joins)
+    NoJoins -> Update(..updt, join: [jn] |> Joins)
   }
 }
 
@@ -262,8 +263,8 @@ pub fn join(query qry: Update(a), join jn: Join) -> Update(a) {
 /// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
-pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
-  Update(..qry, join: [jn] |> Joins)
+pub fn replace_join(update updt: Update(a), join jn: Join) -> Update(a) {
+  Update(..updt, join: [jn] |> Joins)
 }
 
 /// Adds `Join`s to the `Update` query.
@@ -271,12 +272,12 @@ pub fn replace_join(query qry: Update(a), join jn: Join) -> Update(a) {
 /// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
-pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
-  case jns, qry.join {
-    [], _ -> Update(..qry, join: Joins(jns))
-    jns, Joins(qry_joins) ->
-      Update(..qry, join: qry_joins |> list.append(jns) |> Joins)
-    jns, NoJoins -> Update(..qry, join: jns |> Joins)
+pub fn joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
+  case jns, updt.join {
+    [], _ -> Update(..updt, join: jns |> Joins)
+    jns, Joins(updt_joins) ->
+      Update(..updt, join: updt_joins |> list.append(jns) |> Joins)
+    jns, NoJoins -> Update(..updt, join: jns |> Joins)
   }
 }
 
@@ -285,20 +286,20 @@ pub fn joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
 /// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
 /// set as well.
 ///
-pub fn replace_joins(query qry: Update(a), joins jns: List(Join)) -> Update(a) {
-  Update(..qry, join: jns |> Joins)
+pub fn replace_joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
+  Update(..updt, join: jns |> Joins)
 }
 
 /// Removes any `Joins` from the `Update` query.
 ///
-pub fn no_join(query qry: Update(a)) -> Update(a) {
-  Update(..qry, join: NoJoins)
+pub fn no_join(update updt: Update(a)) -> Update(a) {
+  Update(..updt, join: NoJoins)
 }
 
 /// Gets the `Joins` of the `Update` query.
 ///
-pub fn get_joins(query qry: Update(a)) -> Joins {
-  qry.join
+pub fn get_joins(update updt: Update(a)) -> Joins {
+  updt.join
 }
 
 // ▒▒▒ WHERE ▒▒▒
@@ -312,12 +313,12 @@ pub fn get_joins(query qry: Update(a)) -> Joins {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `AndWhere`.
 ///
-pub fn where(query qry: Update(a), where whr: Where) -> Update(a) {
-  case qry.where {
-    NoWhere -> Update(..qry, where: whr)
+pub fn where(update updt: Update(a), where whr: Where) -> Update(a) {
+  case updt.where {
+    NoWhere -> Update(..updt, where: whr)
     AndWhere(wheres) ->
-      Update(..qry, where: AndWhere(wheres |> list.append([whr])))
-    _ -> Update(..qry, where: AndWhere([qry.where, whr]))
+      Update(..updt, where: wheres |> list.append([whr]) |> AndWhere)
+    _ -> Update(..updt, where: [updt.where, whr] |> AndWhere)
   }
 }
 
@@ -330,12 +331,12 @@ pub fn where(query qry: Update(a), where whr: Where) -> Update(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `OrWhere`.
 ///
-pub fn or_where(query qry: Update(a), where whr: Where) -> Update(a) {
-  case qry.where {
-    NoWhere -> Update(..qry, where: whr)
+pub fn or_where(update updt: Update(a), where whr: Where) -> Update(a) {
+  case updt.where {
+    NoWhere -> Update(..updt, where: whr)
     OrWhere(wheres) ->
-      Update(..qry, where: OrWhere(wheres |> list.append([whr])))
-    _ -> Update(..qry, where: OrWhere([qry.where, whr]))
+      Update(..updt, where: wheres |> list.append([whr]) |> OrWhere)
+      _ -> Update(..updt, where: [updt.where, whr] |> OrWhere)
   }
 }
 
@@ -352,31 +353,31 @@ pub fn or_where(query qry: Update(a), where whr: Where) -> Update(a) {
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in MariaDB/MySQL.
 ///
-pub fn xor_where(query qry: Update(a), where whr: Where) -> Update(a) {
-  case qry.where {
-    NoWhere -> Update(..qry, where: whr)
+pub fn xor_where(update updt: Update(a), where whr: Where) -> Update(a) {
+  case updt.where {
+    NoWhere -> Update(..updt, where: whr)
     XorWhere(wheres) ->
-      Update(..qry, where: XorWhere(wheres |> list.append([whr])))
-    _ -> Update(..qry, where: XorWhere([qry.where, whr]))
+      Update(..updt, where: wheres |> list.append([whr]) |> XorWhere)
+      _ -> Update(..updt, where: [updt.where, whr] |> XorWhere)
   }
 }
 
 /// Replaces the `Where` in the `Update` query.
 ///
-pub fn replace_where(query qry: Update(a), where whr: Where) -> Update(a) {
-  Update(..qry, where: whr)
+pub fn replace_where(update updt: Update(a), where whr: Where) -> Update(a) {
+  Update(..updt, where: whr)
 }
 
 /// Removes the `Where` from the `Update` query.
 ///
-pub fn no_where(query qry: Update(a)) -> Update(a) {
-  Update(..qry, where: NoWhere)
+pub fn no_where(update updt: Update(a)) -> Update(a) {
+  Update(..updt, where: NoWhere)
 }
 
 /// Gets the `Where` of the `Update` query.
 ///
-pub fn get_where(query qry: Update(a)) -> Where {
-  qry.where
+pub fn get_where(update updt: Update(a)) -> Where {
+  updt.where
 }
 
 // ▒▒▒ RETURNING ▒▒▒
@@ -385,66 +386,66 @@ pub fn get_where(query qry: Update(a)) -> Where {
 /// they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn returning(
-  query qry: Update(a),
+  update updt: Update(a),
   returning rtrn: List(String),
 ) -> Update(a) {
   case rtrn {
-    [] -> Update(..qry, returning: NoReturning)
-    _ -> Update(..qry, returning: Returning(rtrn))
+    [] -> Update(..updt, returning: NoReturning)
+    _ -> Update(..updt, returning: rtrn |> Returning)
   }
 }
 
 /// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
 /// they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
-pub fn no_returning(query qry: Update(a)) -> Update(a) {
-  Update(..qry, returning: NoReturning)
+pub fn no_returning(update updt: Update(a)) -> Update(a) {
+  Update(..updt, returning: NoReturning)
 }
 
 // ▒▒▒ Epilog ▒▒▒
 
 /// Sets an `Epilog` or appends into an existing `Epilog`.
 ///
-pub fn epilog(query qry: Update(a), epilog eplg: String) -> Update(a) {
+pub fn epilog(update updt: Update(a), epilog eplg: String) -> Update(a) {
   let eplg = eplg |> string.trim
   case eplg {
-    "" -> Update(..qry, epilog: NoEpilog)
-    _ -> Update(..qry, epilog: { " " <> eplg } |> Epilog)
+    "" -> Update(..updt, epilog: NoEpilog)
+    _ -> Update(..updt, epilog: { " " <> eplg } |> Epilog)
   }
 }
 
 /// Removes the `Epilog` from the `Update` query.
 ///
-pub fn no_epilog(query qry: Update(a)) -> Update(a) {
-  Update(..qry, epilog: NoEpilog)
+pub fn no_epilog(update updt: Update(a)) -> Update(a) {
+  Update(..updt, epilog: NoEpilog)
 }
 
 /// Gets the `Epilog` of the `Update` query.
 ///
-pub fn get_epilog(query qry: Update(a)) -> Epilog {
-  qry.epilog
+pub fn get_epilog(update updt: Update(a)) -> Epilog {
+  updt.epilog
 }
 
 // ▒▒▒ Comment ▒▒▒
 
 /// Sets a `Comment` or appends into an existing `Comment`.
 ///
-pub fn comment(query qry: Update(a), comment cmmnt: String) -> Update(a) {
+pub fn comment(update updt: Update(a), comment cmmnt: String) -> Update(a) {
   let cmmnt = cmmnt |> string.trim
   case cmmnt {
-    "" -> Update(..qry, comment: NoComment)
-    _ -> Update(..qry, comment: { " " <> cmmnt } |> Comment)
+    "" -> Update(..updt, comment: NoComment)
+    _ -> Update(..updt, comment: { " " <> cmmnt } |> Comment)
   }
 }
 
 /// Removes the `Comment` from the `Update` query.
 ///
-pub fn no_comment(query qry: Update(a)) -> Update(a) {
-  Update(..qry, comment: NoComment)
+pub fn no_comment(update updt: Update(a)) -> Update(a) {
+  Update(..updt, comment: NoComment)
 }
 
 /// Gets the `Comment` of the `Update` query.
 ///
-pub fn get_comment(query qry: Update(a)) -> Comment {
-  qry.comment
+pub fn get_comment(update updt: Update(a)) -> Comment {
+  updt.comment
 }

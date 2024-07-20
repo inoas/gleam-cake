@@ -52,8 +52,8 @@ pub type Select =
 
 /// Creates a `ReadQuery` from a `Combined` read_query.
 ///
-pub fn to_query(combined_query qry: Combined) -> ReadQuery {
-  qry |> CombinedQuery
+pub fn to_query(combined cmbnd: Combined) -> ReadQuery {
+  cmbnd |> CombinedQuery
 }
 
 // ▒▒▒ Combined Kind ▒▒▒
@@ -170,8 +170,8 @@ pub fn intersects_all(
 
 /// Gets the queries from a `Combined` read_query.
 ///
-pub fn get_queries(combined_query qry: Combined) -> List(Select) {
-  qry.queries
+pub fn get_queries(combined cmbnd: Combined) -> List(Select) {
+  cmbnd.queries
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
@@ -235,7 +235,7 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 pub fn order_by_asc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
+    by: [ordb |> OrderByColumn(read_query.Asc)] |> OrderBy,
     append: True,
   )
 }
@@ -250,7 +250,7 @@ pub fn order_by_asc_nulls_first(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -262,7 +262,7 @@ pub fn order_by_asc_nulls_first(
 pub fn order_by_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -272,7 +272,7 @@ pub fn order_by_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined
 pub fn replace_order_by_asc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Asc)]),
+    by: [ordb |> OrderByColumn(read_query.Asc)] |> OrderBy,
     append: False,
   )
 }
@@ -287,7 +287,7 @@ pub fn replace_order_by_asc_nulls_first(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -302,7 +302,7 @@ pub fn replace_order_by_asc_nulls_last(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.AscNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -312,7 +312,7 @@ pub fn replace_order_by_asc_nulls_last(
 pub fn order_by_desc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
+    by: [ordb |> OrderByColumn(read_query.Desc)] |> OrderBy,
     append: True,
   )
 }
@@ -327,7 +327,7 @@ pub fn order_by_desc_nulls_first(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -342,7 +342,7 @@ pub fn order_by_desc_nulls_last(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -352,7 +352,7 @@ pub fn order_by_desc_nulls_last(
 pub fn replace_order_by_desc(query qry: Combined, by ordb: String) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.Desc)]),
+    by: [ordb |> OrderByColumn(read_query.Desc)] |> OrderBy,
     append: False,
   )
 }
@@ -367,7 +367,7 @@ pub fn replace_order_by_desc_nulls_first(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -382,7 +382,7 @@ pub fn replace_order_by_desc_nulls_last(
 ) -> Combined {
   qry
   |> read_query.combined_order_by(
-    by: OrderBy(values: [OrderByColumn(ordb, read_query.DescNullsFirst)]),
+    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: False,
   )
 }
@@ -399,7 +399,7 @@ pub fn order_by(
   let dir = dir |> map_order_by_direction_constructor
   qry
   |> read_query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, dir)]),
+    [ordb |> OrderByColumn(direction: dir)] |> OrderBy,
     True,
   )
 }
@@ -414,7 +414,7 @@ pub fn replace_order_by(
   let dir = dir |> map_order_by_direction_constructor
   qry
   |> read_query.combined_order_by(
-    OrderBy(values: [OrderByColumn(ordb, dir)]),
+    [ordb |> OrderByColumn(direction: dir)] |> OrderBy,
     False,
   )
 }

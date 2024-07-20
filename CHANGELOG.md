@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 - Renamed `caster` argument to `encoder` within module `insert`.
+- Renamed a lot of public function args to be consistent across the library.
 
 ## [0.14.0] - 2024-07-19
 

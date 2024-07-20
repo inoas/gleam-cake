@@ -194,9 +194,9 @@ fn insert_apply(
 
 fn insert_into_table_apply(
   prepared_statement prp_stm: PreparedStatement,
-  table tbl: InsertIntoTable,
+  table_name tbl_nm: InsertIntoTable,
 ) -> PreparedStatement {
-  case tbl {
+  case tbl_nm {
     NoInsertIntoTable -> prp_stm |> prepared_statement.append_sql("INSERT INTO")
     InsertIntoTable(name: tbl_name) ->
       prp_stm |> prepared_statement.append_sql("INSERT INTO " <> tbl_name)
@@ -431,7 +431,7 @@ pub type UpdateSets {
 pub type UpdateSet {
   UpdateParamSet(column: String, param: Param)
   UpdateExpressionSet(columns: List(String), expression: String)
-  UpdateSubQuerySet(columns: List(String), sub_query: ReadQuery)
+  UpdateSubQuerySet(columns: List(String), query: ReadQuery)
 }
 
 fn update_apply(
@@ -454,9 +454,9 @@ fn update_apply(
 
 fn update_table_apply(
   prepared_statement prp_stm: PreparedStatement,
-  table tbl: UpdateTable,
+  table_name tbl_nm: UpdateTable,
 ) -> PreparedStatement {
-  case tbl {
+  case tbl_nm {
     NoUpdateTable -> prp_stm
     UpdateTable(tbl) ->
       prp_stm
@@ -520,7 +520,7 @@ fn update_sets_apply(
           new_prp_stm
           |> apply_columns(cols)
           |> prepared_statement.append_sql(" " <> expr)
-        UpdateSubQuerySet(columns: cols, sub_query: qry) ->
+        UpdateSubQuerySet(columns: cols, query: qry) ->
           new_prp_stm
           |> apply_columns(cols)
           |> prepared_statement.append_sql(" (")
@@ -602,9 +602,9 @@ fn delete_apply(
 
 fn delete_table_apply(
   prepared_statement prp_stm: PreparedStatement,
-  table tbl: DeleteTable,
+  table_name tbl_nm: DeleteTable,
 ) -> PreparedStatement {
-  case tbl {
+  case tbl_nm {
     NoDeleteTable -> prp_stm
     DeleteTable(tbl) ->
       prp_stm
@@ -643,8 +643,8 @@ fn using_apply(
 
           case frm {
             NoFrom -> new_prp_stm
-            FromTable(name: tbl) ->
-              new_prp_stm |> prepared_statement.append_sql(tbl)
+            FromTable(name: tbl_nm) ->
+              new_prp_stm |> prepared_statement.append_sql(tbl_nm)
             FromSubQuery(qry, als) ->
               prp_stm
               |> prepared_statement.append_sql(" (")
