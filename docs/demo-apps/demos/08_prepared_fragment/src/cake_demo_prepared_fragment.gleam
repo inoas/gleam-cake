@@ -26,8 +26,7 @@ pub fn main() {
   demo_data.create_tables_and_insert_rows(conn)
 
   let result =
-    fragment_query()
-    |> postgres.run_read_query(dynamic.dynamic, conn)
+    fragment_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
   io.println("Result: ")
 
