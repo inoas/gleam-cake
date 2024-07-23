@@ -26,7 +26,7 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 
 See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/README.md#available-demos).
 
-### Code examples
+#### Code examples (from the demos)
 
 - [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
 - [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
