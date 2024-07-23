@@ -33,9 +33,9 @@ fn update_postgres_sqlite_query() {
   u.new()
   |> u.table("cats")
   |> u.sets([
-    "age" |> u.set_to_expression("age + 1"),
-    "name" |> u.set_to_param(u.string("Joe")),
-    "is_wild" |> u.set_to_sub_query(swap_is_wild_sub_query()),
+    "age" |> u.set_expression("age + 1"),
+    "name" |> u.set_string("Joe"),
+    "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()),
   ])
   |> u.returning(["name", "age"])
   |> u.to_query
@@ -45,9 +45,9 @@ fn update_maria_query() {
   u.new()
   |> u.table("cats")
   |> u.sets([
-    "age" |> u.set_to_expression("age + 1"),
-    "name" |> u.set_to_param(u.string("Joe")),
-    "is_wild" |> u.set_to_sub_query(swap_is_wild_sub_query()),
+    "age" |> u.set_expression("age + 1"),
+    "name" |> u.set_string("Joe"),
+    "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()),
   ])
   // MariaDB do not support `RETURNING` in `UPDATE` queries:
   // |> u.returning(["name", "age"])
@@ -58,9 +58,9 @@ fn update_mysql_query() {
   u.new()
   |> u.table("cats")
   |> u.sets([
-    "age" |> u.set_to_expression("age + 1"),
-    "name" |> u.set_to_param(u.string("Joe")),
-    // "is_wild" |> u.set_to_sub_query(swap_is_wild_sub_query()), // MySQL fails to execute this query
+    "age" |> u.set_expression("age + 1"),
+    "name" |> u.set_string("Joe"),
+    // "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()), // MySQL fails to execute this query
   ])
   // MySQL do not support `RETURNING` in `UPDATE` queries:
   // |> u.returning(["name", "age"])

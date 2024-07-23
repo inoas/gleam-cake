@@ -14,15 +14,11 @@ import test_support/adapter/sqlite
 // │  Setup                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-fn update_query() {
-  u.new()
-  |> u.sets([
-    "counter"
-    |> u.set_expression("counters.counter + 1"),
-  ])
+fn update() {
+  u.new() |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
 }
 
-fn insert_on_conflict_update_values() {
+fn insert_on_conflict_update_values_query() {
   [
     [i.string("Whiskers"), i.int(1)] |> i.row,
     [i.string("Karl"), i.int(1)] |> i.row,
@@ -32,13 +28,9 @@ fn insert_on_conflict_update_values() {
   |> i.on_columns_conflict_update(
     column: ["name"],
     where: w.col("counters.is_active") |> w.is_true,
-    update: update_query(),
+    update: update(),
   )
   |> i.returning(["name", "counter"])
-}
-
-fn insert_on_conflict_update_values_query() {
-  insert_on_conflict_update_values()
   |> i.to_query
 }
 

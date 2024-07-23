@@ -136,7 +136,7 @@ pub fn set_expression(column col: String, expression exp: String) -> UpdateSet {
 
 /// Sets a column to a sub-query value.
 ///
-pub fn set_to_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
+pub fn set_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
   [col] |> UpdateSubQuerySet(query: qry)
 }
 
@@ -144,7 +144,7 @@ pub fn set_to_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
 ///
 /// NOTICE: the expression must return an equal count of columns.
 ///
-pub fn sets_to_expression(
+pub fn sets_expression(
   columns cols: List(String),
   expression exp: String,
 ) -> UpdateSet {
@@ -155,7 +155,7 @@ pub fn sets_to_expression(
 ///
 /// NOTICE: the sub-query must return an equal count of columns.
 ///
-pub fn sets_to_sub_query(
+pub fn sets_sub_query(
   columns cols: List(String),
   query qry: ReadQuery,
 ) -> UpdateSet {

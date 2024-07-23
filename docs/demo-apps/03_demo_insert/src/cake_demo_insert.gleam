@@ -7,26 +7,21 @@ import gleam/dynamic
 import gleam/io
 import pprint
 
-fn update_query() {
+fn update() {
   u.new() |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
 }
 
 fn insert_query() {
-  let counters = [
+  [
     [i.string("Whiskers"), i.int(1)] |> i.row,
     [i.string("Karl"), i.int(1)] |> i.row,
     [i.string("Clara"), i.int(1)] |> i.row,
   ]
-
-  i.from_values(
-    table_name: "counters",
-    columns: ["name", "counter"],
-    values: counters,
-  )
+  |> i.from_values(table_name: "counters", columns: ["name", "counter"])
   |> i.on_columns_conflict_update(
     column: ["name"],
     where: w.col("counters.is_active") |> w.is_true,
-    update: update_query(),
+    update: update(),
   )
   |> i.returning(["name", "counter"])
   |> i.to_query
