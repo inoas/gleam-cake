@@ -1,4 +1,4 @@
-# Cake demo app: INSERT
+# Cake demo app: INSERT ON CONFLICT UPDATE
 
 This demo of Cake shows how to `INSERT ON CONFLICT UPDATE`.
 
