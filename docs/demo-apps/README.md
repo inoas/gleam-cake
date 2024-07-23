@@ -8,7 +8,7 @@
 - [`DELETE`](./demos/04_delete/README.md)
 - [`UPDATE`](./demos/05_update/README.md)
 - [`INSERT ON CONFLICT UPDATE`](./demos/06_insert_on_conflict_update/README.md)
-- [`JOIN`](./demos/07_join/README.md)
+- [`SELECT` and `JOIN`](./demos/07_select_join/README.md)
 - [fragment with prepared statement](./demos/08_prepared_fragment/README.md)
 
 ## Running local demo apps
