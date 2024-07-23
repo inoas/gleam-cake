@@ -26,7 +26,7 @@ fn insert_on_conflict_update_values_query() {
   ]
   |> i.from_values(table_name: "counters", columns: ["name", "counter"])
   |> i.on_columns_conflict_update(
-    column: ["name"],
+    columns: ["name"],
     where: w.col("counters.is_active") |> w.is_true,
     update: update(),
   )

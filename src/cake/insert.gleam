@@ -298,7 +298,7 @@ pub fn on_constraint_conflict_ignore(
 ///
 pub fn on_columns_conflict_update(
   insert isrt: Insert(a),
-  column cols: List(String),
+  columns cols: List(String),
   where whr: Where,
   update updt: Update(a),
 ) -> Insert(a) {
