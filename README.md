@@ -10,6 +10,9 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 ![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)
 ![test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&event=push)
 
+<br>
+<br>
+
 <p align="center">
   <img src="cake-logo.png" alt="Cake Logo" style="max-height: 33vh; width: auto; height: auto" width="480" height="480"/>
 </p>
