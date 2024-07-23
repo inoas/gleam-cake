@@ -14,7 +14,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 <br>
 
 <p align="center">
-  <img src="cake-logo.png" alt="Cake Logo" style="max-height: 33vh; width: auto; height: auto" width="480" height="480"/>
+  <img src="https://raw.githubusercontent.com/inoas/glychee/main/cake-logo.png" alt="Cake Logo" style="max-height: 33vh; width: auto; height: auto" width="480" height="480"/>
 </p>
 
 <br>
