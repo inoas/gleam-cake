@@ -3,10 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+
+## [1.0.0-rc.0] - 2024-07-23
 
 - `insert.on_columns_conflict_update` change the `column` label to `columns`.
 - Added `UPDATE` demo.
+- Added `INSERT ON CONFLICT UPDATE` demo.
+- Added `SELECT` with `JOIN` demo.
+- Added a demo using `Fragment` and `PreparedStatement`.
+- Added more public utility functions to the `fragment` module.
+- Removed glacier dev-dependency to speed up compilation.
+- Moved demo apps into sub dir.
+- Fixed a few path bugs in docs.
 
 ## [0.15.0] - 2024-07-23
 

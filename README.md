@@ -118,9 +118,6 @@ bin/docker/attached
 # wait a few seconds until everything is ready
 # if you run gleam test too early, it will crash
 gleam test
-# or instead of gleam test, run:
-# gleam test -- --glacier
-# ...for incremental testing
 ```
 
 ### Helper commands
@@ -131,7 +128,6 @@ bin/docker/detached
 bin/docker/down
 
 bin/test
-bin/glacier
 
 bin/birdie/interactive-review
 bin/birdie/accept-all

@@ -14,7 +14,7 @@ SelectQuery(Select(
     Equal,
     WhereFragmentValue(FragmentPrepared(
       "LOWER($)",
-      [StringParam("Clara")],
+      [StringParam("cLaRa")],
     )),
   ),
   NoGroupBy,
