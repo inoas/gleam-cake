@@ -2,10 +2,11 @@
 
 ## Available demos
 
-- [`SELECT` and decode into Cats](demo-apps/demos/01_demo_select_and_decode/README.md)
-- [`UNION` and decode into Beings](demo-apps/demos/02_demo_union_and_decode/README.md)
-- [`INSERT`](demo-apps/demos/03_demo_insert/README.md)
-- [`DELETE`](demo-apps/demos/04_demo_delete/README.md)
+- [`SELECT` and decode into Cats](./demos/01_demo_select_and_decode/README.md)
+- [`UNION` and decode into Beings](./demos/02_demo_union_and_decode/README.md)
+- [`INSERT`](./demos/03_demo_insert/README.md)
+- [`DELETE`](./demos/04_demo_delete/README.md)
+- [`UPDATE`](./demos/05_demo_update/README.md)
 
 ## Running local demo apps
 
