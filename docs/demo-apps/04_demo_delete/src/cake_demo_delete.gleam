@@ -34,6 +34,6 @@ pub fn main() {
 
   io.println("Results: ")
 
-  #("inserted:", insert_result, "deleted:", delete_result)
+  #("Inserted:", insert_result, "Deleted:", delete_result)
   |> pprint.debug
 }
