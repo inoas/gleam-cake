@@ -1,6 +1,6 @@
 # Cake demo app: INSERT
 
-This demo of Cake shows how to `INSERT`.
+This demo of Cake shows how to `INSERT ON CONFLICT UPDATE`.
 
 To start postgres via docker compose, see
 [docs/demo-apps/README.md](../../README.md#Installing-prerequisites), then:
@@ -12,7 +12,7 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_demo_update/src/).
+See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/08_prepared_fragment/src/).
 
 ---
 

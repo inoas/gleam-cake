@@ -7,6 +7,9 @@
 - [`INSERT`](./demos/03_demo_insert/README.md)
 - [`DELETE`](./demos/04_demo_delete/README.md)
 - [`UPDATE`](./demos/05_demo_update/README.md)
+- [`INSERT ON CONFLICT UPDATE`](./demos/06_cake_demo_insert_on_conflict_update/README.md)
+- [`JOIN`](./demos/07_cake_demo_join/README.md)
+- [`prepared fragment`](./demos/08_cake_demo_prepared_fragment/README.md)
 
 ## Running local demo apps
 

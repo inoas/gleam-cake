@@ -1,4 +1,3 @@
-import cake/delete as d
 import cake/insert as i
 import cake/update as u
 import cake/where as w

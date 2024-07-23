@@ -61,7 +61,8 @@ fn insert_owners_rows() {
   "INSERT INTO owners (id, name, last_name, age) VALUES
     (1, 'Alice', 'Wibble', 5),
     (2, 'Bob', 'Wobble', 8),
-    (3, 'Charlie', 'Wabble', 13)
+    (3, 'Charlie', 'Wabble', 13),
+		(4, 'Robot', 'User', 999)
   ;"
 }
 

@@ -1,6 +1,5 @@
 import birdie
 import cake/fragment as f
-import cake/param as p
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}
@@ -24,7 +23,7 @@ fn fragment_query() {
     w.fragment_value(f.literal("LOWER(cats.name)"))
     |> w.eq(
       w.fragment_value(
-        f.prepared("LOWER(" <> f.placeholder <> ")", [p.string("Clara")]),
+        f.prepared("LOWER(" <> f.placeholder <> ")", [f.string("cLaRa")]),
       ),
     ),
   )

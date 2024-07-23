@@ -20,41 +20,34 @@ gleam add cake
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
 
-## Code examples
+## Usage
+
+### Demos
+
+See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/README.md#available-demos).
+
+### Code examples
+
+- [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
+- [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
+- [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_demo_insert/src/cake_insert.gleam)
+- [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/cake_delete.gleam)
+- [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_demo_update/src/cake_update.gleam)
+- [cake\_demo\_insert\_on\_conflict\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
+- [cake\_demo\_select\_join.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/07_select_join/src/cake_demo_select_join.gleam)
+- [cake\_demo\_prepared\_fragment.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
+<!--
+- transactions -- TODO v2
+- create view -- TODO v3
+-->
+
+### Unit tests as examples
 
 See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test), especially the _Setup_ sections in each test module.
 
 You may also compare the tests with the [snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots) results.
 
-### Demo apps
-
-See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/README.md#available-demos).
-
-## Usage
-
-- SELECT and decoding -
-  [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/01_demo_select_and_decode/src/cake_demo_select_and_decode.gleam)
-- UNION and decoding -
-  [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/02_demo_union_and_decode/src/cake_demo_union_and_decode.gleam)
-- INSERT -
-  [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_demo_insert/src/cake_demo_insert.gleam)
-- DELETE -
-  [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/cake_demo_delete.gleam)
-- UPDATE -
-  [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_demo_update/src/cake_demo_update.gleam)
-- INSERT -
-  [cake\_demo\_insert\_on\_conflict\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/06_demo_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
-- ... more to come soon!
-<!--
-- INNER JOIN -- TODO v1
-- LEFT JOIN -- TODO v1
-- literal fragment -- TODO v1
-- prepared fragment -- TODO v1
-- transactions -- TODO v2
-- create view -- TODO v3
--->
-
-### Tips
+### Intended aliases
 
 Use the following aliases to make the library more ergonomic:
 

@@ -8,7 +8,9 @@
 ////
 
 import cake/internal/read_query
-import cake/param.{type Param}
+import cake/param.{
+  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/int
 import gleam/io
 import gleam/list
@@ -20,6 +22,10 @@ import gleam/order
 
 pub type Fragment =
   read_query.Fragment
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  fragment                                                                 │
+// └───────────────────────────────────────────────────────────────────────────┘
 
 /// This placeholder must be used when building fragments with parameters.
 ///
@@ -101,4 +107,50 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 ///
 pub fn literal(string str: String) -> Fragment {
   str |> read_query.FragmentLiteral
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  params                                                                   │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// Create a new `Param` with a `Bool` value.
+///
+pub fn bool(value vl: Bool) -> Param {
+  vl |> BoolParam
+}
+
+/// Create a new `Param` with a `True` value.
+///
+pub fn true() -> Param {
+  True |> BoolParam
+}
+
+/// Create a new `Param` with a `True` value.
+///
+pub fn false() -> Param {
+  False |> BoolParam
+}
+
+/// Create a new `Param` with a `Float` value.
+///
+pub fn float(value vl: Float) -> Param {
+  vl |> FloatParam
+}
+
+/// Create a new `Param` with an `Int` value.
+///
+pub fn int(value vl: Int) -> Param {
+  vl |> IntParam
+}
+
+/// Create a new `Param` with a `String` value.
+///
+pub fn string(value vl: String) -> Param {
+  vl |> StringParam
+}
+
+/// Create a new `Param` with an SQL `NULL` value.
+///
+pub fn null() -> Param {
+  NullParam
 }

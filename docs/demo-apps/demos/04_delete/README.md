@@ -12,7 +12,7 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/).
+See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_delete/src/).
 
 ---
 
