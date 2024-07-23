@@ -1,8 +1,8 @@
 import being
 import cake/combined as c
 import cake/select as s
-import demo_helper/demo_data
-import demo_helper/postgres
+import helper/demo_data
+import helper/postgres
 import gleam/dynamic
 import gleam/io
 import gleam/list

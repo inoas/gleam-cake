@@ -18,13 +18,12 @@ import test_support/adapter/sqlite
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn swap_is_wild_sub_query() {
-  let swap_bool_exp_sql =
+  let swap_bool_sql_exp =
     "(CASE WHEN is_Wild IS true THEN false ELSE true END) AS swapped_is_wild"
-    |> string.trim
 
   s.new()
   |> s.from_table("cats")
-  |> s.select(s.fragment(f.literal(swap_bool_exp_sql)))
+  |> s.select(s.fragment(f.literal(swap_bool_sql_exp)))
   |> s.limit(1)
   |> s.to_query
 }

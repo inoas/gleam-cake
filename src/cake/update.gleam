@@ -104,6 +104,18 @@ pub fn set_bool(column col: String, value v: Bool) -> UpdateSet {
   v |> BoolParam |> UpdateParamSet(column: col)
 }
 
+/// Sets a column to a `True` `UpdateParamSet`.
+///
+pub fn set_true(column col: String) -> UpdateSet {
+  True |> BoolParam |> UpdateParamSet(column: col)
+}
+
+/// Sets a column to a `False` `UpdateParamSet`.
+///
+pub fn set_false(column col: String) -> UpdateSet {
+  False |> BoolParam |> UpdateParamSet(column: col)
+}
+
 /// Sets a column to a `Float` `UpdateParamSet`.
 ///
 pub fn set_float(column col: String, value v: Float) -> UpdateSet {

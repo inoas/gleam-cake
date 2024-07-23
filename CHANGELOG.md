@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 - `insert.on_columns_conflict_update` change the `column` label to `columns`.
+- Added `UPDATE` demo.
 
 ## [0.15.0] - 2024-07-23
 

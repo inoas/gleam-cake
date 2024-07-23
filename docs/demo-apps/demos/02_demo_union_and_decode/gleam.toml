@@ -3,7 +3,7 @@ description = "An demo of using Gleam with Cake and Postgres to run UNION querie
 
 [dependencies]
 cake = { path = "../../../../" }
-demo_helper = { path = "../../helper" }
+helper = { path = "../../helper" }
 gleam_pgo = ">= 0.13.0 and < 2.0.0"
 gleam_stdlib = ">= 0.39.0 and < 2.0.0"
 pprint = ">= 1.0.3 and < 2.0.0"

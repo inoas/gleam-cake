@@ -2,11 +2,11 @@ import cake/join as j
 import cake/select as s
 import cake/where as w
 import cat
-import demo_helper/demo_data
-import demo_helper/postgres
 import gleam/dynamic
 import gleam/io
 import gleam/list
+import helper/demo_data
+import helper/postgres
 import pprint
 
 fn select_query() {

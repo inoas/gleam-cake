@@ -1,8 +1,8 @@
 import cake/insert as i
 import cake/update as u
 import cake/where as w
-import demo_helper/demo_data
-import demo_helper/postgres
+import helper/demo_data
+import helper/postgres
 import gleam/dynamic
 import gleam/io
 import pprint

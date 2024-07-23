@@ -40,9 +40,10 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
   [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_demo_insert/src/cake_demo_insert.gleam)
 - DELETE -
   [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/cake_demo_delete.gleam)
+- UPDATE -
+  [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_demo_update/src/cake_demo_update.gleam)
 - ... more to come soon!
 <!--
-- UPDATE -- TODO v1
 - INSERT ON CONFLICT UPDATE -- TODO v1
 - INNER JOIN -- TODO v1
 - LEFT JOIN -- TODO v1

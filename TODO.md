@@ -23,12 +23,11 @@
 
 - This could happen on an layer on top where a schema is defined, which would allow auto setting the table but also verifying if certain referenced columns exist. Aliases will make this different though.
 
-
 ## Add utility functions?
 
 TODO v3:
 
-```
+```gleam
 pub fn table_exists(connection conn: Connection, table_name tbl_nm: String) -> Boolean {
   todo
 }
@@ -51,6 +50,7 @@ pub fn views_exists(connection conn: Connection, view_names vw_nms: List(String)
 Deps to consider:
 
 - act
+- aham
 - aragorn2
 - based
 - based_pg
@@ -58,8 +58,8 @@ Deps to consider:
 - bigben
 - blah
 - carpenter
-- cleam
 - chrobot browser automation and scaoping
+- cleam
 - comet = ">= 0.2.2 and < 2.0.0" # logging
 - commonmark
 - dot_env
@@ -93,10 +93,12 @@ Deps to consider:
 - mysql-otp maybe, but needs a gleam wrapper first
 - nibble
 - non_empty_list
+- outcome
 - parallel_map
 - phony
 - prequel
 - prng
+- qs
 - ranged_int
 - ranger
 - rank
