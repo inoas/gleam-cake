@@ -1,11 +1,11 @@
 import being
 import cake/combined as c
 import cake/select as s
-import helper/demo_data
-import helper/postgres
 import gleam/dynamic
 import gleam/io
 import gleam/list
+import helper/demo_data
+import helper/postgres
 import pprint
 
 fn union_query() {
@@ -28,7 +28,6 @@ pub fn main() {
   use conn <- postgres.with_connection
   demo_data.create_tables_and_insert_rows(conn)
 
-  // NOTICE: This will crash, if the SQL query fails.
   let assert Ok(beings) =
     union_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 

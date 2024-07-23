@@ -31,7 +31,6 @@ pub fn main() {
   use conn <- postgres.with_connection
   demo_data.create_tables_and_insert_rows(conn)
 
-  // NOTICE: This will crash, if the SQL query fails.
   let result =
     insert_on_conflict_update_values_query()
     |> postgres.run_write_query(dynamic.dynamic, conn)
