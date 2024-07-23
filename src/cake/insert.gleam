@@ -9,9 +9,7 @@ import cake/internal/write_query.{
   InsertSourceRecords, InsertSourceRows, NoInsertColumns, NoInsertIntoTable,
   NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
-import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
-}
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -72,39 +70,34 @@ pub fn row(values vls: List(InsertValue)) -> InsertRow {
   vls |> InsertRow
 }
 
-/// Create an `InsertValue` from a `Param`.
-pub fn param(param prm: Param) -> InsertValue {
-  prm |> InsertParam
-}
-
 /// Create an `InsertValue` from a column `String` and a `Bool` value.
 ///
-pub fn bool(value vl: Bool) -> Param {
-  vl |> BoolParam
+pub fn bool(value vl: Bool) -> InsertValue {
+  vl |> BoolParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `Float` value.
 ///
-pub fn float(value vl: Float) -> Param {
-  vl |> FloatParam
+pub fn float(value vl: Float) -> InsertValue {
+  vl |> FloatParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and an `Int` value.
 ///
-pub fn int(value vl: Int) -> Param {
-  vl |> IntParam
+pub fn int(value vl: Int) -> InsertValue {
+  vl |> IntParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `String` value.
 ///
-pub fn string(value vl: String) -> Param {
-  vl |> StringParam
+pub fn string(value vl: String) -> InsertValue {
+  vl |> StringParam |> InsertParam
 }
 
 /// Create a NULL `InsertValue`.
 ///
-pub fn null() -> Param {
-  NullParam
+pub fn null() -> InsertValue {
+  NullParam |> InsertParam
 }
 
 // ▒▒▒ Constructors ▒▒▒

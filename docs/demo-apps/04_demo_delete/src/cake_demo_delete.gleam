@@ -8,7 +8,7 @@ import gleam/io
 import pprint
 
 fn insert_query() {
-  [i.row([i.string("Deletee") |> i.param, i.int(1) |> i.param])]
+  [i.row([i.string("Deletee"), i.int(1)])]
   |> i.from_values(table_name: "cats", columns: ["name", "age"], values: _)
   |> i.returning(["name", "age"])
   |> i.to_query

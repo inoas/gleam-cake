@@ -10,7 +10,7 @@ import cake/internal/write_query.{
   UpdateExpressionSet, UpdateParamSet, UpdateQuery, UpdateSets,
   UpdateSubQuerySet, UpdateTable,
 }
-import cake/param.{type Param, BoolParam, FloatParam, IntParam, StringParam}
+import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/list
 import gleam/string
 
@@ -64,32 +64,6 @@ pub fn to_query(update updt: Update(a)) -> WriteQuery(a) {
   updt |> UpdateQuery
 }
 
-// ▒▒▒ Rows / Values / Params ▒▒▒
-
-/// Creates a `Param` from a `Bool`.
-///
-pub fn bool(value vl: Bool) -> Param {
-  vl |> BoolParam
-}
-
-/// Creates a `Param` from a `Float`.
-///
-pub fn float(value vl: Float) -> Param {
-  vl |> FloatParam
-}
-
-/// Creates a `Param` from an `Int`.
-///
-pub fn int(value vl: Int) -> Param {
-  vl |> IntParam
-}
-
-/// Creates a `Param` from a `String`.
-///
-pub fn string(value vl: String) -> Param {
-  vl |> StringParam
-}
-
 // ▒▒▒ Constructor ▒▒▒
 
 /// Creates an empty `Update` query.
@@ -124,18 +98,39 @@ pub fn get_table(update updt: Update(a)) -> UpdateTable {
 
 // ▒▒▒ Set ▒▒▒
 
-/// Sets a column to a param value.
+/// Sets a column to a `Bool` `UpdateParamSet`.
 ///
-pub fn set_to_param(column col: String, param prm: Param) -> UpdateSet {
-  col |> UpdateParamSet(param: prm)
+pub fn set_bool(column col: String, value v: Bool) -> UpdateSet {
+  v |> BoolParam |> UpdateParamSet(column: col)
+}
+
+/// Sets a column to a `Float` `UpdateParamSet`.
+///
+pub fn set_float(column col: String, value v: Float) -> UpdateSet {
+  v |> FloatParam |> UpdateParamSet(column: col)
+}
+
+/// Sets a column to a `Int` `UpdateParamSet`.
+///
+pub fn set_int(column col: String, value v: Int) -> UpdateSet {
+  v |> IntParam |> UpdateParamSet(column: col)
+}
+
+/// Sets a column to a string `UpdateParamSet`.
+///
+pub fn set_string(column col: String, value v: String) -> UpdateSet {
+  v |> StringParam |> UpdateParamSet(column: col)
+}
+
+/// Sets a column to an SQL `NULL` `UpdateParamSet`.
+///
+pub fn set_null(column col: String) -> UpdateSet {
+  NullParam |> UpdateParamSet(column: col)
 }
 
 /// Sets a column to an expression value.
 ///
-pub fn set_to_expression(
-  column col: String,
-  expression exp: String,
-) -> UpdateSet {
+pub fn set_expression(column col: String, expression exp: String) -> UpdateSet {
   [col] |> UpdateExpressionSet(expression: exp)
 }
 
@@ -145,7 +140,38 @@ pub fn set_to_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
   [col] |> UpdateSubQuerySet(query: qry)
 }
 
-/// Sets or appends one columne set in an `Update` query.
+/// Sets many columns to an expression value.
+///
+/// NOTICE: the expression must return an equal count of columns.
+///
+pub fn sets_to_expression(
+  columns cols: List(String),
+  expression exp: String,
+) -> UpdateSet {
+  cols |> UpdateExpressionSet(expression: exp)
+}
+
+/// Sets many columns to a sub-query value.
+///
+/// NOTICE: the sub-query must return an equal count of columns.
+///
+pub fn sets_to_sub_query(
+  columns cols: List(String),
+  query qry: ReadQuery,
+) -> UpdateSet {
+  cols |> UpdateSubQuerySet(query: qry)
+}
+
+/// Get the `SET`s of the `Update` query.
+///
+pub fn get_set(update updt: Update(a)) -> List(UpdateSet) {
+  case updt.set {
+    NoUpdateSets -> []
+    UpdateSets(sets) -> sets
+  }
+}
+
+/// Sets or appends one column set in an `Update` query.
 ///
 pub fn set(update updt: Update(a), set st: UpdateSet) -> Update(a) {
   case updt.set {
@@ -178,37 +204,6 @@ pub fn sets_replace(
   sets sts: List(UpdateSet),
 ) -> Update(a) {
   Update(..updt, set: sts |> UpdateSets)
-}
-
-/// Sets many columns to an expression value.
-///
-/// NOTICE: the expression must return an equal count of columns.
-///
-pub fn sets_to_expression(
-  columns cols: List(String),
-  expression exp: String,
-) -> UpdateSet {
-  cols |> UpdateExpressionSet(expression: exp)
-}
-
-/// Sets many columns to a sub-query value.
-///
-/// NOTICE: the sub-query must return an equal count of columns.
-///
-pub fn sets_to_sub_query(
-  columns cols: List(String),
-  query qry: ReadQuery,
-) -> UpdateSet {
-  cols |> UpdateSubQuerySet(query: qry)
-}
-
-/// Get the sets of the `Update` query.
-///
-pub fn get_set(update updt: Update(a)) -> List(UpdateSet) {
-  case updt.set {
-    NoUpdateSets -> []
-    UpdateSets(sets) -> sets
-  }
 }
 
 // ▒▒▒ FROM ▒▒▒

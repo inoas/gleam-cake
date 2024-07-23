@@ -122,7 +122,7 @@ pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 ///
 /// NOTICE: Not supported by SQLite.
 ///
-pub fn except_all_many(
+pub fn excepts_all(
   query_a qry_a: Select,
   query_b qry_b: Select,
   more_queries mr_qrys: List(Select),

@@ -16,14 +16,14 @@ import test_support/adapter/sqlite
 
 fn update_query() {
   u.new()
-  |> u.sets(["counter" |> u.set_to_expression("counters.counter + 1")])
+  |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
 }
 
 fn insert_on_conflict_update_values() {
   let counters = [
-    i.row([i.string("Whiskers") |> i.param, i.int(1) |> i.param]),
-    i.row([i.string("Karl") |> i.param, i.int(1) |> i.param]),
-    i.row([i.string("Clara") |> i.param, i.int(1) |> i.param]),
+    i.row([i.string("Whiskers"), i.int(1)]),
+    i.row([i.string("Karl"), i.int(1)]),
+    i.row([i.string("Clara"), i.int(1)]),
   ]
 
   i.from_values(

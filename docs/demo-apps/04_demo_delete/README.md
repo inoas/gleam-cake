@@ -6,6 +6,7 @@ To start postgres via docker compose, see
 [docs/demo-apps.md](../../demo-apps.md#Installing-prerequisites), then:
 
 ```shell
+gleam clean
 gleam run
 ```
 

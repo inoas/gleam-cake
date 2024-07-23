@@ -19,11 +19,7 @@ type Cat {
 }
 
 fn cat_encoder(cat: Cat) {
-  [
-    i.string(cat.name) |> i.param,
-    i.float(cat.rating) |> i.param,
-    i.int(cat.age) |> i.param,
-  ]
+  [i.string(cat.name), i.float(cat.rating), i.int(cat.age)]
   |> i.row
 }
 

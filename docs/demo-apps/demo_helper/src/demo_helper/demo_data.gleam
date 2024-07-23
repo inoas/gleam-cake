@@ -32,6 +32,15 @@ pub fn create_tables_and_insert_rows(conn) {
   insert_dogs_rows()
   |> run_and_debug("insert_dogs_rows", conn)
 
+  drop_counters_table_if_exists()
+  |> run_and_debug("drop_counters_table_if_exists", conn)
+
+  create_counters_table()
+  |> run_and_debug("create_counters_table", conn)
+
+  insert_counters_rows()
+  |> run_and_debug("insert_counters_rows", conn)
+
   Nil
 }
 
@@ -100,6 +109,29 @@ fn insert_dogs_rows() {
     ('Tinny', 3, FALSE, 3),
     ('Karl', 4, TRUE, NULL),
     ('Clara', 5, TRUE, NULL)
+  ;"
+}
+
+pub fn drop_counters_table_if_exists() {
+  "DROP TABLE IF EXISTS counters;"
+}
+
+pub fn create_counters_table() {
+  "CREATE TABLE counters (
+    name TEXT,
+    counter INT,
+    is_active BOOLEAN,
+    UNIQUE (name)
+  );"
+}
+
+pub fn insert_counters_rows() {
+  "INSERT INTO counters (name, counter, is_active) VALUES
+    ('Fubi', 8999, true),
+    ('Diffy', 9000, false),
+    ('Tinny', 9001, true),
+    ('Karl', 9002, false),
+    ('Clara', 9003, true)
   ;"
 }
 
