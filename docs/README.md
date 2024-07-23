@@ -2,4 +2,4 @@
 
 ## Demo apps
 
-See [docs/demo-apps.md](./demo-apps.md).
+See [docs/demo-apps/README.md](./demo-apps/README.md).
