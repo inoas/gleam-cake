@@ -23,6 +23,8 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
   <i>Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL.</i>
 </p>
 
+<br>
+
 ## Installation
 
 ```shell
