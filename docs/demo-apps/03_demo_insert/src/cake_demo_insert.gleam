@@ -8,8 +8,7 @@ import gleam/io
 import pprint
 
 fn update_query() {
-  u.new()
-  |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
+  u.new() |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
 }
 
 fn insert_query() {
