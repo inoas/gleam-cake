@@ -110,7 +110,7 @@ This is an SQL query building library, thus it is not concerned about executing 
 - No automagic optimization: This library is not here to replace SQL knowledge,
   but to allow crafting and combining SQL queries in a flexible and type safe
   way. It might however work as a gateway to obtain SQL knowlege because
-  the typed buidler functions help to some degree in understanding how SQL
+  the typed builder functions help to some degree in understanding how SQL
   queries can be crafted.
 
 ### Tested targets
