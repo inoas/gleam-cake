@@ -1,6 +1,6 @@
-# Cake demo app: INSERT
+# Cake demo app: DELETE
 
-This demo of Cake shows how to `INSERT`.
+This demo of Cake shows how to `DELETE`.
 
 To start postgres via docker compose, see
 [docs/demo-apps/README.md](../../README.md#demo-apps.md#Installing-prerequisites), then:
@@ -12,7 +12,7 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_demo_insert/src/).
+See the [src directory](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/).
 
 ---
 
