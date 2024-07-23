@@ -30,9 +30,9 @@ See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/doc
 
 - [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
 - [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
-- [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_demo_insert/src/cake_demo_insert.gleam)
-- [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_demo_delete/src/cake_demo_delete.gleam)
-- [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_demo_update/src/cake_demo_update.gleam)
+- [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/03_insert/src/cake_demo_insert.gleam)
+- [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/04_delete/src/cake_demo_delete.gleam)
+- [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/05_update/src/cake_demo_update.gleam)
 - [cake\_demo\_insert\_on\_conflict\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
 - [cake\_demo\_select\_join.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/07_select_join/src/cake_demo_select_join.gleam)
 - [cake\_demo\_prepared\_fragment.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/demos/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
