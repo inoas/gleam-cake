@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.15.0] - 2024-07-23
+
+In the wake of making this library less verbose and more consistent be aware
+about a few slight breaking changes around mostly inserts, updates and deletes.
+
 - Renamed `caster` argument to `encoder` within module `insert`.
 - Renamed a lot of public function args to be consistent across the library.
 - Added `INSERT` demo.
