@@ -1,6 +1,6 @@
-# Cake demo app: INSERT
+# Cake demo app: Fragment with Prepared Statement
 
-This demo of Cake shows how to `INSERT ON CONFLICT UPDATE`.
+This demo of Cake shows how to run a fragment with a prepared statement.
 
 To start postgres via docker compose, see
 [docs/demo-apps/README.md](../../README.md#Installing-prerequisites), then:
