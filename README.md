@@ -17,8 +17,10 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
   <img src="cake-logo.png" alt="Cake Logo" style="max-height: 33vh; width: auto; height: auto" width="480" height="480"/>
 </p>
 
+<br>
+
 <p align="center">
-	Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL.
+  _Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL._
 </p>
 
 ## Installation
