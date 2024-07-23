@@ -1,8 +1,9 @@
-name = "demo_helper"
+name = "helper"
+description = "A demo helper for Cake"
 version = "1.0.0"
 
 [dependencies]
-cake = {path = "../../../"}
-gleam_pgo = ">= 0.12.0 and < 1.0.0"
+cake = { path = "../../../../" }
+gleam_pgo = ">= 0.13.0 and < 2.0.0"
 gleam_stdlib = ">= 0.39.0 and < 2.0.0"
 pprint = ">= 1.0.3 and < 2.0.0"
