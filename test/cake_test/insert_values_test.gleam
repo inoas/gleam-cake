@@ -15,24 +15,8 @@ import test_support/adapter/sqlite
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn insert_values() {
-  let cat =
-    [
-      i.param(param: "Whiskers" |> i.string),
-      i.param(param: 5.0 |> i.float),
-      i.param(param: 5 |> i.int),
-      // i.param(param: i.null()),
-    // i.param(param: False |> i.bool),
-    ]
-    |> i.row
-
-  i.from_values(
-    table_name: "cats",
-    columns: [
-      "name", "rating", "age",
-      // "owner_id", "is_wild"
-    ],
-    values: [cat],
-  )
+  [[i.string("Whiskers"), i.float(3.14), i.int(42)] |> i.row]
+  |> i.from_values(table_name: "cats", columns: ["name", "rating", "age"])
   |> i.returning(["name"])
 }
 

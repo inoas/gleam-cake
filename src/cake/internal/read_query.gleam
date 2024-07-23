@@ -214,7 +214,6 @@ pub fn combined_query_new(
   qrys
   |> Combined(
     kind: knd,
-    queries: _,
     limit: NoLimit,
     offset: NoOffset,
     order_by: NoOrderBy,

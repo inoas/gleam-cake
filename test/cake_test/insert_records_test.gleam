@@ -19,20 +19,17 @@ type Cat {
 }
 
 fn cat_encoder(cat: Cat) {
-  [i.string(cat.name), i.float(cat.rating), i.int(cat.age)]
-  |> i.row
+  [cat.name |> i.string, cat.rating |> i.float, cat.age |> i.int] |> i.row
 }
 
 fn insert_records() {
-  let cats = [
+  [
     Cat(name: "Whiskers", age: 3, is_wild: False, rating: 5.0),
     Cat(name: "Mittens", age: 5, is_wild: True, rating: 4.5),
   ]
-
-  i.from_records(
+  |> i.from_records(
     table_name: "cats",
     columns: ["name", "rating", "age"],
-    records: cats,
     encoder: cat_encoder,
   )
   |> i.returning(["name"])

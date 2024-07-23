@@ -16,21 +16,19 @@ import test_support/adapter/sqlite
 
 fn update_query() {
   u.new()
-  |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])
+  |> u.sets([
+    "counter"
+    |> u.set_expression("counters.counter + 1"),
+  ])
 }
 
 fn insert_on_conflict_update_values() {
-  let counters = [
+  [
     i.row([i.string("Whiskers"), i.int(1)]),
     i.row([i.string("Karl"), i.int(1)]),
     i.row([i.string("Clara"), i.int(1)]),
   ]
-
-  i.from_values(
-    table_name: "counters",
-    columns: ["name", "counter"],
-    values: counters,
-  )
+  |> i.from_values(table_name: "counters", columns: ["name", "counter"])
   |> i.on_columns_conflict_update(
     column: ["name"],
     where: w.col("counters.is_active") |> w.is_true,
