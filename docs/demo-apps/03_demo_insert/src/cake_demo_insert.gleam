@@ -14,9 +14,9 @@ fn update_query() {
 
 fn insert_query() {
   let counters = [
-    i.row([i.string("Whiskers"), i.int(1)]),
-    i.row([i.string("Karl"), i.int(1)]),
-    i.row([i.string("Clara"), i.int(1)]),
+    [i.string("Whiskers"), i.int(1)] |> i.row,
+    [i.string("Karl"), i.int(1)] |> i.row,
+    [i.string("Clara"), i.int(1)] |> i.row,
   ]
 
   i.from_values(

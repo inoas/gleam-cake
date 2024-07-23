@@ -24,9 +24,9 @@ fn update_query() {
 
 fn insert_on_conflict_update_values() {
   [
-    i.row([i.string("Whiskers"), i.int(1)]),
-    i.row([i.string("Karl"), i.int(1)]),
-    i.row([i.string("Clara"), i.int(1)]),
+    [i.string("Whiskers"), i.int(1)] |> i.row,
+    [i.string("Karl"), i.int(1)] |> i.row,
+    [i.string("Clara"), i.int(1)] |> i.row,
   ]
   |> i.from_values(table_name: "counters", columns: ["name", "counter"])
   |> i.on_columns_conflict_update(
