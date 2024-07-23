@@ -1,7 +1,6 @@
-# Cake demo app: SELECT and decode
+# Cake demo app: SELECT with JOIN
 
-This demo of Cake shows how to `SELECT` and decode returning rows into
-Gleam records.
+This demo of Cake shows how to `SELECT` with a `JOIN`.
 
 To start postgres via docker compose, see
 [docs/demo-apps/README.md](../../README.md#Installing-prerequisites), then:
