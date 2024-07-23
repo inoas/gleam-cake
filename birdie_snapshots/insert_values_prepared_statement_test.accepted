@@ -10,8 +10,8 @@ test_name: insert_values_prepared_statement_test
     "INSERT INTO cats (name, rating, age) VALUES ($1, $2, $3) RETURNING name",
     [
       StringParam("Whiskers"),
-      FloatParam(5.0),
-      IntParam(5),
+      FloatParam(3.14),
+      IntParam(42),
     ],
     3,
     Postgres,
@@ -21,8 +21,8 @@ test_name: insert_values_prepared_statement_test
     "INSERT INTO cats (name, rating, age) VALUES (?1, ?2, ?3) RETURNING name",
     [
       StringParam("Whiskers"),
-      FloatParam(5.0),
-      IntParam(5),
+      FloatParam(3.14),
+      IntParam(42),
     ],
     3,
     Sqlite,
@@ -32,8 +32,8 @@ test_name: insert_values_prepared_statement_test
     "INSERT INTO cats (name, rating, age) VALUES (?, ?, ?)",
     [
       StringParam("Whiskers"),
-      FloatParam(5.0),
-      IntParam(5),
+      FloatParam(3.14),
+      IntParam(42),
     ],
     3,
     Maria,
@@ -43,8 +43,8 @@ test_name: insert_values_prepared_statement_test
     "INSERT INTO cats (name, rating, age) VALUES (?, ?, ?)",
     [
       StringParam("Whiskers"),
-      FloatParam(5.0),
-      IntParam(5),
+      FloatParam(3.14),
+      IntParam(42),
     ],
     3,
     Mysql,

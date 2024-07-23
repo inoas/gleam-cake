@@ -16,8 +16,8 @@ test_name: insert_values_test
     InsertSourceRows([
       InsertRow([
         InsertParam(StringParam("Whiskers")),
-        InsertParam(FloatParam(5.0)),
-        InsertParam(IntParam(5)),
+        InsertParam(FloatParam(3.14)),
+        InsertParam(IntParam(42)),
       ]),
     ]),
     InsertConflictError,
@@ -36,8 +36,8 @@ test_name: insert_values_test
     InsertSourceRows([
       InsertRow([
         InsertParam(StringParam("Whiskers")),
-        InsertParam(FloatParam(5.0)),
-        InsertParam(IntParam(5)),
+        InsertParam(FloatParam(3.14)),
+        InsertParam(IntParam(42)),
       ]),
     ]),
     InsertConflictError,
@@ -56,8 +56,8 @@ test_name: insert_values_test
     InsertSourceRows([
       InsertRow([
         InsertParam(StringParam("Whiskers")),
-        InsertParam(FloatParam(5.0)),
-        InsertParam(IntParam(5)),
+        InsertParam(FloatParam(3.14)),
+        InsertParam(IntParam(42)),
       ]),
     ]),
     InsertConflictError,
@@ -76,8 +76,8 @@ test_name: insert_values_test
     InsertSourceRows([
       InsertRow([
         InsertParam(StringParam("Whiskers")),
-        InsertParam(FloatParam(5.0)),
-        InsertParam(IntParam(5)),
+        InsertParam(FloatParam(3.14)),
+        InsertParam(IntParam(42)),
       ]),
     ]),
     InsertConflictError,
