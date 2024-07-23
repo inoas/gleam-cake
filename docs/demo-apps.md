@@ -50,6 +50,7 @@ gleam run
 - [`SELECT` and decode into Cats](demo-apps/01_demo_select_and_decode/README.md)
 - [`UNION` and decode into Beings](demo-apps/02_demo_union_and_decode/README.md)
 - [`INSERT`](demo-apps/03_demo_insert/README.md)
+- [`DELETE`](demo-apps/04_demo_delete/README.md)
 
 ---
 

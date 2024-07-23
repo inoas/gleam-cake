@@ -38,15 +38,18 @@ See [docs/demo-apps.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-
   [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/02_demo_union_and_decode/src/cake_demo_union_and_decode.gleam)
 - INSERT -
   [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/03_demo_insert/src/cake_demo_insert.gleam)
+- DELETE -
+  [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/04_demo_delete/src/cake_demo_delete.gleam)
 - ... more to come soon!
 <!--
 - UPDATE -- TODO v1
 - INSERT ON CONFLICT UPDATE -- TODO v1
-- DELETE -- TODO v1
 - INNER JOIN -- TODO v1
 - LEFT JOIN -- TODO v1
 - literal fragment -- TODO v1
 - prepared fragment -- TODO v1
+- transactions -- TODO v2
+- create view -- TODO v3
 -->
 
 ### Tips
