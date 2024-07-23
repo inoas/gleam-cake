@@ -53,7 +53,7 @@ Open a new terminal and run:
 
 ```shell
 cd docs/demo-apps/demos
-cd 01_demo_select_and_decode # ...or any other demo app!
+cd 01_select_and_decode # ...or any other demo app!
 gleam clean
 gleam run
 ```
@@ -73,8 +73,8 @@ the _Gleam_ LSP can pick up that demo projects's `gleam.toml` file.
 For example if you have `Zed` or `Visual Studio Code` installed you may run one
 of these form the `gleam-cake` directory cloned above:
 
-- `code docs/demo-apps/demos/01_demo_select_and_decode`
-- `zed docs/demo-apps/demos/01_demo_select_and_decode`
+- `code docs/demo-apps/demos/01_select_and_decode`
+- `zed docs/demo-apps/demos/01_select_and_decode`
 -->
 
 <!--
