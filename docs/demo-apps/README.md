@@ -2,14 +2,14 @@
 
 ## Available demos
 
-- [`SELECT` and decode into Cats](./demos/01_demo_select_and_decode/README.md)
-- [`UNION` and decode into Beings](./demos/02_demo_union_and_decode/README.md)
-- [`INSERT`](./demos/03_demo_insert/README.md)
-- [`DELETE`](./demos/04_demo_delete/README.md)
-- [`UPDATE`](./demos/05_demo_update/README.md)
-- [`INSERT ON CONFLICT UPDATE`](./demos/06_cake_demo_insert_on_conflict_update/README.md)
-- [`JOIN`](./demos/07_cake_demo_join/README.md)
-- [`prepared fragment`](./demos/08_cake_demo_prepared_fragment/README.md)
+- [`SELECT` and decode into Cats](./demos/01_select_and_decode/README.md)
+- [`UNION` and decode into Beings](./demos/02_union_and_decode/README.md)
+- [`INSERT`](./demos/03_insert/README.md)
+- [`DELETE`](./demos/04_delete/README.md)
+- [`UPDATE`](./demos/05_update/README.md)
+- [`INSERT ON CONFLICT UPDATE`](./demos/06_insert_on_conflict_update/README.md)
+- [`JOIN`](./demos/07_join/README.md)
+- [fragment with prepared statement](./demos/08_prepared_fragment/README.md)
 
 ## Running local demo apps
 
