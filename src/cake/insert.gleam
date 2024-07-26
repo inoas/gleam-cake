@@ -261,7 +261,7 @@ pub fn on_conflict_error(insert isrt: Insert(a)) -> Insert(a) {
 ///
 pub fn on_columns_conflict_ignore(
   insert isrt: Insert(a),
-  column cols: List(String),
+  columns cols: List(String),
   where whr: Where,
 ) -> Insert(a) {
   Insert(
