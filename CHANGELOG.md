@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 <!-- ## [Unreleased] -->
 
+## [1.0.1] - 2024-07-26
+
+- Breaking but very small bug fix change:
+  `insert.on_columns_conflict_ignore` specifies its column list via the
+  `columns` label instead of `column` label.
+
 ## [1.0.0] - 2024-07-24
 
 - 1.0.0 stable release
