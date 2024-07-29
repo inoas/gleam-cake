@@ -3,4 +3,4 @@
 # Go to the root of the project
 cd "$(dirname "$0")" && cd ..
 
-cloc ./bin ./birdie_snapshots ./src ./test
+cloc ./bin ./birdie_snapshots ./src ./test ./docs/demo-apps/helper/src ./docs/demo-apps/demos/01_select_and_decode/src/ ./docs/demo-apps/demos/02_union_and_decode/src/ ./docs/demo-apps/demos/03_insert/src/ ./docs/demo-apps/demos/04_delete/src/ ./docs/demo-apps/demos/05_update/src/ ./docs/demo-apps/demos/06_insert_on_conflict_update/src/ ./docs/demo-apps/demos/07_select_join/src/ ./docs/demo-apps/demos/08_prepared_fragment/src/
