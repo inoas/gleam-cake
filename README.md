@@ -29,7 +29,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 ## Installation
 
 ```shell
-gleam add cake
+gleam add cake@v1
 ```
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).

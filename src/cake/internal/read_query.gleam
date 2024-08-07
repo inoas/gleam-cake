@@ -1035,12 +1035,21 @@ pub type JoinTarget {
 /// - `FullJoin`: `FULL JOIN`
 /// - `CrossJoin`: `CROSS JOIN`
 ///
+/// as well as:
+///
+/// - `InnerJoinLateralOnTrue`: `INNER JOIN LATERAL ... ON TRUE`
+/// - `LeftJoinLateralOnTrue`: `LEFT JOIN LATERAL ... ON TRUE`
+/// - `CrossJoinLateral`: `CROSS JOIN LATERAL`
+///
 pub type Join {
   InnerJoin(with: JoinTarget, alias: String, on: Where)
+  InnerJoinLateralOnTrue(with: JoinTarget, alias: String)
   LeftJoin(with: JoinTarget, alias: String, on: Where)
+  LeftJoinLateralOnTrue(with: JoinTarget, alias: String)
   RightJoin(with: JoinTarget, alias: String, on: Where)
   FullJoin(with: JoinTarget, alias: String, on: Where)
   CrossJoin(with: JoinTarget, alias: String)
+  CrossJoinLateral(with: JoinTarget, alias: String)
 }
 
 /// Apply join clauses to prepared statement.
@@ -1073,10 +1082,15 @@ pub fn join_clause_apply(
           case jn {
             InnerJoin(_, _, on: on) ->
               new_prp_stm |> join_command_apply("INNER JOIN") |> on_apply(on)
+            InnerJoinLateral(_, _, on: on) ->
+              new_prp_stm |> join_command_apply("INNER JOIN LATERAL ON TRUE")
             LeftJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
+            LeftJoinLateralOnTrue(_, _) ->
+              new_prp_stm
+              |> join_command_apply("LEFT JOIN LATERAL ON TRUE")
             RightJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("RIGHT OUTER JOIN")
@@ -1086,6 +1100,8 @@ pub fn join_clause_apply(
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
             CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
+            CrossJoinLateral(_, _) ->
+              new_prp_stm |> join_command_apply("CROSS JOIN LATERAL")
           }
         },
       )
