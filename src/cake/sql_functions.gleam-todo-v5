@@ -11,6 +11,7 @@
 //    - MIN(): Returns the minimum value in a set.
 //    - MAX(): Returns the maximum value in a set.
 //    - ARRAY_AGG (DISTINCT and ORDER_BY): Returns an array of values.
+//    - JSON_AGG (DISTINCT and ORDER_BY): Returns a JSON array of values.
 //    - ANY_VALUE: Returns an arbitrary value.
 // 2. string transformation functions
 //    - CONCAT(): Concatenates two or more strings.
@@ -48,11 +49,14 @@
 //    - DIV(): Integer division.
 // 4. date transformation functions
 //    - NOW(): Returns the current date and time.
+//    - DATE():
 //    - CURDATE(): Returns the current date.
 //    - CURTIME(): Returns the current time.
 //    - DATE_ADD(): Adds a time/date interval to a date.
 //    - DATEDIFF(): Returns the difference between two dates.
 //    - EXTRACT(): Extracts a part of a date.
+//    - DATE_PART(): Extracts a part of a date.
+//    - DATE_TRUNC(): Truncates a date to a specified part.
 // 5. conditional functions
 //    - IF(): Returns a value if a condition is TRUE, or another value if it is FALSE.
 //    - CASE: Returns a value based on different conditions
