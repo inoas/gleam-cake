@@ -116,11 +116,11 @@ pub fn combined_clause_apply(
   }
 
   // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL within queries nested
-  // in UNION and its siblings (combined queries) but they do work on MariaDB
-  // and PostgreSQL out of the box,
+  // in UNION and its siblings (combined queries) but they do work on 🦭MariaDB
+  // and 🐘PostgreSQL out of the box,
   // see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
-  // For SQLite we are wrapping them in sub-queries, like so:
+  // For 🪶SQLite we are wrapping them in sub-queries, like so:
   //
   // ```sql
   // SELECT * FROM (SELECT * FROM cats LIMIT 3) AS c1
@@ -190,7 +190,7 @@ pub type Combined {
   )
 }
 
-/// NOTICE: SQLite does not support `EXCEPT ALL` (`ExceptAll`) nor
+/// NOTICE: 🪶SQLite does not support `EXCEPT ALL` (`ExceptAll`) nor
 /// `INTERSECT ALL` (`IntersectAll`).
 ///
 pub type CombinedQueryKind {
@@ -314,7 +314,8 @@ pub type Selects {
 /// A value that can be selected in a `SELECT` query.
 /// It can be a column, a parameter, a fragment, or a value with an alias.
 ///
-/// TODO v2 Investigate -> probably makes no sense to have params/values in SELECT?
+/// TODO v2 Investigate -> probably makes no sense to have params/values in
+/// SELECT?
 ///
 pub type SelectValue {
   SelectColumn(column: String)
@@ -418,7 +419,7 @@ pub fn from_clause_apply(
 
 /// Describes the `WHERE` clause of SQL queries.
 ///
-/// NOTICE: SQLite does _not_ support:
+/// NOTICE: 🪶SQLite does _not_ support:
 ///
 /// - `ANY` (`WhereAny*`),
 /// - `ALL` (`WhereAny*`) and,
@@ -485,7 +486,8 @@ pub type WhereValue {
   WhereSubQueryValue(query: ReadQuery)
 }
 
-/// Applies the `WHERE` clause to a prepared statement by appending the SQL code.
+/// Applies the `WHERE` clause to a prepared statement by appending the SQL
+/// code.
 ///
 pub fn where_clause_apply(
   prepared_statement prp_stm: PreparedStatement,
@@ -1035,12 +1037,21 @@ pub type JoinTarget {
 /// - `FullJoin`: `FULL JOIN`
 /// - `CrossJoin`: `CROSS JOIN`
 ///
+/// as well as:
+///
+/// - `InnerJoinLateralOnTrue`: `INNER JOIN LATERAL ... ON TRUE`
+/// - `LeftJoinLateralOnTrue`: `LEFT JOIN LATERAL ... ON TRUE`
+/// - `CrossJoinLateral`: `CROSS JOIN LATERAL`
+///
 pub type Join {
   InnerJoin(with: JoinTarget, alias: String, on: Where)
+  InnerJoinLateralOnTrue(with: JoinTarget, alias: String)
   LeftJoin(with: JoinTarget, alias: String, on: Where)
+  LeftJoinLateralOnTrue(with: JoinTarget, alias: String)
   RightJoin(with: JoinTarget, alias: String, on: Where)
   FullJoin(with: JoinTarget, alias: String, on: Where)
   CrossJoin(with: JoinTarget, alias: String)
+  CrossJoinLateral(with: JoinTarget, alias: String)
 }
 
 /// Apply join clauses to prepared statement.
@@ -1072,11 +1083,21 @@ pub fn join_clause_apply(
 
           case jn {
             InnerJoin(_, _, on: on) ->
-              new_prp_stm |> join_command_apply("INNER JOIN") |> on_apply(on)
+              new_prp_stm
+              |> join_command_apply("INNER JOIN")
+              |> on_apply(on)
+            InnerJoinLateralOnTrue(_, _) ->
+              new_prp_stm
+              |> join_command_apply("INNER JOIN LATERAL")
+              |> prepared_statement.append_sql(" ON TRUE")
             LeftJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
+            LeftJoinLateralOnTrue(_, _) ->
+              new_prp_stm
+              |> join_command_apply("LEFT JOIN LATERAL")
+              |> prepared_statement.append_sql(" ON TRUE")
             RightJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("RIGHT OUTER JOIN")
@@ -1086,6 +1107,8 @@ pub fn join_clause_apply(
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
             CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
+            CrossJoinLateral(_, _) ->
+              new_prp_stm |> join_command_apply("CROSS JOIN LATERAL")
           }
         },
       )
@@ -1130,15 +1153,15 @@ pub type OrderByValue {
 /// Order by direction can be one of:
 ///
 /// - `Asc` - Ascending order
-/// - `AscNullsFirst` - Ascending order with nulls first, not supported by
-///   MariaDB/MySQL
-/// - `AscNullsLast` - Ascending order with nulls last, not supported by
-///   MariaDB/MySQL
+/// - `AscNullsFirst` - Ascending order with nulls first, supported by
+///   🦭MariaDB nor 🐬MySQL
+/// - `AscNullsLast` - Ascending order with nulls last, supported by
+///   🦭MariaDB nor 🐬MySQL
 /// - `Desc` - Descending order
-/// - `DescNullsFirst` - Descending order with nulls first, not supported by
-///    MariaDB/MySQL
-/// - `DescNullsLast` - Descending order with nulls last, not supported by
-///    MariaDB/MySQL
+/// - `DescNullsFirst` - Descending order with nulls first, supported by
+///    🦭MariaDB nor 🐬MySQL
+/// - `DescNullsLast` - Descending order with nulls last, supported by
+///    🦭MariaDB nor 🐬MySQL
 ///
 pub type OrderByDirection {
   Asc
@@ -1215,10 +1238,11 @@ fn order_by_value_apply(
   }
 }
 
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` or `NULLS LAST`. Instead,
-/// `NULL`s are considered to have the lowest value, thus ordering in `DESC`
-/// order will see the `NULL`s appearing last. To force `NULL`s to be regarded
-/// as highest values, see <https://mariadb.com/kb/en/null-values/#ordering>.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` or `NULLS LAST`.
+/// Instead, `NULL`s are considered to have the lowest value, thus ordering in
+/// `DESC` order will see the `NULL`s appearing last. To force `NULL`s to be
+/// regarded as highest values, see
+/// <https://mariadb.com/kb/en/null-values/#ordering>.
 ///
 fn order_by_direction_to_sql(
   order_by_direction ordbd: OrderByDirection,

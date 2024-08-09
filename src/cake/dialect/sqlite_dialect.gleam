@@ -1,4 +1,4 @@
-//// Sqlite dialect to be used in conjunction with the `sqlight` library.
+//// 🪶SQLite dialect to be used in conjunction with the `sqlight` library.
 ////
 
 import cake
@@ -23,7 +23,7 @@ pub type ReadQuery =
 pub type WriteQuery(a) =
   write_query.WriteQuery(a)
 
-/// Converts a cake query to a Sqlite prepared statement.
+/// Converts a cake query to a 🪶SQLite prepared statement.
 ///
 pub fn read_cake_query_to_prepared_statement(
   query qry: CakeQuery(a),
@@ -31,13 +31,13 @@ pub fn read_cake_query_to_prepared_statement(
   qry |> cake.cake_query_to_prepared_statement(dialect: Sqlite)
 }
 
-/// Converts read query to a Sqlite prepared statement.
+/// Converts read query to a 🪶SQLite prepared statement.
 ///
 pub fn query_to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
   qry |> cake.read_query_to_prepared_statement(dialect: Sqlite)
 }
 
-/// Converts a write query to a Sqlite prepared statement.
+/// Converts a write query to a 🪶SQLite prepared statement.
 ///
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(a),

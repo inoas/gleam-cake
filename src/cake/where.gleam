@@ -8,7 +8,7 @@
 ////
 //// ## Compatibility
 ////
-//// - SQLite does not support `ANY`, `ALL` and `SIMILAR TO`.
+//// - 🪶SQLite does not support `ANY`, `ALL` and `SIMILAR TO`.
 ////
 
 import cake/internal/read_query.{
@@ -140,7 +140,8 @@ pub fn is_bool(value vl: WhereValue, bool b: Bool) -> Where {
   vl |> WhereIsBool(bool: b)
 }
 
-/// Creates a `WHERE` clause that checks if a `WhereValue` does not match a `Bool`.
+/// Creates a `WHERE` clause that checks if a `WhereValue` does not match a
+/// `Bool`.
 pub fn is_not_bool(value vl: WhereValue, bool b: Bool) -> Where {
   vl |> WhereIsNotBool(bool: b)
 }
@@ -205,7 +206,7 @@ pub fn gte(value_a vl_a: WhereValue, value_b vl_b: WhereValue) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches any
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn eq_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(operator: Equal, query: qry)
@@ -214,7 +215,7 @@ pub fn eq_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than an any
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn lt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(operator: Lower, query: qry)
@@ -223,7 +224,7 @@ pub fn lt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
 /// any in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn lte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(operator: LowerOrEqual, query: qry)
@@ -232,16 +233,16 @@ pub fn lte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than any
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn gt_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(operator: Greater, query: qry)
 }
 
-/// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal to
-/// any in a sub-query.
+/// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
+/// to any in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn gte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAnyOfSubQuery(operator: GreaterOrEqual, query: qry)
@@ -250,7 +251,7 @@ pub fn gte_any_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches all
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn eq_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(operator: Equal, query: qry)
@@ -259,7 +260,7 @@ pub fn eq_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than all
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn lt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(operator: Lower, query: qry)
@@ -268,7 +269,7 @@ pub fn lt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
 /// all in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn lte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(operator: LowerOrEqual, query: qry)
@@ -277,7 +278,7 @@ pub fn lte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than all
 /// in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(operator: Greater, query: qry)
@@ -286,7 +287,7 @@ pub fn gt_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
 /// to all in a sub-query.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn gte_all_query(value vl: WhereValue, sub_query qry: ReadQuery) -> Where {
   vl |> WhereAllOfSubQuery(operator: GreaterOrEqual, query: qry)
@@ -350,7 +351,7 @@ pub fn ilike(value vl: WhereValue, pattern pttrn: String) -> Where {
 /// Creates a `WHERE` clause that checks if a `WhereValue` is similar to a
 /// pattern.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn similar_to(
   value vl: WhereValue,

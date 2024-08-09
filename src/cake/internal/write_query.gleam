@@ -387,8 +387,8 @@ fn insert_on_conflict_target_apply(
 
 /// Represents an `UPDATE` statement.
 ///
-/// NOTICE: Postgres and SQLite only support `JOIN` in `UPDATE` if `FROM` is
-/// also given.
+/// NOTICE: 🐘PostgreSQL and 🪶SQLite only support `JOIN` in `UPDATE` if `FROM`
+/// is also given.
 ///
 pub type Update(a) {
   Update(
@@ -537,15 +537,15 @@ fn update_sets_apply(
 
 /// Represents a `DELETE` query.
 ///
-/// NOTICE: SQLite does not support `USING` in `DELETE`.
+/// NOTICE: 🪶SQLite does not support `USING` in `DELETE`.
 ///
-/// NOTICE: For MariaDB and MySQL it is mandatory to specify the table specified
-/// in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
+/// NOTICE: For 🦭MariaDB and 🐬MySQL it is mandatory to specify the table set
+/// within the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
 /// `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
 ///
-/// NOTICE: MariaDB and MySQL may not support sub-queries in the `USING` clause.
-/// In such case you may use a sub-query in a `WHERE` clause, or use a join
-/// instead.
+/// NOTICE: 🦭MariaDB and 🐬MySQL may not support sub-queries in the `USING`
+/// clause. In such case you may use a sub-query in a `WHERE` clause, or use a ]
+/// join instead.
 ///
 pub type Delete(a) {
   Delete(

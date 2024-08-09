@@ -1,4 +1,4 @@
-//// PostgreSQL adapter which which passes `PreparedStatements`
+//// 🐘PostgreSQL adapter which which passes `PreparedStatements`
 //// to the `gleam_pgo` library for execution.
 ////
 

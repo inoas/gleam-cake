@@ -1,0 +1,36 @@
+---
+version: 1.1.8
+title: left_join_lateral_prepared_statement_test
+file: ./test/cake_test/join_lateral_test.gleam
+test_name: left_join_lateral_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT cats.name FROM cats LEFT JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT cats.name FROM cats LEFT JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT cats.name FROM cats LEFT JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT cats.name FROM cats LEFT JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Mysql,
+  ),
+)

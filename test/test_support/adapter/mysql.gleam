@@ -1,4 +1,4 @@
-//// MySQL adapter which which passes `PreparedStatements`
+//// 🐬MySQL adapter which which passes `PreparedStatements`
 //// to the `gmysql` library for execution.
 ////
 

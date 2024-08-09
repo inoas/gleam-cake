@@ -1,3 +1,62 @@
 //// THIS IS NOT IMPLEMENTED YET
 
 // TODO v5, add some common SQL functions
+
+// Kinds of functions?
+//
+// 1. aggregation functions
+//    - COUNT(): Returns the number of rows.
+//    - SUM(): Returns the sum of a numeric column.
+//    - AVG(): Returns the average value of a numeric column.
+//    - MIN(): Returns the minimum value in a set.
+//    - MAX(): Returns the maximum value in a set.
+//    - ARRAY_AGG (DISTINCT and ORDER_BY): Returns an array of values.
+//    - JSON_AGG (DISTINCT and ORDER_BY): Returns a JSON array of values.
+//    - ANY_VALUE: Returns an arbitrary value.
+// 2. string transformation functions
+//    - CONCAT(): Concatenates two or more strings.
+//    - SUBSTRING(): Extracts a substring from a string.
+//    - LENGTH(): Returns the length of a string.
+//    - UPPER(): Converts a string to uppercase.
+//    - LOWER(): Converts a string to lowercase.
+//    - LEFT(): Extracts a number of characters from a string (starting from left).
+//    - RIGHT(): Extracts a number of characters from a string (starting from right).
+//    - STRPOS(): Returns the position of the first occurrence of a substring in a string.
+//      also called INSTR() or CHARINDEX()
+//    - LPAD(): Left-pads a string with another string, to a certain length.
+//    - RPAD(): Right-pads a string with another string, to a certain length.
+//    - REVERSE(): Reverses a string and returns the result.
+//    - REPLACE(): Replaces a substring within a string with another substring.
+//    - TRIM(): Removes leading and trailing spaces from a string.
+//    - LTRIM(): Removes leading spaces from a string.
+//    - RTRIM(): Removes trailing spaces from a string.
+//    - levenshtein, SOUNDEX maybe metaphone, difference // requires CREATE EXTENSION fuzzystrmatch;
+//    - REGEXP_REPLACE(): Replaces a substring within a string that matches a regular expression with another substring.
+// 3. number transformation functions
+//    - ROUND(): Rounds a number to a specified number of decimal places.
+//    - CEIL(): Returns the smallest integer value greater than or equal to a number.
+//    - FLOOR(): Returns the largest integer value less than or equal to a number.
+//    - ABS(): Returns the absolute value of a number.
+//    - RAND(): Returns a random number.
+//    - MOD(): Returns the remainder of a division.
+//    - SQRT(): Returns the square root of a number.
+//    - POWER(): Returns the value of a number raised to the power of another number.
+//    - EXP(): Returns the value of the constant e raised to the power of a number.
+//    - LOG(): Returns the natural logarithm of a number.
+//    - LOG10(): Returns the base-10 logarithm of a number.
+//    - SIN(): Returns the sine of a number.
+//    - COS(): Returns the cosine of a number.
+//    - DIV(): Integer division.
+// 4. date transformation functions
+//    - NOW(): Returns the current date and time.
+//    - DATE():
+//    - CURDATE(): Returns the current date.
+//    - CURTIME(): Returns the current time.
+//    - DATE_ADD(): Adds a time/date interval to a date.
+//    - DATEDIFF(): Returns the difference between two dates.
+//    - EXTRACT(): Extracts a part of a date.
+//    - DATE_PART(): Extracts a part of a date.
+//    - DATE_TRUNC(): Truncates a date to a specified part.
+// 5. conditional functions
+//    - IF(): Returns a value if a condition is TRUE, or another value if it is FALSE.
+//    - CASE: Returns a value based on different conditions

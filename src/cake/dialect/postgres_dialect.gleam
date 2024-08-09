@@ -1,4 +1,5 @@
-//// Postgres dialect to be used in conjunction with the `gleam_pgo` library.
+//// 🐘PostgreSQL dialect to be used in conjunction with the `gleam_pgo`
+//// library.
 ////
 
 import cake
@@ -23,7 +24,7 @@ pub type ReadQuery =
 pub type WriteQuery(a) =
   write_query.WriteQuery(a)
 
-/// Converts a cake query to a Postgres prepared statement.
+/// Converts a cake query to a 🐘PostgreSQL prepared statement.
 ///
 pub fn read_cake_query_to_prepared_statement(
   query qry: CakeQuery(a),
@@ -31,13 +32,13 @@ pub fn read_cake_query_to_prepared_statement(
   qry |> cake.cake_query_to_prepared_statement(dialect: Postgres)
 }
 
-/// Converts read query to a Postgres prepared statement.
+/// Converts read query to a 🐘PostgreSQL prepared statement.
 ///
 pub fn query_to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
   qry |> cake.read_query_to_prepared_statement(dialect: Postgres)
 }
 
-/// Converts a write query to a Postgres prepared statement.
+/// Converts a write query to a 🐘PostgreSQL prepared statement.
 ///
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(a),

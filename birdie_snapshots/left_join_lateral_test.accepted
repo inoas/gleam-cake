@@ -1,0 +1,44 @@
+---
+version: 1.1.8
+title: left_join_lateral_test
+file: ./test/cake_test/join_lateral_test.gleam
+test_name: left_join_lateral_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([SelectColumn("cats.name")]),
+  FromTable("cats"),
+  Joins([
+    LeftJoinLateralOnTrue(
+      JoinSubQuery(SelectQuery(Select(
+        SelectAll,
+        Selects([
+          SelectColumn("owners.name"),
+        ]),
+        FromTable("owners"),
+        NoJoins,
+        WhereComparison(
+          WhereColumnValue("owners.id"),
+          Equal,
+          WhereColumnValue("cats.owner_id"),
+        ),
+        NoGroupBy,
+        NoWhere,
+        NoOrderBy,
+        NoLimit,
+        NoOffset,
+        NoEpilog,
+        NoComment,
+      ))),
+      "owners",
+    ),
+  ]),
+  NoWhere,
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

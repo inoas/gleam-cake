@@ -34,7 +34,7 @@ fn where_like_similar_to_sqlite_mariadb_mysql_query() {
   |> s.where(
     w.or([
       w.col("name") |> w.like("%inn%"),
-      // SQLite, MariaDB and MySQL do not support ILIKE or SIMILAR TO
+      // 🪶SQLite, 🦭MariaDB, and 🐬MySQL do not support ILIKE or SIMILAR TO
     // w.col("name") |> w.ilike("KAR%"),
     // w.col("name") |> w.similar_to("Clar", "/"),
     ]),

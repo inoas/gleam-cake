@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 <!-- ## [Unreleased] -->
 
+## [1.1.0] - 2024-08-09
+
+- Added `join.left_lateral` and `join.inner_lateral` and `join.cross_lateral`
+  support `LATERAL JOIN`s available on 🐘PostgreSQL 9.3+ and recent 🐬MySQL versions.
+  Notice: You may also use `LATERAL` literally to prefix table names in `FROM`
+  clauses with multiple tables.
+
 ## [1.0.1] - 2024-07-26
 
 - Breaking but very small bug fix change:
@@ -113,11 +120,11 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
 
 ## [0.6.0] - 2024-06-27
 
-- Added MySQL independent of MariaDB as first class supported.
+- Added 🐬MySQL independent of 🦭MariaDB as first class supported.
 
 ## [0.5.0] - 2024-06-26
 
-- Fixed github CI and docker compose testing against Postgres and MariaDB.
+- Fixed github CI and docker compose testing against 🐘PostgreSQL and 🦭MariaDB.
 - Locally you should be able to install docker and then just run:
   `bin/docker/detached/` and then `gleam test`.
 - Relaxed licence from AGPL 3.0 to Mozilla Public License 2.0 (MPL-2.0).
@@ -127,7 +134,7 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
 - Added support for deletes and interface modules
   for `insert`, `update`, `delete` ontop of the existing
   `select` and `combined` interface modules.
-- Added support for MariaDB and MySQL.
+- Added support for 🦭MariaDB and 🐬MySQL.
 - Removed the hard dependency on any RDMBS specific
   library. These are now only required when developing and testing
   this library, but when running you can chose any of the following adapters:

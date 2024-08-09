@@ -1,5 +1,5 @@
 name = "cake_demo_prepared_fragment"
-description = "An demo of using Gleam with Cake and Postgres to run queries with fragments including prepared statements"
+description = "An demo of using Gleam with Cake and 🐘PostgreSQL to run queries with fragments including prepared statements"
 
 [dependencies]
 cake = { path = "../../../../" }

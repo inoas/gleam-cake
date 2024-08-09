@@ -353,9 +353,9 @@ pub fn or_where(select slct: Select, where whr: Where) -> Select {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or SQLite,
+/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in MariaDB/MySQL.
+/// This operator exists in 🦭MariaDB and 🐬MySQL.
 ///
 pub fn xor_where(select slct: Select, where whr: Where) -> Select {
   case slct.where {
@@ -440,9 +440,9 @@ pub fn or_having(select slct: Select, having whr: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-/// NOTICE: This operator does not exist in Postgres or SQLite,
+/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in MariaDB/MySQL.
+/// This operator exists in 🦭MariaDB and 🐬MySQL.
 ///
 pub fn xor_having(select slct: Select, having whr: Where) -> Select {
   case slct.having {
@@ -594,7 +594,7 @@ pub fn order_by_asc(select slct: Select, by ordb: String) -> Select {
 
 /// Creates or appends an ascending `OrderBy` with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_asc_nulls_first(select slct: Select, by ordb: String) -> Select {
   slct
@@ -606,7 +606,7 @@ pub fn order_by_asc_nulls_first(select slct: Select, by ordb: String) -> Select 
 
 /// Creates or appends an ascending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_asc_nulls_last(select slct: Select, by ordb: String) -> Select {
   slct
@@ -628,7 +628,7 @@ pub fn replace_order_by_asc(select slct: Select, by ordb: String) -> Select {
 
 /// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_first(
   select slct: Select,
@@ -643,7 +643,7 @@ pub fn replace_order_by_asc_nulls_first(
 
 /// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_last(
   select slct: Select,
@@ -668,7 +668,7 @@ pub fn order_by_desc(select slct: Select, by ordb: String) -> Select {
 
 /// Creates or appends a descending order with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_desc_nulls_first(select slct: Select, by ordb: String) -> Select {
   slct
@@ -680,7 +680,7 @@ pub fn order_by_desc_nulls_first(select slct: Select, by ordb: String) -> Select
 
 /// Creates or appends a descending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_desc_nulls_last(select slct: Select, by ordb: String) -> Select {
   slct
@@ -702,7 +702,7 @@ pub fn replace_order_by_desc(select slct: Select, by ordb: String) -> Select {
 
 /// Replaces the `OrderBy` a single descending order with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_first(
   select slct: Select,
@@ -717,7 +717,7 @@ pub fn replace_order_by_desc_nulls_first(
 
 /// Replaces the `OrderBy` a single descending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_last(
   select slct: Select,

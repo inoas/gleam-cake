@@ -1,4 +1,4 @@
-//// MariaDB adapter which which passes `PreparedStatements`
+//// 🦭MariaDB adapter which which passes `PreparedStatements`
 //// to the `gmysql` library for execution.
 ////
 

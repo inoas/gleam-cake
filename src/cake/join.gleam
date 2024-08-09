@@ -21,7 +21,8 @@
 ////
 
 import cake/internal/read_query.{
-  CrossJoin, FullJoin, InnerJoin, JoinSubQuery, JoinTable, LeftJoin, RightJoin,
+  CrossJoin, CrossJoinLateral, FullJoin, InnerJoin, InnerJoinLateralOnTrue,
+  JoinSubQuery, JoinTable, LeftJoin, LeftJoinLateralOnTrue, RightJoin,
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -100,4 +101,70 @@ pub fn full(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
 ///
 pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
   wth |> CrossJoin(alias: als)
+}
+
+/// Creates a `INNER JOIN LATERAL ... ON TRUE`.
+///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
+///
+/// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
+/// explanation on how `LATERAL` works.
+///
+/// Any filtering must be done in WHERE clauses as the JOIN ON clause is always
+/// TRUE when calling this function.
+///
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
+/// versions.
+///
+pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
+  wth |> InnerJoinLateralOnTrue(alias: als)
+}
+
+/// Creates a `LEFT JOIN LATERAL ... ON TRUE`.
+///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
+///
+/// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
+/// explanation on how `LATERAL` works.
+///
+/// Any filtering must be done in WHERE clauses as the JOIN ON clause is always
+/// TRUE when calling this function.
+///
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
+/// versions.
+///
+pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
+  wth |> LeftJoinLateralOnTrue(alias: als)
+}
+
+/// Creates a `CROSS JOIN LATERAL`.
+///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
+///
+/// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
+/// explanation on how `LATERAL` works.
+///
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
+/// versions.
+///
+pub fn cross_lateral(with wth: JoinTarget, alias als: String) -> Join {
+  wth |> CrossJoinLateral(alias: als)
 }

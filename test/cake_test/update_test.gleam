@@ -2,7 +2,6 @@ import birdie
 import cake/fragment as f
 import cake/select as s
 import cake/update as u
-import gleam/string
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
 import test_helper/mysql_test_helper
@@ -48,7 +47,7 @@ fn update_maria_query() {
     "name" |> u.set_string("Joe"),
     "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()),
   ])
-  // MariaDB do not support `RETURNING` in `UPDATE` queries:
+  // 🦭MariaDB does not support `RETURNING` in `UPDATE` queries:
   // |> u.returning(["name", "age"])
   |> u.to_query
 }
@@ -59,9 +58,9 @@ fn update_mysql_query() {
   |> u.sets([
     "age" |> u.set_expression("age + 1"),
     "name" |> u.set_string("Joe"),
-    // "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()), // MySQL fails to execute this query
+    // "is_wild" |> u.set_sub_query(swap_is_wild_sub_query()), // 🐬MySQL fails to execute this query
   ])
-  // MySQL do not support `RETURNING` in `UPDATE` queries:
+  // 🐬MySQL do not support `RETURNING` in `UPDATE` queries:
   // |> u.returning(["name", "age"])
   |> u.to_query
 }

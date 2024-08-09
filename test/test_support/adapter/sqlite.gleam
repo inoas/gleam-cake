@@ -1,4 +1,4 @@
-//// SQLite adapter which which passes `PreparedStatements`
+//// 🪶SQLite adapter which which passes `PreparedStatements`
 //// to the `sqlight` library for execution.
 ////
 
