@@ -22,21 +22,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+      - uses: inoas/gleam_actions/.github/actions/install_gleam@main
         with:
           gleam_version: ${{inputs.gleam_version}}
           erlang_version: ${{inputs.erlang_version}}
-      - uses: TanklesXL/gleam_actions/.github/actions/format@main
+      - uses: inoas/gleam_actions/.github/actions/format@main
 
   deps:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+      - uses: inoas/gleam_actions/.github/actions/install_gleam@main
         with:
           gleam_version: ${{ inputs.gleam_version }}
           erlang_version: ${{ inputs.erlang_version }}
-      - uses: TanklesXL/gleam_actions/.github/actions/deps_cache@main
+      - uses: inoas/gleam_actions/.github/actions/deps_cache@main
         with:
           gleam_version: ${{ inputs.gleam_version }}
 
@@ -78,8 +78,8 @@ jobs:
         erlang: ["27"]
     steps:
       - uses: actions/checkout@v4
-      - uses: TanklesXL/gleam_actions/.github/actions/deps_restore@main
-      - uses: TanklesXL/gleam_actions/.github/actions/install_gleam@main
+      - uses: inoas/gleam_actions/.github/actions/deps_restore@main
+      - uses: inoas/gleam_actions/.github/actions/install_gleam@main
         with:
           gleam_version: ${{ inputs.gleam_version }}
           erlang_version: ${{ matrix.erlang }}
@@ -89,6 +89,6 @@ jobs:
           PGPORT: 5432
           PGPASSWORD: postgres
           PGUSER: postgres
-      - uses: TanklesXL/gleam_actions/.github/actions/test@main
+      - uses: inoas/gleam_actions/.github/actions/test@main
         with:
           target: "erlang"
