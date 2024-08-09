@@ -105,6 +105,14 @@ pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
 
 /// Creates a `INNER JOIN LATERAL ... ON TRUE`.
 ///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
+///
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
@@ -120,6 +128,14 @@ pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
 
 /// Creates a `LEFT JOIN LATERAL ... ON TRUE`.
 ///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
+///
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
@@ -134,6 +150,14 @@ pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
 }
 
 /// Creates a `CROSS JOIN LATERAL`.
+///
+/// ⚠️⚠️⚠️
+///
+/// CAUTION: `LATERAL` joins are not optimized by the query planner,
+/// and can be very slow on large datasets, especially when the sub-query
+/// returns many rows.
+///
+/// ⚠️⚠️⚠️
 ///
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
