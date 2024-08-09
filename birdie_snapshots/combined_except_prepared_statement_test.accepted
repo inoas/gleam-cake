@@ -1,0 +1,36 @@
+---
+version: 1.1.8
+title: combined_except_prepared_statement_test
+file: ./test/cake_test/combined_test.gleam
+test_name: combined_except_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "(SELECT * FROM cats ORDER BY name ASC LIMIT 10) EXCEPT (SELECT * FROM cats ORDER BY name ASC LIMIT 10) ORDER BY age ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM (SELECT * FROM cats ORDER BY name ASC LIMIT 10) AS __cake_computed_alias_1 EXCEPT SELECT * FROM (SELECT * FROM cats ORDER BY name ASC LIMIT 10) AS __cake_computed_alias_2 ORDER BY age ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "(SELECT * FROM cats ORDER BY name ASC LIMIT 10) EXCEPT (SELECT * FROM cats ORDER BY name ASC LIMIT 10) ORDER BY age ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "(SELECT * FROM cats ORDER BY name ASC LIMIT 10) EXCEPT (SELECT * FROM cats ORDER BY name ASC LIMIT 10) ORDER BY age ASC LIMIT 1 OFFSET 2",
+    [],
+    0,
+    Mysql,
+  ),
+)

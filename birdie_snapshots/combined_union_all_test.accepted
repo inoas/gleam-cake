@@ -1,0 +1,48 @@
+---
+version: 1.1.8
+title: combined_union_all_test
+file: ./test/cake_test/combined_test.gleam
+test_name: combined_union_all_test
+---
+CombinedQuery(Combined(
+  UnionAll,
+  [
+    Select(
+      SelectAll,
+      NoSelects,
+      FromTable("cats"),
+      NoJoins,
+      NoWhere,
+      NoGroupBy,
+      NoWhere,
+      OrderBy([
+        OrderByColumn("name", Asc),
+      ]),
+      Limit(10),
+      NoOffset,
+      NoEpilog,
+      NoComment,
+    ),
+    Select(
+      SelectAll,
+      NoSelects,
+      FromTable("cats"),
+      NoJoins,
+      NoWhere,
+      NoGroupBy,
+      NoWhere,
+      OrderBy([
+        OrderByColumn("name", Asc),
+      ]),
+      Limit(10),
+      NoOffset,
+      NoEpilog,
+      NoComment,
+    ),
+  ],
+  Limit(1),
+  Offset(2),
+  OrderBy([OrderByColumn("age", Asc)]),
+  NoEpilog,
+  NoComment,
+))

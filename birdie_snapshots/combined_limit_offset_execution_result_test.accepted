@@ -1,0 +1,12 @@
+---
+version: 1.1.8
+title: combined_limit_offset_execution_result_test
+file: ./test/cake_test/limit_offset_test.gleam
+test_name: combined_limit_offset_execution_result_test
+---
+#(
+  Ok([#("Clara", 3, True, Null, 10.0)]),
+  Ok([#("Clara", 3, 1, Undefined, 10.0)]),
+  Ok([["Clara", 3, 1, Null, 10.0]]),
+  Ok([["Clara", 3, 1, Null, 10.0]]),
+)

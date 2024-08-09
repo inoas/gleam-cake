@@ -1,0 +1,37 @@
+---
+version: 1.1.8
+title: where_any_test
+file: ./test/cake_test/where_test.gleam
+test_name: where_any_test
+---
+SelectQuery(Select(
+  SelectAll,
+  NoSelects,
+  FromTable("cats"),
+  NoJoins,
+  WhereAnyOfSubQuery(
+    WhereColumnValue("owner_id"),
+    Equal,
+    SelectQuery(Select(
+      SelectAll,
+      Selects([SelectColumn("owner_id")]),
+      FromTable("dogs"),
+      NoJoins,
+      NoWhere,
+      NoGroupBy,
+      NoWhere,
+      NoOrderBy,
+      NoLimit,
+      NoOffset,
+      NoEpilog,
+      NoComment,
+    )),
+  ),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

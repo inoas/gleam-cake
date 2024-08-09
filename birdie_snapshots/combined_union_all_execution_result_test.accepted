@@ -1,0 +1,20 @@
+---
+version: 1.1.8
+title: combined_union_all_execution_result_test
+file: ./test/cake_test/combined_test.gleam
+test_name: combined_union_all_execution_result_test
+---
+#(
+  Ok([
+    #(
+      "Nubi",
+      4,
+      True,
+      1,
+      2.200000047683716,
+    ),
+  ]),
+  Ok([#("Nubi", 4, 1, 1, 2.2)]),
+  Ok([["Nubi", 4, 1, 1, 2.2]]),
+  Ok([["Nubi", 4, 1, 1, 2.2]]),
+)

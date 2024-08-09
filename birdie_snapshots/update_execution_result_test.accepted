@@ -1,0 +1,24 @@
+---
+version: 1.1.8
+title: update_execution_result_test
+file: ./test/cake_test/update_test.gleam
+test_name: update_execution_result_test
+---
+#(
+  Ok([
+    #("Joe", 5),
+    #("Joe", 11),
+    #("Joe", 7),
+    #("Joe", 9),
+    #("Joe", 4),
+  ]),
+  Ok([
+    #("Joe", 5),
+    #("Joe", 11),
+    #("Joe", 7),
+    #("Joe", 9),
+    #("Joe", 4),
+  ]),
+  Ok([]),
+  Ok([]),
+)

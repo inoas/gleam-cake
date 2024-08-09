@@ -1,0 +1,72 @@
+---
+version: 1.1.8
+title: where_in_query_prepared_statement_test
+file: ./test/cake_test/where_in_test.gleam
+test_name: where_in_query_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT name FROM cats WHERE (age IN ($1, $2, $3) OR name IN ((SELECT name FROM cats WHERE name = $4)) OR name IN ((SELECT name FROM cats WHERE name = $5))) AND NOT(age IN ($6, $7, $8))",
+    [
+      IntParam(1),
+      IntParam(2),
+      IntParam(3),
+      StringParam("Karl"),
+      StringParam("Karl"),
+      IntParam(99),
+      IntParam(98),
+      IntParam(97),
+    ],
+    8,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name FROM cats WHERE (age IN (?1, ?2, ?3) OR name IN ((SELECT name FROM cats WHERE name = ?4)) OR name IN ((SELECT name FROM cats WHERE name = ?5))) AND NOT(age IN (?6, ?7, ?8))",
+    [
+      IntParam(1),
+      IntParam(2),
+      IntParam(3),
+      StringParam("Karl"),
+      StringParam("Karl"),
+      IntParam(99),
+      IntParam(98),
+      IntParam(97),
+    ],
+    8,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name FROM cats WHERE (age IN (?, ?, ?) OR name IN ((SELECT name FROM cats WHERE name = ?)) OR name IN ((SELECT name FROM cats WHERE name = ?))) AND NOT(age IN (?, ?, ?))",
+    [
+      IntParam(1),
+      IntParam(2),
+      IntParam(3),
+      StringParam("Karl"),
+      StringParam("Karl"),
+      IntParam(99),
+      IntParam(98),
+      IntParam(97),
+    ],
+    8,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name FROM cats WHERE (age IN (?, ?, ?) OR name IN ((SELECT name FROM cats WHERE name = ?)) OR name IN ((SELECT name FROM cats WHERE name = ?))) AND NOT(age IN (?, ?, ?))",
+    [
+      IntParam(1),
+      IntParam(2),
+      IntParam(3),
+      StringParam("Karl"),
+      StringParam("Karl"),
+      IntParam(99),
+      IntParam(98),
+      IntParam(97),
+    ],
+    8,
+    Mysql,
+  ),
+)
