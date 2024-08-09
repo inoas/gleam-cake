@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 <!-- ## [Unreleased] -->
 
+## [1.1.1] - 2024-08-09
+
+- Fix gleam min version to 1.3.0 to enable `gleam add cake@1` to work.
+
 ## [1.1.0] - 2024-08-09
 
 - Added `join.left_lateral` and `join.inner_lateral` and `join.cross_lateral`
