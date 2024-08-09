@@ -6,7 +6,7 @@ repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 # links = [{ title = "Website", href = "https://gleam.run" }]
 
 # TODO v2 Will need >= 1.4 once punning is in?
-gleam = ">= 1.0.0 and < 2.0.0"
+gleam = ">= 1.3.0 and < 2.0.0"
 
 [documentation]
 pages = [
