@@ -26,7 +26,7 @@ fn insert_values_query() {
 }
 
 fn insert_values_maria_mysql_query() {
-  // MariaDB/MySQL do not support `RETURNING` in `INSERT` queries:
+  // 🦭MariaDB and 🐬MySQL do not support `RETURNING` in `INSERT` queries:
   insert_values()
   |> i.no_returning
   |> i.to_query

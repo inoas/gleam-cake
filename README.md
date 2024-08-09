@@ -20,7 +20,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 <br>
 
 <p align="center">
-  <i>Cake is a library written in Gleam to compose SQL queries targeting SQL dialects PostgreSQL, SQLite, MariaDB and MySQL.</i>
+  <i>Cake is a library written in Gleam to compose SQL queries targeting SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.</i>
 </p>
 
 <br>
@@ -87,7 +87,7 @@ This is an SQL query building library, thus it is not concerned about executing 
 - High degree of flexibility to compose queries:
   While the focus is on building queries there is also support for replacing
   or removing parts of queries.
-- General support on these 4 large RDMS: PostgreSQL, SQLite, MariaDB and MySQL.
+- General support on these 4 large RDMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
@@ -105,8 +105,8 @@ This is an SQL query building library, thus it is not concerned about executing 
     not specifying a table name
   - Comparing values incompatible by SQL type
 - Backporting many features between different RDMBS. For example, while Cake
-  supports `RETURNING` on PostgreSQL and SQLite, it does not support it on
-  MariaDB or MySQL.
+  supports `RETURNING` on 🐘PostgreSQL and 🪶SQLite, it does not support it on
+  🦭MariaDB or 🐬MySQL.
 - No automagic optimization: This library is not here to replace SQL knowledge,
   but to allow crafting and combining SQL queries in a flexible and type safe
   way. It might however work as a gateway to obtain SQL knowlege because

@@ -1,9 +1,9 @@
 //// *Cake* is an SQL query building library for RDBMS:
 ////
-//// - PostgreSQL
-//// - SQLite
-//// - MariaDB
-//// - MySQL
+//// - 🐘PostgreSQL
+//// - 🪶SQLite
+//// - 🦭MariaDB
+//// - 🐬MySQL
 ////
 //// For examples see the tests.
 ////

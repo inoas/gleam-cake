@@ -8,7 +8,7 @@ import test_helper/sqlite_test_helper
 import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
-// Notice: Only supports PostgresSQL and SQLite
+// Notice: Only supports 🐘PostgreSQLSQL and 🪶SQLite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  Setup                                                                    │

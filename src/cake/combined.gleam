@@ -9,7 +9,7 @@
 ////
 //// ## Compatibility
 ////
-//// - SQLite does not support `EXCEPT ALL` and `INTERSECT ALL`.
+//// - 🪶SQLite does not support `EXCEPT ALL` and `INTERSECT ALL`.
 ////
 
 import cake/internal/read_query.{
@@ -58,13 +58,14 @@ pub fn to_query(combined cmbnd: Combined) -> ReadQuery {
 
 // ▒▒▒ Combined Kind ▒▒▒
 
-/// Creates a `UNION` query out of two queries as a `Combined` read_query.
+/// Creates a `UNION` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn union(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   UnionDistinct |> read_query.combined_query_new([qry_a, qry_b])
 }
 
-/// Creates a `UNION` query out of two or more queries as a `Combined` read_query.
+/// Creates a `UNION` query out of two or more queries as a `Combined`
+/// `ReadQuery`.
 ///
 pub fn unions(
   query_a qry_a: Select,
@@ -74,16 +75,16 @@ pub fn unions(
   UnionDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Creates a `UNION ALL` query out of two queries as a `Combined` read_query.
+/// Creates a `UNION ALL` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn union_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   UnionAll |> read_query.combined_query_new([qry_a, qry_b])
 }
 
 /// Creates a `UNION ALL` query out of two or more queries as a `Combined`
-/// read_query.
+/// `ReadQuery`.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn unions_all(
   query_a qry_a: Select,
@@ -93,13 +94,14 @@ pub fn unions_all(
   UnionAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Creates an `EXCEPT` query out of two queries as a `Combined` read_query.
+/// Creates an `EXCEPT` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn except(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   ExceptDistinct |> read_query.combined_query_new([qry_a, qry_b])
 }
 
-/// Creates an `EXCEPT` query out of two or more queries as a `Combined` read_query.
+/// Creates an `EXCEPT` query out of two or more queries as a `Combined`
+/// `ReadQuery`.
 ///
 pub fn excepts(
   query_a qry_a: Select,
@@ -109,18 +111,19 @@ pub fn excepts(
   ExceptDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Creates an `EXCEPT ALL` query out of two queries as a `Combined` read_query.
+/// Creates an `EXCEPT ALL` query out of two queries as a `Combined`
+/// `ReadQuery`.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   ExceptAll |> read_query.combined_query_new([qry_a, qry_b])
 }
 
 /// Creates an `EXCEPT ALL` query out of two or more queries as a `Combined`
-/// read_query.
+/// `ReadQuery`.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn excepts_all(
   query_a qry_a: Select,
@@ -130,7 +133,7 @@ pub fn excepts_all(
   ExceptAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Creates an `INTERSECT` query out of two queries as a `Combined` read_query.
+/// Creates an `INTERSECT` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn intersect(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   IntersectDistinct |> read_query.combined_query_new([qry_a, qry_b])
@@ -147,18 +150,19 @@ pub fn intersects(
   IntersectDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Creates an `INTERSECT ALL` query out of two queries as a `Combined` read_query.
+/// Creates an `INTERSECT ALL` query out of two queries as a `Combined`
+/// `ReadQuery`.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
   IntersectAll |> read_query.combined_query_new([qry_a, qry_b])
 }
 
 /// Creates an `INTERSECT ALL` query out of two or more queries as a `Combined`
-/// read_query.
+/// `ReadQuery`.
 ///
-/// NOTICE: Not supported by SQLite.
+/// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn intersects_all(
   query_a qry_a: Select,
@@ -168,7 +172,7 @@ pub fn intersects_all(
   IntersectAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
 }
 
-/// Gets the queries from a `Combined` read_query.
+/// Gets the queries from a `Combined` `ReadQuery`.
 ///
 pub fn get_queries(combined cmbnd: Combined) -> List(Select) {
   cmbnd.queries
@@ -176,39 +180,39 @@ pub fn get_queries(combined cmbnd: Combined) -> List(Select) {
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
-/// Sets a `Limit` in the `Combined` read_query.
+/// Sets a `Limit` in the `Combined` `ReadQuery`.
 ///
 pub fn limit(query qry: Combined, limit lmt: Int) -> Combined {
   let lmt = lmt |> read_query.limit_new
   Combined(..qry, limit: lmt)
 }
 
-/// Removes `Limit` from the `Combined` read_query.
+/// Removes `Limit` from the `Combined` `ReadQuery`.
 ///
 pub fn no_limit(query qry: Combined) -> Combined {
   Combined(..qry, limit: NoLimit)
 }
 
-/// Gets `Limit` in the `Combined` read_query.
+/// Gets `Limit` in the `Combined` `ReadQuery`.
 ///
 pub fn get_limit(query qry: Combined) -> Limit {
   qry.limit
 }
 
-/// Sets an `Offset` in the `Combined` read_query.
+/// Sets an `Offset` in the `Combined` `ReadQuery`.
 ///
 pub fn offset(query qry: Combined, offst offst: Int) -> Combined {
   let offst = offst |> read_query.offset_new
   Combined(..qry, offset: offst)
 }
 
-/// Removes `Offset` from the `Combined` read_query.
+/// Removes `Offset` from the `Combined` `ReadQuery`.
 ///
 pub fn no_offset(query qry: Combined) -> Combined {
   Combined(..qry, offset: NoOffset)
 }
 
-/// Gets `Offset` in the `Combined` read_query.
+/// Gets `Offset` in the `Combined` `ReadQuery`.
 ///
 pub fn get_offset(query qry: Combined) -> Offset {
   qry.offset
@@ -242,7 +246,7 @@ pub fn order_by_asc(query qry: Combined, by ordb: String) -> Combined {
 
 /// Creates or appends an ascending `OrderBy` with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_asc_nulls_first(
   query qry: Combined,
@@ -257,7 +261,7 @@ pub fn order_by_asc_nulls_first(
 
 /// Creates or appends an ascending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
   qry
@@ -279,7 +283,7 @@ pub fn replace_order_by_asc(query qry: Combined, by ordb: String) -> Combined {
 
 /// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_first(
   query qry: Combined,
@@ -294,7 +298,7 @@ pub fn replace_order_by_asc_nulls_first(
 
 /// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_last(
   query qry: Combined,
@@ -319,7 +323,7 @@ pub fn order_by_desc(query qry: Combined, by ordb: String) -> Combined {
 
 /// Creates or appends a descending order with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_desc_nulls_first(
   query qry: Combined,
@@ -334,7 +338,7 @@ pub fn order_by_desc_nulls_first(
 
 /// Creates or appends a descending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_desc_nulls_last(
   query qry: Combined,
@@ -359,7 +363,7 @@ pub fn replace_order_by_desc(query qry: Combined, by ordb: String) -> Combined {
 
 /// Replaces the `OrderBy` a single descending order with `NULLS FIRST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS FIRST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_first(
   query qry: Combined,
@@ -374,7 +378,7 @@ pub fn replace_order_by_desc_nulls_first(
 
 /// Replaces the `OrderBy` a single descending `OrderBy` with `NULLS LAST`.
 ///
-/// NOTICE: MariaDB/MySQL do not support `NULLS LAST` out of the box.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_last(
   query qry: Combined,

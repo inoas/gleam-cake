@@ -53,7 +53,8 @@ fn delete_maria_mysql() {
   ))
 }
 
-// MariaDB and MYSQL do not support RETURNING or do not support it reliably
+// 🦭MariaDB and 🐬MYSQL do not support RETURNING or do not support it
+// reliably.
 //
 const affected_row_count_frgmt = "ROW_COUNT()"
 

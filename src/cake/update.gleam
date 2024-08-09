@@ -252,8 +252,8 @@ pub fn get_from(update updt: Update(a)) -> From {
 
 /// Adds a `Join` to the `Update` query.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn join(update updt: Update(a), join jn: Join) -> Update(a) {
   case updt.join {
@@ -264,8 +264,8 @@ pub fn join(update updt: Update(a), join jn: Join) -> Update(a) {
 
 /// Replaces any `Join`s of the `Update` query with a signle `Join`.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn replace_join(update updt: Update(a), join jn: Join) -> Update(a) {
   Update(..updt, join: [jn] |> Joins)
@@ -273,8 +273,8 @@ pub fn replace_join(update updt: Update(a), join jn: Join) -> Update(a) {
 
 /// Adds `Join`s to the `Update` query.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
   case jns, updt.join {
@@ -287,8 +287,8 @@ pub fn joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
 
 /// Replaces any `Join`s of the `Update` query with the given `Join`s.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn replace_joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
   Update(..updt, join: jns |> Joins)
@@ -353,9 +353,10 @@ pub fn or_where(update updt: Update(a), where whr: Where) -> Update(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or SQLite,
+/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in MariaDB/MySQL.
+///
+/// NOTICE: This operator exists in 🦭MariaDB and 🐬MySQL with native support.
 ///
 pub fn xor_where(update updt: Update(a), where whr: Where) -> Update(a) {
   case updt.where {
@@ -386,8 +387,8 @@ pub fn get_where(update updt: Update(a)) -> Where {
 
 // ▒▒▒ RETURNING ▒▒▒
 
-/// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
-/// they do support it in `INSERT` (and `REPLACE`) queries, however.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `RETURNING` in `UPDATE`
+/// queries; hey do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn returning(
   update updt: Update(a),
@@ -399,8 +400,8 @@ pub fn returning(
   }
 }
 
-/// NOTICE: MariaDB/MySQL do not support `RETURNING` in `UPDATE` queries;
-/// they do support it in `INSERT` (and `REPLACE`) queries, however.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support `RETURNING` in `UPDATE`
+/// queries; they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn no_returning(update updt: Update(a)) -> Update(a) {
   Update(..updt, returning: NoReturning)

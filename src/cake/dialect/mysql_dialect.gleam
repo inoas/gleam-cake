@@ -1,4 +1,4 @@
-//// MySQL dialect to be used in conjunction with the `gmysql` library.
+//// 🐬MySQL dialect to be used in conjunction with the `gmysql` library.
 ////
 
 import cake
@@ -23,7 +23,7 @@ pub type ReadQuery =
 pub type WriteQuery(a) =
   write_query.WriteQuery(a)
 
-/// Converts a cake query to a MySQL prepared statement.
+/// Converts a cake query to a 🐬MySQL prepared statement.
 ///
 pub fn cake_query_to_prepared_statement(
   query qry: CakeQuery(a),
@@ -31,7 +31,7 @@ pub fn cake_query_to_prepared_statement(
   qry |> cake.cake_query_to_prepared_statement(dialect: Mysql)
 }
 
-/// Converts read query to a MySQL prepared statement.
+/// Converts read query to a 🐬MySQL prepared statement.
 ///
 pub fn read_query_to_prepared_statement(
   query qry: ReadQuery,
@@ -39,7 +39,7 @@ pub fn read_query_to_prepared_statement(
   qry |> cake.read_query_to_prepared_statement(dialect: Mysql)
 }
 
-/// Converts a write query to a MySQL prepared statement.
+/// Converts a write query to a 🐬MySQL prepared statement.
 ///
 pub fn write_query_to_prepared_statement(
   query qry: WriteQuery(a),

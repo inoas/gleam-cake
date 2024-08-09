@@ -116,10 +116,10 @@ pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
-/// Notice that any filtering must be done in WHERE clauses as the ON clause
-/// is always TRUE when calling this function.
+/// Any filtering must be done in WHERE clauses as the JOIN ON clause is always
+/// TRUE when calling this function.
 ///
-/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MariaDB
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
 pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
@@ -139,10 +139,10 @@ pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
-/// Notice that any filtering must be done in WHERE clauses as the ON clause
-/// is always TRUE when calling this function.
+/// Any filtering must be done in WHERE clauses as the JOIN ON clause is always
+/// TRUE when calling this function.
 ///
-/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MySQL
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
 pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
@@ -162,7 +162,7 @@ pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
-/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MySQL
+/// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
 pub fn cross_lateral(with wth: JoinTarget, alias als: String) -> Join {

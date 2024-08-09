@@ -134,10 +134,10 @@ pub fn get_table(delete dlt: Delete(a)) -> DeleteTable {
 /// The `USING` clause is used to specify additional tables that are used
 /// to filter the rows to be deleted.
 ///
-/// NOTICE: SQLite does not support `USING`.
+/// NOTICE: 🪶SQLite does not support `USING`.
 ///
-/// NOTICE: For MariaDB and MySQL it is mandatory to specify the table specified
-/// in the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
+/// NOTICE: For 🦭MariaDB and 🐬MySQL it is mandatory to specify the table set
+/// within the `FROM` clause in the `USING` clause, again - e.g. in raw SQL:
 /// `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
 ///
 pub fn using_table(
@@ -164,9 +164,10 @@ pub fn using_table(
 /// The `USING` clause is used to specify additional tables that are used
 /// to filter the rows to be deleted.
 ///
-/// NOTICE: SQLite does not support `USING`.
+/// NOTICE: 🪶SQLite does not support `USING`.
 ///
-/// NOTICE: MariaDB and MySQL may not support sub-queries in the `USING` clause.
+/// NOTICE: 🦭MariaDB and 🐬MySQL may not support sub-queries in the `USING`
+/// clause.
 /// In such case you may use a sub-query in a `WHERE` clause,  or use a join
 /// instead.
 ///
@@ -234,8 +235,8 @@ pub fn get_using(delete dlt: Delete(a)) -> List(From) {
 
 /// Adds a `Join` to the `Delete` query.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn join(delete dlt: Delete(a), join jn: Join) -> Delete(a) {
   case dlt.join {
@@ -246,8 +247,8 @@ pub fn join(delete dlt: Delete(a), join jn: Join) -> Delete(a) {
 
 /// Replaces any `Join`s of the `Delete` query with a signle `Join`.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn replace_join(delete dlt: Delete(a), join jn: Join) -> Delete(a) {
   Delete(..dlt, join: [jn] |> Joins)
@@ -255,8 +256,8 @@ pub fn replace_join(delete dlt: Delete(a), join jn: Join) -> Delete(a) {
 
 /// Adds `Join`s to the `Delete` query.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn joins(delete dlt: Delete(a), joins jns: List(Join)) -> Delete(a) {
   case jns, dlt.join {
@@ -269,8 +270,8 @@ pub fn joins(delete dlt: Delete(a), joins jns: List(Join)) -> Delete(a) {
 
 /// Replaces any `Join`s of the `Delete` query with the given `Join`s.
 ///
-/// NOTICE: On Postgres/SQLite `Joins` are only allowed if the `FROM` clause is
-/// set as well.
+/// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
+/// clause is set as well.
 ///
 pub fn replace_joins(delete dlt: Delete(a), joins jns: List(Join)) -> Delete(a) {
   Delete(..dlt, join: jns |> Joins)
@@ -335,9 +336,10 @@ pub fn or_where(delete dlt: Delete(a), where whr: Where) -> Delete(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in Postgres or SQLite, and *Cake*
-/// generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in MariaDB/MySQL.
+/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite, and
+/// *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
+///
+/// NOTICELÖ This operator exists in 🦭MariaDB and 🐬MySQL, nativly.
 ///
 pub fn xor_where(delete dlt: Delete(a), where whr: Where) -> Delete(a) {
   case dlt.where {
