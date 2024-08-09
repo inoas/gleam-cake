@@ -21,8 +21,8 @@
 ////
 
 import cake/internal/read_query.{
-  CrossJoin, CrossJoinLateral, FullJoin, InnerJoin, JoinSubQuery, JoinTable,
-  LeftJoin, LeftJoinLateralOnTrue, RightJoin,
+  CrossJoin, CrossJoinLateral, FullJoin, InnerJoin, InnerJoinLateralOnTrue,
+  JoinSubQuery, JoinTable, LeftJoin, LeftJoinLateralOnTrue, RightJoin,
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -126,7 +126,7 @@ pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// Notice that any filtering must be done in WHERE clauses as the ON clause
 /// is always TRUE when calling this function.
 ///
-/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MariaDB
+/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MySQL
 /// versions.
 ///
 pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
@@ -138,7 +138,7 @@ pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// See <https://www.postgresql.org/docs/9.3/sql-select.html#SQL-FROM> for an
 /// explanation on how `LATERAL` works.
 ///
-/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MariaDB
+/// NOTICE: `LATERAL` is supported by PostgreSQL 9.3+ and recent MySQL
 /// versions.
 ///
 pub fn cross_lateral(with wth: JoinTarget, alias als: String) -> Join {

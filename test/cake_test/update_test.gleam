@@ -2,7 +2,6 @@ import birdie
 import cake/fragment as f
 import cake/select as s
 import cake/update as u
-import gleam/string
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
 import test_helper/mysql_test_helper

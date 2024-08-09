@@ -1081,16 +1081,21 @@ pub fn join_clause_apply(
 
           case jn {
             InnerJoin(_, _, on: on) ->
-              new_prp_stm |> join_command_apply("INNER JOIN") |> on_apply(on)
-            InnerJoinLateral(_, _, on: on) ->
-              new_prp_stm |> join_command_apply("INNER JOIN LATERAL ON TRUE")
+              new_prp_stm
+              |> join_command_apply("INNER JOIN")
+              |> on_apply(on)
+            InnerJoinLateralOnTrue(_, _) ->
+              new_prp_stm
+              |> join_command_apply("INNER JOIN LATERAL")
+              |> prepared_statement.append_sql(" ON TRUE")
             LeftJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
             LeftJoinLateralOnTrue(_, _) ->
               new_prp_stm
-              |> join_command_apply("LEFT JOIN LATERAL ON TRUE")
+              |> join_command_apply("LEFT JOIN LATERAL")
+              |> prepared_statement.append_sql(" ON TRUE")
             RightJoin(_, _, on: on) ->
               new_prp_stm
               |> join_command_apply("RIGHT OUTER JOIN")
