@@ -388,7 +388,7 @@ pub fn get_where(update updt: Update(a)) -> Where {
 // ▒▒▒ RETURNING ▒▒▒
 
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `RETURNING` in `UPDATE`
-/// queries; hey do support it in `INSERT` (and `REPLACE`) queries, however.
+/// queries; they do support it in `INSERT` (and `REPLACE`) queries, however.
 ///
 pub fn returning(
   update updt: Update(a),
