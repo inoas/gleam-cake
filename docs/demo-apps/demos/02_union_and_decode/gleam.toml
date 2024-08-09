@@ -1,5 +1,5 @@
 name = "cake_demo_union_and_decode"
-description = "An demo of using Gleam with Cake and Postgres to run UNION queries and decode returning data into Gleam records"
+description = "An demo of using Gleam with Cake and 🐘PostgreSQL to run UNION queries and decode returning data into Gleam records"
 
 [dependencies]
 cake = { path = "../../../../" }
