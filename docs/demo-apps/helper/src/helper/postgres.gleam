@@ -17,7 +17,7 @@ import pprint
 pub fn read_query_to_prepared_statement(
   query qry: ReadQuery,
 ) -> PreparedStatement {
-  qry |> postgres_dialect.query_to_prepared_statement
+  qry |> postgres_dialect.read_query_to_prepared_statement
 }
 
 pub fn write_query_to_prepared_statement(
