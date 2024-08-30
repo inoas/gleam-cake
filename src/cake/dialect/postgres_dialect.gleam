@@ -26,7 +26,7 @@ pub type WriteQuery(a) =
 
 /// Converts a cake query to a 🐘PostgreSQL prepared statement.
 ///
-pub fn read_cake_query_to_prepared_statement(
+pub fn cake_query_to_prepared_statement(
   query qry: CakeQuery(a),
 ) -> PreparedStatement {
   qry |> cake.cake_query_to_prepared_statement(dialect: Postgres)
@@ -34,7 +34,9 @@ pub fn read_cake_query_to_prepared_statement(
 
 /// Converts read query to a 🐘PostgreSQL prepared statement.
 ///
-pub fn query_to_prepared_statement(query qry: ReadQuery) -> PreparedStatement {
+pub fn read_query_to_prepared_statement(
+  query qry: ReadQuery,
+) -> PreparedStatement {
   qry |> cake.read_query_to_prepared_statement(dialect: Postgres)
 }
 
