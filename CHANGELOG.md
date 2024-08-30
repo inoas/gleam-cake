@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 <!-- ## [Unreleased] -->
 
+## [1.1.2] - 2024-08-30
+
+- Consistent dialect function names across all 4 RDMBS, fixed/renamed functions:
+  - `postgres_dialect/read_cake_query_to_prepared_statement` =>
+    `postgres_dialect/cake_query_to_prepared_statement`
+  - `postgres_dialect/query_to_prepared_statement` =>
+    `postgres_dialect/read_query_to_prepared_statement`
+  - `sqlite_dialect/read_cake_query_to_prepared_statement` =>
+    `sqlite_dialect/cake_query_to_prepared_statement`
+  - `sqlite_dialect/query_to_prepared_statement` =>
+    `sqlite_dialect/read_query_to_prepared_statement`
+  - Note that while this a breaking change, the compiler will complain and the
+    fix is trivial.
+
 ## [1.1.1] - 2024-08-09
 
 - Fix gleam min version to 1.3.0 to enable `gleam add cake@1` to work.
