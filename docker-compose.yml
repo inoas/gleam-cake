@@ -34,8 +34,10 @@ services:
     environment:
       MARIADB_DATABASE: "gleam_cake_test"
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+      MYSQL_TCP_PORT: 3306
+      MARIADB_TCP_PORT: 3306
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - ./docker/data/maria-data:/var/lib/mysql
     command:
@@ -78,5 +80,10 @@ services:
         "--collation-server=utf8mb4_unicode_ci",
         "--lower_case_table_names=1",
       ]
+    depends_on:
+      mariadb:
+        # condition: service_healthy
+        condition: service_started
+        restart: true
 volumes:
   gleam-cake-test:
