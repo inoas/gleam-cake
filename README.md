@@ -121,7 +121,10 @@ This is an SQL query building library, thus it is not concerned about executing 
 - [mysql:latest (Docker)](https://hub.docker.com/_/mysql)
 
 The tests run on Erlang but are generally target agnostic:
-While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with [sqlite3 WASM/JS](https://sqlite.org/wasm) you may run queries composed with this library in browsers.
+
+While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with following adapters, you may run queries composed with this library in browsers:
+- [sqlite3 WASM/JS](https://sqlite.org/wasm) 
+- [PGLite (Postgres WASM)](https://pglite.dev/)
 
 ## Development
 
