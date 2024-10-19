@@ -34,6 +34,23 @@ gleam add cake
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
 
+### Adapters
+
+<!--
+- PostgreSQL on Erlang: [hexdocs.pm/cake_gleam_pgo](https://hexdocs.pm/cake_gleam_pgo)
+-->
+- SQLite on Erlang: [hexdocs.pm/cake_sqlight](https://hexdocs.pm/cake_sqlight)
+<!--
+- MariaDB on Erlang: [hexdocs.pm/cake_gmysql_mariadb](https://hexdocs.pm/cake_gmysql_mariadb)
+- MySQL on Erlang: [hexdocs.pm/cake_gmysql_mysql](https://hexdocs.pm/cake_gmysql_mysql)
+-->
+<!--
+TODO:
+- SQLite on WASM/JS https://sqlite.org/wasm
+- Postgres WASM via https://pglite.dev/
+-->
+
+
 ## Usage
 
 ### Demos
