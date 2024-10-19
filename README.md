@@ -36,9 +36,9 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 
 ### Adapters
 
-- 🐘PostgreSQL on Erlang: [https://hex.pm/packages/cake_gleam_pgo](https://https://hex.pm/packages/cake_gleam_pgo)
-- 🪶SQLite on Erlang: [https://hex.pm/packages/cake_sqlight](https://https://hex.pm/packages/cake_sqlight)
-- 🦭MariaDB and 🐬MySQL on Erlang: [https://hex.pm/packages/cake_gmysql](https://https://hex.pm/packages/cake_gmysql)
+- 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_gleam_pgo](https://hex.pm/packages/cake_gleam_pgo)
+- 🪶SQLite on Erlang: [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
+- 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_gmysql](https://hex.pm/packages/cake_gmysql)
 
 <!--
 TODO:
