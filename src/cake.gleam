@@ -35,19 +35,19 @@ pub type CakeQuery(a) {
   CakeWriteQuery(WriteQuery(a))
 }
 
-/// Create a Cake query from a read query.
+/// Create a Cake read query from a read query.
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn cake_read_query(query qry: ReadQuery) -> CakeQuery(a) {
+pub fn to_read_query(query qry: ReadQuery) -> CakeQuery(a) {
   qry |> CakeReadQuery
 }
 
-/// Create a Cake query from a write query.
+/// Create a Cake write query from a write query.
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn cake_write_query(query qry: WriteQuery(a)) -> CakeQuery(a) {
+pub fn to_write_query(query qry: WriteQuery(a)) -> CakeQuery(a) {
   qry |> CakeWriteQuery
 }
 
@@ -55,7 +55,7 @@ pub fn cake_write_query(query qry: WriteQuery(a)) -> CakeQuery(a) {
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn cake_query_to_prepared_statement(
+pub fn to_prepared_statement(
   query qry: CakeQuery(a),
   dialect dlct: Dialect,
 ) -> PreparedStatement {

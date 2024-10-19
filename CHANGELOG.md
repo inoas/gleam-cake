@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 <!-- ## [Unreleased] -->
 
+## [2.0.0] - 2024-10-19
+
+- Breaking changes:
+  - Renamed `cake.cake_read_query` to `cake.to_read_query`
+  - Renamed `cake.cake_write_query` to `cake.to_write_query`
+
 ## [1.1.2] - 2024-08-30
 
 - Consistent dialect function names across all 4 RDMBS, fixed/renamed functions:
