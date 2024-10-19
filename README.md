@@ -20,7 +20,10 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 <br>
 
 <p align="center">
-  <i>Cake is a library written in Gleam to compose SQL queries targeting SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.</i>
+  <i>
+    🎂Cake is a library written in Gleam to compose SQL queries targeting SQL
+    dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.
+  </i>
 </p>
 
 <br>
@@ -29,7 +32,7 @@ Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 ## Installation
 
 ```shell
-gleam add cake@v2
+gleam add cake
 ```
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
@@ -57,9 +60,12 @@ See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/doc
 
 ### Unit tests as examples
 
-See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test), especially the _Setup_ sections in each test module.
+See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test),
+especially the _Setup_ sections in each test module.
 
-You may also compare the tests with the [snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots) results.
+You may also compare the tests with the
+[snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots)
+results.
 
 ### Intended aliases
 
@@ -80,14 +86,17 @@ import cake/fragment as f // For arbitrary SQL code including functions
 
 ### Scope
 
-This is an SQL query building library, thus it is not concerned about executing queries or decoding return values from queries, but merely about being a flexible and powerful tool to compose and craft SQL read and write queries.
+This is an SQL query building library, thus it is not concerned about executing
+queries or decoding return values from queries, but merely about being a
+flexible and powerful tool to compose and craft SQL read and write queries.
 
 #### Goals
 
 - High degree of flexibility to compose queries:
   While the focus is on building queries there is also support for replacing
   or removing parts of queries.
-- General support on these 4 large RDMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.
+- General support on these 4 large RDMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and
+  🐬MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
@@ -122,8 +131,10 @@ This is an SQL query building library, thus it is not concerned about executing 
 
 The tests run on Erlang but are generally target agnostic.
 
-While the primary use case is to run queries on servers, this library runs on any Gleam target and for example in conjunction with following adapters, you may run queries composed with this library in browsers:
-- [sqlite3 WASM/JS](https://sqlite.org/wasm) 
+While the primary use case is to run queries on servers, this library runs on
+any Gleam target and for example in conjunction with following adapters, you may
+run queries composed with this library in browsers:
+- [sqlite3 WASM/JS](https://sqlite.org/wasm)
 - [PGLite (Postgres WASM)](https://pglite.dev/)
 
 ## Development
@@ -153,6 +164,9 @@ bin/birdie/reject-all
 
 ## Library naming
 
-The best part of working with CakePHP 3+ used to be its Query Builder. This library is inspired by that and thus the name.
+The best part of working with CakePHP 3+ used to be its Query Builder. This
+library is inspired by that and thus the name.
 
-Thank you [@lorenzo](https://github.com/lorenzo) and [@markstory](https://github.com/markstory) for creating and maintaining CakePHP and its awesome query builder over the years.
+Thank you [@lorenzo](https://github.com/lorenzo) and
+[@markstory](https://github.com/markstory) for creating and maintaining CakePHP
+and its awesome query builder over the years.
