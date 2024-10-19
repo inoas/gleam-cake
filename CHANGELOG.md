@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Breaking changes:
   - Renamed `cake.cake_read_query` to `cake.to_read_query`
   - Renamed `cake.cake_write_query` to `cake.to_write_query`
+  - Renamed `cake.cake_query_to_prepared_statement` to `cake.to_prepared_statement`
 
 ## [1.1.2] - 2024-08-30
 
