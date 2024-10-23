@@ -46,7 +46,11 @@ pub fn append_param(
 
 /// Appends arbitrary SQL to the prepared statement.
 ///
-/// NOTICE: IT IS FORBIDDEN TO USE THIS FUNCTION WITH USER INPUT.
+/// ⛔ ⛔ ⛔
+///
+/// WARNING: YOU ARE FORBIDDEN TO INSERT UNCONTROLLED USER INPUT THIS WAY!
+///
+/// ⛔ ⛔ ⛔
 ///
 pub fn append_sql(
   prepared_statement prp_stm: PreparedStatement,
