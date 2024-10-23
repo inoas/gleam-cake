@@ -201,7 +201,7 @@ pub fn get_limit(query qry: Combined) -> Limit {
 
 /// Sets an `Offset` in the `Combined` `ReadQuery`.
 ///
-pub fn offset(query qry: Combined, offst offst: Int) -> Combined {
+pub fn offset(query qry: Combined, offest offst: Int) -> Combined {
   let offst = offst |> read_query.offset_new
   Combined(..qry, offset: offst)
 }

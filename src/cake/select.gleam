@@ -547,7 +547,7 @@ pub fn get_limit(select slct: Select) -> Limit {
 
 /// Sets an `Offset` in the `Select` query.
 ///
-pub fn offset(select slct: Select, offst offst: Int) -> Select {
+pub fn offset(select slct: Select, offset offst: Int) -> Select {
   let offst = offst |> read_query.offset_new
   Select(..slct, offset: offst)
 }
