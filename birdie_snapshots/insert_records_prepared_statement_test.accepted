@@ -1,5 +1,5 @@
 ---
-version: 1.1.8
+version: 1.2.3
 title: insert_records_prepared_statement_test
 file: ./test/cake_test/insert_records_test.gleam
 test_name: insert_records_prepared_statement_test

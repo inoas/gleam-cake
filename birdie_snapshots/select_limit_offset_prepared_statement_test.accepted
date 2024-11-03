@@ -1,5 +1,5 @@
 ---
-version: 1.1.8
+version: 1.2.3
 title: select_limit_offset_prepared_statement_test
 file: ./test/cake_test/limit_offset_test.gleam
 test_name: select_limit_offset_prepared_statement_test
