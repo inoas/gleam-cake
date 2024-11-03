@@ -1,5 +1,5 @@
 ---
-version: 1.1.8
+version: 1.2.3
 title: inner_join_lateral_prepared_statement_test
 file: ./test/cake_test/join_lateral_test.gleam
 test_name: inner_join_lateral_prepared_statement_test

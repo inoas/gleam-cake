@@ -6,13 +6,13 @@ on:
       gleam_version:
         type: string
         required: true
-        default: "1"
+        default: "1.4"
+      erlang_version:
+        type: string
+        default: "26"
       test_erlang:
         type: boolean
         default: true
-      erlang_version:
-        type: string
-        default: "27"
       test_node:
         type: boolean
         default: true
@@ -77,7 +77,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        erlang: ["27"]
+        erlang:
+          - ${{inputs.erlang_version}}
     steps:
       - uses: actions/checkout@v4
       - uses: inoas/gleam_actions/.github/actions/install_gleam@main-on-upstream

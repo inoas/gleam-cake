@@ -1,5 +1,5 @@
 ---
-version: 1.1.8
+version: 1.2.3
 title: cross_join_lateral_test
 file: ./test/cake_test/join_lateral_test.gleam
 test_name: cross_join_lateral_test

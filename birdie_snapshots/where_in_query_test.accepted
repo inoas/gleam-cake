@@ -1,5 +1,5 @@
 ---
-version: 1.1.8
+version: 1.2.3
 title: where_in_query_test
 file: ./test/cake_test/where_in_test.gleam
 test_name: where_in_query_test
