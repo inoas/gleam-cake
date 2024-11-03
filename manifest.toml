@@ -37,7 +37,7 @@ packages = [
 [requirements]
 birdie = { version = ">= 1.2.3 and < 2.0.0" }
 gleam_pgo = { version = ">= 0.14.0 and < 2.0.0" }
-gleam_stdlib = { version = ">= 0.41.0 and < 2.0.0" }
+gleam_stdlib = { version = ">= 0.39.0 and < 2.0.0" }
 gleeunit = { version = ">= 1.2.0 and < 2.0.0" }
 gmysql = { version = ">= 1.4.0 and < 2.0.0" }
 pprint = { version = ">= 1.0.4 and < 2.0.0" }
