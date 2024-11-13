@@ -3,7 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+
+- Added convenience functions to `select` module to select columns by col names:
+  - `select_cols`
+  - `replace_select_cols`
+  - `select_col`
+  - `replace_select_col`
+- Replaced dev/test and adapter target `gleam_pgo` with `pgo` dependency.
 
 ## [2.0.2] - 2024-11-03
 
@@ -176,7 +183,7 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
 - Removed the hard dependency on any RDMBS specific
   library. These are now only required when developing and testing
   this library, but when running you can chose any of the following adapters:
-  - `gleam_pgo`
+  - `pog`
   - `sqlight`
   - `gmysql`
 

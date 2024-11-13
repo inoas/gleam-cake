@@ -1,5 +1,5 @@
 //// 🐘PostgreSQL adapter which which passes `PreparedStatements`
-//// to the `gleam_pgo` library for execution.
+//// to the `pog` library for execution.
 ////
 
 import cake
@@ -10,10 +10,9 @@ import cake/internal/write_query.{type WriteQuery}
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
-import gleam/dynamic
 import gleam/list
 import gleam/option.{Some}
-import gleam/pgo.{type Connection, type Value}
+import pog.{type Connection, type Value}
 import test_support/iox
 
 pub fn read_query_to_prepared_statement(
@@ -30,17 +29,17 @@ pub fn write_query_to_prepared_statement(
 
 pub fn with_connection(f: fn(Connection) -> a) -> a {
   let connection =
-    pgo.Config(
-      ..pgo.default_config(),
+    pog.Config(
+      ..pog.default_config(),
       host: "localhost",
       user: "postgres",
       password: Some("postgres"),
       database: "gleam_cake_test",
     )
-    |> pgo.connect
+    |> pog.connect
 
   let value = f(connection)
-  pgo.disconnect(connection)
+  pog.disconnect(connection)
 
   value
 }
@@ -54,20 +53,25 @@ pub fn run_read_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn)
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
-        BoolParam(param) -> pgo.bool(param)
-        FloatParam(param) -> pgo.float(param)
-        IntParam(param) -> pgo.int(param)
-        StringParam(param) -> pgo.text(param)
-        NullParam -> pgo.null()
+        BoolParam(param) -> pog.bool(param)
+        FloatParam(param) -> pog.float(param)
+        IntParam(param) -> pog.int(param)
+        StringParam(param) -> pog.text(param)
+        NullParam -> pog.null()
       }
     })
     |> iox.print_tap("Params: ")
     |> iox.inspect_println_tap
 
-  let result = sql |> pgo.execute(on: db_conn, with: db_params, expecting: dcdr)
+  let result =
+    sql
+    |> pog.query
+    |> pog_parameters(db_params:)
+    |> pog.returning(dcdr)
+    |> pog.execute(on: db_conn)
 
   case result {
-    Ok(pgo.Returned(_result_count, v)) -> Ok(v)
+    Ok(pog.Returned(_result_count, v)) -> Ok(v)
     Error(e) -> Error(e)
   }
 }
@@ -85,24 +89,39 @@ pub fn run_write_query(
     params
     |> list.map(fn(param: Param) -> Value {
       case param {
-        BoolParam(param) -> pgo.bool(param)
-        FloatParam(param) -> pgo.float(param)
-        IntParam(param) -> pgo.int(param)
-        StringParam(param) -> pgo.text(param)
-        NullParam -> pgo.null()
+        BoolParam(param) -> pog.bool(param)
+        FloatParam(param) -> pog.float(param)
+        IntParam(param) -> pog.int(param)
+        StringParam(param) -> pog.text(param)
+        NullParam -> pog.null()
       }
     })
     |> iox.print_tap("Params: ")
     |> iox.inspect_println_tap
 
-  let result = sql |> pgo.execute(on: db_conn, with: db_params, expecting: dcdr)
+  let result =
+    sql
+    |> pog.query
+    |> pog_parameters(db_params:)
+    |> pog.returning(dcdr)
+    |> pog.execute(on: db_conn)
 
   case result {
-    Ok(pgo.Returned(_result_count, v)) -> Ok(v)
+    Ok(pog.Returned(_result_count, v)) -> Ok(v)
     Error(e) -> Error(e)
   }
 }
 
 pub fn execute_raw_sql(sql sql: String, connection conn: Connection) {
-  sql |> pgo.execute(conn, with: [], expecting: dynamic.dynamic)
+  sql |> pog.query |> pog.execute(on: conn)
+}
+
+fn pog_parameters(
+  pog_query pg_qry: pog.Query(a),
+  db_params db_params: List(pog.Value),
+) -> pog.Query(a) {
+  db_params
+  |> list.fold(pg_qry, fn(pg_qry, db_param) {
+    pg_qry |> pog.parameter(db_param)
+  })
 }

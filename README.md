@@ -36,7 +36,7 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 
 ### Adapters
 
-- 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_gleam_pgo](https://hex.pm/packages/cake_gleam_pgo)
+- 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_pog](https://hex.pm/packages/cake_pog)
 - 🪶SQLite on Erlang: [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
 - 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_gmysql](https://hex.pm/packages/cake_gmysql)
 
@@ -109,7 +109,7 @@ flexible and powerful tool to compose and craft SQL read and write queries.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
-  - [gleam_pgo](https://hex.pm/packages/gleam_pgo)
+  - [pog](https://hex.pm/packages/pog)
   - [sqlight](https://hex.pm/packages/sqlight)
   - [gmysql](https://hex.pm/packages/gmysql)
 - Allow to define custom SQL fragments while still being safe

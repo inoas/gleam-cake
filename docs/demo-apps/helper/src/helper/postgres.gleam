@@ -1,5 +1,5 @@
 //// 🐘PostgreSQL adapter which which passes `PreparedStatements`
-//// to the `gleam_pgo` library for execution.
+//// to the `pog` library for execution.
 ////
 
 import cake.{type PreparedStatement, type ReadQuery, type WriteQuery}
@@ -11,7 +11,7 @@ import gleam/dynamic
 import gleam/io
 import gleam/list
 import gleam/option.{Some}
-import gleam/pgo.{type Connection, type Value}
+import pog.{type Connection, type Value}
 import pprint
 
 pub fn read_query_to_prepared_statement(
