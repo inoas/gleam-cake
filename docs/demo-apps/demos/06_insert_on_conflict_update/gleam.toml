@@ -2,8 +2,9 @@ name = "cake_demo_insert_on_conflict_update"
 description = "An demo of using Gleam with Cake and Postgres to run INSERT ON CONFLICT UPDATE queries"
 
 [dependencies]
-cake = { path = "../../../../" }
-helper = { path = "../../helper" }
-gleam_pgo = ">= 0.13.0 and < 2.0.0"
+cake = { path = "../../../.." }
+cake_pog = ">= 1.0.3 and < 2.0.0"
 gleam_stdlib = ">= 0.39.0 and < 2.0.0"
+helper = { path = "../../helper" }
+pog = ">= 1.0.0 and < 2.0.0"
 pprint = ">= 1.0.3 and < 2.0.0"

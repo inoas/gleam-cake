@@ -195,6 +195,14 @@ pub fn get_from(select slct: Select) -> From {
 
 // ▒▒▒ SELECT ▒▒▒
 
+/// Add a column name to the `Select` query as a `SelectValue`.
+///
+/// If the query already has any `SelectValue`s, the new one is appended.
+///
+pub fn select_col(select slct: Select, name nm: String) -> Select {
+  nm |> col |> select(select: slct)
+}
+
 /// Add a `SelectValue` to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, the new one is appended.
@@ -205,6 +213,14 @@ pub fn select(select slct: Select, select_value sv: SelectValue) -> Select {
     Selects(slct_slcts) ->
       Select(..slct, select: slct_slcts |> list.append([sv]) |> Selects)
   }
+}
+
+/// Add a column name to the `Select` query as a `SelectValue`.
+///
+/// If the query already has any `SelectValue`s, they are replaced.
+///
+pub fn replace_select_col(select slct: Select, name nm: String) -> Select {
+  nm |> col |> replace_select(select: slct)
 }
 
 /// Add a `SelectValue`s to the `Select` query.
@@ -222,6 +238,17 @@ pub fn replace_select(
   }
 }
 
+/// Adds many column names as `SelectValue`s to the `Select` query.
+///
+/// If the query already has any `SelectValue`s, the new ones are appended.
+///
+pub fn select_cols(
+  select slct: Select,
+  select_cols scls: List(String),
+) -> Select {
+  scls |> list.map(col) |> selects(select: slct)
+}
+
 /// Adds many `SelectValue`s to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, the new ones are appended.
@@ -236,6 +263,17 @@ pub fn selects(
     svs, Selects(slct_slcts) ->
       Select(..slct, select: slct_slcts |> list.append(svs) |> Selects)
   }
+}
+
+/// Adds many column names as `SelectValue`s to the `Select` query.
+///
+/// If the query already has any `SelectValue`s, the new ones are replaced.
+///
+pub fn replace_select_cols(
+  select slct: Select,
+  select_cols scls: List(String),
+) -> Select {
+  scls |> list.map(col) |> replace_selects(select: slct)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.

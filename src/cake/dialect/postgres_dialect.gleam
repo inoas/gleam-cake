@@ -1,4 +1,4 @@
-//// 🐘PostgreSQL dialect to be used in conjunction with the `gleam_pgo`
+//// 🐘PostgreSQL dialect to be used in conjunction with the `pog`
 //// library.
 ////
 

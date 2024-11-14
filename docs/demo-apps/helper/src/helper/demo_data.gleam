@@ -1,5 +1,5 @@
+import cake/adapter/postgres
 import gleam/io
-import helper/postgres
 import pprint
 
 pub fn create_tables_and_insert_rows(conn) {
