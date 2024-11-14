@@ -2,8 +2,9 @@ name = "cake_demo_union_and_decode"
 description = "An demo of using Gleam with Cake and 🐘PostgreSQL to run UNION queries and decode returning data into Gleam records"
 
 [dependencies]
-cake = { path = "../../../../" }
+cake = { path = "../../../.." }
+cake_pog = ">= 1.0.3 and < 2.0.0"
+gleam_stdlib = ">= 0.39.0 and < 2.0.0"
 helper = { path = "../../helper" }
 pog = ">= 1.0.0 and < 2.0.0"
-gleam_stdlib = ">= 0.39.0 and < 2.0.0"
 pprint = ">= 1.0.3 and < 2.0.0"
