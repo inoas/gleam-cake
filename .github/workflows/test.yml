@@ -12,13 +12,13 @@ jobs:
     uses: ./.github/workflows/abstract_test.yml
     with:
       erlang_version: "26"
-      gleam_version: "1.4.1"
+      gleam_version: "1.6.3"
       test_erlang: true
       test_node: false
   test_highest:
     uses: ./.github/workflows/abstract_test.yml
     with:
       erlang_version: "27"
-      gleam_version: "1.5.1"
+      gleam_version: "1.7.0"
       test_erlang: true
       test_node: false
