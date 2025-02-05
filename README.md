@@ -38,7 +38,7 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 
 - 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_pog](https://hex.pm/packages/cake_pog)
 - 🪶SQLite on Erlang: [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
-- 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_gmysql](https://hex.pm/packages/cake_shork)
+- 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_shork](https://hex.pm/packages/cake_shork)
   or [hex.pm/packages/cake_gmysql](https://hex.pm/packages/cake_gmysql)
 
 <!--
