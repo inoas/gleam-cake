@@ -1,11 +1,11 @@
 name = "cake"
-version = "2.1.0"
+version = "2.2.0"
 description = "An SQL query builder for Gleam for SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, and 🐬MySQL"
 licences = ["MPL-2.0"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 # links = [{ title = "Website", href = "https://gleam.run" }]
 
-gleam = ">= 1.4.1 and < 2.0.0"
+gleam = ">= 1.8.1"
 
 [documentation]
 pages = [
