@@ -1,4 +1,4 @@
-import gleam/dynamic
+import gleam/dynamic/decode
 import test_support/adapter/sqlite
 import test_support/test_data
 
@@ -18,7 +18,7 @@ pub fn setup_and_run(query) {
   let _ = test_data.create_dogs_table() |> sqlite.execute_raw_sql(conn)
   let _ = test_data.insert_dogs_rows() |> sqlite.execute_raw_sql(conn)
 
-  query |> sqlite.run_read_query(dynamic.dynamic, conn)
+  query |> sqlite.run_read_query(decode.dynamic, conn)
 }
 
 pub fn setup_and_run_write(query) {
@@ -42,5 +42,5 @@ pub fn setup_and_run_write(query) {
   let _ = test_data.create_counters_table() |> sqlite.execute_raw_sql(conn)
   let _ = test_data.insert_counters_rows() |> sqlite.execute_raw_sql(conn)
 
-  query |> sqlite.run_write_query(dynamic.dynamic, conn)
+  query |> sqlite.run_write_query(decode.dynamic, conn)
 }

@@ -13,12 +13,12 @@ pages = [
 ]
 
 [dependencies]
-gleam_stdlib = ">= 0.39.0 and < 2.0.0"
+gleam_stdlib = ">= 0.55.0 and < 2.0.0"
 
 [dev-dependencies]
-birdie = ">= 1.2.3 and < 2.0.0"
-pog = ">= 1.0.0 and < 2.0.0"
+birdie = ">= 1.2.6 and < 2.0.0"
 gleeunit = ">= 1.2.0 and < 2.0.0"
-gmysql = ">= 1.4.0 and < 2.0.0"
+pog = ">= 1.0.0 and < 2.0.0"
 pprint = ">= 1.0.4 and < 2.0.0"
+shork = ">= 1.2.0 and < 2.0.0"
 sqlight = ">= 0.9.1 and < 2.0.0"

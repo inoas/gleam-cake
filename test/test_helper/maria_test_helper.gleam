@@ -1,4 +1,4 @@
-import gleam/dynamic
+import gleam/dynamic/decode
 import test_support/adapter/maria
 import test_support/test_data
 
@@ -17,7 +17,7 @@ pub fn setup_and_run(query) {
   let _ = test_data.create_dogs_table() |> maria.execute_raw_sql(conn)
   let _ = test_data.insert_dogs_rows() |> maria.execute_raw_sql(conn)
 
-  query |> maria.run_read_query(dynamic.dynamic, conn)
+  query |> maria.run_read_query(decode.dynamic, conn)
 }
 
 pub fn setup_and_run_write(query) {
@@ -40,5 +40,5 @@ pub fn setup_and_run_write(query) {
   let _ = test_data.create_counters_table() |> maria.execute_raw_sql(conn)
   let _ = test_data.insert_counters_rows() |> maria.execute_raw_sql(conn)
 
-  query |> maria.run_write_query(dynamic.dynamic, conn)
+  query |> maria.run_write_query(decode.dynamic, conn)
 }
