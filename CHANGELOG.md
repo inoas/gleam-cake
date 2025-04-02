@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 - Update deps
+- Breaking changes due to renaming:
+  - TODO
 
 ## [2.1.0] - 2024-11-14
 
