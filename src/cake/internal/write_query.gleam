@@ -8,7 +8,7 @@ import cake/internal/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/read_query.{
   type Comment, type Epilog, type From, type Joins, type ReadQuery, type Where,
-  Epilog, FromSubQuery, FromTable, NoFrom,
+  FromSubQuery, FromTable, NoFrom,
 }
 import cake/param.{type Param}
 import gleam/list
@@ -161,18 +161,18 @@ pub type InsertValue {
 ///
 pub type InsertConflictStrategy(a) {
   InsertConflictError
-  InsertConflictIgnore(target: InsertConfictTarget, where: Where)
+  InsertConflictIgnore(target: InsertConflictTarget, where: Where)
   InsertConflictUpdate(
-    target: InsertConfictTarget,
+    target: InsertConflictTarget,
     where: Where,
     update: Update(a),
   )
 }
 
-/// The `InsertConfictTarget` type is used to define the target of the conflict
+/// The `InsertConflictTarget` type is used to define the target of the conflict
 /// resolution.
 ///
-pub type InsertConfictTarget {
+pub type InsertConflictTarget {
   InsertConflictTarget(columns: List(String))
   InsertConflictTargetConstraint(constraint: String)
 }
@@ -371,7 +371,7 @@ fn insert_on_conflict_apply(
 
 fn insert_on_conflict_target_apply(
   prepared_statement prp_stm: PreparedStatement,
-  target cflt_trgt: InsertConfictTarget,
+  target cflt_trgt: InsertConflictTarget,
 ) {
   case cflt_trgt {
     InsertConflictTarget(columns: cols) ->
@@ -466,7 +466,7 @@ fn update_table_apply(
 
 fn update_modifier_apply(
   prepared_statement prp_stm: PreparedStatement,
-  update_modifer updt_mdfr: UpdateModifier,
+  update_modifier updt_mdfr: UpdateModifier,
 ) -> PreparedStatement {
   case updt_mdfr {
     NoUpdateModifier -> prp_stm
@@ -489,7 +489,7 @@ fn update_sets_apply(
   prepared_statement prp_stm: PreparedStatement,
   update_sets updt_sts: List(UpdateSet),
 ) -> PreparedStatement {
-  let apply_columns = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
+  let columns_apply = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
     case cols {
       [] -> new_prp_stm
       [col] -> new_prp_stm |> prepared_statement.append_sql(" " <> col <> " =")
@@ -513,16 +513,16 @@ fn update_sets_apply(
       case updt_st {
         UpdateParamSet(column: col, param: prm) ->
           new_prp_stm
-          |> apply_columns([col])
+          |> columns_apply([col])
           |> prepared_statement.append_sql(" ")
           |> prepared_statement.append_param(prm)
         UpdateExpressionSet(columns: cols, expression: expr) ->
           new_prp_stm
-          |> apply_columns(cols)
+          |> columns_apply(cols)
           |> prepared_statement.append_sql(" " <> expr)
         UpdateSubQuerySet(columns: cols, query: qry) ->
           new_prp_stm
-          |> apply_columns(cols)
+          |> columns_apply(cols)
           |> prepared_statement.append_sql(" (")
           |> read_query.apply(qry)
           |> prepared_statement.append_sql(")")

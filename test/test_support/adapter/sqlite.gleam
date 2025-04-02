@@ -1,83 +1,122 @@
-//// 🪶SQLite adapter which which passes `PreparedStatements`
+//// 🎂Cake 🪶SQLite adapter which passes `PreparedStatement`s
 //// to the `sqlight` library for execution.
 ////
 
-import cake
-import cake/internal/dialect.{Sqlite}
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/read_query.{type ReadQuery}
-import cake/internal/write_query.{type WriteQuery}
+import cake.{
+  type CakeQuery, type PreparedStatement, type ReadQuery, type WriteQuery,
+  CakeReadQuery, CakeWriteQuery,
+}
+import cake/dialect/sqlite_dialect
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
+import gleam/dynamic/decode.{type Decoder}
 import gleam/list
-import sqlight.{type Connection, type Value}
-import test_support/iox
+import sqlight.{type Connection, type Error, type Value}
 
+/// Connection to a SQLite database.
+///
+/// This is a thin wrapper around the `sqlight` library's `Connection` type.
+///
+pub fn with_connection(
+  filename filename: String,
+  callback callback: fn(Connection) -> a,
+) -> a {
+  sqlight.with_connection("file:" <> filename, callback)
+}
+
+/// Connection to an in-memory SQLite database.
+///
+/// This is a thin wrapper around the `sqlight` library's `Connection` type.
+///
+pub fn with_memory_connection(callback callback: fn(Connection) -> a) -> a {
+  sqlight.with_connection(":memory:", callback)
+}
+
+/// Convert a Cake `ReadQuery` to a `PreparedStatement`.
+///
 pub fn read_query_to_prepared_statement(
-  query qry: ReadQuery,
+  query query: ReadQuery,
 ) -> PreparedStatement {
-  qry |> cake.read_query_to_prepared_statement(dialect: Sqlite)
+  query |> sqlite_dialect.read_query_to_prepared_statement
 }
 
+/// Convert a Cake `WriteQuery` to a `PreparedStatement`.
+///
 pub fn write_query_to_prepared_statement(
-  query qry: WriteQuery(a),
+  query query: WriteQuery(t),
 ) -> PreparedStatement {
-  qry |> cake.write_query_to_prepared_statement(dialect: Sqlite)
+  query |> sqlite_dialect.write_query_to_prepared_statement
 }
 
-pub fn with_memory_connection(callback_fun: fn(Connection) -> a) -> a {
-  sqlight.with_connection(":memory:", callback_fun)
-}
-
-pub fn run_read_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
-  let prp_stm = read_query_to_prepared_statement(qry)
-  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
-  let params = cake.get_params(prp_stm)
-
+/// Run a Cake `ReadQuery` against an SQLite database.
+///
+pub fn run_read_query(
+  query query: ReadQuery,
+  decoder decoder: Decoder(a),
+  db_connection db_connection: Connection,
+) -> Result(List(a), Error) {
+  let prepared_statement = query |> read_query_to_prepared_statement
+  let sql_string = prepared_statement |> cake.get_sql
   let db_params =
-    params
-    |> list.map(fn(param: Param) -> Value {
-      case param {
-        BoolParam(param) -> sqlight.bool(param)
-        FloatParam(param) -> sqlight.float(param)
-        IntParam(param) -> sqlight.int(param)
-        StringParam(param) -> sqlight.text(param)
-        NullParam -> sqlight.null()
-      }
-    })
-    |> iox.print_tap("Params: ")
-    |> iox.inspect_println_tap
+    prepared_statement
+    |> cake.get_params
+    |> list.map(with: cake_param_to_client_param)
 
-  sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
+  sql_string
+  |> sqlight.query(on: db_connection, with: db_params, expecting: decoder)
 }
 
+/// Run a Cake `WriteQuery` against an SQLite database.
+///
 pub fn run_write_query(
-  query qry: WriteQuery(a),
-  decoder dcdr,
-  db_connection db_conn,
-) {
-  let prp_stm = write_query_to_prepared_statement(qry)
-  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
-  let params = cake.get_params(prp_stm)
-
+  query query: WriteQuery(a),
+  decoder decoder: Decoder(b),
+  db_connection db_connection: Connection,
+) -> Result(List(b), Error) {
+  let prepared_statement = query |> write_query_to_prepared_statement
+  let sql_string = prepared_statement |> cake.get_sql
   let db_params =
-    params
-    |> list.map(fn(param: Param) -> Value {
-      case param {
-        BoolParam(param) -> sqlight.bool(param)
-        FloatParam(param) -> sqlight.float(param)
-        IntParam(param) -> sqlight.int(param)
-        StringParam(param) -> sqlight.text(param)
-        NullParam -> sqlight.null()
-      }
-    })
-    |> iox.print_tap("Params: ")
-    |> iox.inspect_println_tap
+    prepared_statement
+    |> cake.get_params
+    |> list.map(with: cake_param_to_client_param)
 
-  sql |> sqlight.query(on: db_conn, with: db_params, expecting: dcdr)
+  sql_string
+  |> sqlight.query(on: db_connection, with: db_params, expecting: decoder)
 }
 
-pub fn execute_raw_sql(sql sql: String, connection conn: Connection) {
-  sql |> sqlight.exec(conn)
+/// Run a Cake `CakeQuery` against an SQLite database.
+///
+/// This function is a wrapper around `run_read_query` and `run_write_query`.
+///
+pub fn run_query(
+  query query: CakeQuery(a),
+  decoder decoder: Decoder(a),
+  db_connection db_connection: Connection,
+) -> Result(List(a), Error) {
+  case query {
+    CakeReadQuery(read_query) ->
+      read_query |> run_read_query(decoder, db_connection)
+    CakeWriteQuery(write_query) ->
+      write_query |> run_write_query(decoder, db_connection)
+  }
+}
+
+/// Execute a raw SQL query against an SQLite database.
+///
+pub fn execute_raw_sql(
+  sql_string sql_string: String,
+  db_connection db_connection: Connection,
+) -> Result(Nil, Error) {
+  sql_string |> sqlight.exec(on: db_connection)
+}
+
+fn cake_param_to_client_param(param param: Param) -> Value {
+  case param {
+    BoolParam(param) -> sqlight.bool(param)
+    FloatParam(param) -> sqlight.float(param)
+    IntParam(param) -> sqlight.int(param)
+    StringParam(param) -> sqlight.text(param)
+    NullParam -> sqlight.null()
+  }
 }
