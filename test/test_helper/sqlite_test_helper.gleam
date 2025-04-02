@@ -41,3 +41,11 @@ pub fn setup_and_run_write(query) {
 
   query |> sqlite.run_write_query(decode.dynamic, conn)
 }
+
+pub fn setup_and_run_write_value(query) {
+  use conn <- with_local_test_connection
+
+  let _ = setup_database_default_values(conn)
+
+  query |> sqlite.run_write_query(decode.dynamic, conn)
+}

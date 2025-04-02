@@ -75,16 +75,16 @@ pub fn insert_records_prepared_statement_test() {
   |> to_string
   |> birdie.snap("insert_records_prepared_statement_test")
 }
-//
-// pub fn insert_records_execution_result_test() {
-//   let pgo = insert_records_query() |> postgres_test_helper.setup_and_run_write
-//   let lit = insert_records_query() |> sqlite_test_helper.setup_and_run_write
-//   let mdb =
-//     insert_records_maria_mysql_query() |> maria_test_helper.setup_and_run_write
-//   let myq =
-//     insert_records_maria_mysql_query() |> mysql_test_helper.setup_and_run_write
 
-//   #(pgo, lit, mdb, myq)
-//   |> to_string
-//   |> birdie.snap("insert_records_execution_result_test")
-// }
+pub fn insert_records_execution_result_test() {
+  let pgo = insert_records_query() |> postgres_test_helper.setup_and_run_write
+  let lit = insert_records_query() |> sqlite_test_helper.setup_and_run_write
+  let mdb =
+    insert_records_maria_mysql_query() |> maria_test_helper.setup_and_run_write
+  let myq =
+    insert_records_maria_mysql_query() |> mysql_test_helper.setup_and_run_write
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("insert_records_execution_result_test")
+}

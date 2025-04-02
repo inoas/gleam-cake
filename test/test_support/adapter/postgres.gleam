@@ -89,9 +89,9 @@ pub fn run_read_query(
 ///
 pub fn run_write_query(
   query query: WriteQuery(a),
-  decoder decoder: Decoder(a),
+  decoder decoder: Decoder(b),
   db_connection on: Connection,
-) -> Result(List(a), QueryError) {
+) -> Result(List(b), QueryError) {
   let prepared_statement = query |> write_query_to_prepared_statement
   let sql_string = prepared_statement |> cake.get_sql
   let db_params =
