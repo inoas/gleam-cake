@@ -1,110 +1,83 @@
-//// 🐘PostgreSQL adapter which which passes `PreparedStatements`
+//// 🎂Cake 🐘PostgreSQL adapter which passes `PreparedStatement`s
 //// to the `pog` library for execution.
 ////
 
-import cake
-import cake/internal/dialect.{Postgres}
-import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/internal/read_query.{type ReadQuery}
-import cake/internal/write_query.{type WriteQuery}
+import cake.{
+  type CakeQuery, type PreparedStatement, type ReadQuery, type WriteQuery,
+  CakeReadQuery, CakeWriteQuery,
+}
+import cake/dialect/postgres_dialect
 import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
+import gleam/dynamic/decode.{type Decoder}
 import gleam/list
-import gleam/option.{Some}
-import pog.{type Connection, type Value}
-import test_support/iox
+import gleam/option.{type Option}
+import pog.{type Connection, type QueryError, type Returned, type Value}
 
-pub fn read_query_to_prepared_statement(
-  query qry: ReadQuery,
-) -> PreparedStatement {
-  qry |> cake.read_query_to_prepared_statement(dialect: Postgres)
-}
-
-pub fn write_query_to_prepared_statement(
-  query qry: WriteQuery(a),
-) -> PreparedStatement {
-  qry |> cake.write_query_to_prepared_statement(dialect: Postgres)
-}
-
-pub fn with_connection(f: fn(Connection) -> a) -> a {
+/// Connection to a PostgreSQL database.
+///
+/// This is a thin wrapper around the `pog` library's `Connection` type.
+///
+pub fn with_connection(
+  host host: String,
+  port port: Int,
+  username username: String,
+  password password: Option(String),
+  database database: String,
+  callback callback: fn(Connection) -> a,
+) -> a {
   let connection =
     pog.Config(
       ..pog.default_config(),
-      host: "localhost",
-      user: "postgres",
-      password: Some("postgres"),
-      database: "gleam_cake_test",
+      host: host,
+      port: port,
+      user: username,
+      password: password,
+      database: database,
     )
     |> pog.connect
 
-  let value = f(connection)
+  let value = callback(connection)
   pog.disconnect(connection)
 
   value
 }
 
-pub fn run_read_query(query qry: ReadQuery, decoder dcdr, db_connection db_conn) {
-  let prp_stm = read_query_to_prepared_statement(qry)
-  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
-  let params = cake.get_params(prp_stm)
-
-  let db_params =
-    params
-    |> list.map(fn(param: Param) -> Value {
-      case param {
-        BoolParam(param) -> pog.bool(param)
-        FloatParam(param) -> pog.float(param)
-        IntParam(param) -> pog.int(param)
-        StringParam(param) -> pog.text(param)
-        NullParam -> pog.null()
-      }
-    })
-    |> iox.print_tap("Params: ")
-    |> iox.inspect_println_tap
-
-  let result =
-    sql
-    |> pog.query
-    |> pog_parameters(db_params:)
-    |> pog.returning(dcdr)
-    |> pog.execute(on: db_conn)
-
-  case result {
-    Ok(pog.Returned(_result_count, v)) -> Ok(v)
-    Error(e) -> Error(e)
-  }
+/// Convert a Cake `ReadQuery` to a `PreparedStatement`.
+///
+pub fn read_query_to_prepared_statement(
+  query query: ReadQuery,
+) -> PreparedStatement {
+  query |> postgres_dialect.read_query_to_prepared_statement
 }
 
-pub fn run_write_query(
-  query qry: WriteQuery(a),
-  decoder dcdr,
-  db_connection db_conn,
+/// Convert a Cake `WriteQuery` to a `PreparedStatement`.
+///
+pub fn write_query_to_prepared_statement(
+  query query: WriteQuery(a),
+) -> PreparedStatement {
+  query |> postgres_dialect.write_query_to_prepared_statement
+}
+
+pub fn run_read_query(
+  query query: ReadQuery,
+  decoder decoder: Decoder(a),
+  db_connection on: Connection,
 ) {
-  let prp_stm = write_query_to_prepared_statement(qry)
-  let sql = cake.get_sql(prp_stm) |> iox.inspect_println_tap
-  let params = cake.get_params(prp_stm)
-
+  let prepared_statement = query |> read_query_to_prepared_statement
+  let sql_string = prepared_statement |> cake.get_sql
   let db_params =
-    params
-    |> list.map(fn(param: Param) -> Value {
-      case param {
-        BoolParam(param) -> pog.bool(param)
-        FloatParam(param) -> pog.float(param)
-        IntParam(param) -> pog.int(param)
-        StringParam(param) -> pog.text(param)
-        NullParam -> pog.null()
-      }
-    })
-    |> iox.print_tap("Params: ")
-    |> iox.inspect_println_tap
+    prepared_statement
+    |> cake.get_params
+    |> list.map(with: cake_param_to_client_param)
 
   let result =
-    sql
+    sql_string
     |> pog.query
     |> pog_parameters(db_params:)
-    |> pog.returning(dcdr)
-    |> pog.execute(on: db_conn)
+    |> pog.returning(decoder)
+    |> pog.execute(on: on)
 
   case result {
     Ok(pog.Returned(_result_count, v)) -> Ok(v)
@@ -112,8 +85,67 @@ pub fn run_write_query(
   }
 }
 
-pub fn execute_raw_sql(sql sql: String, connection conn: Connection) {
-  sql |> pog.query |> pog.execute(on: conn)
+/// Run a Cake `WriteQuery` against an PostgreSQL database.
+///
+pub fn run_write_query(
+  query query: WriteQuery(a),
+  decoder decoder: Decoder(a),
+  db_connection on: Connection,
+) -> Result(List(a), QueryError) {
+  let prepared_statement = query |> write_query_to_prepared_statement
+  let sql_string = prepared_statement |> cake.get_sql
+  let db_params =
+    prepared_statement
+    |> cake.get_params
+    |> list.map(with: cake_param_to_client_param)
+
+  let result =
+    sql_string
+    |> pog.query
+    |> pog_parameters(db_params:)
+    |> pog.returning(decoder)
+    |> pog.execute(on: on)
+
+  case result {
+    Ok(pog.Returned(_result_count, v)) -> Ok(v)
+    Error(e) -> Error(e)
+  }
+}
+
+/// Run a Cake `CakeQuery` against an PostgreSQL database.
+///
+/// This function is a wrapper around `run_read_query` and `run_write_query`.
+///
+pub fn run_query(
+  query query: CakeQuery(a),
+  decoder decoder: Decoder(a),
+  db_connection db_connection: Connection,
+) -> Result(List(a), QueryError) {
+  case query {
+    CakeReadQuery(read_query) ->
+      read_query |> run_read_query(decoder, db_connection)
+    CakeWriteQuery(write_query) ->
+      write_query |> run_write_query(decoder, db_connection)
+  }
+}
+
+pub fn execute_raw_sql(
+  sql_string sql_string: String,
+  db_connection on: Connection,
+) -> Result(Returned(Nil), QueryError) {
+  sql_string
+  |> pog.query
+  |> pog.execute(on:)
+}
+
+fn cake_param_to_client_param(param param: Param) -> Value {
+  case param {
+    BoolParam(param) -> pog.bool(param)
+    FloatParam(param) -> pog.float(param)
+    IntParam(param) -> pog.int(param)
+    StringParam(param) -> pog.text(param)
+    NullParam -> pog.null()
+  }
 }
 
 fn pog_parameters(

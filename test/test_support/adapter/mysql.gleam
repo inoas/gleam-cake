@@ -12,19 +12,28 @@ import cake/param.{
 }
 import gleam/dynamic/decode.{type Decoder}
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import shork.{type Connection, type QueryError, type Returned, type Value}
 
 /// Connection to a MySQL database.
 ///
 /// This is a thin wrapper around the `shork` library's `Connection` type.
 ///
-pub fn with_connection(callback callback: fn(Connection) -> a) -> a {
+pub fn with_connection(
+  host host: String,
+  port port: Int,
+  username username: Option(String),
+  password password: String,
+  database database: String,
+  callback callback: fn(Connection) -> a,
+) -> a {
   let connection =
     shork.default_config()
-    |> shork.host("127.0.0.1")
-    |> shork.port(3308)
-    |> shork.user("root")
-    |> shork.database("gleam_cake_test")
+    |> shork.host(host)
+    |> shork.port(port)
+    |> option_apply(username, shork.user)
+    |> shork.password(password)
+    |> shork.database(database)
     |> shork.connect
 
   let value = callback(connection)
@@ -74,7 +83,7 @@ pub fn run_read_query(
   }
 }
 
-/// Run a Cake `WriteQuery` against an PostgreSQL database.
+/// Run a Cake `WriteQuery` against an MySQL database.
 ///
 pub fn run_write_query(
   query query: WriteQuery(a),
@@ -101,7 +110,7 @@ pub fn run_write_query(
   }
 }
 
-/// Run a Cake `CakeQuery` against an PostgreSQL database.
+/// Run a Cake `CakeQuery` against an MySQL database.
 ///
 /// This function is a wrapper around `run_read_query` and `run_write_query`.
 ///
@@ -145,4 +154,15 @@ fn shork_parameters(
   |> list.fold(pg_qry, fn(pg_qry, db_param) {
     pg_qry |> shork.parameter(db_param)
   })
+}
+
+fn option_apply(
+  builder builder: a,
+  option option: Option(b),
+  function function: fn(a, b) -> a,
+) -> a {
+  case option {
+    Some(value) -> builder |> function(value)
+    None -> builder
+  }
 }

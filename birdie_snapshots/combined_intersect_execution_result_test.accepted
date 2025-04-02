@@ -1,5 +1,5 @@
 ---
-version: 1.2.3
+version: 1.2.6
 title: combined_intersect_execution_result_test
 file: ./test/cake_test/combined_test.gleam
 test_name: combined_intersect_execution_result_test
@@ -7,6 +7,6 @@ test_name: combined_intersect_execution_result_test
 #(
   Ok([#("Ginny", 6, False, 3, Null)]),
   Ok([#("Ginny", 6, 0, 3, Undefined)]),
-  Ok([["Ginny", 6, 0, 3, Null]]),
-  Ok([["Ginny", 6, 0, 3, Null]]),
+  Ok([#("Ginny", 6, 0, 3, Null)]),
+  Ok([#("Ginny", 6, 0, 3, Null)]),
 )

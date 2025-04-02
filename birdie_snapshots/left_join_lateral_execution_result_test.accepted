@@ -1,5 +1,5 @@
 ---
-version: 1.2.3
+version: 1.2.6
 title: left_join_lateral_execution_result_test
 file: ./test/cake_test/join_lateral_test.gleam
 test_name: left_join_lateral_execution_result_test
@@ -21,11 +21,8 @@ test_name: left_join_lateral_execution_result_test
     1064,
     "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '(SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON...' at line 1",
   )),
-  Ok([
-    ["Nubi"],
-    ["Biffy"],
-    ["Ginny"],
-    ["Karl"],
-    ["Clara"],
-  ]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '(SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON...' at line 1",
+  )),
 )
