@@ -1,16 +1,16 @@
 //// Contains types and composition functions to build _read queries_.
 ////
 //// _Read queries_ are in essence SELECT and combined queries such as `UNION`,
-//// `UNION ALL`, `INTERSECT`, 'EXCECEPT', etc. which combine multiple `SELECT`
+//// `UNION ALL`, `INTERSECT`, 'EXCEPT', etc. which combine multiple `SELECT`
 //// queries into one query.
 ////
 //// ## Notice
 ////
 //// The included types are all non-opaque public, so that you _CAN_ build
-//// whatever you want in userland code, however the whole module is internal
+//// whatever you want in user-land code, however the whole module is internal
 //// because you _SHOULD NOT_ build queries based on raw types manually.
 ////
-//// Because the likihood of creating invalid queries is much higher than using
+//// Because the likelihood of creating invalid queries is much higher than using
 //// the interface modules found in `cake/*`.
 ////
 //// WARNING: Once the library has matured, public access to these types _may_
@@ -1022,7 +1022,7 @@ pub type Joins {
   Joins(List(Join))
 }
 
-/// The join target can be bei either a table or a sub-query.
+/// The join target can be either a table or a sub-query.
 ///
 pub type JoinTarget {
   JoinTable(table: String)
@@ -1325,9 +1325,9 @@ fn offset_clause_apply(
 
 /// Used to add a trailing SQL statement to the query.
 ///
-/// Epilog allows to append raw SQL to the end of queries.
+/// `Epilog` allows to append raw SQL to the end of queries (an epilogue).
 ///
-/// One should NEVER put raw user data into the epilog.
+/// One should NEVER put raw user data into the `Epilog`.
 ///
 pub type Epilog {
   NoEpilog
@@ -1461,7 +1461,7 @@ fn fragment_apply(
       let prms_count = prms |> list.length
       // Fill up or reduce params to match the given number of placeholders
       //
-      // This is likely a user error that cannot be catched by the type system,
+      // This is likely a user error that cannot be caught by the type system,
       // but instead of crashing we do the best we can:
       //
       // For the user ´fragment.prepared()` should be used with caution and will
