@@ -1,5 +1,5 @@
 name = "cake"
-version = "3.0.0"
+version = "2.0.0"
 description = "An SQL query builder for Gleam for SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, and 🐬MySQL"
 licences = ["MPL-2.0"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }

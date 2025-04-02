@@ -3,11 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!--
 ## [Unreleased]
+-->
 
-- Update deps
-- Breaking changes due to renaming:
-  - TODO
+## [2.1.1] - 2024-04-02
+
+- Update deps, including latest stdlib.
+- Only support Gleam 1.9.0+.
+- BREAKING spelling fix: Renamed `InsertConfictTarget`
+  to `InsertConflictTarget`.
 - Relaxed type arg.
 
 ## [2.1.0] - 2024-11-14
