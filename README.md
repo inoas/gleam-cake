@@ -110,9 +110,10 @@ flexible and powerful tool to compose and craft SQL read and write queries.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
-  - [pog](https://hex.pm/packages/pog)
-  - [sqlight](https://hex.pm/packages/sqlight)
-  - [gmysql](https://hex.pm/packages/gmysql)
+  - Postgres: [pog](https://hex.pm/packages/pog)
+  - SQLite: [sqlight](https://hex.pm/packages/sqlight)
+  - MariaDB & MySQL: [shork](https://hex.pm/packages/shork)
+    or [gmysql](https://hex.pm/packages/gmysql)
 - Allow to define custom SQL fragments while still being safe
   from SQL injections by using prepared statements.
 
