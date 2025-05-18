@@ -116,8 +116,8 @@ pub fn combined_clause_apply(
   }
 
   // `LIMIT`, `OFFSET` and `ORDER BY` is non-standard SQL within queries nested
-  // in UNION and its siblings (combined queries) but they do work on 🦭MariaDB
-  // and 🐘PostgreSQL out of the box,
+  // in UNION and its siblings (combined queries) but they do work on
+  // 🐘PostgreSQL, 🦭MariaDB and 🐬MySQL out of the box,
   // see <https://github.com/diesel-rs/diesel/issues/3151>.
   //
   // For 🪶SQLite we are wrapping them in sub-queries, like so:
