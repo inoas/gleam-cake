@@ -7,7 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 -->
 
-## [2.1.1] - 2024-04-02
+## [2.1.2] - 2025-07-07
+
+- Upgraded dependencies
+
+## [2.1.1] - 2025-04-02
 
 - Update deps, including latest stdlib.
 - Only support Gleam 1.9.0+.
