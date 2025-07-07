@@ -6,7 +6,6 @@ import gleam/dynamic
 import gleam/io
 import gleam/list
 import helper/demo_data
-import helper/postgres_helper
 import pprint
 
 fn union_query() {
@@ -26,18 +25,17 @@ fn union_query() {
 }
 
 pub fn main() {
-  use conn <- postgres_helper.with_connection
+  use conn <- postgres.with_connection
+
   demo_data.create_tables_and_insert_rows(conn)
 
-  let assert Ok(beings) =
+  let assert Ok(rows) =
     union_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
-  io.println("Returned rows: ")
-  beings |> pprint.debug
+  echo rows
 
-  io.println("Begins (name, age): ")
   //  See `being.gleam` for an example how to decode rows.
-  beings
-  |> list.map(being.from_postgres)
-  |> pprint.debug
+  let decoded_beings = rows |> list.map(being.from_postgres)
+
+  echo decoded_beings
 }
