@@ -34,10 +34,14 @@ pub fn with_connection(
     |> pog.database(database)
 
   let assert Ok(actor) = pog.start(pog_config)
-
+  let pid = actor.pid
   let db = actor.data
 
-  callback(db)
+  let value = callback(db)
+
+  process.send_exit(pid)
+
+  value
 }
 
 /// Convert a Cake `ReadQuery` to a `PreparedStatement`.
