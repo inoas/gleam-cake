@@ -51,7 +51,7 @@ TODO:
 
 ### Demos
 
-See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/README.md#available-demos).
+See [docs/demo-apps/README.md](https://github.com/inoas/gleam-cake/blob/main/docs/demo-apps/README.md#available-examples).
 
 #### Code examples (from the demos)
 

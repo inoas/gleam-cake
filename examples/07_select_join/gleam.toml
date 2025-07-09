@@ -1,0 +1,10 @@
+name = "cake_demo_select_join"
+description = "A demo of using Gleam with Cake and 🐘PostgreSQL to run SELECT with JOIN queries"
+gleam = ">= 1.11.1"
+
+[dependencies]
+# cake = ">= 2.1.2 and < 3.0.0"
+cake = { path = "../../" }
+cake_pog = ">= 1.2.0 and < 2.0.0"
+gleam_stdlib = ">= 0.61.0 and < 2.0.0"
+examples_helper = { path = "../examples_helper" }
