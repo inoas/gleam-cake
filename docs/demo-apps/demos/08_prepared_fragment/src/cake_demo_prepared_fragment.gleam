@@ -5,6 +5,8 @@ import cake/where as w
 import gleam/dynamic
 import gleam/io
 import helper/demo_data
+import helper/postgres_helper
+import pprint
 
 fn fragment_query() {
   s.new()
@@ -21,10 +23,14 @@ fn fragment_query() {
 }
 
 pub fn main() {
-  use conn <- postgres.with_connection
+  use conn <- postgres_helper.with_connection
   demo_data.create_tables_and_insert_rows(conn)
 
-  let rows = fragment_query() |> postgres.run_read_query(dynamic.dynamic, conn)
+  let result =
+    fragment_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
-  echo rows
+  io.println("Result: ")
+
+  result
+  |> pprint.debug
 }

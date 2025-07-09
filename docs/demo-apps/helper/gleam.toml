@@ -1,10 +1,10 @@
 name = "helper"
 description = "A demo helper for Cake"
-version = "1.1.0"
-gleam = ">= 1.10.0"
+version = "1.0.1"
 
 [dependencies]
-cake = { path = "../../../.." }
-cake_pog = ">= 4.0.0 and < 5.0.0"
-gleam_stdlib = ">= 0.61.0 and < 2.0.0"
-pog = ">= 4.0.0 and < 3.0.0"
+cake = { path = "../../../" }
+cake_pog = ">= 1.0.3 and < 2.0.0"
+gleam_stdlib = ">= 0.39.0 and < 2.0.0"
+pprint = ">= 1.0.3 and < 2.0.0"
+pog = ">= 1.0.0 and < 2.0.0"

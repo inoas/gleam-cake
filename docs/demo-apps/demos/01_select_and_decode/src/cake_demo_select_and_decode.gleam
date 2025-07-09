@@ -7,6 +7,7 @@ import gleam/dynamic
 import gleam/io
 import gleam/list
 import helper/demo_data
+import helper/postgres_helper
 import pprint
 
 fn select_query() {
@@ -33,16 +34,16 @@ fn select_query() {
 }
 
 pub fn main() {
-  use conn <- postgres.with_connection
+  use conn <- postgres_helper.with_connection
   demo_data.create_tables_and_insert_rows(conn)
 
-  let assert Ok(rows) =
+  let assert Ok(cats) =
     select_query() |> postgres.run_read_query(dynamic.dynamic, conn)
 
-  echo rows
+  io.println("Returned rows: ")
+  cats |> pprint.debug
 
+  io.println("Decoded cats (name, age, is_wild, owners_name): ")
   //  See `cat.gleam` for an example how to decode rows.
-  let decoded_cats = rows |> list.map(cat.from_postgres)
-
-  echo decoded_cats
+  cats |> list.map(cat.from_postgres) |> pprint.debug
 }
