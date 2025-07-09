@@ -1,10 +1,16 @@
 import gleam/dynamic/decode
+import gleam/erlang/process
 import gleam/option.{Some}
 import test_support/adapter/postgres
 import test_support/test_data
 
+const process_name = "postgres_demo"
+
 fn with_local_test_connection(callback callback) {
+  let process = process.new_name(process_name)
+
   postgres.with_connection(
+    process:,
     host: "localhost",
     port: 5432,
     username: "postgres",

@@ -11,15 +11,13 @@ import cake/param.{
   type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/dynamic/decode.{type Decoder}
+import gleam/erlang/process
 import gleam/list
 import gleam/option.{type Option}
 import pog.{type Connection, type QueryError, type Returned, type Value}
 
-/// Connection to a PostgreSQL database.
-///
-/// This is a thin wrapper around the `pog` library's `Connection` type.
-///
 pub fn with_connection(
+  process process: process.Name(pog.Message),
   host host: String,
   port port: Int,
   username username: String,
@@ -27,19 +25,21 @@ pub fn with_connection(
   database database: String,
   callback callback: fn(Connection) -> a,
 ) -> a {
-  let connection =
-    pog.Config(
-      ..pog.default_config(),
-      host: host,
-      port: port,
-      user: username,
-      password: password,
-      database: database,
-    )
-    |> pog.connect
+  let pog_config =
+    pog.default_config(process)
+    |> pog.port(port)
+    |> pog.user(username)
+    |> pog.password(password)
+    |> pog.host(host)
+    |> pog.database(database)
 
-  let value = callback(connection)
-  pog.disconnect(connection)
+  let assert Ok(actor) = pog.start(pog_config)
+  let pid = actor.pid
+  let db = actor.data
+
+  let value = callback(db)
+
+  process.send_exit(pid)
 
   value
 }
