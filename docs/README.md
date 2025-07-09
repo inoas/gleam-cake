@@ -1,5 +1,7 @@
 # Cake Documentation
 
-## Demo apps
+See cake's [unit tests](../test/cake).
 
-See [docs/demo-apps/README.md](./demo-apps/README.md).
+## Example demo apps
+
+See [examples](./examples/README.md).

@@ -1,0 +1,9 @@
+name = "helper"
+description = "A demo helper for Cake"
+gleam = ">= 1.11.1"
+
+[dependencies]
+# cake = ">= 2.1.2 and < 3.0.0"
+cake = { path = "../../" }
+cake_pog = ">= 1.2.0 and < 2.0.0"
+gleam_stdlib = ">= 0.61.0 and < 2.0.0"
