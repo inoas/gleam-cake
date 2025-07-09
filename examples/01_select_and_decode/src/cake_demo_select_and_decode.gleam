@@ -2,11 +2,11 @@ import cake/join as j
 import cake/select as s
 import cake/where as w
 import cat
+import examples_helper/adapter/postgres
+import examples_helper/demo_data
 import gleam/dynamic
 import gleam/io
 import gleam/list
-import helper/adapter/postgres
-import helper/demo_data
 
 fn select_query() {
   s.new()
