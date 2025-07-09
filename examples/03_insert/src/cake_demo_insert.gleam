@@ -1,7 +1,7 @@
 import cake/insert as i
+import examples_helper/adapter/postgres
+import examples_helper/demo_data
 import gleam/dynamic
-import helper/adapter/postgres
-import helper/demo_data
 
 fn insert_query() {
   [

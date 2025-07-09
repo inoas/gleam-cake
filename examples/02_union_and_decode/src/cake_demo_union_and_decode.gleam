@@ -1,11 +1,11 @@
 import being
 import cake/combined as c
 import cake/select as s
+import examples_helper/adapter/postgres
+import examples_helper/demo_data
 import gleam/dynamic
 import gleam/io
 import gleam/list
-import helper/adapter/postgres
-import helper/demo_data
 
 fn union_query() {
   let owners_query =

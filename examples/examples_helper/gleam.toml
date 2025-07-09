@@ -1,5 +1,5 @@
-name = "helper"
-description = "A demo helper for Cake"
+name = "examples_helper"
+description = "An examples helper for Cake"
 gleam = ">= 1.11.1"
 
 [dependencies]

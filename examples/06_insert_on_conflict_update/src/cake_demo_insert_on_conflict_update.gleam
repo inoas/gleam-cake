@@ -2,10 +2,9 @@ import cake/helper/postgres
 import cake/insert as i
 import cake/update as u
 import cake/where as w
+import examples_helper/demo_data
 import gleam/dynamic
 import gleam/io
-import helper/demo_data
-import pprint
 
 fn update() {
   u.new() |> u.sets(["counter" |> u.set_expression("counters.counter + 1")])

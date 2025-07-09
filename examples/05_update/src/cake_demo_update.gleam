@@ -1,9 +1,8 @@
 import cake/update as u
+import examples_helper/adapter/postgres
+import examples_helper/demo_data
 import gleam/dynamic
 import gleam/io
-import helper/adapter/postgres
-import helper/demo_data
-import pprint
 
 fn update_query() {
   u.new()
