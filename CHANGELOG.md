@@ -7,9 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 -->
 
-## [2.1.2] - 2025-07-07
+## [2.1.2] - 2025-07-09
 
-- Utilize `pog ~> 4.0.0` dependency.
+- Utilize `pog ~> 4.0.0` dependency in tests.
 
 ## [2.1.1] - 2025-04-02
 
