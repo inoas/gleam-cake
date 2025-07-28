@@ -1,15 +1,19 @@
-import gleam/dynamic.{decode2, element, from, int, string}
+import gleam/dynamic/decode
 
 pub type Being {
   Being(name: String, age: Int)
 }
 
 pub fn from_postgres(row) {
-  // NOTICE: This will crash, if the returned data from the SQL query does not match
-  let assert Ok(couple) =
-    row
-    |> from
-    |> decode2(Being, element(0, string), element(1, int))
+  let decoder = {
+    use name <- decode.field(0, decode.string)
+    use age <- decode.field(1, decode.int)
+    Being(name:, age:) |> decode.success()
+  }
 
-  couple
+  // NOTICE: This will crash, if the returned data from the SQL query does not match
+  //
+  let assert Ok(being) = decode.run(row, decoder)
+
+  being
 }

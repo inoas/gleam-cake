@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 # Go to the root of the project
-cd "$(dirname "$0")" && cd ../..
+cd "$(dirname "$0")" && cd ..
 
 docker compose down
-docker rm gleam-cake-test-postgres --force --volumes 2>/dev/null
-docker rm gleam-cake-test-mariadb --force --volumes 2>/dev/null
+docker rm gleam-cake-examples-postgres --force --volumes 2>/dev/null
 rm -rf docker/data/*
 touch docker/data/.keep
 docker compose up --remove-orphans --detach

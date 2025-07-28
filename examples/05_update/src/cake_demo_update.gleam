@@ -1,8 +1,8 @@
+import cake/adapter/postgres
 import cake/update as u
-import examples_helper/adapter/postgres
 import examples_helper/demo_data
-import gleam/dynamic
-import gleam/io
+import gleam/dynamic/decode
+import gleam/option.{Some}
 
 fn update_query() {
   u.new()
@@ -13,11 +13,17 @@ fn update_query() {
 }
 
 pub fn main() {
-  use conn <- postgres.with_connection
+  use conn <- postgres.with_connection(
+    host: "localhost",
+    port: 5432,
+    username: "postgres",
+    password: Some("postgres"),
+    database: "gleam_cake_examples",
+  )
 
   demo_data.create_tables_and_insert_rows(conn)
 
-  let result = update_query() |> postgres.run_write_query(dynamic.dynamic, conn)
+  let result = update_query() |> postgres.run_write_query(decode.dynamic, conn)
 
   echo result
 }

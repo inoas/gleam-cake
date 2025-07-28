@@ -1,10 +1,11 @@
 import being
+import cake/adapter/postgres
 import cake/combined as c
 import cake/select as s
-import examples_helper/adapter/postgres
 import examples_helper/demo_data
-import gleam/dynamic
-import gleam/io
+import gleam/dynamic/decode
+import gleam/option.{Some}
+
 import gleam/list
 
 fn union_query() {
@@ -24,12 +25,18 @@ fn union_query() {
 }
 
 pub fn main() {
-  use conn <- postgres.with_connection
+  use conn <- postgres.with_connection(
+    host: "localhost",
+    port: 5432,
+    username: "postgres",
+    password: Some("postgres"),
+    database: "gleam_cake_examples",
+  )
 
   demo_data.create_tables_and_insert_rows(conn)
 
   let assert Ok(rows) =
-    union_query() |> postgres.run_read_query(dynamic.dynamic, conn)
+    union_query() |> postgres.run_read_query(decode.dynamic, conn)
 
   echo rows
 
