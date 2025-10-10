@@ -14,7 +14,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=gleam_cake_test
-    # command: "postgres -c max_connections=200"
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     ports:
       - "127.0.0.1:5432:5432"
@@ -23,7 +22,7 @@ services:
       - ./docker/data/postgres-data:/var/lib/postgresql/data
       # - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: ["CMD", "pg_isready", "-d", "gleam_cake_test", "-U", "postgres"]
       interval: 30s
       timeout: 60s
       retries: 5
