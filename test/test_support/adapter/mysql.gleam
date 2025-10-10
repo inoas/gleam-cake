@@ -155,7 +155,7 @@ fn cake_param_to_client_param(param param: Param) -> Value {
         |> calendar.month_to_int
         |> int.to_string
         |> string.pad_start(with: "0", to: 2)
-      let day = day |> int.to_string |> string.pad_start(with: "0", to: 4)
+      let day = day |> int.to_string |> string.pad_start(with: "0", to: 2)
       let date = year <> "-" <> month <> "-" <> day
 
       date |> shork.text()
