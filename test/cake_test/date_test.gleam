@@ -21,8 +21,7 @@ fn date_query() {
   |> s.from_table("cats")
   |> s.selects([
     s.alias(s.col("birthday"), "kids_birthday"),
-    // TODO: crashes on Postgres/pog
-  // s.alias(s.date(calendar.Date(2016, calendar.February, 19)), "kbirthday"),
+    s.alias(s.date(calendar.Date(2016, calendar.February, 19)), "kbirthday"),
   ])
   |> s.where(
     w.col("birthday")

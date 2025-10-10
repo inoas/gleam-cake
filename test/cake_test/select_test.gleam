@@ -22,10 +22,9 @@ fn select_query() {
   |> s.from_table("cats")
   |> s.selects([
     s.col("name"),
-    // TODO v2 these may just should not work in postgres
-    // s.bool(True),
-    // s.float(1.0),
-    // s.int(1),
+    s.bool(True),
+    s.float(1.0),
+    s.int(1),
     s.string("hello"),
     s.fragment(f.literal(const_field)),
     s.alias(s.col("age"), "years_since_birth"),
