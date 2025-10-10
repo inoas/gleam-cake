@@ -7,16 +7,19 @@ services:
     container_name: gleam-cake-test-postgres
     networks:
       - gleam-cake-test
-    image: postgres:latest
+    # image: postgres:latest
+    image: postgres:17
     restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=gleam_cake_test
-    command: postgres -c 'max_connections=10'
+    # command: "postgres -c max_connections=200"
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
+      - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./docker/data/postgres-data:/var/lib/postgresql/data
       # - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     healthcheck:

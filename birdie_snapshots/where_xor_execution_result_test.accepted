@@ -1,18 +1,43 @@
 ---
-version: 1.2.6
+version: 1.4.1
 title: where_xor_execution_result_test
 file: ./test/cake_test/where_test.gleam
 test_name: where_xor_execution_result_test
 ---
 #(
-  Ok([#("Ginny", 6, False, 3, Null)]),
-  Ok([#("Ginny", 6, 0, 3, Undefined)]),
   Ok([
-    #("Ginny", 6, 0, 3, Null),
-    #("Karl", 8, 1, Null, 10.0),
+    #("Ginny", 6, False, 3, Null, Null),
   ]),
   Ok([
-    #("Ginny", 6, 0, 3, Null),
-    #("Karl", 8, 1, Null, 10.0),
+    #(
+      "Ginny",
+      6,
+      0,
+      3,
+      Undefined,
+      Undefined,
+    ),
+  ]),
+  Ok([
+    #("Ginny", 6, 0, 3, Null, Null),
+    #(
+      "Karl",
+      8,
+      1,
+      Null,
+      10.0,
+      #(2016, 2, 19),
+    ),
+  ]),
+  Ok([
+    #("Ginny", 6, 0, 3, Null, Null),
+    #(
+      "Karl",
+      8,
+      1,
+      Null,
+      10.0,
+      #(2016, 2, 19),
+    ),
   ]),
 )

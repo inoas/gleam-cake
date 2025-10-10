@@ -1,0 +1,21 @@
+---
+version: 1.4.1
+title: date_execution_result_test
+file: ./test/cake_test/date_test.gleam
+test_name: date_execution_result_test
+---
+#(
+  Ok([
+    #(#(2016, 2, 19)),
+    #(#(2021, 4, 13)),
+  ]),
+  Ok([#("2016-02-19"), #("2021-04-13")]),
+  Ok([
+    #(#(2016, 2, 19)),
+    #(#(2021, 4, 13)),
+  ]),
+  Ok([
+    #(#(2016, 2, 19)),
+    #(#(2021, 4, 13)),
+  ]),
+)

@@ -45,7 +45,8 @@ fn setup_database_default_values(conn) {
 pub fn setup_and_run(query) {
   use conn <- with_local_test_connection
 
-  let _ = setup_database_default_values(conn)
+  let assert Ok(_) = setup_database_default_values(conn)
+    as "setup database default"
 
   query |> postgres.run_read_query(decode.dynamic, conn)
 }
@@ -53,7 +54,8 @@ pub fn setup_and_run(query) {
 pub fn setup_and_run_write(query) {
   use conn <- with_local_test_connection
 
-  let _ = setup_database_default_values(conn)
+  let assert Ok(_) = setup_database_default_values(conn)
+    as "setup database default"
 
   query |> postgres.run_write_query(decode.dynamic, conn)
 }

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 <!--
 ## [Unreleased]
 -->
+## [2.2.0] - 2025-??-??
+
+- Add `Date` support based on `gleam_time's` `calendar.Date`.
 
 ## [2.1.3] - 2025-07-28
 

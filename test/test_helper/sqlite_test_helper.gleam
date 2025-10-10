@@ -37,7 +37,8 @@ pub fn setup_and_run(query) {
 pub fn setup_and_run_write(query) {
   use conn <- with_local_test_connection
 
-  let _ = setup_database_default_values(conn)
+  let assert Ok(_) = setup_database_default_values(conn)
+    as "setup database default"
 
   query |> sqlite.run_write_query(decode.dynamic, conn)
 }
@@ -45,7 +46,8 @@ pub fn setup_and_run_write(query) {
 pub fn setup_and_run_write_value(query) {
   use conn <- with_local_test_connection
 
-  let _ = setup_database_default_values(conn)
+  let assert Ok(_) = setup_database_default_values(conn)
+    as "setup database default"
 
   query |> sqlite.run_write_query(decode.dynamic, conn)
 }

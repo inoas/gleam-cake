@@ -8,9 +8,12 @@ import cake/internal/read_query.{
   SelectColumn, SelectDistinct, SelectFragment, SelectParam, SelectQuery,
   Selects, XorWhere,
 }
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/list
 import gleam/string
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  read_query type re-exports                                               │
@@ -73,40 +76,46 @@ pub fn to_query(select slct: Select) -> ReadQuery {
   slct |> SelectQuery
 }
 
-/// Creates a column identifier off a `String`.
+/// Creates a column `SelectValue` from a `String`.
 ///
 pub fn col(name nm: String) -> SelectValue {
   nm |> SelectColumn
 }
 
-/// Creates an alias off a `String`.
+/// Creates an alias `SelectValue` from `String`.
 ///
 pub fn alias(value vl: SelectValue, alias als: String) -> SelectValue {
   vl |> SelectAlias(alias: als)
 }
 
-/// Creates a boolean `Param` off a `Bool`.
+/// Creates a `SelectValue` from a `Bool`.
 ///
 pub fn bool(value vl: Bool) -> SelectValue {
   vl |> BoolParam |> SelectParam
 }
 
-/// Creates a float `Param` off a `Float`.
+/// Creates a `SelectValue` from a `Float`.
 ///
 pub fn float(value vl: Float) -> SelectValue {
   vl |> FloatParam |> SelectParam
 }
 
-/// Creates an integer `Param` off an `Int`.
+/// Creates a `SelectValue` from an `Int`.
 ///
 pub fn int(value vl: Int) -> SelectValue {
   vl |> IntParam |> SelectParam
 }
 
-/// Creates a string `Param` off a `String`.
+/// Creates a `SelectValue` from a `String`.
 ///
 pub fn string(value vl: String) -> SelectValue {
   vl |> StringParam |> SelectParam
+}
+
+/// Creates a `SelectValue` from a `calendar.Date`.
+///
+pub fn date(v vl: calendar.Date) -> SelectValue {
+  vl |> DateParam |> SelectParam
 }
 
 /// Creates an SQL `NULL` `Param`.
