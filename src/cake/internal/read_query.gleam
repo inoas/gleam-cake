@@ -62,24 +62,26 @@ pub type ReadQuery {
 /// Creates a prepared statement from a query.
 ///
 pub fn to_prepared_statement(
-  query qry: ReadQuery,
-  placeholder_base plchldr_bs: String,
-  dialect dlct: Dialect,
+  query query: ReadQuery,
+  placeholder_base placeholder_base: String,
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  plchldr_bs
-  |> prepared_statement.new(dialect: dlct)
-  |> apply(qry)
+  placeholder_base
+  |> prepared_statement.new(dialect:)
+  |> apply(query:)
 }
 
 /// Applies a query to a prepared statement.
 ///
 pub fn apply(
-  prepared_statement prp_stm: PreparedStatement,
-  query qry: ReadQuery,
+  prepared_statement prepared_statement: PreparedStatement,
+  query query: ReadQuery,
 ) -> PreparedStatement {
-  case qry {
-    SelectQuery(query: qry) -> prp_stm |> select_builder(qry)
-    CombinedQuery(query: qry) -> prp_stm |> combined_builder(qry)
+  case query {
+    SelectQuery(query: select_query) ->
+      prepared_statement |> select_builder(select_query:)
+    CombinedQuery(query: combined_query) ->
+      prepared_statement |> combined_builder(combined_query:)
   }
 }
 
@@ -88,25 +90,25 @@ pub fn apply(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn combined_builder(
-  prepared_statement prp_stm: PreparedStatement,
-  combined_query qry: Combined,
+  prepared_statement prepared_statement: PreparedStatement,
+  combined_query combined_query: Combined,
 ) -> PreparedStatement {
-  prp_stm
-  |> combined_clause_apply(qry)
-  |> order_by_clause_apply(qry.order_by)
-  |> limit_clause_apply(qry.limit)
-  |> offset_clause_apply(qry.offset)
-  |> epilog_apply(qry.epilog)
-  |> comment_apply(qry.comment)
+  prepared_statement
+  |> combined_clause_apply(combined_query:)
+  |> order_by_clause_apply(combined_query.order_by)
+  |> limit_clause_apply(combined_query.limit)
+  |> offset_clause_apply(combined_query.offset)
+  |> epilog_apply(combined_query.epilog)
+  |> comment_apply(combined_query.comment)
 }
 
 /// Applies a combined query to a prepared statement.
 ///
 pub fn combined_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  combined_query qry: Combined,
+  prepared_statement prepared_statement: PreparedStatement,
+  combined_query query: Combined,
 ) -> PreparedStatement {
-  let sql_command = case qry.kind {
+  let sql_command = case query.kind {
     UnionDistinct -> "UNION"
     UnionAll -> "UNION ALL"
     ExceptDistinct -> "EXCEPT"
@@ -129,51 +131,58 @@ pub fn combined_clause_apply(
   // LIMIT 1
   // ```
 
-  let open_nested_query = fn(prp_stm: PreparedStatement) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_dialect {
-      Sqlite -> prp_stm |> prepared_statement.append_sql("SELECT * FROM (")
-      _ -> prp_stm |> prepared_statement.append_sql("(")
+  let open_nested_query = fn(prepared_statement: PreparedStatement) -> PreparedStatement {
+    case prepared_statement |> prepared_statement.get_dialect {
+      Sqlite ->
+        prepared_statement |> prepared_statement.append_sql("SELECT * FROM (")
+      _ -> prepared_statement |> prepared_statement.append_sql("(")
     }
   }
 
-  let close_nested_query = fn(prp_stm: PreparedStatement, nested_index: Int) -> PreparedStatement {
-    case prp_stm |> prepared_statement.get_dialect {
+  let close_nested_query = fn(
+    prepared_statement: PreparedStatement,
+    nested_index: Int,
+  ) -> PreparedStatement {
+    case prepared_statement |> prepared_statement.get_dialect {
       Sqlite ->
-        prp_stm
+        prepared_statement
         |> prepared_statement.append_sql(
           ") AS " <> computed_alias_prefix <> nested_index |> int.to_string,
         )
-      _ -> prp_stm |> prepared_statement.append_sql(")")
+      _ -> prepared_statement |> prepared_statement.append_sql(")")
     }
   }
 
-  let prp_stm = prp_stm |> open_nested_query
-  let #(new_prp_stm, nested_index) =
-    qry.queries
+  let prepared_statement = prepared_statement |> open_nested_query
+  let #(new_prepared_statement, nested_index) =
+    query.queries
     |> list.fold(
-      #(prp_stm, 0),
-      fn(acc: #(PreparedStatement, Int), qry: Select) -> #(
+      #(prepared_statement, 0),
+      fn(acc: #(PreparedStatement, Int), query: Select) -> #(
         PreparedStatement,
         Int,
       ) {
-        let #(new_prp_stm, nested_index) = acc
-        case new_prp_stm == prp_stm {
-          True -> #(new_prp_stm |> select_builder(qry), nested_index)
+        let #(new_prepared_statement, nested_index) = acc
+        case new_prepared_statement == prepared_statement {
+          True -> #(
+            new_prepared_statement |> select_builder(query),
+            nested_index,
+          )
           False -> {
             let nested_index = nested_index + 1
-            let new_prp_stm =
-              new_prp_stm
+            let new_prepared_statement =
+              new_prepared_statement
               |> close_nested_query(nested_index)
               |> prepared_statement.append_sql(" " <> sql_command <> " ")
               |> open_nested_query
-              |> select_builder(qry)
+              |> select_builder(query)
 
-            #(new_prp_stm, nested_index)
+            #(new_prepared_statement, nested_index)
           }
         }
       },
     )
-  new_prp_stm |> close_nested_query(nested_index + 1)
+  new_prepared_statement |> close_nested_query(nested_index + 1)
 }
 
 /// A combined query.
@@ -208,12 +217,12 @@ pub type CombinedQueryKind {
 /// Creates a new combined query.
 ///
 pub fn combined_query_new(
-  kind knd: CombinedQueryKind,
-  queries qrys: List(Select),
+  kind kind: CombinedQueryKind,
+  queries queries: List(Select),
 ) -> Combined {
-  qrys
+  queries
   |> Combined(
-    kind: knd,
+    kind:,
     limit: NoLimit,
     offset: NoOffset,
     order_by: NoOrderBy,
@@ -225,13 +234,17 @@ pub fn combined_query_new(
 /// Sets or appends an `ORDER BY` clause to a combined query.
 ///
 pub fn combined_order_by(
-  query qry: Combined,
-  by ordb: OrderBy,
-  append appnd: Bool,
+  query query: Combined,
+  by order_by: OrderBy,
+  append append: Bool,
 ) -> Combined {
-  case appnd {
-    True -> Combined(..qry, order_by: qry.order_by |> order_by_append(ordb))
-    False -> Combined(..qry, order_by: ordb)
+  case append {
+    True ->
+      Combined(
+        ..query,
+        order_by: query.order_by |> order_by_append(new_order_by: order_by),
+      )
+    False -> Combined(..query, order_by:)
   }
 }
 
@@ -240,21 +253,21 @@ pub fn combined_order_by(
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn select_builder(
-  prepared_statement prp_stm: PreparedStatement,
-  select_query qry: Select,
+  prepared_statement prepared_statement: PreparedStatement,
+  select_query query: Select,
 ) -> PreparedStatement {
-  prp_stm
-  |> select_clause_apply(qry.kind, qry.select)
-  |> from_clause_apply(qry.from)
-  |> join_clause_apply(qry.join)
-  |> where_clause_apply(qry.where)
-  |> group_by_clause_apply(qry.group_by)
-  |> having_clause_apply(qry.having)
-  |> order_by_clause_apply(qry.order_by)
-  |> limit_clause_apply(qry.limit)
-  |> offset_clause_apply(qry.offset)
-  |> epilog_apply(qry.epilog)
-  |> comment_apply(qry.comment)
+  prepared_statement
+  |> select_clause_apply(query.kind, query.select)
+  |> from_clause_apply(query.from)
+  |> join_clause_apply(query.join)
+  |> where_clause_apply(query.where)
+  |> group_by_clause_apply(query.group_by)
+  |> having_clause_apply(query.having)
+  |> order_by_clause_apply(query.order_by)
+  |> limit_clause_apply(query.limit)
+  |> offset_clause_apply(query.offset)
+  |> epilog_apply(query.epilog)
+  |> comment_apply(query.comment)
 }
 
 /// Decribes if a `SELECT` query should return all rows or only distinct rows.
@@ -288,13 +301,17 @@ pub type Select {
 /// Sets or append an `ORDER BY` clause to a `SELECT` query.
 ///
 pub fn select_order_by(
-  select_query qry: Select,
-  by ordb: OrderBy,
-  append appnd: Bool,
+  select_query query: Select,
+  by order_by: OrderBy,
+  append append: Bool,
 ) -> Select {
-  case appnd {
-    True -> Select(..qry, order_by: qry.order_by |> order_by_append(ordb))
-    False -> Select(..qry, order_by: ordb)
+  case append {
+    True ->
+      Select(
+        ..query,
+        order_by: query.order_by |> order_by_append(new_order_by: order_by),
+      )
+    False -> Select(..query, order_by:)
   }
 }
 
@@ -308,7 +325,7 @@ pub fn select_order_by(
 ///
 pub type Selects {
   NoSelects
-  Selects(List(SelectValue))
+  Selects(select_values: List(SelectValue))
 }
 
 /// A value that can be selected in a `SELECT` query.
@@ -326,31 +343,33 @@ pub type SelectValue {
 }
 
 fn select_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  kind knd: SelectKind,
-  selects slcts: Selects,
+  prepared_statement prepared_statement: PreparedStatement,
+  kind kind: SelectKind,
+  selects selects: Selects,
 ) -> PreparedStatement {
-  let select_command = case knd {
+  let select_command = case kind {
     SelectAll -> "SELECT"
     SelectDistinct -> "SELECT DISTINCT"
   }
-  case slcts {
+  case selects {
     NoSelects ->
-      prp_stm |> prepared_statement.append_sql(select_command <> " *")
-    Selects(slct_vs) -> {
-      case slct_vs {
-        [] -> prp_stm
+      prepared_statement
+      |> prepared_statement.append_sql(select_command <> " *")
+    Selects(select_vs) -> {
+      case select_vs {
+        [] -> prepared_statement
         vs -> {
-          let prp_stm =
-            prp_stm |> prepared_statement.append_sql(select_command <> " ")
+          let prepared_statement =
+            prepared_statement
+            |> prepared_statement.append_sql(select_command <> " ")
           vs
           |> list.fold(
-            prp_stm,
-            fn(new_prp_stm: PreparedStatement, v: SelectValue) -> PreparedStatement {
-              case new_prp_stm == prp_stm {
-                True -> new_prp_stm |> select_value_apply(v)
+            prepared_statement,
+            fn(new_prepared_statement: PreparedStatement, v: SelectValue) -> PreparedStatement {
+              case new_prepared_statement == prepared_statement {
+                True -> new_prepared_statement |> select_value_apply(v)
                 False ->
-                  new_prp_stm
+                  new_prepared_statement
                   |> prepared_statement.append_sql(", ")
                   |> select_value_apply(v)
               }
@@ -363,17 +382,19 @@ fn select_clause_apply(
 }
 
 fn select_value_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value v: SelectValue,
 ) -> PreparedStatement {
   case v {
-    SelectColumn(col) -> prp_stm |> prepared_statement.append_sql(col)
-    SelectParam(prm) -> prp_stm |> prepared_statement.append_param(prm)
-    SelectFragment(frgmnt) -> prp_stm |> fragment_apply(frgmnt)
-    SelectAlias(v, als) ->
-      prp_stm
+    SelectColumn(col) ->
+      prepared_statement |> prepared_statement.append_sql(col)
+    SelectParam(prm) ->
+      prepared_statement |> prepared_statement.append_param(prm)
+    SelectFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
+    SelectAlias(v, alias) ->
+      prepared_statement
       |> select_value_apply(v)
-      |> prepared_statement.append_sql(" AS " <> als)
+      |> prepared_statement.append_sql(" AS " <> alias)
   }
 }
 
@@ -398,17 +419,17 @@ pub type From {
 /// Applies the `FROM` clause to a prepared statement by appending the SQL code.
 ///
 pub fn from_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   from frm: From,
 ) -> PreparedStatement {
   case frm {
-    NoFrom -> prp_stm
+    NoFrom -> prepared_statement
     FromTable(tbl_nm) ->
-      prp_stm |> prepared_statement.append_sql(" FROM " <> tbl_nm)
-    FromSubQuery(qry, als) ->
-      prp_stm
+      prepared_statement |> prepared_statement.append_sql(" FROM " <> tbl_nm)
+    FromSubQuery(query, als) ->
+      prepared_statement
       |> prepared_statement.append_sql(" FROM (")
-      |> apply(qry)
+      |> apply(query)
       |> prepared_statement.append_sql(") AS " <> als)
   }
 }
@@ -490,383 +511,406 @@ pub type WhereValue {
 /// code.
 ///
 pub fn where_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where wh: Where,
 ) -> PreparedStatement {
   case wh {
-    NoWhere -> prp_stm
-    _ -> prp_stm |> prepared_statement.append_sql(" WHERE ") |> where_apply(wh)
+    NoWhere -> prepared_statement
+    _ ->
+      prepared_statement
+      |> prepared_statement.append_sql(" WHERE ")
+      |> where_apply(wh)
   }
 }
 
 fn having_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where wh: Where,
 ) -> PreparedStatement {
   case wh {
-    NoWhere -> prp_stm
-    _ -> prp_stm |> prepared_statement.append_sql(" HAVING ") |> where_apply(wh)
+    NoWhere -> prepared_statement
+    _ ->
+      prepared_statement
+      |> prepared_statement.append_sql(" HAVING ")
+      |> where_apply(wh)
   }
 }
 
 fn where_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where wh: Where,
 ) -> PreparedStatement {
   case wh {
-    NoWhere -> prp_stm
-    AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs, False)
-    OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs, True)
-    XorWhere(whs) -> prp_stm |> where_xor_apply(whs)
+    NoWhere -> prepared_statement
+    AndWhere(whs) ->
+      prepared_statement |> where_logical_operator_apply("AND", whs, False)
+    OrWhere(whs) ->
+      prepared_statement |> where_logical_operator_apply("OR", whs, True)
+    XorWhere(whs) -> prepared_statement |> where_xor_apply(whs)
     NotWhere(wh) ->
-      prp_stm
+      prepared_statement
       |> prepared_statement.append_sql("NOT(")
       |> where_apply(wh)
       |> prepared_statement.append_sql(")")
-    WhereIsBool(val, True) -> prp_stm |> where_literal_apply(val, "IS TRUE")
-    WhereIsBool(val, False) -> prp_stm |> where_literal_apply(val, "IS FALSE")
+    WhereIsBool(val, True) ->
+      prepared_statement |> where_literal_apply(val, "IS TRUE")
+    WhereIsBool(val, False) ->
+      prepared_statement |> where_literal_apply(val, "IS FALSE")
     WhereIsNotBool(val, True) ->
-      prp_stm |> where_literal_apply(val, "IS NOT TRUE")
+      prepared_statement |> where_literal_apply(val, "IS NOT TRUE")
     WhereIsNotBool(val, False) ->
-      prp_stm |> where_literal_apply(val, "IS NOT FALSE")
-    WhereIsNull(val) -> prp_stm |> where_literal_apply(val, "IS NULL")
-    WhereIsNotNull(val) -> prp_stm |> where_literal_apply(val, "IS NOT NULL")
+      prepared_statement |> where_literal_apply(val, "IS NOT FALSE")
+    WhereIsNull(val) ->
+      prepared_statement |> where_literal_apply(val, "IS NULL")
+    WhereIsNotNull(val) ->
+      prepared_statement |> where_literal_apply(val, "IS NOT NULL")
     WhereComparison(val_a, Equal, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "=", val_b)
+      prepared_statement |> where_comparison_apply(val_a, "=", val_b)
     WhereComparison(val_a, Greater, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, ">", val_b)
+      prepared_statement |> where_comparison_apply(val_a, ">", val_b)
     WhereComparison(val_a, GreaterOrEqual, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, ">=", val_b)
+      prepared_statement |> where_comparison_apply(val_a, ">=", val_b)
     WhereComparison(val_a, Lower, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<", val_b)
+      prepared_statement |> where_comparison_apply(val_a, "<", val_b)
     WhereComparison(val_a, LowerOrEqual, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<=", val_b)
+      prepared_statement |> where_comparison_apply(val_a, "<=", val_b)
     WhereComparison(val_a, Unequal, val_b) ->
-      prp_stm |> where_comparison_apply(val_a, "<>", val_b)
-    WhereAnyOfSubQuery(val, Equal, qry) ->
-      prp_stm
+      prepared_statement |> where_comparison_apply(val_a, "<>", val_b)
+    WhereAnyOfSubQuery(val, Equal, query) ->
+      prepared_statement
       |> where_literal_apply(val, "= ANY")
-      |> where_sub_query_apply(qry)
-    WhereAnyOfSubQuery(val, Greater, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAnyOfSubQuery(val, Greater, query) ->
+      prepared_statement
       |> where_literal_apply(val, "> ANY")
-      |> where_sub_query_apply(qry)
-    WhereAnyOfSubQuery(val, GreaterOrEqual, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAnyOfSubQuery(val, GreaterOrEqual, query) ->
+      prepared_statement
       |> where_literal_apply(val, ">= ANY")
-      |> where_sub_query_apply(qry)
-    WhereAnyOfSubQuery(val, Lower, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAnyOfSubQuery(val, Lower, query) ->
+      prepared_statement
       |> where_literal_apply(val, "< ANY")
-      |> where_sub_query_apply(qry)
-    WhereAnyOfSubQuery(val, LowerOrEqual, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAnyOfSubQuery(val, LowerOrEqual, query) ->
+      prepared_statement
       |> where_literal_apply(val, "<= ANY")
-      |> where_sub_query_apply(qry)
-    WhereAnyOfSubQuery(val, Unequal, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAnyOfSubQuery(val, Unequal, query) ->
+      prepared_statement
       |> where_literal_apply(val, "<> ANY")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, Equal, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, Equal, query) ->
+      prepared_statement
       |> where_literal_apply(val, "= ALL")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, Greater, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, Greater, query) ->
+      prepared_statement
       |> where_literal_apply(val, "> ALL")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, GreaterOrEqual, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, GreaterOrEqual, query) ->
+      prepared_statement
       |> where_literal_apply(val, ">= ALL")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, Lower, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, Lower, query) ->
+      prepared_statement
       |> where_literal_apply(val, "< ALL")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, LowerOrEqual, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, LowerOrEqual, query) ->
+      prepared_statement
       |> where_literal_apply(val, "<= ALL")
-      |> where_sub_query_apply(qry)
-    WhereAllOfSubQuery(val, Unequal, qry) ->
-      prp_stm
+      |> where_sub_query_apply(query)
+    WhereAllOfSubQuery(val, Unequal, query) ->
+      prepared_statement
       |> where_literal_apply(val, "<> ALL")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(query)
     WhereBetween(val_a, val_b, val_c) ->
-      prp_stm |> where_between_apply(val_a, val_b, val_c)
-    WhereIn(val, vals) -> prp_stm |> where_value_in_values_apply(val, vals)
-    WhereExistsInSubQuery(qry) ->
-      prp_stm
+      prepared_statement |> where_between_apply(val_a, val_b, val_c)
+    WhereIn(val, vals) ->
+      prepared_statement |> where_value_in_values_apply(val, vals)
+    WhereExistsInSubQuery(query) ->
+      prepared_statement
       |> prepared_statement.append_sql(" EXISTS ")
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(query)
     WhereLike(val, prm) ->
-      prp_stm
+      prepared_statement
       |> where_comparison_apply(
         val,
         "LIKE",
         prm |> StringParam |> WhereParamValue,
       )
     WhereILike(value: val, pattern: prm) ->
-      prp_stm
+      prepared_statement
       |> where_comparison_apply(
         val,
         "ILIKE",
         prm |> StringParam |> WhereParamValue,
       )
     WhereSimilarTo(value: val, pattern: prm, escape_char: ecp_chr) ->
-      prp_stm
+      prepared_statement
       |> where_comparison_apply(
         val,
         "SIMILAR TO",
         prm |> StringParam |> WhereParamValue,
       )
       |> prepared_statement.append_sql(" ESCAPE '" <> ecp_chr <> "'")
-    WhereFragment(fragment) -> prp_stm |> fragment_apply(fragment)
+    WhereFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
   }
 }
 
 fn where_literal_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value v: WhereValue,
   literal lt: String,
 ) -> PreparedStatement {
   case v {
     WhereColumnValue(col) ->
-      prp_stm |> prepared_statement.append_sql(col <> " " <> lt)
-    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
+      prepared_statement |> prepared_statement.append_sql(col <> " " <> lt)
+    WhereParamValue(prm) ->
+      prepared_statement |> prepared_statement.append_param(prm)
     WhereFragmentValue(fragment: frgmt) ->
-      prp_stm
+      prepared_statement
       |> fragment_apply(frgmt)
       |> prepared_statement.append_sql(" " <> lt)
-    WhereSubQueryValue(qry) ->
-      prp_stm
-      |> where_sub_query_apply(qry)
+    WhereSubQueryValue(query) ->
+      prepared_statement
+      |> where_sub_query_apply(query)
       |> prepared_statement.append_sql(" " <> lt)
   }
 }
 
 fn where_comparison_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value_a val_a: WhereValue,
   operator oprtr: String,
   value_b val_b: WhereValue,
 ) -> PreparedStatement {
   case val_a, val_b {
     WhereColumnValue(col_a), WhereColumnValue(col_b) ->
-      prp_stm
+      prepared_statement
       |> where_string_apply(col_a <> " " <> oprtr <> " " <> col_b)
     WhereColumnValue(col), WhereParamValue(prm) ->
-      prp_stm
+      prepared_statement
       |> where_string_apply(col <> " " <> oprtr <> " ")
       |> where_param_apply(prm)
     WhereParamValue(prm), WhereColumnValue(col) ->
-      prp_stm
+      prepared_statement
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " " <> col)
     WhereParamValue(prm_a), WhereParamValue(prm_b) ->
-      prp_stm
+      prepared_statement
       |> where_param_apply(prm_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm_b)
     WhereFragmentValue(frgmt), WhereColumnValue(col) ->
-      prp_stm
+      prepared_statement
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " " <> col)
     WhereColumnValue(col), WhereFragmentValue(frgmt) ->
-      prp_stm
+      prepared_statement
       |> where_string_apply(col <> " " <> oprtr <> " ")
       |> fragment_apply(frgmt)
     WhereFragmentValue(frgmt), WhereParamValue(prm) ->
-      prp_stm
+      prepared_statement
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm)
     WhereParamValue(prm), WhereFragmentValue(frgmt) ->
-      prp_stm
+      prepared_statement
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt)
     WhereFragmentValue(frgmt_a), WhereFragmentValue(frgmt_b) ->
-      prp_stm
+      prepared_statement
       |> fragment_apply(frgmt_a)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt_b)
-    WhereSubQueryValue(qry_a), WhereSubQueryValue(qry_b) ->
-      prp_stm
-      |> where_sub_query_apply(qry_a)
+    WhereSubQueryValue(query_a), WhereSubQueryValue(query_b) ->
+      prepared_statement
+      |> where_sub_query_apply(query_a)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry_b)
-    WhereColumnValue(col), WhereSubQueryValue(qry) ->
-      prp_stm
+      |> where_sub_query_apply(query_b)
+    WhereColumnValue(col), WhereSubQueryValue(query) ->
+      prepared_statement
       |> where_string_apply(col <> " " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
-    WhereSubQueryValue(qry), WhereColumnValue(col) ->
-      prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(query)
+    WhereSubQueryValue(query), WhereColumnValue(col) ->
+      prepared_statement
+      |> where_sub_query_apply(query)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereParamValue(prm), WhereSubQueryValue(qry) ->
-      prp_stm
+    WhereParamValue(prm), WhereSubQueryValue(query) ->
+      prepared_statement
       |> where_param_apply(prm)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
-    WhereSubQueryValue(qry), WhereParamValue(prm) ->
-      prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(query)
+    WhereSubQueryValue(query), WhereParamValue(prm) ->
+      prepared_statement
+      |> where_sub_query_apply(query)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_param_apply(prm)
-    WhereFragmentValue(frgmt), WhereSubQueryValue(qry) ->
-      prp_stm
+    WhereFragmentValue(frgmt), WhereSubQueryValue(query) ->
+      prepared_statement
       |> fragment_apply(frgmt)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(qry)
-    WhereSubQueryValue(qry), WhereFragmentValue(frgmt) ->
-      prp_stm
-      |> where_sub_query_apply(qry)
+      |> where_sub_query_apply(query)
+    WhereSubQueryValue(query), WhereFragmentValue(frgmt) ->
+      prepared_statement
+      |> where_sub_query_apply(query)
       |> where_string_apply(" " <> oprtr <> " ")
       |> fragment_apply(frgmt)
   }
 }
 
 fn where_string_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   string s: String,
 ) -> PreparedStatement {
-  prp_stm |> prepared_statement.append_sql(s)
+  prepared_statement |> prepared_statement.append_sql(s)
 }
 
 fn where_param_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   param prm: Param,
 ) -> PreparedStatement {
-  prp_stm |> prepared_statement.append_param(prm)
+  prepared_statement |> prepared_statement.append_param(prm)
 }
 
 fn where_sub_query_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  sub_query qry: ReadQuery,
+  prepared_statement prepared_statement: PreparedStatement,
+  sub_query query: ReadQuery,
 ) -> PreparedStatement {
-  prp_stm
+  prepared_statement
   |> prepared_statement.append_sql("(")
-  |> apply(qry)
+  |> apply(query)
   |> prepared_statement.append_sql(")")
 }
 
 fn where_logical_operator_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   operator oprtr: String,
   where whs: List(Where),
   wrap_in_parentheses wrp_prns: Bool,
 ) -> PreparedStatement {
-  let prp_stm = case wrp_prns {
-    True -> prp_stm |> prepared_statement.append_sql("(")
-    False -> prp_stm
+  let prepared_statement = case wrp_prns {
+    True -> prepared_statement |> prepared_statement.append_sql("(")
+    False -> prepared_statement
   }
 
-  let prp_stm =
+  let prepared_statement =
     whs
     |> list.fold(
-      prp_stm,
-      fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
-        case new_prp_stm == prp_stm {
-          True -> new_prp_stm |> where_apply(wh)
+      prepared_statement,
+      fn(new_prepared_statement: PreparedStatement, wh: Where) -> PreparedStatement {
+        case new_prepared_statement == prepared_statement {
+          True -> new_prepared_statement |> where_apply(wh)
           False ->
-            new_prp_stm
+            new_prepared_statement
             |> prepared_statement.append_sql(" " <> oprtr <> " ")
             |> where_apply(wh)
         }
       },
     )
 
-  let prp_stm = case wrp_prns {
-    True -> prp_stm |> prepared_statement.append_sql(")")
-    False -> prp_stm
+  let prepared_statement = case wrp_prns {
+    True -> prepared_statement |> prepared_statement.append_sql(")")
+    False -> prepared_statement
   }
 
-  prp_stm
+  prepared_statement
 }
 
 fn where_xor_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  case prp_stm |> prepared_statement.get_dialect {
-    Postgres | Sqlite -> custom_where_xor_apply(prp_stm, whs)
-    Maria | Mysql -> vanilla_where_xor_apply(prp_stm, whs)
+  case prepared_statement |> prepared_statement.get_dialect {
+    Postgres | Sqlite -> custom_where_xor_apply(prepared_statement, whs)
+    Maria | Mysql -> vanilla_where_xor_apply(prepared_statement, whs)
   }
 }
 
 fn custom_where_xor_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
   let xor_idxs = whs |> list.length |> int.subtract(1) |> list.range(0, _)
 
-  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql("(")
 
-  let prp_stm =
+  let prepared_statement =
     xor_idxs
     |> list.fold(
-      prp_stm,
-      fn(new_prp_stm: PreparedStatement, xor_idx: Int) -> PreparedStatement {
-        let new_prp_stm = case new_prp_stm == prp_stm {
-          True -> new_prp_stm
-          False -> new_prp_stm |> prepared_statement.append_sql(") OR (")
+      prepared_statement,
+      fn(new_prepared_statement: PreparedStatement, xor_idx: Int) -> PreparedStatement {
+        let new_prepared_statement = case
+          new_prepared_statement == prepared_statement
+        {
+          True -> new_prepared_statement
+          False ->
+            new_prepared_statement |> prepared_statement.append_sql(") OR (")
         }
 
-        let #(new_prp_stm, _last_wh_idx) =
+        let #(new_prepared_statement, _last_wh_idx) =
           whs
           |> list.fold(
-            #(new_prp_stm, 0),
+            #(new_prepared_statement, 0),
             fn(acc: #(PreparedStatement, Int), wh: Where) -> #(
               PreparedStatement,
               Int,
             ) {
-              let #(new_prp_stm_per_xor, wh_idx) = acc
-              let new_prp_stm_per_xor = case wh_idx == xor_idx, wh_idx {
-                True, 0 -> new_prp_stm_per_xor |> where_apply(wh)
+              let #(new_prepared_statement_per_xor, wh_idx) = acc
+              let new_prepared_statement_per_xor = case
+                wh_idx == xor_idx,
+                wh_idx
+              {
+                True, 0 -> new_prepared_statement_per_xor |> where_apply(wh)
 
                 True, _gt_0 ->
-                  new_prp_stm_per_xor
+                  new_prepared_statement_per_xor
                   |> prepared_statement.append_sql(" AND (")
                   |> where_apply(wh)
                   |> prepared_statement.append_sql(")")
                 False, 0 ->
-                  new_prp_stm_per_xor
+                  new_prepared_statement_per_xor
                   |> prepared_statement.append_sql("NOT(")
                   |> where_apply(wh)
                   |> prepared_statement.append_sql(")")
                 False, _gt_0 ->
-                  new_prp_stm_per_xor
+                  new_prepared_statement_per_xor
                   |> prepared_statement.append_sql(" AND NOT(")
                   |> where_apply(wh)
                   |> prepared_statement.append_sql(")")
               }
-              #(new_prp_stm_per_xor, wh_idx + 1)
+              #(new_prepared_statement_per_xor, wh_idx + 1)
             },
           )
 
-        new_prp_stm
+        new_prepared_statement
       },
     )
 
-  let prp_stm = prp_stm |> prepared_statement.append_sql(")")
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql(")")
 
-  prp_stm
+  prepared_statement
 }
 
 fn vanilla_where_xor_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  let prp_stm = prp_stm |> prepared_statement.append_sql("(")
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql("(")
 
   whs
   |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, wh: Where) -> PreparedStatement {
-      case new_prp_stm == prp_stm {
-        True -> new_prp_stm |> where_apply(wh)
+    prepared_statement,
+    fn(new_prepared_statement: PreparedStatement, wh: Where) -> PreparedStatement {
+      case new_prepared_statement == prepared_statement {
+        True -> new_prepared_statement |> where_apply(wh)
         False ->
-          new_prp_stm
+          new_prepared_statement
           |> prepared_statement.append_sql(" XOR ")
           |> where_apply(wh)
       }
@@ -876,38 +920,44 @@ fn vanilla_where_xor_apply(
 }
 
 fn where_value_in_values_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value val: WhereValue,
   parameters prms: List(WhereValue),
 ) -> PreparedStatement {
-  let prp_stm =
+  let prepared_statement =
     case val {
-      WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-      WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
-      WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-      WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+      WhereColumnValue(col) ->
+        prepared_statement |> prepared_statement.append_sql(col)
+      WhereParamValue(prm) ->
+        prepared_statement |> prepared_statement.append_param(prm)
+      WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+      WhereSubQueryValue(query) ->
+        prepared_statement |> where_sub_query_apply(query)
     }
     |> prepared_statement.append_sql(" IN (")
 
   prms
   |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, v: WhereValue) -> PreparedStatement {
+    prepared_statement,
+    fn(new_prepared_statement: PreparedStatement, v: WhereValue) -> PreparedStatement {
       case v {
         WhereColumnValue(col) ->
-          case new_prp_stm == prp_stm {
-            True -> new_prp_stm |> prepared_statement.append_sql(col)
-            False -> new_prp_stm |> prepared_statement.append_sql(", " <> col)
+          case new_prepared_statement == prepared_statement {
+            True -> new_prepared_statement |> prepared_statement.append_sql(col)
+            False ->
+              new_prepared_statement
+              |> prepared_statement.append_sql(", " <> col)
           }
         WhereParamValue(prm) ->
-          case new_prp_stm == prp_stm {
+          case new_prepared_statement == prepared_statement {
             True -> ""
             False -> ", "
           }
-          |> prepared_statement.append_sql(new_prp_stm, _)
+          |> prepared_statement.append_sql(new_prepared_statement, _)
           |> prepared_statement.append_param(prm)
-        WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-        WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+        WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+        WhereSubQueryValue(query) ->
+          prepared_statement |> where_sub_query_apply(query)
       }
     },
   )
@@ -915,37 +965,48 @@ fn where_value_in_values_apply(
 }
 
 fn where_between_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value_a val_a: WhereValue,
   value_b val_b: WhereValue,
   value_c val_c: WhereValue,
 ) -> PreparedStatement {
-  let prp_stm = case val_a {
-    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+  let prepared_statement = case val_a {
+    WhereColumnValue(col) ->
+      prepared_statement |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) ->
+      prepared_statement |> prepared_statement.append_param(prm)
+    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereSubQueryValue(query) ->
+      prepared_statement |> where_sub_query_apply(query)
   }
 
-  let prp_stm = prp_stm |> prepared_statement.append_sql(" BETWEEN ")
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql(" BETWEEN ")
 
-  let prp_stm = case val_b {
-    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+  let prepared_statement = case val_b {
+    WhereColumnValue(col) ->
+      prepared_statement |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) ->
+      prepared_statement |> prepared_statement.append_param(prm)
+    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereSubQueryValue(query) ->
+      prepared_statement |> where_sub_query_apply(query)
   }
 
-  let prp_stm = prp_stm |> prepared_statement.append_sql(" AND ")
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql(" AND ")
 
-  let prp_stm = case val_c {
-    WhereColumnValue(col) -> prp_stm |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) -> prp_stm |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prp_stm |> fragment_apply(frgmt)
-    WhereSubQueryValue(qry) -> prp_stm |> where_sub_query_apply(qry)
+  let prepared_statement = case val_c {
+    WhereColumnValue(col) ->
+      prepared_statement |> prepared_statement.append_sql(col)
+    WhereParamValue(prm) ->
+      prepared_statement |> prepared_statement.append_param(prm)
+    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereSubQueryValue(query) ->
+      prepared_statement |> where_sub_query_apply(query)
   }
 
-  prp_stm
+  prepared_statement
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -962,32 +1023,33 @@ pub type GroupBy {
 /// Apply group by clause to prepared statement
 ///
 pub fn group_by_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   group_by grpb: GroupBy,
 ) -> PreparedStatement {
   case grpb {
-    NoGroupBy -> prp_stm
+    NoGroupBy -> prepared_statement
     GroupBy(grpbs) ->
-      prp_stm
+      prepared_statement
       |> prepared_statement.append_sql(" GROUP BY ")
       |> group_by_apply(grpbs)
   }
 }
 
 fn group_by_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   group_bys grpbs: List(String),
 ) -> PreparedStatement {
   case grpbs {
-    [] -> prp_stm
+    [] -> prepared_statement
     _ ->
       grpbs
       |> list.fold(
-        prp_stm,
-        fn(new_prp_stm: PreparedStatement, s: String) -> PreparedStatement {
-          case new_prp_stm == prp_stm {
-            True -> new_prp_stm |> prepared_statement.append_sql(s)
-            False -> new_prp_stm |> prepared_statement.append_sql(", " <> s)
+        prepared_statement,
+        fn(new_prepared_statement: PreparedStatement, s: String) -> PreparedStatement {
+          case new_prepared_statement == prepared_statement {
+            True -> new_prepared_statement |> prepared_statement.append_sql(s)
+            False ->
+              new_prepared_statement |> prepared_statement.append_sql(", " <> s)
           }
         },
       )
@@ -1057,77 +1119,82 @@ pub type Join {
 /// Apply join clauses to prepared statement.
 ///
 pub fn join_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   joins jns: Joins,
 ) -> PreparedStatement {
   case jns {
     Joins(jns) -> {
       jns
       |> list.fold(
-        prp_stm,
-        fn(new_prp_stm: PreparedStatement, jn: Join) -> PreparedStatement {
+        prepared_statement,
+        fn(new_prepared_statement: PreparedStatement, jn: Join) -> PreparedStatement {
           let join_command_apply = fn(
-            new_prp_stm: PreparedStatement,
+            new_prepared_statement: PreparedStatement,
             sql_command: String,
           ) -> PreparedStatement {
-            new_prp_stm
+            new_prepared_statement
             |> prepared_statement.append_sql(" " <> sql_command <> " ")
             |> join_apply(jn)
           }
 
-          let on_apply = fn(new_prp_stm: PreparedStatement, on: Where) -> PreparedStatement {
-            new_prp_stm
+          let on_apply = fn(
+            new_prepared_statement: PreparedStatement,
+            on: Where,
+          ) -> PreparedStatement {
+            new_prepared_statement
             |> prepared_statement.append_sql(" ON ")
             |> where_apply(on)
           }
 
           case jn {
             InnerJoin(_, _, on: on) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("INNER JOIN")
               |> on_apply(on)
             InnerJoinLateralOnTrue(_, _) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("INNER JOIN LATERAL")
               |> prepared_statement.append_sql(" ON TRUE")
             LeftJoin(_, _, on: on) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
             LeftJoinLateralOnTrue(_, _) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("LEFT JOIN LATERAL")
               |> prepared_statement.append_sql(" ON TRUE")
             RightJoin(_, _, on: on) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("RIGHT OUTER JOIN")
               |> on_apply(on)
             FullJoin(_, _, on: on) ->
-              new_prp_stm
+              new_prepared_statement
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
-            CrossJoin(_, _) -> new_prp_stm |> join_command_apply("CROSS JOIN")
+            CrossJoin(_, _) ->
+              new_prepared_statement |> join_command_apply("CROSS JOIN")
             CrossJoinLateral(_, _) ->
-              new_prp_stm |> join_command_apply("CROSS JOIN LATERAL")
+              new_prepared_statement |> join_command_apply("CROSS JOIN LATERAL")
           }
         },
       )
     }
-    NoJoins -> prp_stm
+    NoJoins -> prepared_statement
   }
 }
 
 pub fn join_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   join jn: Join,
 ) -> PreparedStatement {
   case jn.with {
     JoinTable(table: tbl) ->
-      prp_stm |> prepared_statement.append_sql(tbl <> " AS " <> jn.alias)
-    JoinSubQuery(query: qry) ->
-      prp_stm
+      prepared_statement
+      |> prepared_statement.append_sql(tbl <> " AS " <> jn.alias)
+    JoinSubQuery(query: query) ->
+      prepared_statement
       |> prepared_statement.append_sql("(")
-      |> apply(qry)
+      |> apply(query)
       |> prepared_statement.append_sql(") AS " <> jn.alias)
   }
 }
@@ -1172,45 +1239,49 @@ pub type OrderByDirection {
   DescNullsLast
 }
 
-fn order_by_append(query_ordb: OrderBy, new_ordb: OrderBy) -> OrderBy {
-  case query_ordb {
-    NoOrderBy -> new_ordb
-    OrderBy(qry_ordb_items) -> {
-      let new_ordb_items = case new_ordb {
+fn order_by_append(
+  order_by order_by: OrderBy,
+  new_order_by new_order_by: OrderBy,
+) -> OrderBy {
+  case order_by {
+    NoOrderBy -> new_order_by
+    OrderBy(order_by_items) -> {
+      let new_order_by_items = case new_order_by {
         NoOrderBy -> []
-        OrderBy(new_ordb) -> new_ordb
+        OrderBy(new_order_by) -> new_order_by
       }
-      let new_ordb_item = case qry_ordb_items {
-        [] -> new_ordb_items
-        _ -> qry_ordb_items |> list.append(new_ordb_items)
+      let new_order_by_item = case order_by_items {
+        [] -> new_order_by_items
+        _ -> order_by_items |> list.append(new_order_by_items)
       }
-      case new_ordb_item {
+      case new_order_by_item {
         [] -> NoOrderBy
-        _ -> OrderBy(new_ordb_item)
+        _ -> OrderBy(new_order_by_item)
       }
     }
   }
 }
 
 fn order_by_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  order_by ordb: OrderBy,
+  prepared_statement prepared_statement: PreparedStatement,
+  order_by order_by: OrderBy,
 ) -> PreparedStatement {
-  case ordb {
-    NoOrderBy -> prp_stm
-    OrderBy(ordbs) -> {
-      case ordbs {
-        [] -> prp_stm
+  case order_by {
+    NoOrderBy -> prepared_statement
+    OrderBy(order_bys) -> {
+      case order_bys {
+        [] -> prepared_statement
         vs -> {
-          let prp_stm = prp_stm |> prepared_statement.append_sql(" ORDER BY ")
+          let prepared_statement =
+            prepared_statement |> prepared_statement.append_sql(" ORDER BY ")
           vs
           |> list.fold(
-            prp_stm,
-            fn(new_prp_stm: PreparedStatement, v: OrderByValue) -> PreparedStatement {
-              case new_prp_stm == prp_stm {
-                True -> new_prp_stm |> order_by_value_apply(v)
+            prepared_statement,
+            fn(new_prepared_statement: PreparedStatement, v: OrderByValue) -> PreparedStatement {
+              case new_prepared_statement == prepared_statement {
+                True -> new_prepared_statement |> order_by_value_apply(v)
                 False ->
-                  new_prp_stm
+                  new_prepared_statement
                   |> prepared_statement.append_sql(", ")
                   |> order_by_value_apply(v)
               }
@@ -1223,17 +1294,17 @@ fn order_by_clause_apply(
 }
 
 fn order_by_value_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   value v: OrderByValue,
 ) -> PreparedStatement {
   case v {
     OrderByColumn(col, dir) ->
-      prp_stm
+      prepared_statement
       |> prepared_statement.append_sql(col)
       |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
-    OrderByFragment(frgmnt, dir) ->
-      prp_stm
-      |> fragment_apply(frgmnt)
+    OrderByFragment(fragment, dir) ->
+      prepared_statement
+      |> fragment_apply(fragment)
       |> prepared_statement.append_sql(" " <> dir |> order_by_direction_to_sql)
   }
 }
@@ -1245,9 +1316,9 @@ fn order_by_value_apply(
 /// <https://mariadb.com/kb/en/null-values/#ordering>.
 ///
 fn order_by_direction_to_sql(
-  order_by_direction ordbd: OrderByDirection,
+  order_by_direction order_byd: OrderByDirection,
 ) -> String {
-  case ordbd {
+  case order_byd {
     Asc -> "ASC"
     AscNullsFirst -> "ASC NULLS FIRST"
     AscNullsLast -> "ASC NULLS LAST"
@@ -1278,14 +1349,14 @@ pub fn limit_new(limit lmt: Int) -> Limit {
 }
 
 fn limit_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   limit lmt: Limit,
 ) -> PreparedStatement {
   case lmt {
     NoLimit -> ""
     Limit(limit: lmt) -> " LIMIT " <> lmt |> int.to_string
   }
-  |> prepared_statement.append_sql(prp_stm, _)
+  |> prepared_statement.append_sql(prepared_statement, _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1309,14 +1380,14 @@ pub fn offset_new(offset offst: Int) -> Offset {
 }
 
 fn offset_clause_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   offset offst: Offset,
 ) -> PreparedStatement {
   case offst {
     NoOffset -> ""
     Offset(offset: offst) -> " OFFSET " <> offst |> int.to_string
   }
-  |> prepared_statement.append_sql(prp_stm, _)
+  |> prepared_statement.append_sql(prepared_statement, _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1338,12 +1409,13 @@ pub type Epilog {
 /// Apply the epilog to the prepared statement.
 ///
 pub fn epilog_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   epilog eplg: Epilog,
 ) -> PreparedStatement {
   case eplg {
-    NoEpilog -> prp_stm
-    Epilog(string: eplgs) -> prp_stm |> prepared_statement.append_sql(eplgs)
+    NoEpilog -> prepared_statement
+    Epilog(string: eplgs) ->
+      prepared_statement |> prepared_statement.append_sql(eplgs)
   }
 }
 
@@ -1362,15 +1434,15 @@ pub type Comment {
 /// Apply the comment to the prepared statement.
 ///
 pub fn comment_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   comment cmmnt: Comment,
 ) -> PreparedStatement {
   case cmmnt {
-    NoComment -> prp_stm
+    NoComment -> prepared_statement
     Comment(string: cmmnt) ->
       case cmmnt |> string.contains("\n") || cmmnt |> string.contains("\r") {
         True ->
-          prp_stm
+          prepared_statement
           |> prepared_statement.append_sql(
             " /* "
             <> cmmnt
@@ -1380,7 +1452,7 @@ pub fn comment_apply(
             <> " */",
           )
         False ->
-          prp_stm
+          prepared_statement
           |> prepared_statement.append_sql(" -- " <> cmmnt |> string.trim)
       }
   }
@@ -1447,19 +1519,19 @@ pub fn fragment_prepared_split_string(
 }
 
 fn fragment_apply(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
   fragment frgmt: Fragment,
 ) -> PreparedStatement {
   case frgmt {
     FragmentLiteral(fragment: frgmt) ->
-      prp_stm |> prepared_statement.append_sql(frgmt)
+      prepared_statement |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: []) ->
       // This is likely a user error and they meant `FragmentLiteral`
       // if they did not give any params.
-      prp_stm |> prepared_statement.append_sql(frgmt)
+      prepared_statement |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: prms) -> {
       let frgmts = frgmt |> fragment_prepared_split_string
-      let frgmt_plchldr_count = frgmts |> fragment_count_placeholders
+      let frgmt_placeholder_count = frgmts |> fragment_count_placeholders
       let prms_count = prms |> list.length
 
       // Fill up or reduce params to match the given number of placeholders
@@ -1472,7 +1544,7 @@ fn fragment_apply(
       // For the user ´fragment.prepared()` should be used with caution and will
       // warn about the mismatch at runtime.
       let prms = case
-        frgmt_plchldr_count |> int.compare(with: prms_count),
+        frgmt_placeholder_count |> int.compare(with: prms_count),
         prms |> list.reverse
       {
         // Expected branch, no user error
@@ -1482,7 +1554,7 @@ fn fragment_apply(
           // If there are more params than placeholders, we take the first `n`
           // params where `n` is the number of placeholders, and discard the
           // rest.
-          let missing_placeholders = prms_count - frgmt_plchldr_count
+          let missing_placeholders = prms_count - frgmt_placeholder_count
 
           prms |> list.take(missing_placeholders + 1)
         }
@@ -1490,7 +1562,7 @@ fn fragment_apply(
         order.Gt, [last_item, ..] -> {
           // If there are more placeholders than params, we repeat the last
           // param until the number of placeholders is reached.
-          let missing_params = frgmt_plchldr_count - prms_count
+          let missing_params = frgmt_placeholder_count - prms_count
           let repeated_last_item = last_item |> list.repeat(missing_params)
 
           prms |> list.append(repeated_last_item)
@@ -1505,38 +1577,41 @@ fn fragment_apply(
         // This branch should be unreachable at runtime,
         // because it makes little sense to use Fragments without supplying
         // them:
-        [] -> prp_stm
+        [] -> prepared_statement
         // This branch should always run at runtime:
         frgmts -> {
-          let #(new_prp_stm, _param_rest) =
+          let #(new_prepared_statement, _param_rest) =
             frgmts
             |> list.fold(
-              #(prp_stm, prms),
-              fn(acc: #(PreparedStatement, List(Param)), frgmnt: String) -> #(
+              #(prepared_statement, prms),
+              fn(acc: #(PreparedStatement, List(Param)), fragment: String) -> #(
                 PreparedStatement,
                 List(Param),
               ) {
-                let new_prp_stm = acc.0
+                let new_prepared_statement = acc.0
                 let params = acc.1
-                case frgmnt == fragment_placeholder_grapheme, params {
+                case fragment == fragment_placeholder_grapheme, params {
                   False, _ -> #(
-                    new_prp_stm |> prepared_statement.append_sql(frgmnt),
+                    new_prepared_statement
+                      |> prepared_statement.append_sql(fragment),
                     params,
                   )
                   True, [prm, ..rest_prms] -> #(
-                    new_prp_stm |> prepared_statement.append_param(prm),
+                    new_prepared_statement
+                      |> prepared_statement.append_param(prm),
                     rest_prms,
                   )
                   // This branch should be unreachable at runtime:
                   True, [] -> #(
-                    new_prp_stm |> prepared_statement.append_sql(frgmnt),
+                    new_prepared_statement
+                      |> prepared_statement.append_sql(fragment),
                     [],
                   )
                 }
               },
             )
 
-          new_prp_stm
+          new_prepared_statement
         }
       }
     }
