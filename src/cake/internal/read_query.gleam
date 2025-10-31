@@ -388,8 +388,8 @@ fn select_value_apply(
   case v {
     SelectColumn(col) ->
       prepared_statement |> prepared_statement.append_sql(col)
-    SelectParam(prm) ->
-      prepared_statement |> prepared_statement.append_param(prm)
+    SelectParam(param) ->
+      prepared_statement |> prepared_statement.append_param(param)
     SelectFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
     SelectAlias(v, alias) ->
       prepared_statement
@@ -632,26 +632,26 @@ fn where_apply(
       prepared_statement
       |> prepared_statement.append_sql(" EXISTS ")
       |> where_sub_query_apply(query)
-    WhereLike(val, prm) ->
+    WhereLike(val, param) ->
       prepared_statement
       |> where_comparison_apply(
         val,
         "LIKE",
-        prm |> StringParam |> WhereParamValue,
+        param |> StringParam |> WhereParamValue,
       )
-    WhereILike(value: val, pattern: prm) ->
+    WhereILike(value: val, pattern: param) ->
       prepared_statement
       |> where_comparison_apply(
         val,
         "ILIKE",
-        prm |> StringParam |> WhereParamValue,
+        param |> StringParam |> WhereParamValue,
       )
-    WhereSimilarTo(value: val, pattern: prm, escape_char: ecp_chr) ->
+    WhereSimilarTo(value: val, pattern: param, escape_char: ecp_chr) ->
       prepared_statement
       |> where_comparison_apply(
         val,
         "SIMILAR TO",
-        prm |> StringParam |> WhereParamValue,
+        param |> StringParam |> WhereParamValue,
       )
       |> prepared_statement.append_sql(" ESCAPE '" <> ecp_chr <> "'")
     WhereFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
@@ -666,11 +666,11 @@ fn where_literal_apply(
   case v {
     WhereColumnValue(col) ->
       prepared_statement |> prepared_statement.append_sql(col <> " " <> lt)
-    WhereParamValue(prm) ->
-      prepared_statement |> prepared_statement.append_param(prm)
-    WhereFragmentValue(fragment: frgmt) ->
+    WhereParamValue(param) ->
+      prepared_statement |> prepared_statement.append_param(param)
+    WhereFragmentValue(fragment: fragment) ->
       prepared_statement
-      |> fragment_apply(frgmt)
+      |> fragment_apply(fragment)
       |> prepared_statement.append_sql(" " <> lt)
     WhereSubQueryValue(query) ->
       prepared_statement
@@ -689,42 +689,42 @@ fn where_comparison_apply(
     WhereColumnValue(col_a), WhereColumnValue(col_b) ->
       prepared_statement
       |> where_string_apply(col_a <> " " <> oprtr <> " " <> col_b)
-    WhereColumnValue(col), WhereParamValue(prm) ->
+    WhereColumnValue(col), WhereParamValue(param) ->
       prepared_statement
       |> where_string_apply(col <> " " <> oprtr <> " ")
-      |> where_param_apply(prm)
-    WhereParamValue(prm), WhereColumnValue(col) ->
+      |> where_param_apply(param)
+    WhereParamValue(param), WhereColumnValue(col) ->
       prepared_statement
-      |> where_param_apply(prm)
+      |> where_param_apply(param)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereParamValue(prm_a), WhereParamValue(prm_b) ->
+    WhereParamValue(param_a), WhereParamValue(param_b) ->
       prepared_statement
-      |> where_param_apply(prm_a)
+      |> where_param_apply(param_a)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_param_apply(prm_b)
-    WhereFragmentValue(frgmt), WhereColumnValue(col) ->
+      |> where_param_apply(param_b)
+    WhereFragmentValue(fragment), WhereColumnValue(col) ->
       prepared_statement
-      |> fragment_apply(frgmt)
+      |> fragment_apply(fragment)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereColumnValue(col), WhereFragmentValue(frgmt) ->
+    WhereColumnValue(col), WhereFragmentValue(fragment) ->
       prepared_statement
       |> where_string_apply(col <> " " <> oprtr <> " ")
-      |> fragment_apply(frgmt)
-    WhereFragmentValue(frgmt), WhereParamValue(prm) ->
+      |> fragment_apply(fragment)
+    WhereFragmentValue(fragment), WhereParamValue(param) ->
       prepared_statement
-      |> fragment_apply(frgmt)
+      |> fragment_apply(fragment)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> where_param_apply(prm)
-    WhereParamValue(prm), WhereFragmentValue(frgmt) ->
+      |> where_param_apply(param)
+    WhereParamValue(param), WhereFragmentValue(fragment) ->
       prepared_statement
-      |> where_param_apply(prm)
+      |> where_param_apply(param)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> fragment_apply(frgmt)
-    WhereFragmentValue(frgmt_a), WhereFragmentValue(frgmt_b) ->
+      |> fragment_apply(fragment)
+    WhereFragmentValue(fragment_a), WhereFragmentValue(fragment_b) ->
       prepared_statement
-      |> fragment_apply(frgmt_a)
+      |> fragment_apply(fragment_a)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> fragment_apply(frgmt_b)
+      |> fragment_apply(fragment_b)
     WhereSubQueryValue(query_a), WhereSubQueryValue(query_b) ->
       prepared_statement
       |> where_sub_query_apply(query_a)
@@ -738,26 +738,26 @@ fn where_comparison_apply(
       prepared_statement
       |> where_sub_query_apply(query)
       |> where_string_apply(" " <> oprtr <> " " <> col)
-    WhereParamValue(prm), WhereSubQueryValue(query) ->
+    WhereParamValue(param), WhereSubQueryValue(query) ->
       prepared_statement
-      |> where_param_apply(prm)
+      |> where_param_apply(param)
       |> where_string_apply(" " <> oprtr <> " ")
       |> where_sub_query_apply(query)
-    WhereSubQueryValue(query), WhereParamValue(prm) ->
-      prepared_statement
-      |> where_sub_query_apply(query)
-      |> where_string_apply(" " <> oprtr <> " ")
-      |> where_param_apply(prm)
-    WhereFragmentValue(frgmt), WhereSubQueryValue(query) ->
-      prepared_statement
-      |> fragment_apply(frgmt)
-      |> where_string_apply(" " <> oprtr <> " ")
-      |> where_sub_query_apply(query)
-    WhereSubQueryValue(query), WhereFragmentValue(frgmt) ->
+    WhereSubQueryValue(query), WhereParamValue(param) ->
       prepared_statement
       |> where_sub_query_apply(query)
       |> where_string_apply(" " <> oprtr <> " ")
-      |> fragment_apply(frgmt)
+      |> where_param_apply(param)
+    WhereFragmentValue(fragment), WhereSubQueryValue(query) ->
+      prepared_statement
+      |> fragment_apply(fragment)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> where_sub_query_apply(query)
+    WhereSubQueryValue(query), WhereFragmentValue(fragment) ->
+      prepared_statement
+      |> where_sub_query_apply(query)
+      |> where_string_apply(" " <> oprtr <> " ")
+      |> fragment_apply(fragment)
   }
 }
 
@@ -770,9 +770,9 @@ fn where_string_apply(
 
 fn where_param_apply(
   prepared_statement prepared_statement: PreparedStatement,
-  param prm: Param,
+  param param: Param,
 ) -> PreparedStatement {
-  prepared_statement |> prepared_statement.append_param(prm)
+  prepared_statement |> prepared_statement.append_param(param)
 }
 
 fn where_sub_query_apply(
@@ -922,21 +922,22 @@ fn vanilla_where_xor_apply(
 fn where_value_in_values_apply(
   prepared_statement prepared_statement: PreparedStatement,
   value val: WhereValue,
-  parameters prms: List(WhereValue),
+  parameters params: List(WhereValue),
 ) -> PreparedStatement {
   let prepared_statement =
     case val {
       WhereColumnValue(col) ->
         prepared_statement |> prepared_statement.append_sql(col)
-      WhereParamValue(prm) ->
-        prepared_statement |> prepared_statement.append_param(prm)
-      WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+      WhereParamValue(param) ->
+        prepared_statement |> prepared_statement.append_param(param)
+      WhereFragmentValue(fragment) ->
+        prepared_statement |> fragment_apply(fragment)
       WhereSubQueryValue(query) ->
         prepared_statement |> where_sub_query_apply(query)
     }
     |> prepared_statement.append_sql(" IN (")
 
-  prms
+  params
   |> list.fold(
     prepared_statement,
     fn(new_prepared_statement: PreparedStatement, v: WhereValue) -> PreparedStatement {
@@ -948,14 +949,15 @@ fn where_value_in_values_apply(
               new_prepared_statement
               |> prepared_statement.append_sql(", " <> col)
           }
-        WhereParamValue(prm) ->
+        WhereParamValue(param) ->
           case new_prepared_statement == prepared_statement {
             True -> ""
             False -> ", "
           }
           |> prepared_statement.append_sql(new_prepared_statement, _)
-          |> prepared_statement.append_param(prm)
-        WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+          |> prepared_statement.append_param(param)
+        WhereFragmentValue(fragment) ->
+          prepared_statement |> fragment_apply(fragment)
         WhereSubQueryValue(query) ->
           prepared_statement |> where_sub_query_apply(query)
       }
@@ -973,9 +975,10 @@ fn where_between_apply(
   let prepared_statement = case val_a {
     WhereColumnValue(col) ->
       prepared_statement |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) ->
-      prepared_statement |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereParamValue(param) ->
+      prepared_statement |> prepared_statement.append_param(param)
+    WhereFragmentValue(fragment) ->
+      prepared_statement |> fragment_apply(fragment)
     WhereSubQueryValue(query) ->
       prepared_statement |> where_sub_query_apply(query)
   }
@@ -986,9 +989,10 @@ fn where_between_apply(
   let prepared_statement = case val_b {
     WhereColumnValue(col) ->
       prepared_statement |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) ->
-      prepared_statement |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereParamValue(param) ->
+      prepared_statement |> prepared_statement.append_param(param)
+    WhereFragmentValue(fragment) ->
+      prepared_statement |> fragment_apply(fragment)
     WhereSubQueryValue(query) ->
       prepared_statement |> where_sub_query_apply(query)
   }
@@ -999,9 +1003,10 @@ fn where_between_apply(
   let prepared_statement = case val_c {
     WhereColumnValue(col) ->
       prepared_statement |> prepared_statement.append_sql(col)
-    WhereParamValue(prm) ->
-      prepared_statement |> prepared_statement.append_param(prm)
-    WhereFragmentValue(frgmt) -> prepared_statement |> fragment_apply(frgmt)
+    WhereParamValue(param) ->
+      prepared_statement |> prepared_statement.append_param(param)
+    WhereFragmentValue(fragment) ->
+      prepared_statement |> fragment_apply(fragment)
     WhereSubQueryValue(query) ->
       prepared_statement |> where_sub_query_apply(query)
   }
@@ -1497,9 +1502,9 @@ pub const fragment_placeholder_grapheme = "$"
 /// `["GREATER(", "$", ", ", "$", ")"]`.
 ///
 pub fn fragment_prepared_split_string(
-  string_fragment str_frgmt: String,
+  string_fragment str_fragment: String,
 ) -> List(String) {
-  str_frgmt
+  str_fragment
   |> string.to_graphemes
   |> list.fold([], fn(acc: List(String), grapheme: String) -> List(String) {
     case grapheme == fragment_placeholder_grapheme, acc {
@@ -1520,19 +1525,19 @@ pub fn fragment_prepared_split_string(
 
 fn fragment_apply(
   prepared_statement prepared_statement: PreparedStatement,
-  fragment frgmt: Fragment,
+  fragment fragment: Fragment,
 ) -> PreparedStatement {
-  case frgmt {
-    FragmentLiteral(fragment: frgmt) ->
-      prepared_statement |> prepared_statement.append_sql(frgmt)
-    FragmentPrepared(fragment: frgmt, params: []) ->
+  case fragment {
+    FragmentLiteral(fragment: fragment) ->
+      prepared_statement |> prepared_statement.append_sql(fragment)
+    FragmentPrepared(fragment: fragment, params: []) ->
       // This is likely a user error and they meant `FragmentLiteral`
       // if they did not give any params.
-      prepared_statement |> prepared_statement.append_sql(frgmt)
-    FragmentPrepared(fragment: frgmt, params: prms) -> {
-      let frgmts = frgmt |> fragment_prepared_split_string
-      let frgmt_placeholder_count = frgmts |> fragment_count_placeholders
-      let prms_count = prms |> list.length
+      prepared_statement |> prepared_statement.append_sql(fragment)
+    FragmentPrepared(fragment: fragment, params: params) -> {
+      let fragments = fragment |> fragment_prepared_split_string
+      let fragment_placeholder_count = fragments |> fragment_count_placeholders
+      let params_count = params |> list.length
 
       // Fill up or reduce params to match the given number of placeholders
       // in the fragment.
@@ -1543,29 +1548,29 @@ fn fragment_apply(
       //
       // For the user ´fragment.prepared()` should be used with caution and will
       // warn about the mismatch at runtime.
-      let prms = case
-        frgmt_placeholder_count |> int.compare(with: prms_count),
-        prms |> list.reverse
+      let params = case
+        fragment_placeholder_count |> int.compare(with: params_count),
+        params |> list.reverse
       {
         // Expected branch, no user error
-        order.Eq, _ -> prms
+        order.Eq, _ -> params
         // User error: Not enough fragments
         order.Lt, _ -> {
           // If there are more params than placeholders, we take the first `n`
           // params where `n` is the number of placeholders, and discard the
           // rest.
-          let missing_placeholders = prms_count - frgmt_placeholder_count
+          let missing_placeholders = params_count - fragment_placeholder_count
 
-          prms |> list.take(missing_placeholders + 1)
+          params |> list.take(missing_placeholders + 1)
         }
         // User error: Not enough params
         order.Gt, [last_item, ..] -> {
           // If there are more placeholders than params, we repeat the last
           // param until the number of placeholders is reached.
-          let missing_params = frgmt_placeholder_count - prms_count
+          let missing_params = fragment_placeholder_count - params_count
           let repeated_last_item = last_item |> list.repeat(missing_params)
 
-          prms |> list.append(repeated_last_item)
+          params |> list.append(repeated_last_item)
         }
         // User error: No params at all
         order.Gt, [] -> {
@@ -1573,17 +1578,17 @@ fn fragment_apply(
         }
       }
 
-      case frgmts {
+      case fragments {
         // This branch should be unreachable at runtime,
         // because it makes little sense to use Fragments without supplying
         // them:
         [] -> prepared_statement
         // This branch should always run at runtime:
-        frgmts -> {
+        fragments -> {
           let #(new_prepared_statement, _param_rest) =
-            frgmts
+            fragments
             |> list.fold(
-              #(prepared_statement, prms),
+              #(prepared_statement, params),
               fn(acc: #(PreparedStatement, List(Param)), fragment: String) -> #(
                 PreparedStatement,
                 List(Param),
@@ -1596,10 +1601,10 @@ fn fragment_apply(
                       |> prepared_statement.append_sql(fragment),
                     params,
                   )
-                  True, [prm, ..rest_prms] -> #(
+                  True, [param, ..rest_params] -> #(
                     new_prepared_statement
-                      |> prepared_statement.append_param(prm),
-                    rest_prms,
+                      |> prepared_statement.append_param(param),
+                    rest_params,
                   )
                   // This branch should be unreachable at runtime:
                   True, [] -> #(
@@ -1624,8 +1629,8 @@ pub fn fragment_count_placeholders(
   string_fragments string_fragments: List(String),
 ) -> Int {
   string_fragments
-  |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
-    case s_frgmt == fragment_placeholder_grapheme {
+  |> list.fold(0, fn(count: Int, s_fragment: String) -> Int {
+    case s_fragment == fragment_placeholder_grapheme {
       True -> count + 1
       False -> count
     }
