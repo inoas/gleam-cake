@@ -1,2 +1,4 @@
-erlang 28.0.2
-gleam 1.11.1
+erlang 27.3.4.3
+#erlang 28.0.2
+#rebar 3.24.0
+gleam 1.13.0

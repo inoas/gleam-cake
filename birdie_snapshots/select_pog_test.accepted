@@ -1,8 +1,8 @@
 ---
 version: 1.4.1
-title: select_test
+title: select_pog_test
 file: ./test/cake_test/select_test.gleam
-test_name: select_test
+test_name: select_pog_test
 ---
 SelectQuery(Select(
   SelectAll,
@@ -14,9 +14,6 @@ SelectQuery(Select(
       SelectColumn("age"),
       "years_since_birth",
     ),
-    SelectParam(BoolParam(True)),
-    SelectParam(FloatParam(1.0)),
-    SelectParam(IntParam(1)),
   ]),
   FromTable("cats"),
   NoJoins,

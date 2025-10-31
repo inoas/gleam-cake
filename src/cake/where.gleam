@@ -19,7 +19,10 @@ import cake/internal/read_query.{
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
   WhereSubQueryValue, XorWhere,
 }
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
+}
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │  read_query type re-exports                                               │
@@ -69,6 +72,12 @@ pub fn string(v vl: String) -> WhereValue {
 ///
 pub fn null() -> WhereValue {
   NullParam |> WhereParamValue
+}
+
+/// Creates a `WhereValue` from a `calendar.Date`.
+///
+pub fn date(v vl: calendar.Date) -> WhereValue {
+  vl |> DateParam |> WhereParamValue
 }
 
 /// Creates a `TRUE` `WhereValue`.

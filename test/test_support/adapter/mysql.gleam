@@ -8,11 +8,14 @@ import cake.{
 }
 import cake/dialect/mysql_dialect
 import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+  type Param, BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/dynamic/decode.{type Decoder}
+import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/string
+import gleam/time/calendar
 import shork.{type Connection, type QueryError, type Returned, type Value}
 
 /// Connection to a MySQL database.
@@ -143,6 +146,20 @@ fn cake_param_to_client_param(param param: Param) -> Value {
     IntParam(param) -> shork.int(param)
     StringParam(param) -> shork.text(param)
     NullParam -> shork.null()
+    // Use shorks impl, once it is available
+    DateParam(param) -> {
+      let calendar.Date(year, month, day) = param
+      let year = year |> int.to_string |> string.pad_start(with: "0", to: 4)
+      let month =
+        month
+        |> calendar.month_to_int
+        |> int.to_string
+        |> string.pad_start(with: "0", to: 2)
+      let day = day |> int.to_string |> string.pad_start(with: "0", to: 2)
+      let date = year <> "-" <> month <> "-" <> day
+
+      date |> shork.text()
+    }
   }
 }
 

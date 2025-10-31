@@ -30,17 +30,18 @@ pub fn create_cats_table() {
     age INT,
     is_wild BOOLEAN,
     owner_id INT,
-    rating FLOAT(8)
+    rating FLOAT(8),
+    birthday DATE
   );"
 }
 
 pub fn insert_cats_rows() {
-  "INSERT INTO cats (name, age, is_wild, owner_id, rating) VALUES
-    ('Nubi', 4, TRUE, 1, 2.2),
-    ('Biffy', 10, NULL, 2, 1.1),
-    ('Ginny', 6, FALSE, 3, NULL),
-    ('Karl', 8, TRUE, NULL, 10.0),
-    ('Clara', 3, TRUE, NULL, 10.0)
+  "INSERT INTO cats (name, age, is_wild, owner_id, rating, birthday) VALUES
+    ('Nubi', 4, TRUE, 1, 2.2, '2000-01-01'),
+    ('Biffy', 10, NULL, 2, 1.1, '2000-02-02'),
+    ('Ginny', 6, FALSE, 3, NULL, NULL),
+    ('Karl', 8, TRUE, NULL, 10.0, '2016-02-19'),
+    ('Clara', 3, TRUE, NULL, 10.0, '2021-04-13')
   ;"
 }
 

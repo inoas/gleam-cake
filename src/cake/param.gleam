@@ -1,7 +1,9 @@
 //// A `Param` is a value that can be used in a query.
 ////
 
-// TODO v2 how to create DECIMAL, DATE, TIME and DATETIME
+import gleam/time/calendar
+
+// TODO v3 how to create DECIMAL, TIME and DATETIME
 
 /// Params (e.g. parameters) are wrapped (boxed) literal values, that can be
 /// used in SQL queries.
@@ -12,6 +14,7 @@ pub type Param {
   IntParam(Int)
   StringParam(String)
   NullParam
+  DateParam(date: calendar.Date)
   //
   // Not sure this should be here, but should it not?
   // Maybe add:
@@ -20,13 +23,11 @@ pub type Param {
   // XmlParam(String)
   // UuidParam(String)
   // BinaryParam(any)
-  // DateParam(year: Int, month: Int, day: Int)
   // TimeParam(hour: Int, minute: Int, second: Int)
   // Time6Param(hour: Int, minute: Int, second: Int, fraction: #(Int, Int, Int, Int, Int, Int)
   // DateTimeParam(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int)
   // DateTime6Param(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int, fraction: #(Int, Int, Int, Int, Int, Int))
   // UnixTimeStampParam(Int)
-  // DateTzParam(year: Int, month: Int, day: Int, timezone: String)
   // TimeTzParam(hour: Int, minute: Int, second: Int, timezone: String)
   // Time6TzParam(hour: Int, minute: Int, second: Int, fraction: #(Int, Int, Int, Int, Int, Int), timezone: String)
   // DateTimeTzParam(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int, timezone: String)
@@ -68,6 +69,12 @@ pub fn string(value vl: String) -> Param {
 ///
 pub fn null() -> Param {
   NullParam
+}
+
+/// Create a new `Param` with a `calendar.Date` value.
+///
+pub fn date(date date: calendar.Date) -> Param {
+  DateParam(date:)
 }
 //
 // // This should ONLY be used for debugging purposes

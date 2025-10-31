@@ -1,0 +1,55 @@
+---
+version: 1.4.1
+title: date_prepared_statement_test
+file: ./test/cake_test/date_test.gleam
+test_name: date_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats WHERE (birthday = $1 OR birthday BETWEEN $2 AND $3)",
+    [
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2021, April, 12)),
+      DateParam(Date(2021, April, 14)),
+    ],
+    3,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT birthday AS kids_birthday, ?1 AS kbirthday FROM cats WHERE (birthday = ?2 OR birthday BETWEEN ?3 AND ?4)",
+    [
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2021, April, 12)),
+      DateParam(Date(2021, April, 14)),
+    ],
+    4,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT birthday AS kids_birthday, ? AS kbirthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
+    [
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2021, April, 12)),
+      DateParam(Date(2021, April, 14)),
+    ],
+    4,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT birthday AS kids_birthday, ? AS kbirthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
+    [
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2016, February, 19)),
+      DateParam(Date(2021, April, 12)),
+      DateParam(Date(2021, April, 14)),
+    ],
+    4,
+    Mysql,
+  ),
+)

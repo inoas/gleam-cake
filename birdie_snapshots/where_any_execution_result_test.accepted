@@ -1,5 +1,5 @@
 ---
-version: 1.2.6
+version: 1.4.1
 title: where_any_execution_result_test
 file: ./test/cake_test/where_test.gleam
 test_name: where_any_execution_result_test
@@ -12,6 +12,7 @@ test_name: where_any_execution_result_test
       True,
       1,
       2.200000047683716,
+      #(2000, 1, 1),
     ),
     #(
       "Biffy",
@@ -19,8 +20,9 @@ test_name: where_any_execution_result_test
       Null,
       2,
       1.100000023841858,
+      #(2000, 2, 2),
     ),
-    #("Ginny", 6, False, 3, Null),
+    #("Ginny", 6, False, 3, Null, Null),
   ]),
   Error(SqlightError(
     GenericError,
@@ -28,13 +30,41 @@ test_name: where_any_execution_result_test
     40,
   )),
   Ok([
-    #("Nubi", 4, 1, 1, 2.2),
-    #("Biffy", 10, Null, 2, 1.1),
-    #("Ginny", 6, 0, 3, Null),
+    #(
+      "Nubi",
+      4,
+      1,
+      1,
+      2.2,
+      #(2000, 1, 1),
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.1,
+      #(2000, 2, 2),
+    ),
+    #("Ginny", 6, 0, 3, Null, Null),
   ]),
   Ok([
-    #("Nubi", 4, 1, 1, 2.2),
-    #("Biffy", 10, Null, 2, 1.1),
-    #("Ginny", 6, 0, 3, Null),
+    #(
+      "Nubi",
+      4,
+      1,
+      1,
+      2.2,
+      #(2000, 1, 1),
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.1,
+      #(2000, 2, 2),
+    ),
+    #("Ginny", 6, 0, 3, Null, Null),
   ]),
 )

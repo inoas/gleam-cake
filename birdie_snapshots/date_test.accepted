@@ -1,0 +1,56 @@
+---
+version: 1.4.1
+title: date_test
+file: ./test/cake_test/date_test.gleam
+test_name: date_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([
+    SelectAlias(
+      SelectColumn("birthday"),
+      "kids_birthday",
+    ),
+    SelectAlias(
+      SelectParam(DateParam(Date(
+        2016,
+        February,
+        19,
+      ))),
+      "kbirthday",
+    ),
+  ]),
+  FromTable("cats"),
+  NoJoins,
+  OrWhere([
+    WhereComparison(
+      WhereColumnValue("birthday"),
+      Equal,
+      WhereParamValue(DateParam(Date(
+        2016,
+        February,
+        19,
+      ))),
+    ),
+    WhereBetween(
+      WhereColumnValue("birthday"),
+      WhereParamValue(DateParam(Date(
+        2021,
+        April,
+        12,
+      ))),
+      WhereParamValue(DateParam(Date(
+        2021,
+        April,
+        14,
+      ))),
+    ),
+  ]),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

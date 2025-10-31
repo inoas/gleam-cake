@@ -1,7 +1,7 @@
 ---
-version: 1.2.3
+version: 1.4.1
 title: select_distinct_prepared_statement_test
-file: ./test/cake_test/select_test.gleam
+file: ./test/cake_test/select_distinct_test.gleam
 test_name: select_distinct_prepared_statement_test
 ---
 #(
