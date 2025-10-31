@@ -32,6 +32,22 @@ fn select_query() {
   |> s.to_query
 }
 
+fn select_pog_query() {
+  s.new()
+  |> s.from_table("cats")
+  |> s.selects([
+    s.col("name"),
+    // Unsupported/buggy on POG, see <https://github.com/lpil/pog/pull/71>
+    // s.bool(True),
+    // s.float(1.0),
+    // s.int(1),
+    s.string("hello"),
+    s.fragment(f.literal(const_field)),
+    s.alias(s.col("age"), "years_since_birth"),
+  ])
+  |> s.to_query
+}
+
 fn select_distinct_query() {
   s.new()
   |> s.from_table("cats")
@@ -51,8 +67,14 @@ pub fn select_test() {
   |> birdie.snap("select_test")
 }
 
+pub fn select_pog_test() {
+  select_pog_query()
+  |> to_string
+  |> birdie.snap("select_pog_test")
+}
+
 pub fn select_prepared_statement_test() {
-  let pgo = select_query() |> postgres.read_query_to_prepared_statement
+  let pgo = select_pog_query() |> postgres.read_query_to_prepared_statement
   let lit = select_query() |> sqlite.read_query_to_prepared_statement
   let mdb = select_query() |> maria.read_query_to_prepared_statement
   let myq = select_query() |> mysql.read_query_to_prepared_statement
@@ -63,7 +85,7 @@ pub fn select_prepared_statement_test() {
 }
 
 pub fn select_execution_result_test() {
-  let pgo = select_query() |> postgres_test_helper.setup_and_run
+  let pgo = select_pog_query() |> postgres_test_helper.setup_and_run
   let lit = select_query() |> sqlite_test_helper.setup_and_run
   let mdb = select_query() |> maria_test_helper.setup_and_run
   let myq = select_query() |> mysql_test_helper.setup_and_run

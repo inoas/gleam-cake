@@ -7,7 +7,7 @@ test_name: date_prepared_statement_test
 #(
   PreparedStatement(
     "$",
-    "SELECT birthday AS kids_birthday FROM cats WHERE (birthday = $1 OR birthday BETWEEN $2 AND $3)",
+    "SELECT * FROM cats WHERE (birthday = $1 OR birthday BETWEEN $2 AND $3)",
     [
       DateParam(Date(2016, February, 19)),
       DateParam(Date(2021, April, 12)),
@@ -18,35 +18,38 @@ test_name: date_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT birthday AS kids_birthday FROM cats WHERE (birthday = ?1 OR birthday BETWEEN ?2 AND ?3)",
+    "SELECT birthday AS kids_birthday, ?1 AS kbirthday FROM cats WHERE (birthday = ?2 OR birthday BETWEEN ?3 AND ?4)",
     [
+      DateParam(Date(2016, February, 19)),
       DateParam(Date(2016, February, 19)),
       DateParam(Date(2021, April, 12)),
       DateParam(Date(2021, April, 14)),
     ],
-    3,
+    4,
     Sqlite,
   ),
   PreparedStatement(
     "?",
-    "SELECT birthday AS kids_birthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
+    "SELECT birthday AS kids_birthday, ? AS kbirthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
     [
+      DateParam(Date(2016, February, 19)),
       DateParam(Date(2016, February, 19)),
       DateParam(Date(2021, April, 12)),
       DateParam(Date(2021, April, 14)),
     ],
-    3,
+    4,
     Maria,
   ),
   PreparedStatement(
     "?",
-    "SELECT birthday AS kids_birthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
+    "SELECT birthday AS kids_birthday, ? AS kbirthday FROM cats WHERE (birthday = ? OR birthday BETWEEN ? AND ?)",
     [
+      DateParam(Date(2016, February, 19)),
       DateParam(Date(2016, February, 19)),
       DateParam(Date(2021, April, 12)),
       DateParam(Date(2021, April, 14)),
     ],
-    3,
+    4,
     Mysql,
   ),
 )
