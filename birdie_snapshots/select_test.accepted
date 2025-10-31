@@ -8,9 +8,6 @@ SelectQuery(Select(
   SelectAll,
   Selects([
     SelectColumn("name"),
-    SelectParam(BoolParam(True)),
-    SelectParam(FloatParam(1.0)),
-    SelectParam(IntParam(1)),
     SelectParam(StringParam("hello")),
     SelectFragment(FragmentLiteral("age")),
     SelectAlias(
