@@ -3,10 +3,14 @@ name: Test
 on:
   workflow_call:
     inputs:
+      gleam_upper_version:
+        type: string
+        required: true
+        default: "1.13.0"
       gleam_version:
         type: string
         required: true
-        default: "1.11.1"
+        default: "1.10.0"
       erlang_version:
         type: string
         default: "27"
@@ -24,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: inoas/gleam_actions/.github/actions/install_gleam@main-on-upstream
         with:
-          gleam_version: ${{inputs.gleam_version}}
+          gleam_version: ${{inputs.gleam_upper_version}}
           erlang_version: ${{inputs.erlang_version}}
       - uses: inoas/gleam_actions/.github/actions/format@main-on-upstream
 
