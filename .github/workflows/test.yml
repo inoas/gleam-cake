@@ -13,7 +13,7 @@ jobs:
     with:
       erlang_version: "27"
       gleam_format_version: "1.13.0"
-      gleam_version: "1.10.0"
+      gleam_version: "1.11.0"
       test_erlang: true
       test_node: false
   test_highest:
