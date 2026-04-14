@@ -798,7 +798,14 @@ fn custom_where_xor_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
-  let xor_idxs = whs |> list.length |> int.subtract(1) |> list.range(0, _)
+  let xor_idxs =
+    int.range(
+      from: 0,
+      to: whs |> list.length,
+      with: [],
+      run: fn(acc, i) { [i, ..acc] },
+    )
+    |> list.reverse
 
   let prp_stm = prp_stm |> prepared_statement.append_sql("(")
 
