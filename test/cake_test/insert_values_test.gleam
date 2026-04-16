@@ -1,4 +1,5 @@
 import birdie
+import cake/fragment as f
 import cake/insert as i
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
@@ -58,6 +59,25 @@ pub fn insert_values_prepared_statement_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("insert_values_prepared_statement_test")
+}
+
+pub fn insert_values_fragment_test() {
+  let query =
+    [[
+      i.fragment(f.prepared("$::uuid", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
+      i.string("Alice"),
+      i.int(42),
+    ] |> i.row]
+    |> i.from_values(table_name: "users", columns: ["id", "name", "age"])
+    |> i.returning(["id", "name"])
+    |> i.to_query
+
+  let pgo = query |> postgres.write_query_to_prepared_statement
+  let lit = query |> sqlite.write_query_to_prepared_statement
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("insert_values_fragment_test")
 }
 
 pub fn insert_values_execution_result_test() {

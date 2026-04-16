@@ -2,12 +2,13 @@
 ////
 
 import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
+import cake/fragment.{type Fragment}
 import cake/internal/write_query.{
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
   InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
-  InsertIntoTable, InsertModifier, InsertParam, InsertQuery, InsertRow,
-  InsertSourceRecords, InsertSourceRows, NoInsertColumns, NoInsertIntoTable,
-  NoInsertModifier, NoInsertSource, NoReturning, Returning,
+  InsertFragment, InsertIntoTable, InsertModifier, InsertParam, InsertQuery,
+  InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
+  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/string
@@ -98,6 +99,18 @@ pub fn string(value vl: String) -> InsertValue {
 ///
 pub fn null() -> InsertValue {
   NullParam |> InsertParam
+}
+
+/// Create an `InsertValue` from a `Fragment`.
+///
+/// Use this for values that need type casts or expressions, e.g.:
+///
+/// ```gleam
+/// insert.fragment(fragment.prepared("$::uuid", [fragment.string(id)]))
+/// ```
+///
+pub fn fragment(value frgmt: Fragment) -> InsertValue {
+  InsertFragment(fragment: frgmt)
 }
 
 // ▒▒▒ Constructors ▒▒▒

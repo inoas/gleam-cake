@@ -93,6 +93,25 @@ pub fn update_prepared_statement_test() {
   |> birdie.snap("update_prepared_statement_test")
 }
 
+pub fn update_set_fragment_test() {
+  let query =
+    u.new()
+    |> u.table("users")
+    |> u.sets([
+      "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
+      "name" |> u.set_string("Alice"),
+    ])
+    |> u.returning(["id", "org_id", "name"])
+    |> u.to_query
+
+  let pgo = query |> postgres.write_query_to_prepared_statement
+  let lit = query |> sqlite.write_query_to_prepared_statement
+
+  #(pgo, lit)
+  |> to_string
+  |> birdie.snap("update_set_fragment_test")
+}
+
 pub fn update_execution_result_test() {
   let pgo =
     update_postgres_sqlite_query() |> postgres_test_helper.setup_and_run_write

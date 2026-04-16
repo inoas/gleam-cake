@@ -1,0 +1,28 @@
+---
+version: 1.5.4
+title: insert_values_fragment_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO users (id, name, age) VALUES ($1::uuid, $2, $3) RETURNING id, name",
+    [
+      StringParam("550e8400-e29b-41d4-a716-446655440000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO users (id, name, age) VALUES (?1::uuid, ?2, ?3) RETURNING id, name",
+    [
+      StringParam("550e8400-e29b-41d4-a716-446655440000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Sqlite,
+  ),
+)
