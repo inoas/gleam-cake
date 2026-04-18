@@ -1,5 +1,5 @@
 name = "cake"
-version = "2.2.0"
+version = "2.3.0"
 description = "An SQL query builder for Gleam for SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, and 🐬MySQL"
 licences = ["MPL-2.0"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }
@@ -10,6 +10,7 @@ gleam = ">= 1.14.0"
 [documentation]
 pages = [
   { title = "CHANGELOG", path = "changelog.html", source = "CHANGELOG.md" },
+  { title = "LICENSE", path = "license.html", source = "LICENSE" },
 ]
 
 [dependencies]

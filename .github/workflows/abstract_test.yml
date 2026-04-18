@@ -6,14 +6,14 @@ on:
       gleam_format_version:
         type: string
         required: true
-        default: "1.13.0"
+        default: "1.15.4"
       gleam_version:
         type: string
         required: true
-        default: "1.11.0"
+        default: "1.14.0"
       erlang_version:
         type: string
-        default: "27"
+        default: "28"
       test_erlang:
         type: boolean
         default: true
