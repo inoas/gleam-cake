@@ -46,7 +46,6 @@ packages = [
 [requirements]
 birdie = { version = ">= 1.4.1 and < 2.0.0" }
 choire = { version = ">= 1.0.8 and < 2.0.0" }
-edit_distance = { version = ">= 3.0.1 and < 4.0.0" }
 gleam_erlang = { version = ">= 1.3.0 and < 2.0.0" }
 gleam_stdlib = { version = ">= 0.62.0 and < 2.0.0" }
 gleam_time = { version = ">= 1.4.0 and < 2.0.0" }
