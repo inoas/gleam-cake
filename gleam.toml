@@ -25,4 +25,3 @@ pprint = ">= 1.0.6 and < 2.0.0"
 sqlight = ">= 1.0.3 and < 2.0.0"
 gleeunit = ">= 1.7.0 and < 2.0.0"
 gleam_erlang = ">= 1.3.0 and < 2.0.0"
-edit_distance = { git = "https://github.com/qwexvf/edit_distance.git", ref = "main" }
