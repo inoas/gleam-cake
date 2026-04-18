@@ -7,9 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 -->
 
-## [2.3.0] - 2026-04-18
+## [2.2.1] - 2026-04-18
 
-- Support fragments in `UPDATE` and `INSERT`.
+- Make compatible with recent gleam stdlib versions.
 
 ## [2.2.0] - 2025-10-31
 
