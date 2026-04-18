@@ -10,7 +10,7 @@ gleam = ">= 1.14.0"
 [documentation]
 pages = [
   { title = "CHANGELOG", path = "changelog.html", source = "CHANGELOG.md" },
-  { title = "LICENCE", path = "LICENCE", source = "LICENCE" },
+  { title = "LICENSE", path = "license.html", source = "LICENSE" },
 ]
 
 [dependencies]
