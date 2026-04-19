@@ -1,0 +1,12 @@
+---
+version: 1.5.4
+title: insert_values_fragment_execution_result_test
+file: ./test/cake_test/insert_values_test.gleam
+test_name: insert_values_fragment_execution_result_test
+---
+#(
+  Ok([#("felix", 2)]),
+  Ok([#("felix", 2)]),
+  Ok([#(0, 1, 0)]),
+  Ok([#(0, 1, 0)]),
+)

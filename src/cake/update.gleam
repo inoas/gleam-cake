@@ -155,10 +155,13 @@ pub fn set_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
 
 /// Sets a column to a fragment value with parameter binding.
 ///
-/// Use this for values that need type casts, e.g.:
+/// ## Example
 ///
 /// ```gleam
-/// update.set_fragment("org_id", fragment.prepared("$::uuid", [fragment.string(id)]))
+/// import cake/fragment as f
+/// import cake/update as u
+///
+/// "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("00000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
 pub fn set_fragment(column col: String, fragment frgmt: Fragment) -> UpdateSet {

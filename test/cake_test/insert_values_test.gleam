@@ -62,7 +62,7 @@ pub fn insert_values_prepared_statement_test() {
 }
 
 pub fn insert_values_fragment_test() {
-  let query =
+  let pgo_lit_query =
     [[
       i.fragment(f.prepared("$::uuid", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
       i.string("Alice"),
@@ -72,12 +72,91 @@ pub fn insert_values_fragment_test() {
     |> i.returning(["id", "name"])
     |> i.to_query
 
-  let pgo = query |> postgres.write_query_to_prepared_statement
-  let lit = query |> sqlite.write_query_to_prepared_statement
+  let mdb_myq_query =
+    [[
+      i.fragment(f.prepared("$", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
+      i.string("Alice"),
+      i.int(42),
+    ] |> i.row]
+    |> i.from_values(table_name: "users", columns: ["id", "name", "age"])
+    // MariaDB and MySQL do not support `RETURNING` in `INSERT` queries:
+    |> i.no_returning
+    |> i.to_query
 
-  #(pgo, lit)
+  let pgo = pgo_lit_query |> postgres.write_query_to_prepared_statement
+  let lit = pgo_lit_query |> sqlite.write_query_to_prepared_statement
+  let mdb = mdb_myq_query |> maria.write_query_to_prepared_statement
+  let myq = mdb_myq_query |> mysql.write_query_to_prepared_statement
+
+  #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("insert_values_fragment_test")
+}
+
+pub fn insert_values_multi_fragment_test() {
+  let pgo_lit_query =
+    [[
+      i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
+      i.fragment(f.prepared("$", [f.int(2)])),
+    ]
+    |> i.row]
+    |> i.from_values(table_name: "cats", columns: ["name", "age"])
+    |> i.returning(["name", "age"])
+    |> i.to_query
+
+  let mdb_myq_query =
+    [[
+      i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
+      i.fragment(f.prepared("$", [f.int(2)])),
+    ]
+    |> i.row]
+    |> i.from_values(table_name: "cats", columns: ["name", "age"])
+    // MariaDB and MySQL do not support `RETURNING` in `INSERT` queries:
+    |> i.no_returning
+    |> i.to_query
+
+  let pgo = pgo_lit_query |> postgres.write_query_to_prepared_statement
+  let lit = pgo_lit_query |> sqlite.write_query_to_prepared_statement
+  let mdb = mdb_myq_query |> maria.write_query_to_prepared_statement
+  let myq = mdb_myq_query |> mysql.write_query_to_prepared_statement
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("insert_values_multi_fragment_test")
+}
+
+fn insert_values_fragment_cats_pgo_lit_query() {
+  [[i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])), i.int(2)] |> i.row]
+  |> i.from_values(table_name: "cats", columns: ["name", "age"])
+  |> i.returning(["name", "age"])
+  |> i.to_query
+}
+
+fn insert_values_fragment_cats_mdb_myq_query() {
+  [[i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])), i.int(2)] |> i.row]
+  |> i.from_values(table_name: "cats", columns: ["name", "age"])
+  // MariaDB and MySQL do not support `RETURNING` in `INSERT` queries:
+  |> i.no_returning
+  |> i.to_query
+}
+
+pub fn insert_values_fragment_execution_result_test() {
+  let pgo =
+    insert_values_fragment_cats_pgo_lit_query()
+    |> postgres_test_helper.setup_and_run_write
+  let lit =
+    insert_values_fragment_cats_pgo_lit_query()
+    |> sqlite_test_helper.setup_and_run_write
+  let mdb =
+    insert_values_fragment_cats_mdb_myq_query()
+    |> maria_test_helper.setup_and_run_write
+  let myq =
+    insert_values_fragment_cats_mdb_myq_query()
+    |> mysql_test_helper.setup_and_run_write
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("insert_values_fragment_execution_result_test")
 }
 
 pub fn insert_values_execution_result_test() {

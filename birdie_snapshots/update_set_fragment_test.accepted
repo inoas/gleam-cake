@@ -1,6 +1,8 @@
 ---
 version: 1.5.4
 title: update_set_fragment_test
+file: ./test/cake_test/update_test.gleam
+test_name: update_set_fragment_test
 ---
 #(
   PreparedStatement(
@@ -22,5 +24,25 @@ title: update_set_fragment_test
     ],
     2,
     Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE users SET org_id = ?, name = ?",
+    [
+      StringParam("550e8400-e29b-41d4-a716-446655440000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE users SET org_id = ?, name = ?",
+    [
+      StringParam("550e8400-e29b-41d4-a716-446655440000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Mysql,
   ),
 )

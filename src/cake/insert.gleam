@@ -103,10 +103,13 @@ pub fn null() -> InsertValue {
 
 /// Create an `InsertValue` from a `Fragment`.
 ///
-/// Use this for values that need type casts or expressions, e.g.:
+/// ## Example
 ///
 /// ```gleam
-/// insert.fragment(fragment.prepared("$::uuid", [fragment.string(id)]))
+/// import cake/fragment as f
+/// import cake/insert as i
+///
+/// i.fragment(f.prepared("$::uuid", [f.string("00000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
 pub fn fragment(value frgmt: Fragment) -> InsertValue {
