@@ -4,9 +4,9 @@
 
 // TODO v3 Add to query validator?
 
+import cake/fragment.{type Fragment}
 import cake/internal/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
-import cake/fragment.{type Fragment}
 import cake/internal/read_query.{
   type Comment, type Epilog, type From, type Joins, type ReadQuery, type Where,
   FromSubQuery, FromTable, NoFrom,

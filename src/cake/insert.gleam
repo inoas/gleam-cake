@@ -1,8 +1,8 @@
 //// A DSL to build `INSERT` queries.
 ////
 
-import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/fragment.{type Fragment}
+import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/internal/write_query.{
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
   InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,

@@ -98,7 +98,12 @@ pub fn update_set_fragment_test() {
     u.new()
     |> u.table("users")
     |> u.sets([
-      "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
+      "org_id"
+        |> u.set_fragment(
+          f.prepared("$::uuid", [
+            f.string("550e8400-e29b-41d4-a716-446655440000"),
+          ]),
+        ),
       "name" |> u.set_string("Alice"),
     ])
     |> u.returning(["id", "org_id", "name"])
@@ -108,7 +113,10 @@ pub fn update_set_fragment_test() {
     u.new()
     |> u.table("users")
     |> u.sets([
-      "org_id" |> u.set_fragment(f.prepared("$", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
+      "org_id"
+        |> u.set_fragment(
+          f.prepared("$", [f.string("550e8400-e29b-41d4-a716-446655440000")]),
+        ),
       "name" |> u.set_string("Alice"),
     ])
     // MariaDB and MySQL do not support `RETURNING` in `UPDATE` queries:
@@ -127,7 +135,9 @@ pub fn update_set_fragment_test() {
 fn update_set_fragment_cats_pgo_lit_query() {
   u.new()
   |> u.table("cats")
-  |> u.sets(["name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")]))])
+  |> u.sets([
+    "name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")])),
+  ])
   |> u.returning(["name"])
   |> u.to_query
 }
@@ -135,7 +145,9 @@ fn update_set_fragment_cats_pgo_lit_query() {
 fn update_set_fragment_cats_mdb_myq_query() {
   u.new()
   |> u.table("cats")
-  |> u.sets(["name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")]))])
+  |> u.sets([
+    "name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")])),
+  ])
   // MariaDB and MySQL do not support `RETURNING` in `UPDATE` queries:
   |> u.to_query
 }

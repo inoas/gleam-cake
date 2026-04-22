@@ -1,11 +1,11 @@
 //// A DSL to build `UPDATE` queries.
 ////
 
+import cake/fragment.{type Fragment}
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,
   NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
-import cake/fragment.{type Fragment}
 import cake/internal/write_query.{
   NoReturning, NoUpdateModifier, NoUpdateSets, NoUpdateTable, Returning, Update,
   UpdateExpressionSet, UpdateFragmentSet, UpdateParamSet, UpdateQuery,

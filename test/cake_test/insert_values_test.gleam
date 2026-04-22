@@ -63,21 +63,33 @@ pub fn insert_values_prepared_statement_test() {
 
 pub fn insert_values_fragment_test() {
   let pgo_lit_query =
-    [[
-      i.fragment(f.prepared("$::uuid", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
-      i.string("Alice"),
-      i.int(42),
-    ] |> i.row]
+    [
+      [
+        i.fragment(
+          f.prepared("$::uuid", [
+            f.string("550e8400-e29b-41d4-a716-446655440000"),
+          ]),
+        ),
+        i.string("Alice"),
+        i.int(42),
+      ]
+      |> i.row,
+    ]
     |> i.from_values(table_name: "users", columns: ["id", "name", "age"])
     |> i.returning(["id", "name"])
     |> i.to_query
 
   let mdb_myq_query =
-    [[
-      i.fragment(f.prepared("$", [f.string("550e8400-e29b-41d4-a716-446655440000")])),
-      i.string("Alice"),
-      i.int(42),
-    ] |> i.row]
+    [
+      [
+        i.fragment(
+          f.prepared("$", [f.string("550e8400-e29b-41d4-a716-446655440000")]),
+        ),
+        i.string("Alice"),
+        i.int(42),
+      ]
+      |> i.row,
+    ]
     |> i.from_values(table_name: "users", columns: ["id", "name", "age"])
     // MariaDB and MySQL do not support `RETURNING` in `INSERT` queries:
     |> i.no_returning
@@ -95,21 +107,25 @@ pub fn insert_values_fragment_test() {
 
 pub fn insert_values_multi_fragment_test() {
   let pgo_lit_query =
-    [[
-      i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
-      i.fragment(f.prepared("$", [f.int(2)])),
+    [
+      [
+        i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
+        i.fragment(f.prepared("$", [f.int(2)])),
+      ]
+      |> i.row,
     ]
-    |> i.row]
     |> i.from_values(table_name: "cats", columns: ["name", "age"])
     |> i.returning(["name", "age"])
     |> i.to_query
 
   let mdb_myq_query =
-    [[
-      i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
-      i.fragment(f.prepared("$", [f.int(2)])),
+    [
+      [
+        i.fragment(f.prepared("LOWER($)", [f.string("FELIX")])),
+        i.fragment(f.prepared("$", [f.int(2)])),
+      ]
+      |> i.row,
     ]
-    |> i.row]
     |> i.from_values(table_name: "cats", columns: ["name", "age"])
     // MariaDB and MySQL do not support `RETURNING` in `INSERT` queries:
     |> i.no_returning
