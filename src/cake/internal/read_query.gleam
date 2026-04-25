@@ -1469,21 +1469,18 @@ fn fragment_apply(
       // Fill up or reduce params to match the given number of placeholders
       // in the fragment.
       //
-      // Param count not equalling fragement placeholder count is likely a user
+      // Param count not equal fragment placeholder count is likely a user
       // error that cannot be caught by the type system.
       //
       // For the user ´fragment.prepared()` should be used with caution and will
       // warn about the mismatch at runtime.
-      let prms = case
-        frgmt_plchldr_count |> int.compare(with: prms_count),
-        prms |> list.reverse
-      {
+      let prms = case frgmt_plchldr_count |> int.compare(with: prms_count) {
         // Expected match: No user error
-        order.Eq, _ -> {
+        order.Eq -> {
           prms
         }
         // User error: Not enough fragments
-        order.Lt, _ -> {
+        order.Lt -> {
           // TODO: consider logger.info at runtime.
 
           // If there are more params than placeholders, we take the first `n`
@@ -1494,22 +1491,26 @@ fn fragment_apply(
           prms |> list.take(missing_placeholders + 1)
         }
         // User error: Not enough params
-        order.Gt, [last_item, ..] -> {
-          // TODO: consider logger.info at runtime.
+        order.Gt -> {
+          case prms |> list.reverse {
+            [last_item, ..] -> {
+              // TODO: consider logger.info at runtime.
 
-          // If there are more placeholders than params, we repeat the last
-          // param until the number of placeholders is reached.
-          let missing_params = frgmt_plchldr_count - prms_count
-          let repeated_last_item = last_item |> list.repeat(missing_params)
+              // If there are more placeholders than params, we repeat the last
+              // param until the number of placeholders is reached.
+              let missing_params = frgmt_plchldr_count - prms_count
+              let repeated_last_item = last_item |> list.repeat(missing_params)
 
-          prms |> list.append(repeated_last_item)
-        }
-        // User error: No params at all
-        order.Gt, [] -> {
-          // TODO: consider logger.info at runtime.
+              prms |> list.append(repeated_last_item)
+            }
+            // User error: No params at all
+            [] -> {
+              // TODO: consider logger.info at runtime.
 
-          // This becomes a NOOP.
-          []
+              // This becomes a NOOP.
+              []
+            }
+          }
         }
       }
 
