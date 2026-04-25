@@ -1504,9 +1504,6 @@ fn fragment_apply(
             // Unreachable, because of the match above:
             // `FragmentPrepared(fragment: frgmt, params: []) ->`
             Error(Nil) -> {
-              // TODO: consider logger.info at runtime.
-
-              // This becomes a NOOP.
               prms
             }
           }
