@@ -1501,7 +1501,8 @@ fn fragment_apply(
 
               prms |> list.append(repeated_last_item)
             }
-            // User error: No params at all
+            // Unreachable, because of the match above:
+            // `FragmentPrepared(fragment: frgmt, params: []) ->`
             Error(Nil) -> {
               // TODO: consider logger.info at runtime.
 
