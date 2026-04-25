@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 -->
 
+## [2.2.2] - 2026-05-??
+
+- Update Cake’s internal query builder to remove `let assert` usage in fragment
+  building, replacing them with explicit pattern matching to avoid runtime
+  assertion failures when processing prepared fragments.
+
 ## [2.2.1] - 2026-04-18
 
 - Make compatible with recent gleam stdlib versions.

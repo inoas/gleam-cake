@@ -1558,9 +1558,9 @@ fn fragment_apply(
 /// Count the number of placeholders in a list of string fragments.
 ///
 pub fn fragment_count_placeholders(
-  string_fragments s_frgmnts: List(String),
+  string_fragments s_frgmts: List(String),
 ) -> Int {
-  s_frgmnts
+  s_frgmts
   |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
     case s_frgmt == fragment_placeholder_grapheme {
       True -> count + 1
