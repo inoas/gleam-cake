@@ -1479,7 +1479,7 @@ fn fragment_apply(
         order.Eq -> {
           prms
         }
-        // User error: Not enough fragments
+        // User error: Too many params or not enough placeholders
         order.Lt -> {
           // TODO: consider logger.info at runtime.
 
