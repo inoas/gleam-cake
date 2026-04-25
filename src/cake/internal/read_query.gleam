@@ -1459,7 +1459,7 @@ fn fragment_apply(
       prp_stm |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: []) ->
       // This is likely a user error and they meant `FragmentLiteral`
-      // if they did not give any params.
+      // if the user did not give any params.
       prp_stm |> prepared_statement.append_sql(frgmt)
     FragmentPrepared(fragment: frgmt, params: prms) -> {
       let frgmts = frgmt |> fragment_prepared_split_string
@@ -1469,9 +1469,8 @@ fn fragment_apply(
       // Fill up or reduce params to match the given number of placeholders
       // in the fragment.
       //
-      // Param count not equalling fragement placeholder cound is likely a user
-      // error that cannot be caught by the type system, but instead of crashing
-      // we do the best we can:
+      // Param count not equalling fragement placeholder count is likely a user
+      // error that cannot be caught by the type system.
       //
       // For the user ´fragment.prepared()` should be used with caution and will
       // warn about the mismatch at runtime.
@@ -1479,10 +1478,14 @@ fn fragment_apply(
         frgmt_plchldr_count |> int.compare(with: prms_count),
         prms |> list.reverse
       {
-        // Expected branch, no user error
-        order.Eq, _ -> prms
+        // Expected match: No user error
+        order.Eq, _ -> {
+          prms
+        }
         // User error: Not enough fragments
         order.Lt, _ -> {
+          // TODO: consider logger.info at runtime.
+
           // If there are more params than placeholders, we take the first `n`
           // params where `n` is the number of placeholders, and discard the
           // rest.
@@ -1492,6 +1495,8 @@ fn fragment_apply(
         }
         // User error: Not enough params
         order.Gt, [last_item, ..] -> {
+          // TODO: consider logger.info at runtime.
+
           // If there are more placeholders than params, we repeat the last
           // param until the number of placeholders is reached.
           let missing_params = frgmt_plchldr_count - prms_count
@@ -1501,16 +1506,20 @@ fn fragment_apply(
         }
         // User error: No params at all
         order.Gt, [] -> {
+          // TODO: consider logger.info at runtime.
+
+          // This becomes a NOOP.
           []
         }
       }
 
       case frgmts {
-        // This branch should be unreachable at runtime,
-        // because it makes little sense to use Fragments without supplying
-        // them:
-        [] -> prp_stm
-        // This branch should always run at runtime:
+        // NOOP on no fragments
+        [] -> {
+          // TODO: consider logger.info at runtime.
+          prp_stm
+        }
+        // Some fragments
         frgmts -> {
           let #(new_prp_stm, _param_rest) =
             frgmts
@@ -1531,7 +1540,6 @@ fn fragment_apply(
                     new_prp_stm |> prepared_statement.append_param(prm),
                     rest_prms,
                   )
-                  // This branch should be unreachable at runtime:
                   True, [] -> #(
                     new_prp_stm |> prepared_statement.append_sql(frgmnt),
                     [],
@@ -1550,9 +1558,9 @@ fn fragment_apply(
 /// Count the number of placeholders in a list of string fragments.
 ///
 pub fn fragment_count_placeholders(
-  string_fragments string_fragments: List(String),
+  string_fragments s_frgmnts: List(String),
 ) -> Int {
-  string_fragments
+  s_frgmnts
   |> list.fold(0, fn(count: Int, s_frgmt: String) -> Int {
     case s_frgmt == fragment_placeholder_grapheme {
       True -> count + 1
