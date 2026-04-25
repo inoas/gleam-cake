@@ -1490,8 +1490,8 @@ fn fragment_apply(
         }
         // User error: Not enough params or too many placeholders
         order.Gt -> {
-          case prms |> list.reverse {
-            [last_item, ..] -> {
+          case prms |> list.last {
+            Ok(last_item) -> {
               // If there are more placeholders than params, we repeat the last
               // param until the number of placeholders is reached.
               let missing_params = frgmt_plchldr_count - prms_count
@@ -1502,11 +1502,11 @@ fn fragment_apply(
               prms |> list.append(repeated_last_item)
             }
             // User error: No params at all
-            [] -> {
+            Error(Nil) -> {
               // TODO: consider logger.info at runtime.
 
               // This becomes a NOOP.
-              []
+              prms
             }
           }
         }
