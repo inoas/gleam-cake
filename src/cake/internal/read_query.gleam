@@ -1481,25 +1481,23 @@ fn fragment_apply(
         }
         // User error: Too many params or not enough placeholders
         order.Lt -> {
-          // TODO: consider logger.info at runtime.
-
           // If there are more params than placeholders, we take the first `n`
           // params where `n` is the number of placeholders, and discard the
           // rest.
-          let missing_placeholders = prms_count - frgmt_plchldr_count
 
-          prms |> list.take(missing_placeholders + 1)
+          // TODO: consider logger.warning at runtime.
+          prms |> list.take(frgmt_plchldr_count)
         }
-        // User error: Not enough params
+        // User error: Not enough params or too many placeholders
         order.Gt -> {
           case prms |> list.reverse {
             [last_item, ..] -> {
-              // TODO: consider logger.info at runtime.
-
               // If there are more placeholders than params, we repeat the last
               // param until the number of placeholders is reached.
               let missing_params = frgmt_plchldr_count - prms_count
               let repeated_last_item = last_item |> list.repeat(missing_params)
+
+              // TODO: consider logger.warning at runtime.
 
               prms |> list.append(repeated_last_item)
             }
