@@ -263,7 +263,10 @@ pub fn order_by_asc_nulls_first(
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn order_by_asc_nulls_last(query qry: Combined, by ordb: String) -> Combined {
+pub fn order_by_asc_nulls_last(
+  query qry: Combined,
+  by ordb: String,
+) -> Combined {
   qry
   |> read_query.combined_order_by(
     by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
