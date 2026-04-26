@@ -290,7 +290,10 @@ pub fn joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
 /// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
 /// clause is set as well.
 ///
-pub fn replace_joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
+pub fn replace_joins(
+  update updt: Update(a),
+  joins jns: List(Join),
+) -> Update(a) {
   Update(..updt, join: jns |> Joins)
 }
 

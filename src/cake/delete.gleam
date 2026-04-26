@@ -273,7 +273,10 @@ pub fn joins(delete dlt: Delete(a), joins jns: List(Join)) -> Delete(a) {
 /// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
 /// clause is set as well.
 ///
-pub fn replace_joins(delete dlt: Delete(a), joins jns: List(Join)) -> Delete(a) {
+pub fn replace_joins(
+  delete dlt: Delete(a),
+  joins jns: List(Join),
+) -> Delete(a) {
   Delete(..dlt, join: jns |> Joins)
 }
 
