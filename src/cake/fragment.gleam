@@ -35,7 +35,7 @@ pub const placeholder = read_query.fragment_placeholder_grapheme
 ///
 /// ⛔ ⛔ ⛔
 ///
-/// If you miss-match the number of placeholders with the number of
+/// If you mismatch the number of placeholders with the number of
 /// parameters, an error will be printed to stderr and the fragment will be
 /// created with the given parameters:
 ///
