@@ -90,6 +90,7 @@ import cake/insert as i // INSERT statements
 import cake/delete as d // DELETE statements
 import cake/combined as c // For combined queries such as UNION
 import cake/fragment as f // For arbitrary SQL code including functions
+import cake/param as p // Typed params
 ```
 
 ## Library Design
