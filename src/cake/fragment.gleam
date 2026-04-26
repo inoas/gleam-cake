@@ -57,7 +57,6 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 
   case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {
     0, 0, order.Eq -> {
-      io.println_error("Fragment was given 0 and 0 params!")
       str |> read_query.FragmentLiteral
     }
     _n, _n, order.Eq -> {
