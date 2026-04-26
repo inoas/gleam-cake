@@ -1472,7 +1472,7 @@ fn fragment_apply(
       // Param count not equal fragment placeholder count is likely a user
       // error that cannot be caught by the type system.
       //
-      // For the user ´fragment.prepared()` should be used with caution and will
+      // For the user `fragment.prepared()` should be used with caution and will
       // warn about the mismatch at runtime.
       let prms = case frgmt_plchldr_count |> int.compare(with: prms_count) {
         // Expected match: No user error
