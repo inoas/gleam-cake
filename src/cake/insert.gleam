@@ -250,7 +250,10 @@ pub fn get_source(insert isrt: Insert(a)) -> InsertSource(a) {
 /// `InsertRows` the encoder function returns or is given as source
 ///          values.
 ///
-pub fn columns(insert isrt: Insert(a), columns cols: List(String)) -> Insert(a) {
+pub fn columns(
+  insert isrt: Insert(a),
+  columns cols: List(String),
+) -> Insert(a) {
   Insert(..isrt, columns: cols |> InsertColumns)
 }
 
