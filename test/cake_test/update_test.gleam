@@ -101,7 +101,7 @@ pub fn update_set_fragment_test() {
       "org_id"
         |> u.set_fragment(
           f.prepared("$::uuid", [
-            f.string("00000000-0000-4000-a000-a00000000000"),
+            f.string("000000000-0000-4000-a000-a00000000000"),
           ]),
         ),
       "name" |> u.set_string("Alice"),
@@ -115,7 +115,7 @@ pub fn update_set_fragment_test() {
     |> u.sets([
       "org_id"
         |> u.set_fragment(
-          f.prepared("$", [f.string("00000000-0000-4000-a000-a00000000000")]),
+          f.prepared("$", [f.string("000000000-0000-4000-a000-a00000000000")]),
         ),
       "name" |> u.set_string("Alice"),
     ])

@@ -9,7 +9,7 @@ test_name: insert_values_fragment_test
     "$",
     "INSERT INTO users (id, name, age) VALUES ($1::uuid, $2, $3) RETURNING id, name",
     [
-      StringParam("00000000-0000-4000-a000-a00000000000"),
+      StringParam("000000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
       IntParam(42),
     ],
@@ -20,7 +20,7 @@ test_name: insert_values_fragment_test
     "?",
     "INSERT INTO users (id, name, age) VALUES (?1::uuid, ?2, ?3) RETURNING id, name",
     [
-      StringParam("00000000-0000-4000-a000-a00000000000"),
+      StringParam("000000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
       IntParam(42),
     ],
@@ -31,7 +31,7 @@ test_name: insert_values_fragment_test
     "?",
     "INSERT INTO users (id, name, age) VALUES (?, ?, ?)",
     [
-      StringParam("00000000-0000-4000-a000-a00000000000"),
+      StringParam("000000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
       IntParam(42),
     ],
@@ -42,7 +42,7 @@ test_name: insert_values_fragment_test
     "?",
     "INSERT INTO users (id, name, age) VALUES (?, ?, ?)",
     [
-      StringParam("00000000-0000-4000-a000-a00000000000"),
+      StringParam("000000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
       IntParam(42),
     ],

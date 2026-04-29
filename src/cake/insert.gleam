@@ -109,7 +109,7 @@ pub fn null() -> InsertValue {
 /// import cake/fragment as f
 /// import cake/insert as i
 ///
-/// i.fragment(f.prepared("$::uuid", [f.string("000000000-0000-4000-a000-a00000000000")]))
+/// i.fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
 pub fn fragment(value frgmt: Fragment) -> InsertValue {
@@ -250,10 +250,7 @@ pub fn get_source(insert isrt: Insert(a)) -> InsertSource(a) {
 /// `InsertRows` the encoder function returns or is given as source
 ///          values.
 ///
-pub fn columns(
-  insert isrt: Insert(a),
-  columns cols: List(String),
-) -> Insert(a) {
+pub fn columns(insert isrt: Insert(a), columns cols: List(String)) -> Insert(a) {
   Insert(..isrt, columns: cols |> InsertColumns)
 }
 

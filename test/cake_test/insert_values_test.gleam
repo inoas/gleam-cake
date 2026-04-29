@@ -67,7 +67,7 @@ pub fn insert_values_fragment_test() {
       [
         i.fragment(
           f.prepared("$::uuid", [
-            f.string("00000000-0000-4000-a000-a00000000000"),
+            f.string("000000000-0000-4000-a000-a00000000000"),
           ]),
         ),
         i.string("Alice"),
@@ -83,7 +83,7 @@ pub fn insert_values_fragment_test() {
     [
       [
         i.fragment(
-          f.prepared("$", [f.string("00000000-0000-4000-a000-a00000000000")]),
+          f.prepared("$", [f.string("000000000-0000-4000-a000-a00000000000")]),
         ),
         i.string("Alice"),
         i.int(42),

@@ -161,7 +161,7 @@ pub fn set_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
 /// import cake/fragment as f
 /// import cake/update as u
 ///
-/// "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("000000000-0000-4000-a000-a00000000000")]))
+/// "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
 pub fn set_fragment(column col: String, fragment frgmt: Fragment) -> UpdateSet {
@@ -306,10 +306,7 @@ pub fn joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
 /// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
 /// clause is set as well.
 ///
-pub fn replace_joins(
-  update updt: Update(a),
-  joins jns: List(Join),
-) -> Update(a) {
+pub fn replace_joins(update updt: Update(a), joins jns: List(Join)) -> Update(a) {
   Update(..updt, join: jns |> Joins)
 }
 
