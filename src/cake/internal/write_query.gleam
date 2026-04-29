@@ -152,7 +152,8 @@ pub type InsertValue {
   InsertParam(param: Param)
   InsertDefault
   /// A fragment value, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
-  /// Allows type casts and expressions in INSERT VALUES.
+  /// Allows type casts and expressions in INSERT VALUES which for instance
+  /// 🐘Postgres may require.
   InsertFragment(fragment: Fragment)
 }
 
