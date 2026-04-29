@@ -73,7 +73,9 @@ pub fn get_sql(prepared_statement prp_stm: PreparedStatement) -> String {
 
 /// Get the parameters of the prepared statement.
 ///
-pub fn get_params(prepared_statement prp_stm: PreparedStatement) -> List(Param) {
+pub fn get_params(
+  prepared_statement prp_stm: PreparedStatement,
+) -> List(Param) {
   prp_stm.params
 }
 

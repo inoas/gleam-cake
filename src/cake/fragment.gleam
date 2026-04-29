@@ -35,7 +35,7 @@ pub const placeholder = read_query.fragment_placeholder_grapheme
 ///
 /// ⛔ ⛔ ⛔
 ///
-/// If you missmatch the number of placeholders with the number of
+/// If you mismatch the number of placeholders with the number of
 /// parameters, an error will be printed to stderr and the fragment will be
 /// created with the given parameters:
 ///
@@ -66,7 +66,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
       io.println_error(
         "Fragment had 0 "
         <> placeholder
-        <> "-placeholders, but there were "
+        <> "-placeholders, but "
         <> param_count |> int.to_string
         <> " params given!",
       )
@@ -78,7 +78,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> plchldr_count |> int.to_string
         <> " "
         <> placeholder
-        <> "-placeholders, but there were 0 params given!",
+        <> "-placeholders, but 0 params given!",
       )
       str |> read_query.FragmentLiteral
     }
@@ -88,7 +88,7 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> plchldr_count |> int.to_string
         <> " "
         <> placeholder
-        <> "-placeholders, but there were "
+        <> "-placeholders, but "
         <> param_count |> int.to_string
         <> " params given!",
       )

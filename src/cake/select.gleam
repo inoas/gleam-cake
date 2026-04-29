@@ -643,7 +643,10 @@ pub fn order_by_asc(select slct: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn order_by_asc_nulls_first(select slct: Select, by ordb: String) -> Select {
+pub fn order_by_asc_nulls_first(
+  select slct: Select,
+  by ordb: String,
+) -> Select {
   slct
   |> read_query.select_order_by(
     by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
@@ -717,7 +720,10 @@ pub fn order_by_desc(select slct: Select, by ordb: String) -> Select {
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
-pub fn order_by_desc_nulls_first(select slct: Select, by ordb: String) -> Select {
+pub fn order_by_desc_nulls_first(
+  select slct: Select,
+  by ordb: String,
+) -> Select {
   slct
   |> read_query.select_order_by(
     by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
@@ -729,7 +735,10 @@ pub fn order_by_desc_nulls_first(select slct: Select, by ordb: String) -> Select
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn order_by_desc_nulls_last(select slct: Select, by ordb: String) -> Select {
+pub fn order_by_desc_nulls_last(
+  select slct: Select,
+  by ordb: String,
+) -> Select {
   slct
   |> read_query.select_order_by(
     by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
