@@ -449,7 +449,8 @@ pub type UpdateSet {
   UpdateExpressionSet(columns: List(String), expression: String)
   UpdateSubQuerySet(columns: List(String), query: ReadQuery)
   /// A fragment set, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
-  /// Allows type casts and parameterized expressions in UPDATE SET.
+  /// Allows type casts and parameterized expressions in UPDATE SET,
+  /// which for instance 🐘Postgres may require.
   UpdateFragmentSet(column: String, fragment: Fragment)
 }
 
