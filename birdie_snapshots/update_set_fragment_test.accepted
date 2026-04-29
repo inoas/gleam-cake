@@ -9,7 +9,7 @@ test_name: update_set_fragment_test
     "$",
     "UPDATE users SET org_id = $1::uuid, name = $2 RETURNING id, org_id, name",
     [
-      StringParam("0000000-0000-4000-a000-a00000000000"),
+      StringParam("00000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
     ],
     2,
@@ -19,7 +19,7 @@ test_name: update_set_fragment_test
     "?",
     "UPDATE users SET org_id = ?1::uuid, name = ?2 RETURNING id, org_id, name",
     [
-      StringParam("0000000-0000-4000-a000-a00000000000"),
+      StringParam("00000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
     ],
     2,
@@ -29,7 +29,7 @@ test_name: update_set_fragment_test
     "?",
     "UPDATE users SET org_id = ?, name = ?",
     [
-      StringParam("0000000-0000-4000-a000-a00000000000"),
+      StringParam("00000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
     ],
     2,
@@ -39,7 +39,7 @@ test_name: update_set_fragment_test
     "?",
     "UPDATE users SET org_id = ?, name = ?",
     [
-      StringParam("0000000-0000-4000-a000-a00000000000"),
+      StringParam("00000000-0000-4000-a000-a00000000000"),
       StringParam("Alice"),
     ],
     2,
