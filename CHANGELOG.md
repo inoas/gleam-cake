@@ -8,6 +8,10 @@ and this project adheres to
 ## [Unreleased]
 -->
 
+## [2.3.0] - 2026-04-29
+
+- Added support for fragments in Inserts and Updates. Thanks to @qwexvf.
+
 ## [2.2.2] - 2026-04-26
 
 - Update Cake’s internal query builder to remove `let assert` usage in prepared
