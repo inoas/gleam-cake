@@ -1450,7 +1450,7 @@ pub fn fragment_prepared_split_string(
   |> list.reverse
 }
 
-fn fragment_apply(
+pub fn fragment_apply(
   prepared_statement prp_stm: PreparedStatement,
   fragment frgmt: Fragment,
 ) -> PreparedStatement {

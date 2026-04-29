@@ -1,0 +1,52 @@
+---
+version: 1.5.4
+title: insert_values_fragment_test
+file: ./test/cake_test/insert_values_test.gleam
+test_name: insert_values_fragment_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO users (id, name, age) VALUES ($1::uuid, $2, $3) RETURNING id, name",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO users (id, name, age) VALUES (?1::uuid, ?2, ?3) RETURNING id, name",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO users (id, name, age) VALUES (?, ?, ?)",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO users (id, name, age) VALUES (?, ?, ?)",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+      IntParam(42),
+    ],
+    3,
+    Mysql,
+  ),
+)

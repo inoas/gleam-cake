@@ -1,13 +1,14 @@
 //// A DSL to build `INSERT` queries.
 ////
 
+import cake/fragment.{type Fragment}
 import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/internal/write_query.{
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
   InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
-  InsertIntoTable, InsertModifier, InsertParam, InsertQuery, InsertRow,
-  InsertSourceRecords, InsertSourceRows, NoInsertColumns, NoInsertIntoTable,
-  NoInsertModifier, NoInsertSource, NoReturning, Returning,
+  InsertFragment, InsertIntoTable, InsertModifier, InsertParam, InsertQuery,
+  InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
+  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/string
@@ -98,6 +99,21 @@ pub fn string(value vl: String) -> InsertValue {
 ///
 pub fn null() -> InsertValue {
   NullParam |> InsertParam
+}
+
+/// Create an `InsertValue` from a `Fragment`.
+///
+/// ## Example
+///
+/// ```gleam
+/// import cake/fragment as f
+/// import cake/insert as i
+///
+/// i.fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
+/// ```
+///
+pub fn fragment(value frgmt: Fragment) -> InsertValue {
+  InsertFragment(fragment: frgmt)
 }
 
 // ▒▒▒ Constructors ▒▒▒

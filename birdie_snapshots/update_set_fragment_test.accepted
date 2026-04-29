@@ -1,0 +1,48 @@
+---
+version: 1.5.4
+title: update_set_fragment_test
+file: ./test/cake_test/update_test.gleam
+test_name: update_set_fragment_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "UPDATE users SET org_id = $1::uuid, name = $2 RETURNING id, org_id, name",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE users SET org_id = ?1::uuid, name = ?2 RETURNING id, org_id, name",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE users SET org_id = ?, name = ?",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "UPDATE users SET org_id = ?, name = ?",
+    [
+      StringParam("000000000-0000-4000-a000-a00000000000"),
+      StringParam("Alice"),
+    ],
+    2,
+    Mysql,
+  ),
+)

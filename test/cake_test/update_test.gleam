@@ -93,6 +93,84 @@ pub fn update_prepared_statement_test() {
   |> birdie.snap("update_prepared_statement_test")
 }
 
+pub fn update_set_fragment_test() {
+  let pgo_lit_query =
+    u.new()
+    |> u.table("users")
+    |> u.sets([
+      "org_id"
+        |> u.set_fragment(
+          f.prepared("$::uuid", [
+            f.string("000000000-0000-4000-a000-a00000000000"),
+          ]),
+        ),
+      "name" |> u.set_string("Alice"),
+    ])
+    |> u.returning(["id", "org_id", "name"])
+    |> u.to_query
+
+  let mdb_myq_query =
+    u.new()
+    |> u.table("users")
+    |> u.sets([
+      "org_id"
+        |> u.set_fragment(
+          f.prepared("$", [f.string("000000000-0000-4000-a000-a00000000000")]),
+        ),
+      "name" |> u.set_string("Alice"),
+    ])
+    // MariaDB and MySQL do not support `RETURNING` in `UPDATE` queries:
+    |> u.to_query
+
+  let pgo = pgo_lit_query |> postgres.write_query_to_prepared_statement
+  let lit = pgo_lit_query |> sqlite.write_query_to_prepared_statement
+  let mdb = mdb_myq_query |> maria.write_query_to_prepared_statement
+  let myq = mdb_myq_query |> mysql.write_query_to_prepared_statement
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("update_set_fragment_test")
+}
+
+fn update_set_fragment_cats_pgo_lit_query() {
+  u.new()
+  |> u.table("cats")
+  |> u.sets([
+    "name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")])),
+  ])
+  |> u.returning(["name"])
+  |> u.to_query
+}
+
+fn update_set_fragment_cats_mdb_myq_query() {
+  u.new()
+  |> u.table("cats")
+  |> u.sets([
+    "name" |> u.set_fragment(f.prepared("LOWER($)", [f.string("NUBI")])),
+  ])
+  // MariaDB and MySQL do not support `RETURNING` in `UPDATE` queries:
+  |> u.to_query
+}
+
+pub fn update_set_fragment_execution_result_test() {
+  let pgo =
+    update_set_fragment_cats_pgo_lit_query()
+    |> postgres_test_helper.setup_and_run_write
+  let lit =
+    update_set_fragment_cats_pgo_lit_query()
+    |> sqlite_test_helper.setup_and_run_write
+  let mdb =
+    update_set_fragment_cats_mdb_myq_query()
+    |> maria_test_helper.setup_and_run_write
+  let myq =
+    update_set_fragment_cats_mdb_myq_query()
+    |> mysql_test_helper.setup_and_run_write
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("update_set_fragment_execution_result_test")
+}
+
 pub fn update_execution_result_test() {
   let pgo =
     update_postgres_sqlite_query() |> postgres_test_helper.setup_and_run_write

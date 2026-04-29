@@ -4,6 +4,7 @@
 
 // TODO v3 Add to query validator?
 
+import cake/fragment.{type Fragment}
 import cake/internal/dialect.{type Dialect}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/read_query.{
@@ -150,6 +151,10 @@ pub type InsertRow {
 pub type InsertValue {
   InsertParam(param: Param)
   InsertDefault
+  /// A fragment value, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
+  /// Allows type casts and expressions in INSERT VALUES which for instance
+  /// 🐘Postgres may require.
+  InsertFragment(fragment: Fragment)
 }
 
 /// The `InsertConflictStrategy` defines how to handle conflicts when inserting
@@ -330,6 +335,17 @@ fn row_apply(
               |> prepared_statement.append_sql(", DEFAULT")
           }
         }
+        InsertFragment(fragment: frgmt) -> {
+          case new_prp_stm_inner == new_prp_stm {
+            True ->
+              new_prp_stm_inner
+              |> read_query.fragment_apply(frgmt)
+            False ->
+              new_prp_stm_inner
+              |> prepared_statement.append_sql(", ")
+              |> read_query.fragment_apply(frgmt)
+          }
+        }
       }
     },
   )
@@ -432,6 +448,10 @@ pub type UpdateSet {
   UpdateParamSet(column: String, param: Param)
   UpdateExpressionSet(columns: List(String), expression: String)
   UpdateSubQuerySet(columns: List(String), query: ReadQuery)
+  /// A fragment set, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
+  /// Allows type casts and parameterized expressions in UPDATE SET,
+  /// which for instance 🐘Postgres may require.
+  UpdateFragmentSet(column: String, fragment: Fragment)
 }
 
 fn update_apply(
@@ -526,6 +546,11 @@ fn update_sets_apply(
           |> prepared_statement.append_sql(" (")
           |> read_query.apply(qry)
           |> prepared_statement.append_sql(")")
+        UpdateFragmentSet(column: col, fragment: frgmt) ->
+          new_prp_stm
+          |> columns_apply([col])
+          |> prepared_statement.append_sql(" ")
+          |> read_query.fragment_apply(frgmt)
       }
     },
   )

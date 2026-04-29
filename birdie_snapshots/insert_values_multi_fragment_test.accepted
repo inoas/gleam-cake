@@ -1,0 +1,36 @@
+---
+version: 1.5.4
+title: insert_values_multi_fragment_test
+file: ./test/cake_test/insert_values_test.gleam
+test_name: insert_values_multi_fragment_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO cats (name, age) VALUES (LOWER($1), $2) RETURNING name, age",
+    [StringParam("FELIX"), IntParam(2)],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, age) VALUES (LOWER(?1), ?2) RETURNING name, age",
+    [StringParam("FELIX"), IntParam(2)],
+    2,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, age) VALUES (LOWER(?), ?)",
+    [StringParam("FELIX"), IntParam(2)],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name, age) VALUES (LOWER(?), ?)",
+    [StringParam("FELIX"), IntParam(2)],
+    2,
+    Mysql,
+  ),
+)

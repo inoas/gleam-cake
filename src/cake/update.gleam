@@ -1,14 +1,15 @@
 //// A DSL to build `UPDATE` queries.
 ////
 
+import cake/fragment.{type Fragment}
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,
   NoFrom, NoJoins, NoWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
   NoReturning, NoUpdateModifier, NoUpdateSets, NoUpdateTable, Returning, Update,
-  UpdateExpressionSet, UpdateParamSet, UpdateQuery, UpdateSets,
-  UpdateSubQuerySet, UpdateTable,
+  UpdateExpressionSet, UpdateFragmentSet, UpdateParamSet, UpdateQuery,
+  UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
 import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
 import gleam/list
@@ -150,6 +151,21 @@ pub fn set_expression(column col: String, expression exp: String) -> UpdateSet {
 ///
 pub fn set_sub_query(column col: String, query qry: ReadQuery) -> UpdateSet {
   [col] |> UpdateSubQuerySet(query: qry)
+}
+
+/// Sets a column to a fragment value with parameter binding.
+///
+/// ## Example
+///
+/// ```gleam
+/// import cake/fragment as f
+/// import cake/update as u
+///
+/// "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
+/// ```
+///
+pub fn set_fragment(column col: String, fragment frgmt: Fragment) -> UpdateSet {
+  UpdateFragmentSet(column: col, fragment: frgmt)
 }
 
 /// Sets many columns to an expression value.
