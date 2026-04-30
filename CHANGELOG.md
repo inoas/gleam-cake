@@ -8,7 +8,7 @@ and this project adheres to
 ## [Unreleased]
 -->
 
-## [2.3.0] - 2026-04-29
+## [3.0.0] - 2026-04-29
 
 - Added support for fragments in Inserts and Updates. Thanks to @qwexvf.
   This adds constructors to the public `InsertValue` / `UpdateSet` union types,
