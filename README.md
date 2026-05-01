@@ -29,7 +29,7 @@
 ## Installation
 
 ```shell
-gleam add cake@2
+gleam add cake@3
 ```
 
 Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
