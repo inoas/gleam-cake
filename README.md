@@ -1,4 +1,4 @@
-# Cake SQL Query Builder for Gleam
+# 🎂 Cake SQL Query Builder for Gleam
 
 [![Package <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a> Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)](https://www.erlang.org/)
