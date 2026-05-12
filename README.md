@@ -28,7 +28,7 @@
 
 ## Installation
 
-```shell
+```sh
 gleam add cake@3
 ```
 
@@ -39,7 +39,6 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 - 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_pog](https://hex.pm/packages/cake_pog)
 - 🪶SQLite on Erlang: [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
 - 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_shork](https://hex.pm/packages/cake_shork)
-  or [hex.pm/packages/cake_gmysql](https://hex.pm/packages/cake_gmysql)
 
 <!--
 TODO:
@@ -63,10 +62,6 @@ See [docs/examples/README.md](https://github.com/inoas/gleam-cake/blob/main/exam
 - [cake\_demo\_insert\_on\_conflict\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
 - [cake\_demo\_select\_join.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/cake_demo_select_join.gleam)
 - [cake\_demo\_prepared\_fragment.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
-<!--
-- transactions -- TODO v2
-- create view -- TODO v3
--->
 
 ### Unit tests as examples
 
@@ -146,6 +141,7 @@ The tests run on Erlang but are generally target agnostic.
 While the primary use case is to run queries on servers, this library runs on
 any Gleam target and for example in conjunction with following adapters, you may
 run queries composed with this library in browsers:
+
 - [sqlite3 WASM/JS](https://sqlite.org/wasm)
 - [PGLite (Postgres WASM)](https://pglite.dev/)
 
@@ -153,7 +149,7 @@ run queries composed with this library in browsers:
 
 ### Run test suite locally
 
-```shell
+```sh
 bin/docker/attached
 # wait a few seconds until everything is ready
 # if you run gleam test too early, it will crash
@@ -162,7 +158,7 @@ gleam test
 
 ### Helper commands
 
-```shell
+```sh
 bin/docker/attached
 bin/docker/detached
 bin/docker/down
