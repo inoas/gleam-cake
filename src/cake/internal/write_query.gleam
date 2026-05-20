@@ -6,7 +6,7 @@
 
 import cake/fragment.{type Fragment}
 import cake/internal/dialect.{type Dialect}
-import cake/internal/prepared_statement.{type PreparedStatement}
+import cake/internal/prepared_statement.{type PreparedStatement} as ps
 import cake/internal/read_query.{
   type Comment, type Epilog, type From, type Joins, type ReadQuery, type Where,
   FromSubQuery, FromTable, NoFrom,
@@ -35,23 +35,23 @@ pub type WriteQuery(a) {
 /// Converts a `WriteQuery` into a `PreparedStatement`.
 ///
 pub fn to_prepared_statement(
-  query qry: WriteQuery(a),
-  placeholder_base plchldr_bs: String,
-  dialect dlct: Dialect,
+  query query: WriteQuery(a),
+  placeholder_base placeholder_base: String,
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  plchldr_bs
-  |> prepared_statement.new(dlct)
-  |> apply(qry)
+  placeholder_base
+  |> ps.new(dialect)
+  |> apply(query)
 }
 
 fn apply(
-  prepared_statement prp_stm: PreparedStatement,
-  query qry: WriteQuery(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  query query: WriteQuery(a),
 ) -> PreparedStatement {
-  case qry {
-    InsertQuery(insert) -> prp_stm |> insert_apply(insert)
-    UpdateQuery(update) -> prp_stm |> update_apply(update)
-    DeleteQuery(delete) -> prp_stm |> delete_apply(delete)
+  case query {
+    InsertQuery(insert) -> prepared_statement |> insert_apply(insert)
+    UpdateQuery(update) -> prepared_statement |> update_apply(update)
+    DeleteQuery(delete) -> prepared_statement |> delete_apply(delete)
   }
 }
 
@@ -68,15 +68,15 @@ pub type Returning {
 }
 
 fn returning_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  returning rtrn: Returning,
+  prepared_statement prepared_statement: PreparedStatement,
+  returning returning: Returning,
 ) -> PreparedStatement {
-  case rtrn {
-    NoReturning -> prp_stm
-    Returning(columns: cols) ->
-      prp_stm
-      |> prepared_statement.append_sql(" RETURNING ")
-      |> prepared_statement.append_sql(cols |> string.join(", "))
+  case returning {
+    NoReturning -> prepared_statement
+    Returning(columns: columns) ->
+      prepared_statement
+      |> ps.append_sql(" RETURNING ")
+      |> ps.append_sql(columns |> string.join(", "))
   }
 }
 
@@ -183,167 +183,170 @@ pub type InsertConflictTarget {
 }
 
 fn insert_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  insert isrt: Insert(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  insert insert: Insert(a),
 ) {
-  prp_stm
-  |> insert_into_table_apply(isrt.table)
-  |> insert_columns_apply(isrt.columns)
-  |> insert_modifier_apply(isrt.modifier)
-  |> insert_source_apply(isrt.source)
-  |> insert_on_conflict_apply(isrt.on_conflict)
-  |> returning_apply(isrt.returning)
-  |> read_query.comment_apply(isrt.comment)
-  |> read_query.epilog_apply(isrt.epilog)
+  prepared_statement
+  |> insert_into_table_apply(insert.table)
+  |> insert_columns_apply(insert.columns)
+  |> insert_modifier_apply(insert.modifier)
+  |> insert_source_apply(insert.source)
+  |> insert_on_conflict_apply(insert.on_conflict)
+  |> returning_apply(insert.returning)
+  |> read_query.comment_apply(insert.comment)
+  |> read_query.epilog_apply(insert.epilog)
 }
 
 fn insert_into_table_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  table_name tbl_nm: InsertIntoTable,
+  prepared_statement prepared_statement: PreparedStatement,
+  table_name table_name: InsertIntoTable,
 ) -> PreparedStatement {
-  case tbl_nm {
-    NoInsertIntoTable -> prp_stm |> prepared_statement.append_sql("INSERT INTO")
-    InsertIntoTable(name: tbl_name) ->
-      prp_stm |> prepared_statement.append_sql("INSERT INTO " <> tbl_name)
+  case table_name {
+    NoInsertIntoTable -> prepared_statement |> ps.append_sql("INSERT INTO")
+    InsertIntoTable(name: table_name) ->
+      prepared_statement |> ps.append_sql("INSERT INTO " <> table_name)
   }
 }
 
 fn insert_columns_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  columns cols: InsertColumns,
+  prepared_statement prepared_statement: PreparedStatement,
+  columns columns: InsertColumns,
 ) -> PreparedStatement {
-  case cols {
-    NoInsertColumns -> prp_stm
-    InsertColumns(columns: cols) ->
-      prp_stm
-      |> prepared_statement.append_sql(" (" <> cols |> string.join(", ") <> ")")
+  case columns {
+    NoInsertColumns -> prepared_statement
+    InsertColumns(columns: columns) ->
+      prepared_statement
+      |> ps.append_sql(" (" <> columns |> string.join(", ") <> ")")
   }
 }
 
 fn insert_modifier_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  insert_modifer isrt_mdfr: InsertModifier,
+  prepared_statement prepared_statement: PreparedStatement,
+  insert_modifer insert_modifier: InsertModifier,
 ) -> PreparedStatement {
-  case isrt_mdfr {
-    NoInsertModifier -> prp_stm
-    InsertModifier(modifier: mdfr) ->
-      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
+  case insert_modifier {
+    NoInsertModifier -> prepared_statement
+    InsertModifier(modifier: modifier) ->
+      prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
 
 fn insert_source_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  source src: InsertSource(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  source source: InsertSource(a),
 ) -> PreparedStatement {
-  case src {
-    NoInsertSource -> prp_stm
-    InsertSourceRecords(records: src, encoder: cstr) ->
-      prp_stm
-      |> prepared_statement.append_sql(" VALUES")
-      |> insert_from_params_apply(source: src, row_encoder: cstr)
-    InsertSourceRows(rows: src) ->
-      prp_stm
-      |> prepared_statement.append_sql(" VALUES")
-      |> insert_from_values_apply(source: src)
-    InsertSourceQuery(query: qry) ->
-      prp_stm
-      |> prepared_statement.append_sql(" VALUES")
-      |> insert_from_query_apply(query: qry)
+  case source {
+    NoInsertSource -> prepared_statement
+    InsertSourceRecords(records: source, encoder: row_encoder) ->
+      prepared_statement
+      |> ps.append_sql(" VALUES")
+      |> insert_from_params_apply(source: source, row_encoder: row_encoder)
+    InsertSourceRows(rows: source) ->
+      prepared_statement
+      |> ps.append_sql(" VALUES")
+      |> insert_from_values_apply(source: source)
+    InsertSourceQuery(query: query) ->
+      prepared_statement
+      |> ps.append_sql(" VALUES")
+      |> insert_from_query_apply(query: query)
     InsertSourceDefault ->
-      prp_stm |> prepared_statement.append_sql(" DEFAULT VALUES")
+      prepared_statement |> ps.append_sql(" DEFAULT VALUES")
   }
 }
 
 fn insert_from_params_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  source src: List(a),
-  row_encoder cstr: fn(a) -> InsertRow,
+  prepared_statement prepared_statement: PreparedStatement,
+  source source: List(a),
+  row_encoder row_encoder: fn(a) -> InsertRow,
 ) {
-  let prp_stm = prp_stm |> prepared_statement.append_sql(" (")
-  let prp_stm =
-    src
+  let prepared_statement = prepared_statement |> ps.append_sql(" (")
+  let prepared_statement =
+    source
     |> list.fold(
-      prp_stm,
-      fn(new_prp_stm: PreparedStatement, rcrd: a) -> PreparedStatement {
-        let InsertRow(row) = rcrd |> cstr
-        case new_prp_stm == prp_stm {
-          True -> new_prp_stm |> row_apply(row)
+      prepared_statement,
+      fn(new_prepared_statement: PreparedStatement, record: a) -> PreparedStatement {
+        let InsertRow(row) = record |> row_encoder
+        case new_prepared_statement == prepared_statement {
+          True -> new_prepared_statement |> row_apply(row)
           False ->
-            new_prp_stm
-            |> prepared_statement.append_sql("), (")
+            new_prepared_statement
+            |> ps.append_sql("), (")
             |> row_apply(row)
         }
       },
     )
-  let prp_stm = prp_stm |> prepared_statement.append_sql(")")
+  let prepared_statement = prepared_statement |> ps.append_sql(")")
 
-  prp_stm
+  prepared_statement
 }
 
 fn insert_from_values_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  source src: List(InsertRow),
+  prepared_statement prepared_statement: PreparedStatement,
+  source source: List(InsertRow),
 ) {
-  let prp_stm = prp_stm |> prepared_statement.append_sql(" (")
-  let prp_stm =
-    src
+  let prepared_statement = prepared_statement |> ps.append_sql(" (")
+  let prepared_statement =
+    source
     |> list.fold(
-      prp_stm,
-      fn(new_prp_stm: PreparedStatement, row: InsertRow) -> PreparedStatement {
+      prepared_statement,
+      fn(new_prepared_statement: PreparedStatement, row: InsertRow) -> PreparedStatement {
         let InsertRow(row) = row
-        case new_prp_stm == prp_stm {
-          True -> new_prp_stm |> row_apply(row)
+        case new_prepared_statement == prepared_statement {
+          True -> new_prepared_statement |> row_apply(row)
           False ->
-            new_prp_stm
-            |> prepared_statement.append_sql("), (")
+            new_prepared_statement
+            |> ps.append_sql("), (")
             |> row_apply(row)
         }
       },
     )
-  let prp_stm = prp_stm |> prepared_statement.append_sql(")")
+  let prepared_statement = prepared_statement |> ps.append_sql(")")
 
-  prp_stm
+  prepared_statement
 }
 
 fn row_apply(
-  new_prp_stm: PreparedStatement,
+  new_prepared_statement: PreparedStatement,
   row: List(InsertValue),
 ) -> PreparedStatement {
   row
   |> list.fold(
-    new_prp_stm,
-    fn(new_prp_stm_inner: PreparedStatement, insert_value: InsertValue) -> PreparedStatement {
+    new_prepared_statement,
+    fn(
+      new_prepared_statement_inner: PreparedStatement,
+      insert_value: InsertValue,
+    ) -> PreparedStatement {
       case insert_value {
         InsertParam(param: param) -> {
-          case new_prp_stm_inner == new_prp_stm {
+          case new_prepared_statement_inner == new_prepared_statement {
             True ->
-              new_prp_stm_inner
-              |> prepared_statement.append_param(param)
+              new_prepared_statement_inner
+              |> ps.append_param(param)
             False ->
-              new_prp_stm_inner
-              |> prepared_statement.append_sql(", ")
-              |> prepared_statement.append_param(param)
+              new_prepared_statement_inner
+              |> ps.append_sql(", ")
+              |> ps.append_param(param)
           }
         }
         InsertDefault -> {
-          case new_prp_stm_inner == new_prp_stm {
+          case new_prepared_statement_inner == new_prepared_statement {
             True ->
-              new_prp_stm_inner
-              |> prepared_statement.append_sql("DEFAULT")
+              new_prepared_statement_inner
+              |> ps.append_sql("DEFAULT")
             False ->
-              new_prp_stm_inner
-              |> prepared_statement.append_sql(", DEFAULT")
+              new_prepared_statement_inner
+              |> ps.append_sql(", DEFAULT")
           }
         }
-        InsertFragment(fragment: frgmt) -> {
-          case new_prp_stm_inner == new_prp_stm {
+        InsertFragment(fragment: fragment) -> {
+          case new_prepared_statement_inner == new_prepared_statement {
             True ->
-              new_prp_stm_inner
-              |> read_query.fragment_apply(frgmt)
+              new_prepared_statement_inner
+              |> read_query.fragment_apply(fragment)
             False ->
-              new_prp_stm_inner
-              |> prepared_statement.append_sql(", ")
-              |> read_query.fragment_apply(frgmt)
+              new_prepared_statement_inner
+              |> ps.append_sql(", ")
+              |> read_query.fragment_apply(fragment)
           }
         }
       }
@@ -352,48 +355,48 @@ fn row_apply(
 }
 
 fn insert_from_query_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  query qry: ReadQuery,
+  prepared_statement prepared_statement: PreparedStatement,
+  query query: ReadQuery,
 ) {
-  prp_stm
-  |> prepared_statement.append_sql(" (")
-  |> read_query.apply(qry)
-  |> prepared_statement.append_sql(")")
+  prepared_statement
+  |> ps.append_sql(" (")
+  |> read_query.apply(query)
+  |> ps.append_sql(")")
 }
 
 fn insert_on_conflict_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  on_conflict_strategy on_cnf: InsertConflictStrategy(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  on_conflict_strategy on_conflict: InsertConflictStrategy(a),
 ) {
-  case on_cnf {
-    InsertConflictError -> prp_stm
-    InsertConflictIgnore(target: cflt_trgt, where: whr) ->
-      prp_stm
-      |> prepared_statement.append_sql(" ON CONFLICT (")
-      |> insert_on_conflict_target_apply(cflt_trgt)
-      |> prepared_statement.append_sql(")")
-      |> prepared_statement.append_sql(" DO NOTHING")
-      |> read_query.where_clause_apply(whr)
-    InsertConflictUpdate(target: cflt_trgt, where: whr, update: upt) ->
-      prp_stm
-      |> prepared_statement.append_sql(" ON CONFLICT (")
-      |> insert_on_conflict_target_apply(cflt_trgt)
-      |> prepared_statement.append_sql(")")
-      |> prepared_statement.append_sql(" DO ")
-      |> update_apply(upt)
-      |> read_query.where_clause_apply(whr)
+  case on_conflict {
+    InsertConflictError -> prepared_statement
+    InsertConflictIgnore(target: conflict_target, where: where) ->
+      prepared_statement
+      |> ps.append_sql(" ON CONFLICT (")
+      |> insert_on_conflict_target_apply(conflict_target)
+      |> ps.append_sql(")")
+      |> ps.append_sql(" DO NOTHING")
+      |> read_query.where_clause_apply(where)
+    InsertConflictUpdate(target: conflict_target, where: where, update: update) ->
+      prepared_statement
+      |> ps.append_sql(" ON CONFLICT (")
+      |> insert_on_conflict_target_apply(conflict_target)
+      |> ps.append_sql(")")
+      |> ps.append_sql(" DO ")
+      |> update_apply(update)
+      |> read_query.where_clause_apply(where)
   }
 }
 
 fn insert_on_conflict_target_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  target cflt_trgt: InsertConflictTarget,
+  prepared_statement prepared_statement: PreparedStatement,
+  target conflict_target: InsertConflictTarget,
 ) {
-  case cflt_trgt {
-    InsertConflictTarget(columns: cols) ->
-      prp_stm |> prepared_statement.append_sql(cols |> string.join(", "))
-    InsertConflictTargetConstraint(constraint: cnstrnt) ->
-      prp_stm |> prepared_statement.append_sql(cnstrnt)
+  case conflict_target {
+    InsertConflictTarget(columns: columns) ->
+      prepared_statement |> ps.append_sql(columns |> string.join(", "))
+    InsertConflictTargetConstraint(constraint: constraint) ->
+      prepared_statement |> ps.append_sql(constraint)
   }
 }
 
@@ -411,7 +414,7 @@ pub type Update(a) {
     // with (_recursive?): ?, // v2
     table: UpdateTable,
     modifier: UpdateModifier,
-    set: UpdateSets,
+    sets: UpdateSets,
     from: From,
     join: Joins,
     where: Where,
@@ -455,102 +458,106 @@ pub type UpdateSet {
 }
 
 fn update_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update updt: Update(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  update update: Update(a),
 ) {
-  prp_stm
-  |> prepared_statement.append_sql("UPDATE")
-  |> update_table_apply(updt.table)
-  |> update_modifier_apply(updt.modifier)
-  |> prepared_statement.append_sql(" SET")
-  |> update_set_apply(updt.set)
-  |> read_query.from_clause_apply(updt.from)
-  |> read_query.join_clause_apply(updt.join)
-  |> read_query.where_clause_apply(updt.where)
-  |> returning_apply(updt.returning)
-  |> read_query.comment_apply(updt.comment)
-  |> read_query.epilog_apply(updt.epilog)
+  prepared_statement
+  |> ps.append_sql("UPDATE")
+  |> update_table_apply(update.table)
+  |> update_modifier_apply(update.modifier)
+  |> ps.append_sql(" SET")
+  |> update_set_apply(update.sets)
+  |> read_query.from_clause_apply(update.from)
+  |> read_query.join_clause_apply(update.join)
+  |> read_query.where_clause_apply(update.where)
+  |> returning_apply(update.returning)
+  |> read_query.comment_apply(update.comment)
+  |> read_query.epilog_apply(update.epilog)
 }
 
 fn update_table_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  table_name tbl_nm: UpdateTable,
+  prepared_statement prepared_statement: PreparedStatement,
+  table_name table_name: UpdateTable,
 ) -> PreparedStatement {
-  case tbl_nm {
-    NoUpdateTable -> prp_stm
-    UpdateTable(tbl) ->
-      prp_stm
-      |> prepared_statement.append_sql(" " <> tbl)
+  case table_name {
+    NoUpdateTable -> prepared_statement
+    UpdateTable(table) ->
+      prepared_statement
+      |> ps.append_sql(" " <> table)
   }
 }
 
 fn update_modifier_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update_modifier updt_mdfr: UpdateModifier,
+  prepared_statement prepared_statement: PreparedStatement,
+  update_modifier update_modifier: UpdateModifier,
 ) -> PreparedStatement {
-  case updt_mdfr {
-    NoUpdateModifier -> prp_stm
-    UpdateModifier(modifier: mdfr) ->
-      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
+  case update_modifier {
+    NoUpdateModifier -> prepared_statement
+    UpdateModifier(modifier: modifier) ->
+      prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
 
 fn update_set_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update_sets updt_sts: UpdateSets,
+  prepared_statement prepared_statement: PreparedStatement,
+  update_sets update_sets: UpdateSets,
 ) -> PreparedStatement {
-  case updt_sts {
-    NoUpdateSets -> prp_stm
-    UpdateSets(updt_sets) -> prp_stm |> update_sets_apply(updt_sets)
+  case update_sets {
+    NoUpdateSets -> prepared_statement
+    UpdateSets(update_sets) ->
+      prepared_statement |> update_sets_apply(update_sets)
   }
 }
 
 fn update_sets_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  update_sets updt_sts: List(UpdateSet),
+  prepared_statement prepared_statement: PreparedStatement,
+  update_sets update_sets: List(UpdateSet),
 ) -> PreparedStatement {
-  let columns_apply = fn(new_prp_stm: PreparedStatement, cols: List(String)) -> PreparedStatement {
-    case cols {
-      [] -> new_prp_stm
-      [col] -> new_prp_stm |> prepared_statement.append_sql(" " <> col <> " =")
-      [_col, ..] ->
-        new_prp_stm
-        |> prepared_statement.append_sql(
-          " (" <> cols |> string.join(", ") <> ")",
-        )
-        |> prepared_statement.append_sql(" =")
+  let columns_apply = fn(
+    new_prepared_statement: PreparedStatement,
+    columns: List(String),
+  ) -> PreparedStatement {
+    case columns {
+      [] -> new_prepared_statement
+      [column] -> new_prepared_statement |> ps.append_sql(" " <> column <> " =")
+      [_column, ..] ->
+        new_prepared_statement
+        |> ps.append_sql(" (" <> columns |> string.join(", ") <> ")")
+        |> ps.append_sql(" =")
     }
   }
 
-  updt_sts
+  update_sets
   |> list.fold(
-    prp_stm,
-    fn(new_prp_stm: PreparedStatement, updt_st: UpdateSet) -> PreparedStatement {
-      let new_prp_stm = case new_prp_stm == prp_stm {
-        True -> new_prp_stm
-        False -> new_prp_stm |> prepared_statement.append_sql(",")
+    prepared_statement,
+    fn(new_prepared_statement: PreparedStatement, update_set: UpdateSet) -> PreparedStatement {
+      let new_prepared_statement = case
+        new_prepared_statement == prepared_statement
+      {
+        True -> new_prepared_statement
+        False -> new_prepared_statement |> ps.append_sql(",")
       }
-      case updt_st {
-        UpdateParamSet(column: col, param: prm) ->
-          new_prp_stm
-          |> columns_apply([col])
-          |> prepared_statement.append_sql(" ")
-          |> prepared_statement.append_param(prm)
-        UpdateExpressionSet(columns: cols, expression: expr) ->
-          new_prp_stm
-          |> columns_apply(cols)
-          |> prepared_statement.append_sql(" " <> expr)
-        UpdateSubQuerySet(columns: cols, query: qry) ->
-          new_prp_stm
-          |> columns_apply(cols)
-          |> prepared_statement.append_sql(" (")
-          |> read_query.apply(qry)
-          |> prepared_statement.append_sql(")")
-        UpdateFragmentSet(column: col, fragment: frgmt) ->
-          new_prp_stm
-          |> columns_apply([col])
-          |> prepared_statement.append_sql(" ")
-          |> read_query.fragment_apply(frgmt)
+      case update_set {
+        UpdateParamSet(column: column, param: param) ->
+          new_prepared_statement
+          |> columns_apply([column])
+          |> ps.append_sql(" ")
+          |> ps.append_param(param)
+        UpdateExpressionSet(columns: columns, expression: expression) ->
+          new_prepared_statement
+          |> columns_apply(columns)
+          |> ps.append_sql(" " <> expression)
+        UpdateSubQuerySet(columns: columns, query: query) ->
+          new_prepared_statement
+          |> columns_apply(columns)
+          |> ps.append_sql(" (")
+          |> read_query.apply(query)
+          |> ps.append_sql(")")
+        UpdateFragmentSet(column: column, fragment: fragment) ->
+          new_prepared_statement
+          |> columns_apply([column])
+          |> ps.append_sql(" ")
+          |> read_query.fragment_apply(fragment)
       }
     },
   )
@@ -610,71 +617,74 @@ pub type DeleteUsing {
 }
 
 fn delete_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  delete dlt: Delete(a),
+  prepared_statement prepared_statement: PreparedStatement,
+  delete delete: Delete(a),
 ) {
-  prp_stm
-  |> prepared_statement.append_sql("DELETE")
-  |> delete_table_apply(dlt.table)
-  |> delete_modifier_apply(dlt.modifier)
-  |> using_apply(dlt.using)
-  |> read_query.join_clause_apply(dlt.join)
-  |> read_query.where_clause_apply(dlt.where)
-  |> returning_apply(dlt.returning)
-  |> read_query.comment_apply(dlt.comment)
-  |> read_query.epilog_apply(dlt.epilog)
+  prepared_statement
+  |> ps.append_sql("DELETE")
+  |> delete_table_apply(delete.table)
+  |> delete_modifier_apply(delete.modifier)
+  |> using_apply(delete.using)
+  |> read_query.join_clause_apply(delete.join)
+  |> read_query.where_clause_apply(delete.where)
+  |> returning_apply(delete.returning)
+  |> read_query.comment_apply(delete.comment)
+  |> read_query.epilog_apply(delete.epilog)
 }
 
 fn delete_table_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  table_name tbl_nm: DeleteTable,
+  prepared_statement prepared_statement: PreparedStatement,
+  table_name table_name: DeleteTable,
 ) -> PreparedStatement {
-  case tbl_nm {
-    NoDeleteTable -> prp_stm
-    DeleteTable(tbl) ->
-      prp_stm
-      |> prepared_statement.append_sql(" FROM " <> tbl)
+  case table_name {
+    NoDeleteTable -> prepared_statement
+    DeleteTable(table) ->
+      prepared_statement
+      |> ps.append_sql(" FROM " <> table)
   }
 }
 
 fn delete_modifier_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  delete_modifer updt_mdfr: DeleteModifier,
+  prepared_statement prepared_statement: PreparedStatement,
+  delete_modifer update_modifier: DeleteModifier,
 ) -> PreparedStatement {
-  case updt_mdfr {
-    NoDeleteModifier -> prp_stm
-    DeleteModifier(modifier: mdfr) ->
-      prp_stm |> prepared_statement.append_sql(" " <> mdfr)
+  case update_modifier {
+    NoDeleteModifier -> prepared_statement
+    DeleteModifier(modifier: modifier) ->
+      prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
 
 fn using_apply(
-  prepared_statement prp_stm: PreparedStatement,
-  using updt_usng: DeleteUsing,
+  prepared_statement prepared_statement: PreparedStatement,
+  using using: DeleteUsing,
 ) -> PreparedStatement {
-  case updt_usng {
-    NoDeleteUsing -> prp_stm
-    DeleteUsing(froms: frms) -> {
-      let prp_stm = prp_stm |> prepared_statement.append_sql(" USING ")
+  case using {
+    NoDeleteUsing -> prepared_statement
+    DeleteUsing(froms: froms) -> {
+      let prepared_statement = prepared_statement |> ps.append_sql(" USING ")
 
-      frms
+      froms
       |> list.fold(
-        prp_stm,
-        fn(new_prp_stm: PreparedStatement, frm: From) -> PreparedStatement {
-          let new_prp_stm = case new_prp_stm == prp_stm, frm {
-            True, _ | _, NoFrom -> new_prp_stm
-            False, _ -> new_prp_stm |> prepared_statement.append_sql(", ")
+        prepared_statement,
+        fn(new_prepared_statement: PreparedStatement, from: From) -> PreparedStatement {
+          let new_prepared_statement = case
+            new_prepared_statement == prepared_statement,
+            from
+          {
+            True, _ | _, NoFrom -> new_prepared_statement
+            False, _ -> new_prepared_statement |> ps.append_sql(", ")
           }
 
-          case frm {
-            NoFrom -> new_prp_stm
-            FromTable(name: tbl_nm) ->
-              new_prp_stm |> prepared_statement.append_sql(tbl_nm)
-            FromSubQuery(qry, als) ->
-              prp_stm
-              |> prepared_statement.append_sql(" (")
-              |> read_query.apply(qry)
-              |> prepared_statement.append_sql(") AS " <> als)
+          case from {
+            NoFrom -> new_prepared_statement
+            FromTable(name: table_name) ->
+              new_prepared_statement |> ps.append_sql(table_name)
+            FromSubQuery(query, alias) ->
+              prepared_statement
+              |> ps.append_sql(" (")
+              |> read_query.apply(query)
+              |> ps.append_sql(") AS " <> alias)
           }
         },
       )

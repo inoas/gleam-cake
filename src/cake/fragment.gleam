@@ -47,20 +47,24 @@ pub const placeholder = read_query.fragment_placeholder_grapheme
 ///
 /// ⛔ ⛔ ⛔
 ///
-pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
-  let plchldr_count =
-    str
+pub fn prepared(string string: String, params params: List(Param)) -> Fragment {
+  let placeholder_count =
+    string
     |> read_query.fragment_prepared_split_string
     |> read_query.fragment_count_placeholders
 
-  let param_count = prms |> list.length
+  let param_count = params |> list.length
 
-  case plchldr_count, param_count, plchldr_count |> int.compare(param_count) {
+  case
+    placeholder_count,
+    param_count,
+    placeholder_count |> int.compare(param_count)
+  {
     0, 0, order.Eq -> {
-      str |> read_query.FragmentLiteral
+      string |> read_query.FragmentLiteral
     }
     _n, _n, order.Eq -> {
-      str |> read_query.FragmentPrepared(prms)
+      string |> read_query.FragmentPrepared(params)
     }
     0, _n, _not_eq -> {
       io.println_error(
@@ -70,29 +74,29 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
         <> param_count |> int.to_string
         <> " params given!",
       )
-      str |> read_query.FragmentLiteral
+      string |> read_query.FragmentLiteral
     }
     _n, 0, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> plchldr_count |> int.to_string
+        <> placeholder_count |> int.to_string
         <> " "
         <> placeholder
         <> "-placeholders, but 0 params given!",
       )
-      str |> read_query.FragmentLiteral
+      string |> read_query.FragmentLiteral
     }
     _n, _m, _not_eq -> {
       io.println_error(
         "Fragment had "
-        <> plchldr_count |> int.to_string
+        <> placeholder_count |> int.to_string
         <> " "
         <> placeholder
         <> "-placeholders, but "
         <> param_count |> int.to_string
         <> " params given!",
       )
-      str |> read_query.FragmentPrepared(prms)
+      string |> read_query.FragmentPrepared(params)
     }
   }
 }
@@ -105,8 +109,8 @@ pub fn prepared(string str: String, params prms: List(Param)) -> Fragment {
 ///
 /// ⛔ ⛔ ⛔
 ///
-pub fn literal(string str: String) -> Fragment {
-  str |> read_query.FragmentLiteral
+pub fn literal(string string: String) -> Fragment {
+  string |> read_query.FragmentLiteral
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -115,8 +119,8 @@ pub fn literal(string str: String) -> Fragment {
 
 /// Create a new `Param` with a `Bool` value.
 ///
-pub fn bool(value vl: Bool) -> Param {
-  vl |> BoolParam
+pub fn bool(value value: Bool) -> Param {
+  value |> BoolParam
 }
 
 /// Create a new `Param` with a `True` value.
@@ -133,20 +137,20 @@ pub fn false() -> Param {
 
 /// Create a new `Param` with a `Float` value.
 ///
-pub fn float(value vl: Float) -> Param {
-  vl |> FloatParam
+pub fn float(value value: Float) -> Param {
+  value |> FloatParam
 }
 
 /// Create a new `Param` with an `Int` value.
 ///
-pub fn int(value vl: Int) -> Param {
-  vl |> IntParam
+pub fn int(value value: Int) -> Param {
+  value |> IntParam
 }
 
 /// Create a new `Param` with a `String` value.
 ///
-pub fn string(value vl: String) -> Param {
-  vl |> StringParam
+pub fn string(value value: String) -> Param {
+  value |> StringParam
 }
 
 /// Create a new `Param` with an SQL `NULL` value.

@@ -43,26 +43,26 @@ pub type Param {
 
 /// Create a new `Param` with a `Bool` value.
 ///
-pub fn bool(value vl: Bool) -> Param {
-  vl |> BoolParam
+pub fn bool(value value: Bool) -> Param {
+  value |> BoolParam
 }
 
 /// Create a new `Param` with a `Float` value.
 ///
-pub fn float(value vl: Float) -> Param {
-  vl |> FloatParam
+pub fn float(value value: Float) -> Param {
+  value |> FloatParam
 }
 
 /// Create a new `Param` with an `Int` value.
 ///
-pub fn int(value vl: Int) -> Param {
-  vl |> IntParam
+pub fn int(value value: Int) -> Param {
+  value |> IntParam
 }
 
 /// Create a new `Param` with a `String` value.
 ///
-pub fn string(value vl: String) -> Param {
-  vl |> StringParam
+pub fn string(value value: String) -> Param {
+  value |> StringParam
 }
 
 /// Create a new `Param` with an SQL `NULL` value.

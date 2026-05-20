@@ -14,8 +14,8 @@ pub type Dialect {
 
 /// Returns the placeholder base for the given dialect.
 ///
-pub fn placeholder_base(dialect dlct: Dialect) -> String {
-  case dlct {
+pub fn placeholder_base(dialect dialect: Dialect) -> String {
+  case dialect {
     Postgres -> "$"
     Sqlite -> "?"
     Maria -> "?"
