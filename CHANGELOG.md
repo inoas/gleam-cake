@@ -8,6 +8,20 @@ and this project adheres to
 ## [Unreleased]
 -->
 
+## [4.0.0] - 2026-05-20
+
+- [BREAKING]: `xor` on 🦭MariaDB and 🐬MySQL uses the databases' native `XOR`
+  operator, which chains left-to-right as a binary operator and returns `TRUE`
+  when an **odd number** of conditions are true. On 🐘PostgreSQL and 🪶SQLite,
+  `xor` was emulated to return `TRUE` when **exactly one** condition is true.
+  These semantics agree for two conditions but diverge for three or more.
+  The emulation has been corrected to match the MariaDB/MySQL parity behaviour,
+  so `xor` is now consistent across all four dialects.
+- Added `where.xor_parity` as an explicit alias for the left-to-right
+  odd-parity XOR. Prefer `xor_parity` over `xor` when XORing three or more
+  conditions to make the intent clear, especially in codebases that target
+  multiple dialects.
+
 ## [3.0.0] - 2026-04-29
 
 - Added support for fragments in Inserts and Updates. Thanks to @qwexvf.
