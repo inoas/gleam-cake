@@ -67,7 +67,7 @@ pub fn to_prepared_statement(
   dialect dialect: Dialect,
 ) -> PreparedStatement {
   placeholder_base
-  |> prepared_statement.new(dialect: dialect)
+  |> prepared_statement.new(dialect:)
   |> apply(query)
 }
 
@@ -78,8 +78,8 @@ pub fn apply(
   query query: ReadQuery,
 ) -> PreparedStatement {
   case query {
-    SelectQuery(query: query) -> prepared_statement |> select_builder(query)
-    CombinedQuery(query: query) -> prepared_statement |> combined_builder(query)
+    SelectQuery(query:) -> prepared_statement |> select_builder(query)
+    CombinedQuery(query:) -> prepared_statement |> combined_builder(query)
   }
 }
 
@@ -220,7 +220,7 @@ pub fn combined_query_new(
 ) -> Combined {
   queries
   |> Combined(
-    kind: kind,
+    kind:,
     limit: NoLimit,
     offset: NoOffset,
     order_by: NoOrderBy,
@@ -239,7 +239,7 @@ pub fn combined_order_by(
   case append {
     True ->
       Combined(..query, order_by: query.order_by |> order_by_append(order_by))
-    False -> Combined(..query, order_by: order_by)
+    False -> Combined(..query, order_by:)
   }
 }
 
@@ -303,7 +303,7 @@ pub fn select_order_by(
   case append {
     True ->
       Select(..query, order_by: query.order_by |> order_by_append(order_by))
-    False -> Select(..query, order_by: order_by)
+    False -> Select(..query, order_by:)
   }
 }
 
@@ -635,14 +635,14 @@ fn where_apply(
         "LIKE",
         param |> StringParam |> WhereParamValue,
       )
-    WhereILike(value: value, pattern: param) ->
+    WhereILike(value:, pattern: param) ->
       prepared_statement
       |> where_comparison_apply(
         value,
         "ILIKE",
         param |> StringParam |> WhereParamValue,
       )
-    WhereSimilarTo(value: value, pattern: param, escape_char: escape_char) ->
+    WhereSimilarTo(value:, pattern: param, escape_char:) ->
       prepared_statement
       |> where_comparison_apply(
         value,
@@ -665,7 +665,7 @@ fn where_literal_apply(
       |> prepared_statement.append_sql(column <> " " <> literal)
     WhereParamValue(param) ->
       prepared_statement |> prepared_statement.append_param(param)
-    WhereFragmentValue(fragment: fragment) ->
+    WhereFragmentValue(fragment:) ->
       prepared_statement
       |> fragment_apply(fragment)
       |> prepared_statement.append_sql(" " <> literal)
@@ -1189,7 +1189,7 @@ pub fn join_clause_apply(
           }
 
           case join {
-            InnerJoin(_, _, on: on) ->
+            InnerJoin(_, _, on:) ->
               new_prepared_statement
               |> join_command_apply("INNER JOIN")
               |> on_apply(on)
@@ -1197,7 +1197,7 @@ pub fn join_clause_apply(
               new_prepared_statement
               |> join_command_apply("INNER JOIN LATERAL")
               |> prepared_statement.append_sql(" ON TRUE")
-            LeftJoin(_, _, on: on) ->
+            LeftJoin(_, _, on:) ->
               new_prepared_statement
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
@@ -1205,11 +1205,11 @@ pub fn join_clause_apply(
               new_prepared_statement
               |> join_command_apply("LEFT JOIN LATERAL")
               |> prepared_statement.append_sql(" ON TRUE")
-            RightJoin(_, _, on: on) ->
+            RightJoin(_, _, on:) ->
               new_prepared_statement
               |> join_command_apply("RIGHT OUTER JOIN")
               |> on_apply(on)
-            FullJoin(_, _, on: on) ->
+            FullJoin(_, _, on:) ->
               new_prepared_statement
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
@@ -1230,10 +1230,10 @@ pub fn join_apply(
   join join: Join,
 ) -> PreparedStatement {
   case join.with {
-    JoinTable(table: table) ->
+    JoinTable(table:) ->
       prepared_statement
       |> prepared_statement.append_sql(table <> " AS " <> join.alias)
-    JoinSubQuery(query: query) ->
+    JoinSubQuery(query:) ->
       prepared_statement
       |> prepared_statement.append_sql("(")
       |> apply(query)
@@ -1387,7 +1387,7 @@ pub type Limit {
 pub fn limit_new(limit limit: Int) -> Limit {
   case limit > 0 {
     False -> NoLimit
-    True -> Limit(limit: limit)
+    True -> Limit(limit:)
   }
 }
 
@@ -1397,7 +1397,7 @@ fn limit_clause_apply(
 ) -> PreparedStatement {
   case limit {
     NoLimit -> ""
-    Limit(limit: limit) -> " LIMIT " <> limit |> int.to_string
+    Limit(limit:) -> " LIMIT " <> limit |> int.to_string
   }
   |> prepared_statement.append_sql(prepared_statement, _)
 }
@@ -1418,7 +1418,7 @@ pub type Offset {
 pub fn offset_new(offset offset: Int) -> Offset {
   case offset > 0 {
     False -> NoOffset
-    True -> Offset(offset: offset)
+    True -> Offset(offset:)
   }
 }
 
@@ -1428,7 +1428,7 @@ fn offset_clause_apply(
 ) -> PreparedStatement {
   case offset {
     NoOffset -> ""
-    Offset(offset: offset) -> " OFFSET " <> offset |> int.to_string
+    Offset(offset:) -> " OFFSET " <> offset |> int.to_string
   }
   |> prepared_statement.append_sql(prepared_statement, _)
 }
@@ -1573,13 +1573,13 @@ pub fn fragment_apply(
   fragment fragment: Fragment,
 ) -> PreparedStatement {
   case fragment {
-    FragmentLiteral(fragment: fragment) ->
+    FragmentLiteral(fragment:) ->
       prepared_statement |> prepared_statement.append_sql(fragment)
-    FragmentPrepared(fragment: fragment, params: []) ->
+    FragmentPrepared(fragment:, params: []) ->
       // This is likely a user error and they meant `FragmentLiteral`
       // if the user did not give any params.
       prepared_statement |> prepared_statement.append_sql(fragment)
-    FragmentPrepared(fragment: fragment, params: params) -> {
+    FragmentPrepared(fragment:, params:) -> {
       let fragments = fragment |> fragment_prepared_split_string
       let fragment_placeholder_count = fragments |> fragment_count_placeholders
       let params_count = params |> list.length
@@ -1622,7 +1622,7 @@ pub fn fragment_apply(
               params |> list.append(repeated_last_item)
             }
             // Unreachable, because of the match above:
-            // `FragmentPrepared(fragment: fragment, params: []) ->`
+            // `FragmentPrepared(fragment:, params: []) ->`
             Error(Nil) -> {
               params
             }

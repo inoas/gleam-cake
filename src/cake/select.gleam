@@ -85,7 +85,7 @@ pub fn col(name name: String) -> SelectValue {
 /// Creates an alias `SelectValue` from `String`.
 ///
 pub fn alias(value value: SelectValue, alias alias: String) -> SelectValue {
-  value |> SelectAlias(alias: alias)
+  value |> SelectAlias(alias:)
 }
 
 /// Creates a `SelectValue` from a `Bool`.
@@ -169,7 +169,7 @@ pub fn distinct(select select: Select) -> Select {
 /// Gets the kind of the `Select` query.
 ///
 pub fn get_kind(select select: Select, kind kind: SelectKind) -> Select {
-  Select(..select, kind: kind)
+  Select(..select, kind:)
 }
 
 // ▒▒▒ FROM ▒▒▒
@@ -187,7 +187,7 @@ pub fn from_query(
   sub_query sub_query: ReadQuery,
   alias alias: String,
 ) -> Select {
-  Select(..select, from: sub_query |> FromSubQuery(alias: alias))
+  Select(..select, from: sub_query |> FromSubQuery(alias:))
 }
 
 /// Removes the `FROM` clause of the `Select` query.
@@ -243,7 +243,7 @@ pub fn select(
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
 pub fn replace_select_col(select select: Select, name name: String) -> Select {
-  name |> col |> replace_select(select: select)
+  name |> col |> replace_select(select:)
 }
 
 /// Add a `SelectValue`s to the `Select` query.
@@ -272,7 +272,7 @@ pub fn select_cols(
   select select: Select,
   select_cols columns: List(String),
 ) -> Select {
-  columns |> list.map(col) |> selects(select: select)
+  columns |> list.map(col) |> selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
@@ -303,7 +303,7 @@ pub fn replace_select_cols(
   select select: Select,
   select_cols columns: List(String),
 ) -> Select {
-  columns |> list.map(col) |> replace_selects(select: select)
+  columns |> list.map(col) |> replace_selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
@@ -392,7 +392,7 @@ pub fn get_joins(select select: Select) -> Joins {
 ///
 pub fn where(select select: Select, where where: Where) -> Select {
   case select.where {
-    NoWhere -> Select(..select, where: where)
+    NoWhere -> Select(..select, where:)
     AndWhere(wheres) ->
       Select(..select, where: wheres |> list.append([where]) |> AndWhere)
     _ -> Select(..select, where: [select.where, where] |> AndWhere)
@@ -410,7 +410,7 @@ pub fn where(select select: Select, where where: Where) -> Select {
 ///
 pub fn or_where(select select: Select, where where: Where) -> Select {
   case select.where {
-    NoWhere -> Select(..select, where: where)
+    NoWhere -> Select(..select, where:)
     OrWhere(wheres) ->
       Select(..select, where: wheres |> list.append([where]) |> OrWhere)
     _ -> Select(..select, where: [select.where, where] |> OrWhere)
@@ -432,7 +432,7 @@ pub fn or_where(select select: Select, where where: Where) -> Select {
 ///
 pub fn xor_where(select select: Select, where where: Where) -> Select {
   case select.where {
-    NoWhere -> Select(..select, where: where)
+    NoWhere -> Select(..select, where:)
     XorWhere(wheres) ->
       Select(..select, where: wheres |> list.append([where]) |> XorWhere)
     _ -> Select(..select, where: [select.where, where] |> XorWhere)
@@ -442,7 +442,7 @@ pub fn xor_where(select select: Select, where where: Where) -> Select {
 /// Replaces the `Where` in the `Select` query.
 ///
 pub fn replace_where(select select: Select, where where: Where) -> Select {
-  Select(..select, where: where)
+  Select(..select, where:)
 }
 
 /// Removes the `Where` from the `Select` query.
@@ -612,7 +612,7 @@ pub fn get_group_by(select select: Select) -> GroupBy {
 ///
 pub fn limit(select select: Select, limit limit: Int) -> Select {
   let limit = limit |> read_query.limit_new
-  Select(..select, limit: limit)
+  Select(..select, limit:)
 }
 
 /// Removes `Limit` from the `Select` query.
@@ -631,7 +631,7 @@ pub fn get_limit(select select: Select) -> Limit {
 ///
 pub fn offset(select select: Select, offset offset: Int) -> Select {
   let offset = offset |> read_query.offset_new
-  Select(..select, offset: offset)
+  Select(..select, offset:)
 }
 
 /// Removes `Offset` from the `Select` query.

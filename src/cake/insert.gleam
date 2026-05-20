@@ -113,7 +113,7 @@ pub fn null() -> InsertValue {
 /// ```
 ///
 pub fn fragment(value fragment: Fragment) -> InsertValue {
-  InsertFragment(fragment: fragment)
+  InsertFragment(fragment:)
 }
 
 // ▒▒▒ Constructors ▒▒▒
@@ -146,7 +146,7 @@ pub fn from_records(
   Insert(
     table: table_name |> InsertIntoTable,
     modifier: NoInsertModifier,
-    source: records |> InsertSourceRecords(encoder: encoder),
+    source: records |> InsertSourceRecords(encoder:),
     columns: columns |> InsertColumns,
     on_conflict: InsertConflictError,
     returning: NoReturning,
@@ -230,7 +230,7 @@ pub fn source_records(
   source records: List(a),
   encoder encoder: fn(a) -> InsertRow,
 ) -> Insert(a) {
-  Insert(..insert, source: records |> InsertSourceRecords(encoder: encoder))
+  Insert(..insert, source: records |> InsertSourceRecords(encoder:))
 }
 
 /// Specify the source values to insert.
@@ -293,7 +293,7 @@ pub fn on_columns_conflict_ignore(
     ..insert,
     on_conflict: InsertConflictIgnore(
       target: columns |> InsertConflictTarget,
-      where: where,
+      where:,
     ),
   )
 }
@@ -312,7 +312,7 @@ pub fn on_constraint_conflict_ignore(
     ..insert,
     on_conflict: InsertConflictIgnore(
       target: constraint |> InsertConflictTargetConstraint,
-      where: where,
+      where:,
     ),
   )
 }
@@ -331,8 +331,8 @@ pub fn on_columns_conflict_update(
     ..insert,
     on_conflict: InsertConflictUpdate(
       target: columns |> InsertConflictTarget,
-      where: where,
-      update: update,
+      where:,
+      update:,
     ),
   )
 }
@@ -351,8 +351,8 @@ pub fn on_constraint_conflict_update(
     ..insert,
     on_conflict: InsertConflictUpdate(
       target: constraint |> InsertConflictTargetConstraint,
-      where: where,
-      update: update,
+      where:,
+      update:,
     ),
   )
 }

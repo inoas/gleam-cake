@@ -105,43 +105,43 @@ pub fn get_table(update update: Update(a)) -> UpdateTable {
 /// Sets a column to a `Bool` `UpdateParamSet`.
 ///
 pub fn set_bool(column column: String, value value: Bool) -> UpdateSet {
-  value |> BoolParam |> UpdateParamSet(column: column)
+  value |> BoolParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to a `True` `UpdateParamSet`.
 ///
 pub fn set_true(column column: String) -> UpdateSet {
-  True |> BoolParam |> UpdateParamSet(column: column)
+  True |> BoolParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to a `False` `UpdateParamSet`.
 ///
 pub fn set_false(column column: String) -> UpdateSet {
-  False |> BoolParam |> UpdateParamSet(column: column)
+  False |> BoolParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to a `Float` `UpdateParamSet`.
 ///
 pub fn set_float(column column: String, value value: Float) -> UpdateSet {
-  value |> FloatParam |> UpdateParamSet(column: column)
+  value |> FloatParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to a `Int` `UpdateParamSet`.
 ///
 pub fn set_int(column column: String, value value: Int) -> UpdateSet {
-  value |> IntParam |> UpdateParamSet(column: column)
+  value |> IntParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to a string `UpdateParamSet`.
 ///
 pub fn set_string(column column: String, value value: String) -> UpdateSet {
-  value |> StringParam |> UpdateParamSet(column: column)
+  value |> StringParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to an SQL `NULL` `UpdateParamSet`.
 ///
 pub fn set_null(column column: String) -> UpdateSet {
-  NullParam |> UpdateParamSet(column: column)
+  NullParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to an expression value.
@@ -150,7 +150,7 @@ pub fn set_expression(
   column column: String,
   expression expression: String,
 ) -> UpdateSet {
-  [column] |> UpdateExpressionSet(expression: expression)
+  [column] |> UpdateExpressionSet(expression:)
 }
 
 /// Sets a column to a sub-query value.
@@ -159,7 +159,7 @@ pub fn set_sub_query(
   column column: String,
   query query: ReadQuery,
 ) -> UpdateSet {
-  [column] |> UpdateSubQuerySet(query: query)
+  [column] |> UpdateSubQuerySet(query:)
 }
 
 /// Sets a column to a fragment value with parameter binding.
@@ -177,7 +177,7 @@ pub fn set_fragment(
   column column: String,
   fragment fragment: Fragment,
 ) -> UpdateSet {
-  UpdateFragmentSet(column: column, fragment: fragment)
+  UpdateFragmentSet(column:, fragment:)
 }
 
 /// Sets many columns to an expression value.
@@ -188,7 +188,7 @@ pub fn sets_expression(
   columns columns: List(String),
   expression expression: String,
 ) -> UpdateSet {
-  columns |> UpdateExpressionSet(expression: expression)
+  columns |> UpdateExpressionSet(expression:)
 }
 
 /// Sets many columns to a sub-query value.
@@ -199,7 +199,7 @@ pub fn sets_sub_query(
   columns columns: List(String),
   query query: ReadQuery,
 ) -> UpdateSet {
-  columns |> UpdateSubQuerySet(query: query)
+  columns |> UpdateSubQuerySet(query:)
 }
 
 /// Get the `SET`s of the `Update` query.
@@ -264,7 +264,7 @@ pub fn from_sub_query(
   query query: ReadQuery,
   alias alias: String,
 ) -> Update(a) {
-  Update(..update, from: query |> FromSubQuery(alias: alias))
+  Update(..update, from: query |> FromSubQuery(alias:))
 }
 
 /// Removes the `FROM` clause of the `Update` query.
@@ -354,7 +354,7 @@ pub fn get_joins(update update: Update(a)) -> Joins {
 ///
 pub fn where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
-    NoWhere -> Update(..update, where: where)
+    NoWhere -> Update(..update, where:)
     AndWhere(wheres) ->
       Update(..update, where: wheres |> list.append([where]) |> AndWhere)
     _ -> Update(..update, where: [update.where, where] |> AndWhere)
@@ -372,7 +372,7 @@ pub fn where(update update: Update(a), where where: Where) -> Update(a) {
 ///
 pub fn or_where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
-    NoWhere -> Update(..update, where: where)
+    NoWhere -> Update(..update, where:)
     OrWhere(wheres) ->
       Update(..update, where: wheres |> list.append([where]) |> OrWhere)
     _ -> Update(..update, where: [update.where, where] |> OrWhere)
@@ -395,7 +395,7 @@ pub fn or_where(update update: Update(a), where where: Where) -> Update(a) {
 ///
 pub fn xor_where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
-    NoWhere -> Update(..update, where: where)
+    NoWhere -> Update(..update, where:)
     XorWhere(wheres) ->
       Update(..update, where: wheres |> list.append([where]) |> XorWhere)
     _ -> Update(..update, where: [update.where, where] |> XorWhere)
@@ -408,7 +408,7 @@ pub fn replace_where(
   update update: Update(a),
   where where: Where,
 ) -> Update(a) {
-  Update(..update, where: where)
+  Update(..update, where:)
 }
 
 /// Removes the `Where` from the `Update` query.

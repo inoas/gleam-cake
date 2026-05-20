@@ -189,13 +189,13 @@ pub fn using_sub_query(
     NoDeleteUsing ->
       Delete(
         ..delete,
-        using: [query |> FromSubQuery(alias: alias)] |> DeleteUsing,
+        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
       )
     DeleteUsing(delete_usings) ->
       Delete(
         ..delete,
         using: delete_usings
-          |> list.append([query |> FromSubQuery(alias: alias)])
+          |> list.append([query |> FromSubQuery(alias:)])
           |> DeleteUsing,
       )
   }
@@ -226,12 +226,12 @@ pub fn replace_using_sub_query(
     NoDeleteUsing ->
       Delete(
         ..delete,
-        using: [query |> FromSubQuery(alias: alias)] |> DeleteUsing,
+        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
       )
     DeleteUsing(_) ->
       Delete(
         ..delete,
-        using: [query |> FromSubQuery(alias: alias)] |> DeleteUsing,
+        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
       )
   }
 }
@@ -326,7 +326,7 @@ pub fn get_joins(delete delete: Delete(a)) -> Joins {
 ///
 pub fn where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
-    NoWhere -> Delete(..delete, where: where)
+    NoWhere -> Delete(..delete, where:)
     AndWhere(wheres) ->
       Delete(..delete, where: wheres |> list.append([where]) |> AndWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> AndWhere)
@@ -344,7 +344,7 @@ pub fn where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 ///
 pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
-    NoWhere -> Delete(..delete, where: where)
+    NoWhere -> Delete(..delete, where:)
     OrWhere(wheres) ->
       Delete(..delete, where: wheres |> list.append([where]) |> OrWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> OrWhere)
@@ -367,7 +367,7 @@ pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 ///
 pub fn xor_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
-    NoWhere -> Delete(..delete, where: where)
+    NoWhere -> Delete(..delete, where:)
     XorWhere(wheres) ->
       Delete(..delete, where: wheres |> list.append([where]) |> XorWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> XorWhere)
@@ -380,7 +380,7 @@ pub fn replace_where(
   delete delete: Delete(a),
   where where: Where,
 ) -> Delete(a) {
-  Delete(..delete, where: where)
+  Delete(..delete, where:)
 }
 
 /// Removes the `Where` from the `Delete` query.

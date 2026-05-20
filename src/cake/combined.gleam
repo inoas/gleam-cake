@@ -194,7 +194,7 @@ pub fn get_queries(combined combined: Combined) -> List(Select) {
 ///
 pub fn limit(query query: Combined, limit limit: Int) -> Combined {
   let limit = limit |> read_query.limit_new
-  Combined(..query, limit: limit)
+  Combined(..query, limit:)
 }
 
 /// Removes `Limit` from the `Combined` `ReadQuery`.
@@ -213,7 +213,7 @@ pub fn get_limit(query query: Combined) -> Limit {
 ///
 pub fn offset(query query: Combined, offest offset: Int) -> Combined {
   let offset = offset |> read_query.offset_new
-  Combined(..query, offset: offset)
+  Combined(..query, offset:)
 }
 
 /// Removes `Offset` from the `Combined` `ReadQuery`.
@@ -422,7 +422,7 @@ pub fn order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    [order_by |> OrderByColumn(direction: direction)] |> OrderBy,
+    [order_by |> OrderByColumn(direction:)] |> OrderBy,
     True,
   )
 }
@@ -437,7 +437,7 @@ pub fn replace_order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    [order_by |> OrderByColumn(direction: direction)] |> OrderBy,
+    [order_by |> OrderByColumn(direction:)] |> OrderBy,
     False,
   )
 }

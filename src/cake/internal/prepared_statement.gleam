@@ -30,7 +30,7 @@ pub fn new(
   dialect dialect: Dialect,
 ) -> PreparedStatement {
   placeholder_base
-  |> PreparedStatement(sql: "", params: [], index: 0, dialect: dialect)
+  |> PreparedStatement(sql: "", params: [], index: 0, dialect:)
 }
 
 /// Append a parameter to the prepared statement SQL and

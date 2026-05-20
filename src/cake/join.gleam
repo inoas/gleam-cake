@@ -56,7 +56,7 @@ pub fn sub_query(sub_query sub_query: ReadQuery) -> JoinTarget {
 /// Create an `INNER JOIN`.
 ///
 pub fn inner(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
-  with |> InnerJoin(alias: alias, on: on)
+  with |> InnerJoin(alias:, on:)
 }
 
 /// Creates a `LEFT JOIN`.
@@ -68,7 +68,7 @@ pub fn inner(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 /// Set `on` to `WHERE a.key IS NULL` to make it _exclusive_.
 ///
 pub fn left(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
-  with |> LeftJoin(alias: alias, on: on)
+  with |> LeftJoin(alias:, on:)
 }
 
 /// Creates a `RIGHT JOIN`.
@@ -80,7 +80,7 @@ pub fn left(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 /// Set `on` to `WHERE b.key IS NULL` to make it _exclusive_.
 ///
 pub fn right(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
-  with |> RightJoin(alias: alias, on: on)
+  with |> RightJoin(alias:, on:)
 }
 
 /// Creates a `FULL JOIN`.
@@ -92,7 +92,7 @@ pub fn right(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 /// Set `on` to `WHERE a.key IS NULL OR b.key IS NULL` to make it _exclusive_.
 ///
 pub fn full(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
-  with |> FullJoin(alias: alias, on: on)
+  with |> FullJoin(alias:, on:)
 }
 
 /// Creates a `CROSS JOIN`.
@@ -100,7 +100,7 @@ pub fn full(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 /// Also called _cartesian product_.
 ///
 pub fn cross(with with: JoinTarget, alias alias: String) -> Join {
-  with |> CrossJoin(alias: alias)
+  with |> CrossJoin(alias:)
 }
 
 /// Creates a `INNER JOIN LATERAL ... ON TRUE`.
@@ -123,7 +123,7 @@ pub fn cross(with with: JoinTarget, alias alias: String) -> Join {
 /// versions.
 ///
 pub fn inner_lateral(with with: JoinTarget, alias alias: String) -> Join {
-  with |> InnerJoinLateralOnTrue(alias: alias)
+  with |> InnerJoinLateralOnTrue(alias:)
 }
 
 /// Creates a `LEFT JOIN LATERAL ... ON TRUE`.
@@ -146,7 +146,7 @@ pub fn inner_lateral(with with: JoinTarget, alias alias: String) -> Join {
 /// versions.
 ///
 pub fn left_lateral(with with: JoinTarget, alias alias: String) -> Join {
-  with |> LeftJoinLateralOnTrue(alias: alias)
+  with |> LeftJoinLateralOnTrue(alias:)
 }
 
 /// Creates a `CROSS JOIN LATERAL`.
@@ -166,5 +166,5 @@ pub fn left_lateral(with with: JoinTarget, alias alias: String) -> Join {
 /// versions.
 ///
 pub fn cross_lateral(with with: JoinTarget, alias alias: String) -> Join {
-  with |> CrossJoinLateral(alias: alias)
+  with |> CrossJoinLateral(alias:)
 }

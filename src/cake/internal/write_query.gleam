@@ -73,7 +73,7 @@ fn returning_apply(
 ) -> PreparedStatement {
   case returning {
     NoReturning -> prepared_statement
-    Returning(columns: columns) ->
+    Returning(columns:) ->
       prepared_statement
       |> ps.append_sql(" RETURNING ")
       |> ps.append_sql(columns |> string.join(", "))
@@ -214,7 +214,7 @@ fn insert_columns_apply(
 ) -> PreparedStatement {
   case columns {
     NoInsertColumns -> prepared_statement
-    InsertColumns(columns: columns) ->
+    InsertColumns(columns:) ->
       prepared_statement
       |> ps.append_sql(" (" <> columns |> string.join(", ") <> ")")
   }
@@ -226,7 +226,7 @@ fn insert_modifier_apply(
 ) -> PreparedStatement {
   case insert_modifier {
     NoInsertModifier -> prepared_statement
-    InsertModifier(modifier: modifier) ->
+    InsertModifier(modifier:) ->
       prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
@@ -240,15 +240,15 @@ fn insert_source_apply(
     InsertSourceRecords(records: source, encoder: row_encoder) ->
       prepared_statement
       |> ps.append_sql(" VALUES")
-      |> insert_from_params_apply(source: source, row_encoder: row_encoder)
+      |> insert_from_params_apply(source:, row_encoder:)
     InsertSourceRows(rows: source) ->
       prepared_statement
       |> ps.append_sql(" VALUES")
-      |> insert_from_values_apply(source: source)
-    InsertSourceQuery(query: query) ->
+      |> insert_from_values_apply(source:)
+    InsertSourceQuery(query:) ->
       prepared_statement
       |> ps.append_sql(" VALUES")
-      |> insert_from_query_apply(query: query)
+      |> insert_from_query_apply(query:)
     InsertSourceDefault ->
       prepared_statement |> ps.append_sql(" DEFAULT VALUES")
   }
@@ -317,7 +317,7 @@ fn row_apply(
       insert_value: InsertValue,
     ) -> PreparedStatement {
       case insert_value {
-        InsertParam(param: param) -> {
+        InsertParam(param:) -> {
           case new_prepared_statement_inner == new_prepared_statement {
             True ->
               new_prepared_statement_inner
@@ -338,7 +338,7 @@ fn row_apply(
               |> ps.append_sql(", DEFAULT")
           }
         }
-        InsertFragment(fragment: fragment) -> {
+        InsertFragment(fragment:) -> {
           case new_prepared_statement_inner == new_prepared_statement {
             True ->
               new_prepared_statement_inner
@@ -370,14 +370,14 @@ fn insert_on_conflict_apply(
 ) {
   case on_conflict {
     InsertConflictError -> prepared_statement
-    InsertConflictIgnore(target: conflict_target, where: where) ->
+    InsertConflictIgnore(target: conflict_target, where:) ->
       prepared_statement
       |> ps.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(conflict_target)
       |> ps.append_sql(")")
       |> ps.append_sql(" DO NOTHING")
       |> read_query.where_clause_apply(where)
-    InsertConflictUpdate(target: conflict_target, where: where, update: update) ->
+    InsertConflictUpdate(target: conflict_target, where:, update:) ->
       prepared_statement
       |> ps.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(conflict_target)
@@ -393,9 +393,9 @@ fn insert_on_conflict_target_apply(
   target conflict_target: InsertConflictTarget,
 ) {
   case conflict_target {
-    InsertConflictTarget(columns: columns) ->
+    InsertConflictTarget(columns:) ->
       prepared_statement |> ps.append_sql(columns |> string.join(", "))
-    InsertConflictTargetConstraint(constraint: constraint) ->
+    InsertConflictTargetConstraint(constraint:) ->
       prepared_statement |> ps.append_sql(constraint)
   }
 }
@@ -493,7 +493,7 @@ fn update_modifier_apply(
 ) -> PreparedStatement {
   case update_modifier {
     NoUpdateModifier -> prepared_statement
-    UpdateModifier(modifier: modifier) ->
+    UpdateModifier(modifier:) ->
       prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
@@ -538,22 +538,22 @@ fn update_sets_apply(
         False -> new_prepared_statement |> ps.append_sql(",")
       }
       case update_set {
-        UpdateParamSet(column: column, param: param) ->
+        UpdateParamSet(column:, param:) ->
           new_prepared_statement
           |> columns_apply([column])
           |> ps.append_sql(" ")
           |> ps.append_param(param)
-        UpdateExpressionSet(columns: columns, expression: expression) ->
+        UpdateExpressionSet(columns:, expression:) ->
           new_prepared_statement
           |> columns_apply(columns)
           |> ps.append_sql(" " <> expression)
-        UpdateSubQuerySet(columns: columns, query: query) ->
+        UpdateSubQuerySet(columns:, query:) ->
           new_prepared_statement
           |> columns_apply(columns)
           |> ps.append_sql(" (")
           |> read_query.apply(query)
           |> ps.append_sql(")")
-        UpdateFragmentSet(column: column, fragment: fragment) ->
+        UpdateFragmentSet(column:, fragment:) ->
           new_prepared_statement
           |> columns_apply([column])
           |> ps.append_sql(" ")
@@ -650,7 +650,7 @@ fn delete_modifier_apply(
 ) -> PreparedStatement {
   case update_modifier {
     NoDeleteModifier -> prepared_statement
-    DeleteModifier(modifier: modifier) ->
+    DeleteModifier(modifier:) ->
       prepared_statement |> ps.append_sql(" " <> modifier)
   }
 }
@@ -661,7 +661,7 @@ fn using_apply(
 ) -> PreparedStatement {
   case using {
     NoDeleteUsing -> prepared_statement
-    DeleteUsing(froms: froms) -> {
+    DeleteUsing(froms:) -> {
       let prepared_statement = prepared_statement |> ps.append_sql(" USING ")
 
       froms

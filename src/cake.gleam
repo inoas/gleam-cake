@@ -62,10 +62,10 @@ pub fn to_prepared_statement(
   case query {
     CakeReadQuery(read_query) ->
       read_query
-      |> read_query_to_prepared_statement(dialect: dialect)
+      |> read_query_to_prepared_statement(dialect:)
     CakeWriteQuery(write_query) ->
       write_query
-      |> write_query_to_prepared_statement(dialect: dialect)
+      |> write_query_to_prepared_statement(dialect:)
   }
 }
 
@@ -77,7 +77,7 @@ pub fn read_query_to_prepared_statement(
 ) -> PreparedStatement {
   dialect
   |> dialect.placeholder_base
-  |> read_query.to_prepared_statement(query: query, dialect: dialect)
+  |> read_query.to_prepared_statement(query:, dialect:)
 }
 
 /// Create a prepared statement from a write query.
@@ -88,7 +88,7 @@ pub fn write_query_to_prepared_statement(
 ) -> PreparedStatement {
   dialect
   |> dialect.placeholder_base
-  |> write_query.to_prepared_statement(query: query, dialect: dialect)
+  |> write_query.to_prepared_statement(query:, dialect:)
 }
 
 /// Get the SQL of the prepared statement.
