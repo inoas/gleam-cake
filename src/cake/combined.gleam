@@ -211,7 +211,7 @@ pub fn get_limit(query query: Combined) -> Limit {
 
 /// Sets an `Offset` in the `Combined` `ReadQuery`.
 ///
-pub fn offset(query query: Combined, offest offset: Int) -> Combined {
+pub fn offset(query query: Combined, offset offset: Int) -> Combined {
   let offset = offset |> read_query.offset_new
   Combined(..query, offset:)
 }
@@ -279,7 +279,7 @@ pub fn order_by_asc_nulls_last(
 ) -> Combined {
   query
   |> read_query.combined_order_by(
-    by: [order_by |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    by: [order_by |> OrderByColumn(read_query.AscNullsLast)] |> OrderBy,
     append: True,
   )
 }
@@ -322,7 +322,7 @@ pub fn replace_order_by_asc_nulls_last(
 ) -> Combined {
   query
   |> read_query.combined_order_by(
-    by: [order_by |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    by: [order_by |> OrderByColumn(read_query.AscNullsLast)] |> OrderBy,
     append: False,
   )
 }

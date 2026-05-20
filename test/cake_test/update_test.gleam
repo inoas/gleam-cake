@@ -13,7 +13,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn swap_is_wild_sub_query() {

@@ -12,7 +12,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 const const_field = "age"

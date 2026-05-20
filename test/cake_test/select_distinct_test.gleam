@@ -11,7 +11,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn select_distinct_query() {

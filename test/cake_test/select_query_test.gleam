@@ -13,7 +13,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn select_query_query() {

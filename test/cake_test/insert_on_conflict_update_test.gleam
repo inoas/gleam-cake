@@ -11,7 +11,7 @@ import test_support/adapter/sqlite
 // Notice: Only supports 🐘PostgreSQLSQL and 🪶SQLite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn update() {

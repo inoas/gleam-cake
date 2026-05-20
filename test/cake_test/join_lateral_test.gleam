@@ -13,7 +13,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn owners_query() {

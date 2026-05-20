@@ -187,10 +187,7 @@ pub fn using_sub_query(
 ) -> Delete(a) {
   case delete.using {
     NoDeleteUsing ->
-      Delete(
-        ..delete,
-        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
-      )
+      Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
     DeleteUsing(delete_usings) ->
       Delete(
         ..delete,
@@ -224,15 +221,9 @@ pub fn replace_using_sub_query(
 ) -> Delete(a) {
   case delete.using {
     NoDeleteUsing ->
-      Delete(
-        ..delete,
-        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
-      )
+      Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
     DeleteUsing(_) ->
-      Delete(
-        ..delete,
-        using: [query |> FromSubQuery(alias:)] |> DeleteUsing,
-      )
+      Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
   }
 }
 
