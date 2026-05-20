@@ -233,7 +233,7 @@ pub fn combined_query_new(
 ///
 pub fn combined_order_by(
   query query: Combined,
-  by order_by: OrderBy,
+  order_by order_by: OrderBy,
   append append: Bool,
 ) -> Combined {
   case append {
@@ -297,7 +297,7 @@ pub type Select {
 ///
 pub fn select_order_by(
   select_query query: Select,
-  by order_by: OrderBy,
+  order_by order_by: OrderBy,
   append append: Bool,
 ) -> Select {
   case append {
@@ -895,14 +895,18 @@ fn where_xor_parity_apply(
   where wheres: List(Where),
 ) -> PreparedStatement {
   case prepared_statement |> prepared_statement.get_dialect {
-    Postgres | Sqlite ->
-      where_pgsql_sqlite_xor_parity_apply(prepared_statement, wheres)
+    Postgres -> where_postgres_xor_parity_apply(prepared_statement, wheres)
+    Sqlite -> where_sqlite_xor_parity_apply(prepared_statement, wheres)
     Maria | Mysql ->
       where_maria_mysql_xor_parity_apply(prepared_statement, wheres)
   }
 }
 
-fn where_pgsql_sqlite_xor_parity_apply(
+// Sums each predicate cast to int then checks odd parity.
+// `(cond)::int` yields 1, 0, or NULL, so a single NULL operand
+// propagates NULL through `+` and `%`, matching MariaDB/MySQL XOR
+// semantics where `NULL XOR anything = NULL`.
+fn where_postgres_xor_parity_apply(
   prepared_statement prepared_statement: PreparedStatement,
   where wheres: List(Where),
 ) -> PreparedStatement {
@@ -917,14 +921,49 @@ fn where_pgsql_sqlite_xor_parity_apply(
         case new_prepared_statement == prepared_statement {
           True ->
             new_prepared_statement
-            |> prepared_statement.append_sql("CASE WHEN (")
+            |> prepared_statement.append_sql("(")
             |> where_apply(where)
-            |> prepared_statement.append_sql(") THEN 1 ELSE 0 END")
+            |> prepared_statement.append_sql(")::int")
           False ->
             new_prepared_statement
-            |> prepared_statement.append_sql(" + CASE WHEN (")
+            |> prepared_statement.append_sql(" + (")
             |> where_apply(where)
-            |> prepared_statement.append_sql(") THEN 1 ELSE 0 END")
+            |> prepared_statement.append_sql(")::int")
+        }
+      },
+    )
+
+  prepared_statement |> prepared_statement.append_sql(") % 2) = 1")
+}
+
+// Sums each predicate result directly then checks odd parity.
+// SQLite uses dynamic typing: comparisons already return 1, 0, or NULL,
+// so bare `(cond)` participates in arithmetic without a cast. A NULL
+// operand propagates NULL through `+` and `%`, matching MariaDB/MySQL
+// XOR semantics where `NULL XOR anything = NULL`.
+fn where_sqlite_xor_parity_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  where wheres: List(Where),
+) -> PreparedStatement {
+  let prepared_statement =
+    prepared_statement |> prepared_statement.append_sql("((")
+
+  let prepared_statement =
+    wheres
+    |> list.fold(
+      prepared_statement,
+      fn(new_prepared_statement: PreparedStatement, where: Where) -> PreparedStatement {
+        case new_prepared_statement == prepared_statement {
+          True ->
+            new_prepared_statement
+            |> prepared_statement.append_sql("(")
+            |> where_apply(where)
+            |> prepared_statement.append_sql(")")
+          False ->
+            new_prepared_statement
+            |> prepared_statement.append_sql(" + (")
+            |> where_apply(where)
+            |> prepared_statement.append_sql(")")
         }
       },
     )
