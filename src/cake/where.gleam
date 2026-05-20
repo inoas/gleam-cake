@@ -17,7 +17,7 @@ import cake/internal/read_query.{
   WhereColumnValue, WhereComparison, WhereExistsInSubQuery, WhereFragment,
   WhereFragmentValue, WhereILike, WhereIn, WhereIsBool, WhereIsNotBool,
   WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
-  WhereSubQueryValue, XorWhere,
+  WhereSubQueryValue, XorParityWhere, XorWhere,
 }
 import cake/param.{
   BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
@@ -136,6 +136,19 @@ pub fn or(wheres whrs: List(Where)) -> Where {
 ///
 pub fn xor(wheres whrs: List(Where)) -> Where {
   whrs |> XorWhere
+}
+
+/// Logical XOR of multiple `Where`s using left-associative binary XOR.
+///
+/// Unlike `xor`, which returns `TRUE` when _exactly one_ condition is true,
+/// `xor_parity` returns `TRUE` when an **odd number** of conditions are true —
+/// matching the behaviour of MySQL's and MariaDB's native `XOR` operator.
+///
+/// For adapters 🦭MariaDB or 🐬MySQL their native `XOR` syntax will be
+/// utilized under the hood.
+///
+pub fn xor_parity(wheres whrs: List(Where)) -> Where {
+  whrs |> XorParityWhere
 }
 
 /// No where condition.

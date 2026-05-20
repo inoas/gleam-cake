@@ -431,7 +431,7 @@ pub type Where {
   AndWhere(wheres: List(Where))
   OrWhere(wheres: List(Where))
   XorWhere(wheres: List(Where))
-  LeftAssociativeBinaryXorWhere(wheres: List(Where))
+  XorParityWhere(wheres: List(Where))
   WhereIsBool(value: WhereValue, bool: Bool)
   WhereIsNotBool(value: WhereValue, bool: Bool)
   WhereIsNull(value: WhereValue)
@@ -519,8 +519,7 @@ fn where_apply(
     AndWhere(whs) -> prp_stm |> where_logical_operator_apply("AND", whs, False)
     OrWhere(whs) -> prp_stm |> where_logical_operator_apply("OR", whs, True)
     XorWhere(whs) -> prp_stm |> where_xor_apply(whs)
-    LeftAssociativeBinaryXorWhere(whs) ->
-      prp_stm |> where_left_associative_xor_apply(whs)
+    XorParityWhere(whs) -> prp_stm |> where_xor_parity_apply(whs)
     NotWhere(wh) ->
       prp_stm
       |> prepared_statement.append_sql("NOT(")
@@ -850,19 +849,17 @@ fn where_xor_apply(
   prp_stm
 }
 
-fn where_left_associative_xor_apply(
+fn where_xor_parity_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
   case prp_stm |> prepared_statement.get_dialect {
-    Postgres | Sqlite ->
-      where_pgsql_sqlite_left_associative_binary_xor_apply(prp_stm, whs)
-    Maria | Mysql ->
-      where_maria_mysql_left_associative_binary_xor_apply(prp_stm, whs)
+    Postgres | Sqlite -> where_pgsql_sqlite_xor_parity_apply(prp_stm, whs)
+    Maria | Mysql -> where_maria_mysql_xor_parity_apply(prp_stm, whs)
   }
 }
 
-fn where_pgsql_sqlite_left_associative_binary_xor_apply(
+fn where_pgsql_sqlite_xor_parity_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {
@@ -891,7 +888,7 @@ fn where_pgsql_sqlite_left_associative_binary_xor_apply(
   prp_stm |> prepared_statement.append_sql(") % 2) = 1")
 }
 
-fn where_maria_mysql_left_associative_binary_xor_apply(
+fn where_maria_mysql_xor_parity_apply(
   prepared_statement prp_stm: PreparedStatement,
   where whs: List(Where),
 ) -> PreparedStatement {

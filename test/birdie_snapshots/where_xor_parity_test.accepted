@@ -1,15 +1,15 @@
 ---
 version: 2.0.0
-title: where_xor_test
-file: ./test/cake_test/where_xor_test.gleam
-test_name: where_xor_test
+title: where_xor_parity_test
+file: ./test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_test
 ---
 SelectQuery(Select(
   SelectAll,
   NoSelects,
   FromTable("cats"),
   NoJoins,
-  XorWhere([
+  XorParityWhere([
     WhereComparison(
       WhereColumnValue("name"),
       Equal,

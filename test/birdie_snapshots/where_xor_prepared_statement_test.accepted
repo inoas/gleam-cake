@@ -1,7 +1,7 @@
 ---
-version: 1.2.3
+version: 2.0.0
 title: where_xor_prepared_statement_test
-file: ./test/cake_test/where_test.gleam
+file: ./test/cake_test/where_xor_test.gleam
 test_name: where_xor_prepared_statement_test
 ---
 #(
@@ -35,16 +35,30 @@ test_name: where_xor_prepared_statement_test
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE (name = ? XOR is_wild IS TRUE XOR age <= ?)",
-    [StringParam("Karl"), IntParam(9)],
-    2,
+    "SELECT * FROM cats WHERE (name = ? AND NOT(is_wild IS TRUE) AND NOT(age <= ?)) OR (NOT(name = ?) AND (is_wild IS TRUE) AND NOT(age <= ?)) OR (NOT(name = ?) AND NOT(is_wild IS TRUE) AND (age <= ?))",
+    [
+      StringParam("Karl"),
+      IntParam(9),
+      StringParam("Karl"),
+      IntParam(9),
+      StringParam("Karl"),
+      IntParam(9),
+    ],
+    6,
     Maria,
   ),
   PreparedStatement(
     "?",
-    "SELECT * FROM cats WHERE (name = ? XOR is_wild IS TRUE XOR age <= ?)",
-    [StringParam("Karl"), IntParam(9)],
-    2,
+    "SELECT * FROM cats WHERE (name = ? AND NOT(is_wild IS TRUE) AND NOT(age <= ?)) OR (NOT(name = ?) AND (is_wild IS TRUE) AND NOT(age <= ?)) OR (NOT(name = ?) AND NOT(is_wild IS TRUE) AND (age <= ?))",
+    [
+      StringParam("Karl"),
+      IntParam(9),
+      StringParam("Karl"),
+      IntParam(9),
+      StringParam("Karl"),
+      IntParam(9),
+    ],
+    6,
     Mysql,
   ),
 )

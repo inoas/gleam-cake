@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: where_xor_parity_prepared_statement_test
+file: ./test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats WHERE ((CASE WHEN (name = $1) THEN 1 ELSE 0 END + CASE WHEN (is_wild IS TRUE) THEN 1 ELSE 0 END + CASE WHEN (age <= $2) THEN 1 ELSE 0 END) % 2) = 1",
+    [StringParam("Karl"), IntParam(9)],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE ((CASE WHEN (name = ?1) THEN 1 ELSE 0 END + CASE WHEN (is_wild IS TRUE) THEN 1 ELSE 0 END + CASE WHEN (age <= ?2) THEN 1 ELSE 0 END) % 2) = 1",
+    [StringParam("Karl"), IntParam(9)],
+    2,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (name = ? XOR is_wild IS TRUE XOR age <= ?)",
+    [StringParam("Karl"), IntParam(9)],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (name = ? XOR is_wild IS TRUE XOR age <= ?)",
+    [StringParam("Karl"), IntParam(9)],
+    2,
+    Mysql,
+  ),
+)
