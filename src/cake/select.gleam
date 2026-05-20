@@ -666,7 +666,10 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 
 /// Creates or appends an ascending `OrderBy`.
 ///
-pub fn order_by_asc(select select: Select, by order_by: String) -> Select {
+pub fn order_by_asc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
   select
   |> read_query.select_order_by(
     order_by: [order_by |> OrderByColumn(direction: read_query.Asc)]
@@ -681,7 +684,7 @@ pub fn order_by_asc(select select: Select, by order_by: String) -> Select {
 ///
 pub fn order_by_asc_nulls_first(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -699,7 +702,7 @@ pub fn order_by_asc_nulls_first(
 ///
 pub fn order_by_asc_nulls_last(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -713,7 +716,7 @@ pub fn order_by_asc_nulls_last(
 ///
 pub fn replace_order_by_asc(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -728,7 +731,7 @@ pub fn replace_order_by_asc(
 ///
 pub fn replace_order_by_asc_nulls_first(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -744,7 +747,7 @@ pub fn replace_order_by_asc_nulls_first(
 ///
 pub fn replace_order_by_asc_nulls_last(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -756,7 +759,10 @@ pub fn replace_order_by_asc_nulls_last(
 
 /// Creates or appends a descending `OrderBy`.
 ///
-pub fn order_by_desc(select select: Select, by order_by: String) -> Select {
+pub fn order_by_desc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
   select
   |> read_query.select_order_by(
     order_by: [order_by |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
@@ -770,7 +776,7 @@ pub fn order_by_desc(select select: Select, by order_by: String) -> Select {
 ///
 pub fn order_by_desc_nulls_first(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -786,7 +792,7 @@ pub fn order_by_desc_nulls_first(
 ///
 pub fn order_by_desc_nulls_last(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -800,7 +806,7 @@ pub fn order_by_desc_nulls_last(
 ///
 pub fn replace_order_by_desc(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -815,7 +821,7 @@ pub fn replace_order_by_desc(
 ///
 pub fn replace_order_by_desc_nulls_first(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -831,7 +837,7 @@ pub fn replace_order_by_desc_nulls_first(
 ///
 pub fn replace_order_by_desc_nulls_last(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Select {
   select
   |> read_query.select_order_by(
@@ -847,7 +853,7 @@ pub fn replace_order_by_desc_nulls_last(
 ///
 pub fn order_by(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
   direction direction: Direction,
 ) -> Select {
   let direction = direction |> map_order_by_direction_constructor
@@ -862,7 +868,7 @@ pub fn order_by(
 ///
 pub fn replace_order_by(
   select select: Select,
-  by order_by: String,
+  order_by order_by: String,
   direction direction: Direction,
 ) -> Select {
   let direction = direction |> map_order_by_direction_constructor

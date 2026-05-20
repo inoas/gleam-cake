@@ -246,7 +246,10 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 
 /// Creates or appends an ascending `OrderBy`.
 ///
-pub fn order_by_asc(query query: Combined, by order_by: String) -> Combined {
+pub fn order_by_asc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
   query
   |> read_query.combined_order_by(
     order_by: [order_by |> OrderByColumn(read_query.Asc)] |> OrderBy,
@@ -260,7 +263,7 @@ pub fn order_by_asc(query query: Combined, by order_by: String) -> Combined {
 ///
 pub fn order_by_asc_nulls_first(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -275,7 +278,7 @@ pub fn order_by_asc_nulls_first(
 ///
 pub fn order_by_asc_nulls_last(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -288,7 +291,7 @@ pub fn order_by_asc_nulls_last(
 ///
 pub fn replace_order_by_asc(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -303,7 +306,7 @@ pub fn replace_order_by_asc(
 ///
 pub fn replace_order_by_asc_nulls_first(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -318,7 +321,7 @@ pub fn replace_order_by_asc_nulls_first(
 ///
 pub fn replace_order_by_asc_nulls_last(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -329,7 +332,10 @@ pub fn replace_order_by_asc_nulls_last(
 
 /// Creates or appends a descending `OrderBy`.
 ///
-pub fn order_by_desc(query query: Combined, by order_by: String) -> Combined {
+pub fn order_by_desc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
   query
   |> read_query.combined_order_by(
     order_by: [order_by |> OrderByColumn(read_query.Desc)] |> OrderBy,
@@ -343,7 +349,7 @@ pub fn order_by_desc(query query: Combined, by order_by: String) -> Combined {
 ///
 pub fn order_by_desc_nulls_first(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -358,11 +364,11 @@ pub fn order_by_desc_nulls_first(
 ///
 pub fn order_by_desc_nulls_last(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
-    order_by: [order_by |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsLast)] |> OrderBy,
     append: True,
   )
 }
@@ -371,7 +377,7 @@ pub fn order_by_desc_nulls_last(
 ///
 pub fn replace_order_by_desc(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -386,7 +392,7 @@ pub fn replace_order_by_desc(
 ///
 pub fn replace_order_by_desc_nulls_first(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
@@ -401,11 +407,11 @@ pub fn replace_order_by_desc_nulls_first(
 ///
 pub fn replace_order_by_desc_nulls_last(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
 ) -> Combined {
   query
   |> read_query.combined_order_by(
-    order_by: [order_by |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsLast)] |> OrderBy,
     append: False,
   )
 }
@@ -416,7 +422,7 @@ pub fn replace_order_by_desc_nulls_last(
 ///
 pub fn order_by(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
   direction direction: Direction,
 ) -> Combined {
   let direction = direction |> map_order_by_direction_constructor
@@ -431,7 +437,7 @@ pub fn order_by(
 ///
 pub fn replace_order_by(
   query query: Combined,
-  by order_by: String,
+  order_by order_by: String,
   direction direction: Direction,
 ) -> Combined {
   let direction = direction |> map_order_by_direction_constructor
