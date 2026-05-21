@@ -168,8 +168,8 @@ pub fn distinct(select select: Select) -> Select {
 
 /// Gets the kind of the `Select` query.
 ///
-pub fn get_kind(select select: Select, kind kind: SelectKind) -> Select {
-  Select(..select, kind:)
+pub fn get_kind(select select: Select) -> SelectKind {
+  select.kind
 }
 
 // ▒▒▒ FROM ▒▒▒
