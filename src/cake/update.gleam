@@ -73,7 +73,7 @@ pub fn new() -> Update(a) {
   Update(
     modifier: NoUpdateModifier,
     table: NoUpdateTable,
-    sets: NoUpdateSets,
+    set: NoUpdateSets,
     from: NoFrom,
     join: NoJoins,
     where: NoWhere,
@@ -205,7 +205,7 @@ pub fn sets_sub_query(
 /// Get the `SET`s of the `Update` query.
 ///
 pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
-  case update.sets {
+  case update.set {
     NoUpdateSets -> []
     UpdateSets(sets) -> sets
   }
@@ -214,26 +214,26 @@ pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
 /// Sets or appends one column set in an `Update` query.
 ///
 pub fn set(update update: Update(a), set set: UpdateSet) -> Update(a) {
-  case update.sets {
-    NoUpdateSets -> Update(..update, sets: [set] |> UpdateSets)
+  case update.set {
+    NoUpdateSets -> Update(..update, set: [set] |> UpdateSets)
     UpdateSets(sets) ->
-      Update(..update, sets: sets |> list.append([set]) |> UpdateSets)
+      Update(..update, set: sets |> list.append([set]) |> UpdateSets)
   }
 }
 
 /// Sets or replaces one column set in an `Update` query.
 ///
 pub fn set_replace(update update: Update(a), set set: UpdateSet) -> Update(a) {
-  Update(..update, sets: [set] |> UpdateSets)
+  Update(..update, set: [set] |> UpdateSets)
 }
 
 /// Sets or appends many column sets n an `Update` query.
 ///
 pub fn sets(update update: Update(a), set sets: List(UpdateSet)) -> Update(a) {
-  case update.sets {
-    NoUpdateSets -> Update(..update, sets: sets |> UpdateSets)
+  case update.set {
+    NoUpdateSets -> Update(..update, set: sets |> UpdateSets)
     UpdateSets(existing_sets) ->
-      Update(..update, sets: existing_sets |> list.append(sets) |> UpdateSets)
+      Update(..update, set: existing_sets |> list.append(sets) |> UpdateSets)
   }
 }
 
@@ -243,7 +243,7 @@ pub fn sets_replace(
   update update: Update(a),
   sets sets: List(UpdateSet),
 ) -> Update(a) {
-  Update(..update, sets: sets |> UpdateSets)
+  Update(..update, set: sets |> UpdateSets)
 }
 
 // ▒▒▒ FROM ▒▒▒

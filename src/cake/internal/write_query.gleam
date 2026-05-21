@@ -613,7 +613,7 @@ pub type Update(a) {
     // with (_recursive?): ?, // v2
     table: UpdateTable,
     modifier: UpdateModifier,
-    sets: UpdateSets,
+    set: UpdateSets,
     from: From,
     join: Joins,
     where: Where,
@@ -665,7 +665,7 @@ fn update_apply(
   |> update_table_apply(update.table)
   |> update_modifier_apply(update.modifier)
   |> prepared_statement.append_sql(" SET")
-  |> update_set_apply(update.sets)
+  |> update_set_apply(update.set)
   |> read_query.from_clause_apply(update.from)
   |> read_query.join_clause_apply(update.join)
   |> read_query.where_clause_apply(update.where)
