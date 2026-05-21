@@ -238,7 +238,7 @@ pub fn combined_order_by(
 ) -> Combined {
   case append {
     True ->
-      Combined(..query, order_by: query.order_by |> order_by_append(order_by))
+      Combined(..query, order_by: query.order_by |> order_by_append(order_by:))
     False -> Combined(..query, order_by:)
   }
 }
@@ -302,7 +302,7 @@ pub fn select_order_by(
 ) -> Select {
   case append {
     True ->
-      Select(..query, order_by: query.order_by |> order_by_append(order_by))
+      Select(..query, order_by: query.order_by |> order_by_append(order_by:))
     False -> Select(..query, order_by:)
   }
 }
@@ -437,7 +437,7 @@ pub fn from_clause_apply(
 ///
 /// - `ANY` (`WhereAny*`),
 /// - `ALL` (`WhereAny*`) and,
-/// - `SIMILAR TO (WhereSimilarTo)`
+/// - `SIMILAR TO` (`WhereSimilarTo`)
 ///
 pub type Where {
   NoWhere
@@ -537,41 +537,58 @@ fn where_apply(
   case where {
     NoWhere -> prepared_statement
     AndWhere(wheres) ->
-      prepared_statement |> where_logical_operator_apply("AND", wheres, False)
+      prepared_statement
+      |> where_logical_operator_apply("AND", wheres, False)
     OrWhere(wheres) ->
-      prepared_statement |> where_logical_operator_apply("OR", wheres, True)
-    XorWhere(wheres) -> prepared_statement |> where_xor_apply(wheres)
+      prepared_statement
+      |> where_logical_operator_apply("OR", wheres, True)
+    XorWhere(wheres) ->
+      prepared_statement
+      |> where_xor_apply(wheres)
     XorParityWhere(wheres) ->
-      prepared_statement |> where_xor_parity_apply(wheres)
+      prepared_statement
+      |> where_xor_parity_apply(wheres)
     NotWhere(where) ->
       prepared_statement
       |> prepared_statement.append_sql("NOT(")
       |> where_apply(where)
       |> prepared_statement.append_sql(")")
     WhereIsBool(value, True) ->
-      prepared_statement |> where_literal_apply(value, "IS TRUE")
+      prepared_statement
+      |> where_literal_apply(value, "IS TRUE")
     WhereIsBool(value, False) ->
-      prepared_statement |> where_literal_apply(value, "IS FALSE")
+      prepared_statement
+      |> where_literal_apply(value, "IS FALSE")
     WhereIsNotBool(value, True) ->
-      prepared_statement |> where_literal_apply(value, "IS NOT TRUE")
+      prepared_statement
+      |> where_literal_apply(value, "IS NOT TRUE")
     WhereIsNotBool(value, False) ->
-      prepared_statement |> where_literal_apply(value, "IS NOT FALSE")
+      prepared_statement
+      |> where_literal_apply(value, "IS NOT FALSE")
     WhereIsNull(value) ->
-      prepared_statement |> where_literal_apply(value, "IS NULL")
+      prepared_statement
+      |> where_literal_apply(value, "IS NULL")
     WhereIsNotNull(value) ->
-      prepared_statement |> where_literal_apply(value, "IS NOT NULL")
+      prepared_statement
+      |> where_literal_apply(value, "IS NOT NULL")
     WhereComparison(value_a, Equal, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, "=", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, "=", value_b)
     WhereComparison(value_a, Greater, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, ">", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, ">", value_b)
     WhereComparison(value_a, GreaterOrEqual, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, ">=", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, ">=", value_b)
     WhereComparison(value_a, Lower, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, "<", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, "<", value_b)
     WhereComparison(value_a, LowerOrEqual, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, "<=", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, "<=", value_b)
     WhereComparison(value_a, Unequal, value_b) ->
-      prepared_statement |> where_comparison_apply(value_a, "<>", value_b)
+      prepared_statement
+      |> where_comparison_apply(value_a, "<>", value_b)
     WhereAnyOfSubQuery(value, Equal, query) ->
       prepared_statement
       |> where_literal_apply(value, "= ANY")
@@ -621,9 +638,11 @@ fn where_apply(
       |> where_literal_apply(value, "<> ALL")
       |> where_sub_query_apply(query)
     WhereBetween(value_a, value_b, value_c) ->
-      prepared_statement |> where_between_apply(value_a, value_b, value_c)
+      prepared_statement
+      |> where_between_apply(value_a, value_b, value_c)
     WhereIn(value, values) ->
-      prepared_statement |> where_value_in_values_apply(value, values)
+      prepared_statement
+      |> where_value_in_values_apply(value, values)
     WhereExistsInSubQuery(query) ->
       prepared_statement
       |> prepared_statement.append_sql(" EXISTS ")
@@ -650,7 +669,9 @@ fn where_apply(
         param |> StringParam |> WhereParamValue,
       )
       |> prepared_statement.append_sql(" ESCAPE '" <> escape_char <> "'")
-    WhereFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
+    WhereFragment(fragment) ->
+      prepared_statement
+      |> fragment_apply(fragment)
   }
 }
 
@@ -664,7 +685,8 @@ fn where_literal_apply(
       prepared_statement
       |> prepared_statement.append_sql(column <> " " <> literal)
     WhereParamValue(param) ->
-      prepared_statement |> prepared_statement.append_param(param)
+      prepared_statement
+      |> prepared_statement.append_param(param)
     WhereFragmentValue(fragment:) ->
       prepared_statement
       |> fragment_apply(fragment)
@@ -799,7 +821,9 @@ fn where_logical_operator_apply(
       prepared_statement,
       fn(new_prepared_statement: PreparedStatement, where: Where) -> PreparedStatement {
         case new_prepared_statement == prepared_statement {
-          True -> new_prepared_statement |> where_apply(where)
+          True ->
+            new_prepared_statement
+            |> where_apply(where)
           False ->
             new_prepared_statement
             |> prepared_statement.append_sql(" " <> operator <> " ")
@@ -858,8 +882,9 @@ fn where_xor_apply(
                 where_index == xor_index,
                 where_index
               {
-                True, 0 -> new_prepared_statement_per_xor |> where_apply(where)
-
+                True, 0 ->
+                  new_prepared_statement_per_xor
+                  |> where_apply(where)
                 True, _gt_0 ->
                   new_prepared_statement_per_xor
                   |> prepared_statement.append_sql(" AND (")
@@ -1172,7 +1197,7 @@ fn group_by_apply(
 ///
 pub type Joins {
   NoJoins
-  Joins(List(Join))
+  Joins(joins: List(Join))
 }
 
 /// The join target can be either a table or a sub-query.
@@ -1214,7 +1239,7 @@ pub fn join_clause_apply(
   joins joins: Joins,
 ) -> PreparedStatement {
   case joins {
-    Joins(joins) -> {
+    Joins(joins:) -> {
       joins
       |> list.fold(
         prepared_statement,
@@ -1298,7 +1323,7 @@ pub fn join_apply(
 ///
 pub type OrderBy {
   NoOrderBy
-  OrderBy(values: List(OrderByValue))
+  OrderBy(order_bys: List(OrderByValue))
 }
 
 /// Order by values can be either a column or a fragment.
@@ -1330,21 +1355,25 @@ pub type OrderByDirection {
   DescNullsLast
 }
 
-fn order_by_append(query_order_by: OrderBy, new_order_by: OrderBy) -> OrderBy {
-  case query_order_by {
-    NoOrderBy -> new_order_by
-    OrderBy(query_order_by_items) -> {
-      let new_order_by_items = case new_order_by {
+fn order_by_append(
+  existing_order_by existing_order_by: OrderBy,
+  order_by order_by: OrderBy,
+) -> OrderBy {
+  case existing_order_by {
+    NoOrderBy -> order_by
+    // FIXME TODO this code is hardly readable
+    OrderBy(order_bys: existing_order_by_items) -> {
+      let order_by_items = case order_by {
         NoOrderBy -> []
-        OrderBy(new_order_by) -> new_order_by
+        OrderBy(order_bys:) -> order_bys
       }
-      let new_order_by_item = case query_order_by_items {
-        [] -> new_order_by_items
-        _ -> query_order_by_items |> list.append(new_order_by_items)
+      let order_by_item = case existing_order_by_items {
+        [] -> order_by_items
+        _ -> existing_order_by_items |> list.append(order_by_items)
       }
-      case new_order_by_item {
+      case order_by_item {
         [] -> NoOrderBy
-        _ -> OrderBy(new_order_by_item)
+        _ -> OrderBy(order_by_item)
       }
     }
   }
@@ -1356,12 +1385,13 @@ fn order_by_clause_apply(
 ) -> PreparedStatement {
   case order_by {
     NoOrderBy -> prepared_statement
-    OrderBy(order_bys) -> {
+    OrderBy(order_bys:) -> {
       case order_bys {
         [] -> prepared_statement
         vs -> {
           let prepared_statement =
             prepared_statement |> prepared_statement.append_sql(" ORDER BY ")
+
           vs
           |> list.fold(
             prepared_statement,
@@ -1386,13 +1416,13 @@ fn order_by_value_apply(
   value value: OrderByValue,
 ) -> PreparedStatement {
   case value {
-    OrderByColumn(column, direction) ->
+    OrderByColumn(column:, direction:) ->
       prepared_statement
       |> prepared_statement.append_sql(column)
       |> prepared_statement.append_sql(
         " " <> direction |> order_by_direction_to_sql,
       )
-    OrderByFragment(fragment, direction) ->
+    OrderByFragment(fragment:, direction:) ->
       prepared_statement
       |> fragment_apply(fragment)
       |> prepared_statement.append_sql(
@@ -1448,7 +1478,7 @@ fn limit_clause_apply(
     NoLimit -> ""
     Limit(limit:) -> " LIMIT " <> limit |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement, _)
+  |> prepared_statement.append_sql(prepared_statement:)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1479,7 +1509,7 @@ fn offset_clause_apply(
     NoOffset -> ""
     Offset(offset:) -> " OFFSET " <> offset |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement, _)
+  |> prepared_statement.append_sql(prepared_statement:)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1506,8 +1536,8 @@ pub fn epilog_apply(
 ) -> PreparedStatement {
   case epilog {
     NoEpilog -> prepared_statement
-    Epilog(string: epilog_string) ->
-      prepared_statement |> prepared_statement.append_sql(epilog_string)
+    Epilog(string:) ->
+      prepared_statement |> prepared_statement.append_sql(string)
   }
 }
 
@@ -1531,15 +1561,13 @@ pub fn comment_apply(
 ) -> PreparedStatement {
   case comment {
     NoComment -> prepared_statement
-    Comment(string: comment) ->
-      case
-        comment |> string.contains("\n") || comment |> string.contains("\r")
-      {
+    Comment(string:) ->
+      case string |> string.contains("\n") || string |> string.contains("\r") {
         True ->
           prepared_statement
           |> prepared_statement.append_sql(
             " /* "
-            <> comment
+            <> string
             |> string.trim
             |> string.replace(each: "*/", with: "* /")
             |> string.replace(each: "/*", with: "/ *")
@@ -1547,7 +1575,7 @@ pub fn comment_apply(
           )
         False ->
           prepared_statement
-          |> prepared_statement.append_sql(" -- " <> comment |> string.trim)
+          |> prepared_statement.append_sql(" -- " <> string |> string.trim)
       }
   }
 }
@@ -1605,7 +1633,7 @@ pub fn fragment_prepared_split_string(
       // add it as a single item.
       False, [] -> [grapheme]
       // If the previous item matches a placeholder, we don't want to append
-      // to it, because we want placeholders to exist as separat single items.
+      // to it, because we want placeholders to exist as separate single items.
       False, [x, ..] if x == fragment_placeholder_grapheme -> [
         grapheme,
         ..accumulator
@@ -1645,46 +1673,37 @@ pub fn fragment_apply(
         fragment_placeholder_count |> int.compare(with: params_count)
       {
         // Expected match: No user error
-        order.Eq -> {
-          params
-        }
+        order.Eq -> params
         // User error: Too many params or not enough placeholders
-        order.Lt -> {
+        order.Lt ->
           // If there are more params than placeholders, we take the first `n`
           // params where `n` is the number of placeholders, and discard the
           // rest.
-
           // TODO: consider logger.warning at runtime.
-          params |> list.take(fragment_placeholder_count)
-        }
+          params |> list.take(up_to: fragment_placeholder_count)
         // User error: Not enough params or too many placeholders
         order.Gt -> {
           case params |> list.last {
             Ok(last_item) -> {
               // If there are more placeholders than params, we repeat the last
               // param until the number of placeholders is reached.
-              let missing_params = fragment_placeholder_count - params_count
-              let repeated_last_item = last_item |> list.repeat(missing_params)
-
+              let missing_params_count =
+                fragment_placeholder_count - params_count
+              let repeated_last_item =
+                last_item |> list.repeat(times: missing_params_count)
               // TODO: consider logger.warning at runtime.
-
               params |> list.append(repeated_last_item)
             }
             // Unreachable, because of the match above:
             // `FragmentPrepared(fragment:, params: []) ->`
-            Error(Nil) -> {
-              params
-            }
+            Error(Nil) -> params
           }
         }
       }
 
       case fragments {
         // NOOP on no fragments
-        [] -> {
-          // TODO: consider logger.info at runtime.
-          prepared_statement
-        }
+        [] -> prepared_statement
         // Some fragments
         fragments -> {
           let #(new_prepared_statement, _param_rest) =
@@ -1730,7 +1749,7 @@ pub fn fragment_count_placeholders(
   string_fragments string_fragments: List(String),
 ) -> Int {
   string_fragments
-  |> list.fold(0, fn(count: Int, string_fragment: String) -> Int {
+  |> list.fold(from: 0, with: fn(count: Int, string_fragment: String) -> Int {
     case string_fragment == fragment_placeholder_grapheme {
       True -> count + 1
       False -> count

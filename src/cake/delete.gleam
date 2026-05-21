@@ -251,7 +251,7 @@ pub fn get_using(delete delete: Delete(a)) -> List(From) {
 ///
 pub fn join(delete delete: Delete(a), join join: Join) -> Delete(a) {
   case delete.join {
-    Joins(joins) ->
+    Joins(values: joins) ->
       Delete(..delete, join: joins |> list.append([join]) |> Joins)
     NoJoins -> Delete(..delete, join: [join] |> Joins)
   }
@@ -274,7 +274,7 @@ pub fn replace_join(delete delete: Delete(a), join join: Join) -> Delete(a) {
 pub fn joins(delete delete: Delete(a), joins joins: List(Join)) -> Delete(a) {
   case joins, delete.join {
     [], _ -> Delete(..delete, join: joins |> Joins)
-    joins, Joins(delete_joins) ->
+    joins, Joins(values: delete_joins) ->
       Delete(..delete, join: delete_joins |> list.append(joins) |> Joins)
     joins, NoJoins -> Delete(..delete, join: joins |> Joins)
   }

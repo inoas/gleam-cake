@@ -331,7 +331,7 @@ pub fn get_select(select select: Select) -> Selects {
 ///
 pub fn join(select select: Select, join join: Join) -> Select {
   case select.join {
-    Joins(joins) ->
+    Joins(values: joins) ->
       Select(..select, join: joins |> list.append([join]) |> Joins)
     NoJoins -> Select(..select, join: [join] |> Joins)
   }

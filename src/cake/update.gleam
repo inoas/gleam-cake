@@ -288,7 +288,7 @@ pub fn get_from(update update: Update(a)) -> From {
 ///
 pub fn join(update update: Update(a), join join: Join) -> Update(a) {
   case update.join {
-    Joins(joins) ->
+    Joins(values: joins) ->
       Update(..update, join: joins |> list.append([join]) |> Joins)
     NoJoins -> Update(..update, join: [join] |> Joins)
   }

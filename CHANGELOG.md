@@ -8,7 +8,7 @@ and this project adheres to
 ## [Unreleased]
 -->
 
-## [4.0.0] - 2026-05-21
+## [4.0.0] - 2026-05-22
 
 ### Breaking changes
 
@@ -68,8 +68,9 @@ and this project adheres to
 - Added support for fragments in Inserts and Updates. Thanks to @qwexvf.
   This adds constructors to the public `InsertValue` / `UpdateSet` union types,
   which can break downstream compilation for exhaustive pattern matches.
-  This is MOST LIKELY not a breaking change, unless if only the builder
-  functions have been used.
+
+  This is MOST LIKELY not a breaking change, if only the builder
+  functions have been use to construct inserts.
 
 ## [2.2.2] - 2026-04-26
 
