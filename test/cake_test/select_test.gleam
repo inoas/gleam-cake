@@ -1,5 +1,6 @@
 import birdie
 import cake/fragment as f
+import cake/internal/read_query
 import cake/select as s
 import pprint.{format as to_string}
 import test_helper/maria_test_helper
@@ -107,4 +108,54 @@ pub fn select_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("select_execution_result_test")
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │ Unit Tests                                                                │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// `replace_select` must discard existing selects and keep only the new one.
+///
+/// Before the fix, the `Selects(_)` branch appended to the existing list
+/// instead of replacing it, so calling `replace_select(col("c"))` on a query
+/// that already had `[col("a"), col("b")]` would produce
+/// `[col("a"), col("b"), col("c")]` rather than `[col("c")]`.
+///
+pub fn replace_select_replaces_existing_test() {
+  assert s.new()
+    |> s.selects([s.col("a"), s.col("b")])
+    |> s.replace_select(s.col("c"))
+    |> s.get_select
+    == read_query.Selects([read_query.SelectColumn("c")])
+}
+
+/// `replace_selects` must discard existing selects and keep only the new list.
+///
+/// Same root cause as `replace_select`: the `Selects(_)` branch was appending
+/// rather than replacing, so `replace_selects([col("c"), col("d")])` on a
+/// query with `[col("a"), col("b")]` would wrongly yield all four columns.
+///
+pub fn replace_selects_replaces_existing_test() {
+  assert s.new()
+    |> s.selects([s.col("a"), s.col("b")])
+    |> s.replace_selects([s.col("c"), s.col("d")])
+    |> s.get_select
+    == read_query.Selects([
+      read_query.SelectColumn("c"),
+      read_query.SelectColumn("d"),
+    ])
+}
+
+/// When the replacement list is empty, `replace_selects` must leave the
+/// existing selects unchanged (the `[], _` guard).
+///
+pub fn replace_selects_empty_list_is_noop_test() {
+  assert s.new()
+    |> s.selects([s.col("a"), s.col("b")])
+    |> s.replace_selects([])
+    |> s.get_select
+    == read_query.Selects([
+      read_query.SelectColumn("a"),
+      read_query.SelectColumn("b"),
+    ])
 }

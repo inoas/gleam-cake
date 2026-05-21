@@ -256,11 +256,7 @@ pub fn replace_select(
 ) -> Select {
   case select.select {
     NoSelects -> Select(..select, select: [select_value] |> Selects)
-    Selects(existing_selects) ->
-      Select(
-        ..select,
-        select: existing_selects |> list.append([select_value]) |> Selects,
-      )
+    Selects(_) -> Select(..select, select: [select_value] |> Selects)
   }
 }
 
@@ -318,11 +314,8 @@ pub fn replace_selects(
     [], _ -> select
     select_values, NoSelects ->
       Select(..select, select: select_values |> Selects)
-    select_values, Selects(existing_selects) ->
-      Select(
-        ..select,
-        select: existing_selects |> list.append(select_values) |> Selects,
-      )
+    select_values, Selects(_) ->
+      Select(..select, select: select_values |> Selects)
   }
 }
 
