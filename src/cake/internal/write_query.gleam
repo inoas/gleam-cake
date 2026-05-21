@@ -566,16 +566,12 @@ fn insert_on_conflict_apply(
     InsertConflictError -> prepared_statement
     InsertConflictIgnore(target:, where:) ->
       prepared_statement
-      |> prepared_statement.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(target)
-      |> prepared_statement.append_sql(")")
       |> read_query.where_clause_apply(where)
       |> prepared_statement.append_sql(" DO NOTHING")
     InsertConflictUpdate(target: target, where:, update:) ->
       prepared_statement
-      |> prepared_statement.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(target)
-      |> prepared_statement.append_sql(")")
       |> prepared_statement.append_sql(" DO ")
       |> update_apply(update)
       |> read_query.where_clause_apply(where)
@@ -589,9 +585,13 @@ fn insert_on_conflict_target_apply(
   case target {
     InsertConflictTarget(columns:) ->
       prepared_statement
+      |> prepared_statement.append_sql(" ON CONFLICT (")
       |> prepared_statement.append_sql(columns |> string.join(", "))
+      |> prepared_statement.append_sql(")")
     InsertConflictTargetConstraint(constraint:) ->
-      prepared_statement |> prepared_statement.append_sql(constraint)
+      prepared_statement
+      |> prepared_statement.append_sql(" ON CONFLICT ON CONSTRAINT ")
+      |> prepared_statement.append_sql(constraint)
   }
 }
 
