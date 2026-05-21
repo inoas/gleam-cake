@@ -76,7 +76,7 @@ fn returning_apply(
     Returning(columns:) ->
       prepared_statement
       |> prepared_statement.append_sql(" RETURNING ")
-      |> prepared_statement.append_sql(columns |> string.join(", "))
+      |> prepared_statement.append_sql(columns |> string.join(with: ", "))
   }
 }
 
@@ -256,7 +256,7 @@ fn insert_columns_apply(
     InsertColumns(columns:) ->
       prepared_statement
       |> prepared_statement.append_sql(
-        " (" <> columns |> string.join(", ") <> ")",
+        " (" <> columns |> string.join(with: ", ") <> ")",
       )
   }
 }
@@ -287,13 +287,13 @@ fn insert_conflict_ignore_maria_mysql_apply(
       let row_values = case insert.source {
         InsertSourceRows(rows) ->
           rows
-          |> list.map(fn(r) {
+          |> list.map(with: fn(r) {
             let InsertRow(row) = r
             row
           })
         InsertSourceRecords(records:, encoder:) ->
           records
-          |> list.map(fn(r) {
+          |> list.map(with: fn(r) {
             let InsertRow(row) = r |> encoder
             row
           })
@@ -344,21 +344,29 @@ fn insert_select_not_exists_rows_apply(
   target_cols target_cols: List(String),
 ) -> PreparedStatement {
   rows
-  |> list.fold(prepared_statement, fn(new_prepared_statement, values) {
-    let new_prepared_statement = case
-      new_prepared_statement == prepared_statement
-    {
-      True ->
-        new_prepared_statement
-        |> prepared_statement.append_sql(" SELECT ")
-      False ->
-        new_prepared_statement
-        |> prepared_statement.append_sql(" UNION ALL SELECT ")
-    }
-    new_prepared_statement
-    |> row_apply(values)
-    |> insert_not_exists_where_apply(values, col_names, table_name, target_cols)
-  })
+  |> list.fold(
+    from: prepared_statement,
+    with: fn(new_prepared_statement, values) {
+      let new_prepared_statement = case
+        new_prepared_statement == prepared_statement
+      {
+        True ->
+          new_prepared_statement
+          |> prepared_statement.append_sql(" SELECT ")
+        False ->
+          new_prepared_statement
+          |> prepared_statement.append_sql(" UNION ALL SELECT ")
+      }
+      new_prepared_statement
+      |> row_apply(values)
+      |> insert_not_exists_where_apply(
+        values,
+        col_names,
+        table_name,
+        target_cols,
+      )
+    },
+  )
 }
 
 /// Appends `WHERE NOT EXISTS (SELECT 1 FROM <table> WHERE <col> = ? … FOR UPDATE)`
@@ -373,8 +381,8 @@ fn insert_not_exists_where_apply(
   target_cols target_cols: List(String),
 ) -> PreparedStatement {
   let target_col_values =
-    list.zip(col_names, row_values)
-    |> list.filter(fn(pair) { list.contains(target_cols, pair.0) })
+    list.zip(col_names, with: row_values)
+    |> list.filter(keeping: fn(pair) { list.contains(target_cols, any: pair.0) })
 
   case target_col_values {
     [] -> prepared_statement
@@ -386,28 +394,31 @@ fn insert_not_exists_where_apply(
         )
       let prepared_statement =
         target_col_values
-        |> list.fold(prepared_statement, fn(new_prepared_statement, pair) {
-          let #(col_name, insert_value) = pair
-          let new_prepared_statement = case
-            new_prepared_statement == prepared_statement
-          {
-            True -> new_prepared_statement
-            False ->
-              new_prepared_statement
-              |> prepared_statement.append_sql(" AND ")
-          }
-          case insert_value {
-            InsertParam(param) ->
-              new_prepared_statement
-              |> prepared_statement.append_sql(col_name <> " = ")
-              |> prepared_statement.append_param(param)
-            InsertDefault -> new_prepared_statement
-            InsertFragment(fragment) ->
-              new_prepared_statement
-              |> prepared_statement.append_sql(col_name <> " = ")
-              |> read_query.fragment_apply(fragment)
-          }
-        })
+        |> list.fold(
+          from: prepared_statement,
+          with: fn(new_prepared_statement, pair) {
+            let #(col_name, insert_value) = pair
+            let new_prepared_statement = case
+              new_prepared_statement == prepared_statement
+            {
+              True -> new_prepared_statement
+              False ->
+                new_prepared_statement
+                |> prepared_statement.append_sql(" AND ")
+            }
+            case insert_value {
+              InsertParam(param) ->
+                new_prepared_statement
+                |> prepared_statement.append_sql(col_name <> " = ")
+                |> prepared_statement.append_param(param)
+              InsertDefault -> new_prepared_statement
+              InsertFragment(fragment) ->
+                new_prepared_statement
+                |> prepared_statement.append_sql(col_name <> " = ")
+                |> read_query.fragment_apply(fragment)
+            }
+          },
+        )
       prepared_statement
       |> prepared_statement.append_sql(" FOR UPDATE)")
     }
@@ -458,8 +469,8 @@ fn insert_from_params_apply(
   let prepared_statement =
     source
     |> list.fold(
-      prepared_statement,
-      fn(new_prepared_statement: PreparedStatement, record: a) -> PreparedStatement {
+      from: prepared_statement,
+      with: fn(new_prepared_statement: PreparedStatement, record: a) -> PreparedStatement {
         let InsertRow(row) = record |> row_encoder
         case new_prepared_statement == prepared_statement {
           True -> new_prepared_statement |> row_apply(row)
@@ -485,8 +496,8 @@ fn insert_from_values_apply(
   let prepared_statement =
     source
     |> list.fold(
-      prepared_statement,
-      fn(new_prepared_statement: PreparedStatement, row: InsertRow) -> PreparedStatement {
+      from: prepared_statement,
+      with: fn(new_prepared_statement: PreparedStatement, row: InsertRow) -> PreparedStatement {
         let InsertRow(row) = row
         case new_prepared_statement == prepared_statement {
           True -> new_prepared_statement |> row_apply(row)
@@ -509,8 +520,8 @@ fn row_apply(
 ) -> PreparedStatement {
   row
   |> list.fold(
-    new_prepared_statement,
-    fn(
+    from: new_prepared_statement,
+    with: fn(
       new_prepared_statement_inner: PreparedStatement,
       insert_value: InsertValue,
     ) -> PreparedStatement {
@@ -590,7 +601,7 @@ fn insert_on_conflict_target_apply(
     InsertConflictTarget(columns:) ->
       prepared_statement
       |> prepared_statement.append_sql(" ON CONFLICT (")
-      |> prepared_statement.append_sql(columns |> string.join(", "))
+      |> prepared_statement.append_sql(columns |> string.join(with: ", "))
       |> prepared_statement.append_sql(")")
     InsertConflictTargetConstraint(constraint:) ->
       prepared_statement
@@ -724,7 +735,7 @@ fn update_sets_apply(
       [_column, ..] ->
         new_prepared_statement
         |> prepared_statement.append_sql(
-          " (" <> columns |> string.join(", ") <> ")",
+          " (" <> columns |> string.join(with: ", ") <> ")",
         )
         |> prepared_statement.append_sql(" =")
     }
@@ -732,8 +743,8 @@ fn update_sets_apply(
 
   update_sets
   |> list.fold(
-    prepared_statement,
-    fn(new_prepared_statement: PreparedStatement, update_set: UpdateSet) -> PreparedStatement {
+    from: prepared_statement,
+    with: fn(new_prepared_statement: PreparedStatement, update_set: UpdateSet) -> PreparedStatement {
       let new_prepared_statement = case
         new_prepared_statement == prepared_statement
       {
@@ -870,8 +881,8 @@ fn using_apply(
 
       froms
       |> list.fold(
-        prepared_statement,
-        fn(new_prepared_statement: PreparedStatement, from: From) -> PreparedStatement {
+        from: prepared_statement,
+        with: fn(new_prepared_statement: PreparedStatement, from: From) -> PreparedStatement {
           let new_prepared_statement = case
             new_prepared_statement == prepared_statement,
             from

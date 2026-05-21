@@ -424,7 +424,7 @@ pub fn no_epilog(delete delete: Delete(a)) -> Delete(a) {
   Delete(..delete, epilog: NoEpilog)
 }
 
-/// Get the epilogue from an `Delete` query.
+/// Get the epilogue from a `Delete` query.
 ///
 pub fn get_epilog(delete delete: Delete(a)) -> Epilog {
   delete.epilog
@@ -448,7 +448,7 @@ pub fn no_comment(delete delete: Delete(a)) -> Delete(a) {
   Delete(..delete, comment: NoComment)
 }
 
-/// Get the comment from an `Delete` query.
+/// Get the comment from a `Delete` query.
 ///
 pub fn get_comment(delete delete: Delete(a)) -> Comment {
   delete.comment

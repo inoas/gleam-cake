@@ -41,8 +41,8 @@ pub fn append_param(
   param new_param: Param,
 ) {
   let new_sql =
-    prepared_statement |> next_placeholder(prepared_statement.dialect)
-  prepared_statement |> append_sql_and_param(new_sql, new_param)
+    prepared_statement |> next_placeholder(dialect: prepared_statement.dialect)
+  prepared_statement |> append_sql_and_param(sql: new_sql, param: new_param)
 }
 
 /// Appends arbitrary SQL to the prepared statement.
@@ -116,7 +116,7 @@ fn append_sql_and_params(
     ..prepared_statement,
     sql: prepared_statement.sql <> new_sql,
     params: prepared_statement.params |> list.append(new_params),
-    index: prepared_statement.index + list.length(new_params),
+    index: prepared_statement.index + list.length(of: new_params),
   )
 }
 

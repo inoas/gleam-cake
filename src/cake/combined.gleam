@@ -61,7 +61,7 @@ pub fn to_query(combined combined: Combined) -> ReadQuery {
 /// Creates a `UNION` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn union(query_a query_a: Select, query_b query_b: Select) -> Combined {
-  UnionDistinct |> read_query.combined_query_new([query_a, query_b])
+  UnionDistinct |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates a `UNION` query out of two or more queries as a `Combined`
@@ -73,13 +73,13 @@ pub fn unions(
   more_queries more_queries: List(Select),
 ) -> Combined {
   UnionDistinct
-  |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates a `UNION ALL` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn union_all(query_a query_a: Select, query_b query_b: Select) -> Combined {
-  UnionAll |> read_query.combined_query_new([query_a, query_b])
+  UnionAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates a `UNION ALL` query out of two or more queries as a `Combined`
@@ -92,13 +92,14 @@ pub fn unions_all(
   query_b query_b: Select,
   more_queries more_queries: List(Select),
 ) -> Combined {
-  UnionAll |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  UnionAll
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `EXCEPT` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn except(query_a query_a: Select, query_b query_b: Select) -> Combined {
-  ExceptDistinct |> read_query.combined_query_new([query_a, query_b])
+  ExceptDistinct |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `EXCEPT` query out of two or more queries as a `Combined`
@@ -110,7 +111,7 @@ pub fn excepts(
   more_queries more_queries: List(Select),
 ) -> Combined {
   ExceptDistinct
-  |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `EXCEPT ALL` query out of two queries as a `Combined`
@@ -122,7 +123,7 @@ pub fn except_all(
   query_a query_a: Select,
   query_b query_b: Select,
 ) -> Combined {
-  ExceptAll |> read_query.combined_query_new([query_a, query_b])
+  ExceptAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `EXCEPT ALL` query out of two or more queries as a `Combined`
@@ -135,13 +136,15 @@ pub fn excepts_all(
   query_b query_b: Select,
   more_queries more_queries: List(Select),
 ) -> Combined {
-  ExceptAll |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  ExceptAll
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `INTERSECT` query out of two queries as a `Combined` `ReadQuery`.
 ///
 pub fn intersect(query_a query_a: Select, query_b query_b: Select) -> Combined {
-  IntersectDistinct |> read_query.combined_query_new([query_a, query_b])
+  IntersectDistinct
+  |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `INTERSECT` query out of two or more queries as a `Combined`
@@ -153,7 +156,7 @@ pub fn intersects(
   more_queries more_queries: List(Select),
 ) -> Combined {
   IntersectDistinct
-  |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `INTERSECT ALL` query out of two queries as a `Combined`
@@ -165,7 +168,7 @@ pub fn intersect_all(
   query_a query_a: Select,
   query_b query_b: Select,
 ) -> Combined {
-  IntersectAll |> read_query.combined_query_new([query_a, query_b])
+  IntersectAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `INTERSECT ALL` query out of two or more queries as a `Combined`
@@ -179,7 +182,7 @@ pub fn intersects_all(
   more_queries more_queries: List(Select),
 ) -> Combined {
   IntersectAll
-  |> read_query.combined_query_new([query_a, query_b, ..more_queries])
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Gets the queries from a `Combined` `ReadQuery`.
@@ -428,8 +431,8 @@ pub fn order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    [order_by |> OrderByColumn(direction:)] |> OrderBy,
-    True,
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: True,
   )
 }
 
@@ -443,8 +446,8 @@ pub fn replace_order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    [order_by |> OrderByColumn(direction:)] |> OrderBy,
-    False,
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: False,
   )
 }
 

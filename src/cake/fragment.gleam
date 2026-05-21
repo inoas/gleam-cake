@@ -58,7 +58,7 @@ pub fn prepared(string string: String, params params: List(Param)) -> Fragment {
   case
     placeholder_count,
     param_count,
-    placeholder_count |> int.compare(param_count)
+    placeholder_count |> int.compare(with: param_count)
   {
     0, 0, order.Eq -> {
       string |> read_query.FragmentLiteral

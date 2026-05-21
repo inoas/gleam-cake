@@ -215,7 +215,9 @@ pub fn select_col(select select: Select, name name: String) -> Select {
     Selects(existing_selects) ->
       Select(
         ..select,
-        select: existing_selects |> list.append([select_value]) |> Selects,
+        select: existing_selects
+          |> list.append([select_value])
+          |> Selects,
       )
   }
 }
@@ -233,7 +235,9 @@ pub fn select(
     Selects(existing_selects) ->
       Select(
         ..select,
-        select: existing_selects |> list.append([select_value]) |> Selects,
+        select: existing_selects
+          |> list.append([select_value])
+          |> Selects,
       )
   }
 }
@@ -268,7 +272,7 @@ pub fn select_cols(
   select select: Select,
   select_cols columns: List(String),
 ) -> Select {
-  columns |> list.map(col) |> selects(select:)
+  columns |> list.map(with: col) |> selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
@@ -286,7 +290,9 @@ pub fn selects(
     select_values, Selects(existing_selects) ->
       Select(
         ..select,
-        select: existing_selects |> list.append(select_values) |> Selects,
+        select: existing_selects
+          |> list.append(select_values)
+          |> Selects,
       )
   }
 }
@@ -299,7 +305,7 @@ pub fn replace_select_cols(
   select select: Select,
   select_cols columns: List(String),
 ) -> Select {
-  columns |> list.map(col) |> replace_selects(select:)
+  columns |> list.map(with: col) |> replace_selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
@@ -576,7 +582,9 @@ pub fn group_bys(
     GroupBy(existing_group_bys) ->
       Select(
         ..select,
-        group_by: existing_group_bys |> list.append(group_bys) |> GroupBy,
+        group_by: existing_group_bys
+          |> list.append(group_bys)
+          |> GroupBy,
       )
   }
 }
@@ -855,8 +863,8 @@ pub fn order_by(
   let direction = direction |> map_order_by_direction_constructor
   select
   |> read_query.select_order_by(
-    [order_by |> OrderByColumn(direction)] |> OrderBy,
-    True,
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: True,
   )
 }
 
@@ -870,8 +878,8 @@ pub fn replace_order_by(
   let direction = direction |> map_order_by_direction_constructor
   select
   |> read_query.select_order_by(
-    [order_by |> OrderByColumn(direction)] |> OrderBy,
-    False,
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: False,
   )
 }
 
