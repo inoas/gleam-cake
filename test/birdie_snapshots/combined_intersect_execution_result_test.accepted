@@ -1,7 +1,7 @@
 ---
-version: 1.4.1
+version: 2.0.0
 title: combined_intersect_execution_result_test
-file: ./test/cake_test/combined_test.gleam
+file: ./../test/cake_test/combined_test.gleam
 test_name: combined_intersect_execution_result_test
 ---
 #(

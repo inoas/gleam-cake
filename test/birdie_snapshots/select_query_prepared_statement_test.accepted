@@ -1,7 +1,7 @@
 ---
-version: 1.2.3
+version: 2.0.0
 title: select_query_prepared_statement_test
-file: ./test/cake_test/select_query_test.gleam
+file: ./../test/cake_test/select_query_test.gleam
 test_name: select_query_prepared_statement_test
 ---
 #(

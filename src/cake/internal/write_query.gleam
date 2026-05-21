@@ -697,7 +697,7 @@ fn using_apply(
               new_prepared_statement
               |> prepared_statement.append_sql(table_name)
             FromSubQuery(query, alias) ->
-              prepared_statement
+              new_prepared_statement
               |> prepared_statement.append_sql(" (")
               |> read_query.apply(query)
               |> prepared_statement.append_sql(") AS " <> alias)

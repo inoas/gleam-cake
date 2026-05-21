@@ -580,8 +580,11 @@ pub fn group_bys(
 ) -> Select {
   case select.group_by {
     NoGroupBy -> Select(..select, group_by: group_bys |> GroupBy)
-    GroupBy(group_bys) ->
-      Select(..select, group_by: group_bys |> list.append(group_bys) |> GroupBy)
+    GroupBy(existing_group_bys) ->
+      Select(
+        ..select,
+        group_by: existing_group_bys |> list.append(group_bys) |> GroupBy,
+      )
   }
 }
 

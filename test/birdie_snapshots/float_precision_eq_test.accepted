@@ -1,6 +1,8 @@
 ---
 version: 2.0.0
 title: float_precision_eq_test
+file: ./../test/adapter_tests/float_precision_test.gleam
+test_name: float_precision_eq_test
 ---
 SelectQuery(Select(
   SelectAll,

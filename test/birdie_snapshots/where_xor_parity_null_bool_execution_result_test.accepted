@@ -1,6 +1,8 @@
 ---
 version: 2.0.0
 title: where_xor_parity_null_bool_execution_result_test
+file: ./../test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_null_bool_execution_result_test
 ---
 #(
   Ok([

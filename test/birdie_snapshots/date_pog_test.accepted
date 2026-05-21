@@ -1,7 +1,7 @@
 ---
-version: 1.4.1
+version: 2.0.0
 title: date_pog_test
-file: ./test/cake_test/date_test.gleam
+file: ./../test/cake_test/date_test.gleam
 test_name: date_pog_test
 ---
 SelectQuery(Select(

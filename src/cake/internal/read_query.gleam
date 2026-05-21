@@ -1033,9 +1033,19 @@ fn where_value_in_values_apply(
           |> prepared_statement.append_sql(new_prepared_statement, _)
           |> prepared_statement.append_param(param)
         WhereFragmentValue(fragment) ->
-          prepared_statement |> fragment_apply(fragment)
+          case new_prepared_statement == prepared_statement {
+            True -> new_prepared_statement
+            False ->
+              new_prepared_statement |> prepared_statement.append_sql(", ")
+          }
+          |> fragment_apply(fragment)
         WhereSubQueryValue(query) ->
-          prepared_statement |> where_sub_query_apply(query)
+          case new_prepared_statement == prepared_statement {
+            True -> new_prepared_statement
+            False ->
+              new_prepared_statement |> prepared_statement.append_sql(", ")
+          }
+          |> where_sub_query_apply(query)
       }
     },
   )

@@ -1,4 +1,7 @@
 import birdie
+import cake
+import cake/fragment as f
+import cake/param as p
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}
@@ -70,4 +73,105 @@ pub fn where_in_query_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("where_in_query_execution_result_test")
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │ Unit Tests                                                                │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// `IN` list with a `WhereParamValue` followed by a `WhereFragmentValue`.
+///
+/// The fragment must use the running prepared-statement accumulator so the
+/// preceding param is not discarded; before the fix it would have been,
+/// causing `IntParam(1)` to be lost and the fragment's param to receive
+/// placeholder index `$1` instead of `$2`.
+///
+pub fn where_in_fragment_value_prepared_statement_accumulator_test() {
+  let query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.select(s.col("name"))
+    |> s.where(
+      w.col("cats.age")
+      |> w.in([
+        w.int(1),
+        w.fragment_value(f.prepared(f.placeholder, [f.int(2)])),
+      ]),
+    )
+    |> s.to_query
+
+  let expected_params = [p.IntParam(1), p.IntParam(2)]
+
+  assert query
+    |> postgres.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> sqlite.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> maria.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> mysql.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+}
+
+/// `IN` list with a `WhereParamValue`, a parameterless `WhereSubQueryValue`,
+/// and another `WhereParamValue`.
+///
+/// The sub-query must use the running prepared-statement accumulator so the
+/// preceding param is not discarded and the trailing param's placeholder index
+/// continues correctly; before the fix the accumulator would have been reset,
+/// causing `StringParam("Alice")` to be lost and `StringParam("Bob")` to
+/// receive placeholder index `$1` instead of `$2`.
+///
+pub fn where_in_sub_query_value_prepared_statement_accumulator_test() {
+  let new_sub_q =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("name"))
+    |> s.to_query
+
+  let query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.select(s.col("name"))
+    |> s.where(
+      w.col("cats.name")
+      |> w.in([
+        w.string("Alice"),
+        w.sub_query(new_sub_q),
+        w.string("Bob"),
+      ]),
+    )
+    |> s.to_query
+
+  let expected_params = [p.StringParam("Alice"), p.StringParam("Bob")]
+
+  assert query
+    |> postgres.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> sqlite.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> maria.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> mysql.read_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
 }

@@ -1,7 +1,9 @@
 import birdie
+import cake
 import cake/delete as d
 import cake/fragment as f
 import cake/join as j
+import cake/param as p
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}
@@ -125,4 +127,60 @@ pub fn delete_execution_result_test() {
   #(pgo, lit, #(mdb_exec, mdb_cnt), #(myq_exec, myq_cnt))
   |> to_string
   |> birdie.snap("delete_execution_result_test")
+}
+
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │ Unit Tests                                                                │
+// └───────────────────────────────────────────────────────────────────────────┘
+
+/// Two `USING` sub-queries, each carrying its own parameter.
+///
+/// The second sub-query must not reset the prepared-statement accumulator to
+/// the outer state; before the fix it would have, causing `StringParam("Alice")`
+/// to be discarded and `StringParam("Bob")` to receive placeholder index `$1`
+/// instead of `$2`.
+///
+pub fn delete_using_from_sub_query_prepared_statement_accumulator_test() {
+  let new_sub_q1 =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("id"))
+    |> s.where(w.col("name") |> w.eq(w.string("Alice")))
+    |> s.to_query
+
+  let new_sub_q2 =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("id"))
+    |> s.where(w.col("name") |> w.eq(w.string("Bob")))
+    |> s.to_query
+
+  let query =
+    d.new()
+    |> d.table("owners")
+    |> d.using_sub_query(new_sub_q1, "sub1")
+    |> d.using_sub_query(new_sub_q2, "sub2")
+    |> d.to_query
+
+  let expected_params = [p.StringParam("Alice"), p.StringParam("Bob")]
+
+  assert query
+    |> postgres.write_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> sqlite.write_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> maria.write_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
+
+  assert query
+    |> mysql.write_query_to_prepared_statement
+    |> cake.get_params
+    == expected_params
 }
