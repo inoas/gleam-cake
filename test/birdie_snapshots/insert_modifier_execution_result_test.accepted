@@ -1,0 +1,22 @@
+---
+version: 2.0.0
+title: insert_modifier_execution_result_test
+file: ./../test/cake_test/insert_modifier_test.gleam
+test_name: insert_modifier_execution_result_test
+---
+#(
+  Error(PostgresqlError(
+    "42601",
+    "syntax_error",
+    "syntax error at or near "OR"",
+  )),
+  Ok([]),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'OR REPLACE INTO cats (name) VALUES (?)' at line 1",
+  )),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'OR REPLACE INTO cats (name) VALUES (?)' at line 1",
+  )),
+)

@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: insert_modifier_prepared_statement_test
+file: ./../test/cake_test/insert_modifier_test.gleam
+test_name: insert_modifier_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT OR REPLACE INTO cats (name) VALUES ($1)",
+    [StringParam("Nubi")],
+    1,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT OR REPLACE INTO cats (name) VALUES (?1)",
+    [StringParam("Nubi")],
+    1,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT OR REPLACE INTO cats (name) VALUES (?)",
+    [StringParam("Nubi")],
+    1,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT OR REPLACE INTO cats (name) VALUES (?)",
+    [StringParam("Nubi")],
+    1,
+    Mysql,
+  ),
+)

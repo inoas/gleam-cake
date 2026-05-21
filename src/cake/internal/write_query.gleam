@@ -209,9 +209,10 @@ fn insert_apply(
       |> read_query.comment_apply(insert.comment)
     _, _ ->
       prepared_statement
+      |> prepared_statement.append_sql("INSERT")
+      |> insert_modifier_apply(insert.modifier)
       |> insert_into_table_apply(insert.table)
       |> insert_columns_apply(insert.columns)
-      |> insert_modifier_apply(insert.modifier)
       |> insert_source_apply(insert.source)
       |> insert_on_conflict_apply(insert.on_conflict)
       |> returning_apply(insert.returning)
@@ -226,10 +227,10 @@ fn insert_into_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoInsertIntoTable ->
-      prepared_statement |> prepared_statement.append_sql("INSERT INTO")
+      prepared_statement |> prepared_statement.append_sql(" INTO")
     InsertIntoTable(name: table_name) ->
       prepared_statement
-      |> prepared_statement.append_sql("INSERT INTO " <> table_name)
+      |> prepared_statement.append_sql(" INTO " <> table_name)
   }
 }
 
@@ -239,10 +240,10 @@ fn insert_ignore_into_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoInsertIntoTable ->
-      prepared_statement |> prepared_statement.append_sql("INSERT IGNORE INTO")
+      prepared_statement |> prepared_statement.append_sql(" IGNORE INTO")
     InsertIntoTable(name: table_name) ->
       prepared_statement
-      |> prepared_statement.append_sql("INSERT IGNORE INTO " <> table_name)
+      |> prepared_statement.append_sql(" IGNORE INTO " <> table_name)
   }
 }
 
@@ -302,15 +303,17 @@ fn insert_conflict_ignore_maria_mysql_apply(
         [] ->
           // Non-row source: fall back to INSERT IGNORE
           prepared_statement
+          |> prepared_statement.append_sql("INSERT")
+          |> insert_modifier_apply(insert.modifier)
           |> insert_ignore_into_table_apply(insert.table)
           |> insert_columns_apply(insert.columns)
-          |> insert_modifier_apply(insert.modifier)
           |> insert_source_apply(insert.source)
         _ ->
           prepared_statement
+          |> prepared_statement.append_sql("INSERT")
+          |> insert_modifier_apply(insert.modifier)
           |> insert_into_table_apply(insert.table)
           |> insert_columns_apply(insert.columns)
-          |> insert_modifier_apply(insert.modifier)
           |> insert_select_not_exists_rows_apply(
             row_values,
             col_names,
@@ -322,9 +325,10 @@ fn insert_conflict_ignore_maria_mysql_apply(
     // Constraint-based target or missing table/columns: fall back to INSERT IGNORE
     _, _, _ ->
       prepared_statement
+      |> prepared_statement.append_sql("INSERT")
+      |> insert_modifier_apply(insert.modifier)
       |> insert_ignore_into_table_apply(insert.table)
       |> insert_columns_apply(insert.columns)
-      |> insert_modifier_apply(insert.modifier)
       |> insert_source_apply(insert.source)
   }
 }
