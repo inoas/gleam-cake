@@ -383,8 +383,8 @@ fn insert_on_conflict_apply(
       |> prepared_statement.append_sql(" ON CONFLICT (")
       |> insert_on_conflict_target_apply(target)
       |> prepared_statement.append_sql(")")
-      |> prepared_statement.append_sql(" DO NOTHING")
       |> read_query.where_clause_apply(where)
+      |> prepared_statement.append_sql(" DO NOTHING")
     InsertConflictUpdate(target: target, where:, update:) ->
       prepared_statement
       |> prepared_statement.append_sql(" ON CONFLICT (")
