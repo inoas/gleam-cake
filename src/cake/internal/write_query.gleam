@@ -205,8 +205,8 @@ fn insert_apply(
       prepared_statement
       |> insert_conflict_ignore_maria_mysql_apply(insert)
       |> returning_apply(insert.returning)
-      |> read_query.comment_apply(insert.comment)
       |> read_query.epilog_apply(insert.epilog)
+      |> read_query.comment_apply(insert.comment)
     _, _ ->
       prepared_statement
       |> insert_into_table_apply(insert.table)
@@ -215,8 +215,8 @@ fn insert_apply(
       |> insert_source_apply(insert.source)
       |> insert_on_conflict_apply(insert.on_conflict)
       |> returning_apply(insert.returning)
-      |> read_query.comment_apply(insert.comment)
       |> read_query.epilog_apply(insert.epilog)
+      |> read_query.comment_apply(insert.comment)
   }
 }
 
@@ -666,8 +666,8 @@ fn update_apply(
   |> read_query.join_clause_apply(update.join)
   |> read_query.where_clause_apply(update.where)
   |> returning_apply(update.returning)
-  |> read_query.comment_apply(update.comment)
   |> read_query.epilog_apply(update.epilog)
+  |> read_query.comment_apply(update.comment)
 }
 
 fn update_table_apply(
@@ -827,8 +827,8 @@ fn delete_apply(
   |> read_query.join_clause_apply(delete.join)
   |> read_query.where_clause_apply(delete.where)
   |> returning_apply(delete.returning)
-  |> read_query.comment_apply(delete.comment)
   |> read_query.epilog_apply(delete.epilog)
+  |> read_query.comment_apply(delete.comment)
 }
 
 fn delete_table_apply(

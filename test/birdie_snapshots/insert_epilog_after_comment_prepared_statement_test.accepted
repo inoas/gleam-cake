@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: insert_epilog_after_comment_prepared_statement_test
+file: ./../test/cake_test/write_query_comment_epilog_order_test.gleam
+test_name: insert_epilog_after_comment_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO cats (name) VALUES ($1) FOR SHARE -- trace id 42",
+    [StringParam("Nubi")],
+    1,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name) VALUES (?1) FOR SHARE -- trace id 42",
+    [StringParam("Nubi")],
+    1,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name) VALUES (?) FOR SHARE -- trace id 42",
+    [StringParam("Nubi")],
+    1,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO cats (name) VALUES (?) FOR SHARE -- trace id 42",
+    [StringParam("Nubi")],
+    1,
+    Mysql,
+  ),
+)
