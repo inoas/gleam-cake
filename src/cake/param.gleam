@@ -9,10 +9,10 @@ import gleam/time/calendar
 /// used in SQL queries.
 ///
 pub type Param {
-  BoolParam(Bool)
-  FloatParam(Float)
-  IntParam(Int)
-  StringParam(String)
+  BoolParam(value: Bool)
+  FloatParam(value: Float)
+  IntParam(value: Int)
+  StringParam(value: String)
   NullParam
   DateParam(date: calendar.Date)
   //

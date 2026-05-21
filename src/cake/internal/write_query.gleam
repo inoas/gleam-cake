@@ -27,9 +27,9 @@ import gleam/string
 /// are being utilized for atomic updates or conflict resolution.
 ///
 pub type WriteQuery(a) {
-  InsertQuery(Insert(a))
-  UpdateQuery(Update(a))
-  DeleteQuery(Delete(a))
+  InsertQuery(query: Insert(a))
+  UpdateQuery(query: Update(a))
+  DeleteQuery(query: Delete(a))
 }
 
 /// Converts a `WriteQuery` into a `PreparedStatement`.
@@ -504,8 +504,8 @@ fn insert_from_values_apply(
 }
 
 fn row_apply(
-  new_prepared_statement: PreparedStatement,
-  row: List(InsertValue),
+  new_prepared_statement new_prepared_statement: PreparedStatement,
+  row row: List(InsertValue),
 ) -> PreparedStatement {
   row
   |> list.fold(

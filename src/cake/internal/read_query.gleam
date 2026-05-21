@@ -317,7 +317,7 @@ pub fn select_order_by(
 ///
 pub type Selects {
   NoSelects
-  Selects(List(SelectValue))
+  Selects(select_values: List(SelectValue))
 }
 
 /// A value that can be selected in a `SELECT` query.

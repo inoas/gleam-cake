@@ -46,7 +46,7 @@ pub type WhereValue =
 
 /// Creates a `WhereValue` from a column name `String`.
 ///
-pub fn col(name: String) -> WhereValue {
+pub fn col(name name: String) -> WhereValue {
   name |> WhereColumnValue
 }
 

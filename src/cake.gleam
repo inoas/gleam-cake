@@ -31,8 +31,8 @@ pub type PreparedStatement =
 /// the same way.
 ///
 pub type CakeQuery(a) {
-  CakeReadQuery(ReadQuery)
-  CakeWriteQuery(WriteQuery(a))
+  CakeReadQuery(query: ReadQuery)
+  CakeWriteQuery(query: WriteQuery(a))
 }
 
 /// Create a Cake read query from a read query.

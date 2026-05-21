@@ -653,7 +653,7 @@ pub type Direction {
   Desc
 }
 
-fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
+fn map_order_by_direction_constructor(in in: Direction) -> OrderByDirection {
   case in {
     Asc -> read_query.Asc
     Desc -> read_query.Desc
