@@ -291,7 +291,7 @@ fn insert_conflict_ignore_maria_mysql_apply(
             let InsertRow(row) = r
             row
           })
-        InsertSourceRecords(records: records, encoder: encoder) ->
+        InsertSourceRecords(records:, encoder:) ->
           records
           |> list.map(fn(r) {
             let InsertRow(row) = r |> encoder
@@ -573,7 +573,7 @@ fn insert_on_conflict_apply(
       |> insert_on_conflict_target_apply(target)
       |> read_query.where_clause_apply(where)
       |> prepared_statement.append_sql(" DO NOTHING")
-    InsertConflictUpdate(target: target, where:, update:) ->
+    InsertConflictUpdate(target:, where:, update:) ->
       prepared_statement
       |> insert_on_conflict_target_apply(target)
       |> prepared_statement.append_sql(" DO ")
