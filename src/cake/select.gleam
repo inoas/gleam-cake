@@ -16,7 +16,7 @@ import gleam/string
 import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Comment =

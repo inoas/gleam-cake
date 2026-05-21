@@ -17,14 +17,14 @@ import gleam/list
 import gleam/order
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Fragment =
   read_query.Fragment
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  fragment                                                                 │
+// │ fragment                                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// This placeholder must be used when building fragments with parameters.
@@ -114,7 +114,7 @@ pub fn literal(string string: String) -> Fragment {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  params                                                                   │
+// │ params                                                                    │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Create a new `Param` with a `Bool` value.

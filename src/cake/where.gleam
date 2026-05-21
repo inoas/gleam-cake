@@ -25,7 +25,7 @@ import cake/param.{
 import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Fragment =
@@ -41,7 +41,7 @@ pub type WhereValue =
   read_query.WhereValue
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Where Value constructors                                                 │
+// │ Where Value constructors                                                  │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Creates a `WhereValue` from a column name `String`.
@@ -111,7 +111,7 @@ pub fn fragment_value(fragment fragment: Fragment) -> WhereValue {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Where constructors                                                       │
+// │ Where constructors                                                        │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 /// Negates a `Where`.
@@ -134,6 +134,19 @@ pub fn or(wheres wheres: List(Where)) -> Where {
 
 /// Logical XOR of multiple `Where`s.
 ///
+/// Returns `TRUE` when **exactly one** condition is true.
+///
+/// Unlike `xor_parity`, which returns `TRUE` for any **odd number** of true
+/// conditions, `xor` is stricter: two or more true conditions yield `FALSE`.
+///
+/// | Number of conditions true | Result |
+/// |---------------------------|--------|
+/// |                         0 | FALSE  |
+/// |                         1 | TRUE   |
+/// |                         2 | FALSE  |
+/// |                         3 | FALSE  |
+/// |                         4 | FALSE  |
+///
 pub fn xor(wheres wheres: List(Where)) -> Where {
   wheres |> XorWhere
 }
@@ -144,7 +157,23 @@ pub fn xor(wheres wheres: List(Where)) -> Where {
 /// `xor_parity` returns `TRUE` when an **odd number** of conditions are true —
 /// matching the behaviour of MySQL's and MariaDB's native `XOR` operator.
 ///
-/// For adapters 🦭MariaDB or 🐬MySQL their native `XOR` syntax will be
+/// | Number of conditions true | Result |
+/// |---------------------------|--------|
+/// |                         0 | FALSE  |
+/// |                         1 | TRUE   |
+/// |                         2 | FALSE  |
+/// |                         3 | TRUE   |
+/// |                         4 | FALSE  |
+///
+/// **NULL handling:** if any predicate evaluates to `NULL`, the entire
+/// expression evaluates to `NULL`, which a `WHERE` clause treats as no
+/// match (NULL-poisoning). This is consistent across all adapters:
+///
+/// - 🐘PostgreSQL / 🪶SQLite emulate parity via integer arithmetic;
+///   a NULL predicate propagates as NULL through the sum and modulo.
+/// - 🦭MariaDB / 🐬MySQL use native `XOR`, where `NULL XOR anything = NULL`.
+///
+/// For adapters 🦭MariaDB or 🐬MySQL the native `XOR` syntax will be
 /// utilized under the hood.
 ///
 pub fn xor_parity(wheres wheres: List(Where)) -> Where {

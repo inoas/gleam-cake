@@ -1,0 +1,34 @@
+---
+version: 2.0.0
+title: where_xor_parity_null_bool_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats WHERE (((age > $1)::int + (is_wild = $2)::int) % 2) = 1",
+    [IntParam(5), BoolParam(True)],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (((age > ?1) + (is_wild = ?2)) % 2) = 1",
+    [IntParam(5), BoolParam(True)],
+    2,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (age > ? XOR is_wild = ?)",
+    [IntParam(5), BoolParam(True)],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (age > ? XOR is_wild = ?)",
+    [IntParam(5), BoolParam(True)],
+    2,
+    Mysql,
+  ),
+)

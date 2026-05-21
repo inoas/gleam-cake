@@ -16,7 +16,7 @@ import gleam/list
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Comment =
@@ -41,7 +41,7 @@ pub type Where =
   read_query.Where
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  write_query type re-exports                                              │
+// │ write_query type re-exports                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Update(a) =

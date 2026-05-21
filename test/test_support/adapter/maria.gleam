@@ -141,7 +141,13 @@ pub fn execute_raw_sql(
 
 fn cake_param_to_client_param(param param: Param) -> Value {
   case param {
-    BoolParam(param) -> shork.bool(param)
+    // MySQL/MariaDB store booleans as TINYINT(1); the mysql Erlang driver has
+    // no encoder for Erlang boolean atoms, so we send 1/0 explicitly.
+    BoolParam(param) ->
+      shork.int(case param {
+        True -> 1
+        False -> 0
+      })
     FloatParam(param) -> shork.float(param)
     IntParam(param) -> shork.int(param)
     StringParam(param) -> shork.text(param)

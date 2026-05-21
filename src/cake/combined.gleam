@@ -20,7 +20,7 @@ import cake/internal/read_query.{
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Combined =

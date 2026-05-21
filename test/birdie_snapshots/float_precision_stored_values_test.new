@@ -1,0 +1,21 @@
+---
+version: 2.0.0
+title: float_precision_stored_values_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([
+    SelectColumn("name"),
+    SelectColumn("rating"),
+  ]),
+  FromTable("cats"),
+  NoJoins,
+  WhereIsNotNull(WhereColumnValue("rating")),
+  NoGroupBy,
+  NoWhere,
+  OrderBy([OrderByColumn("name", Asc)]),
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

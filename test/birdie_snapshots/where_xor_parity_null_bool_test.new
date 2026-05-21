@@ -1,0 +1,29 @@
+---
+version: 2.0.0
+title: where_xor_parity_null_bool_test
+---
+SelectQuery(Select(
+  SelectAll,
+  NoSelects,
+  FromTable("cats"),
+  NoJoins,
+  XorParityWhere([
+    WhereComparison(
+      WhereColumnValue("age"),
+      Greater,
+      WhereParamValue(IntParam(5)),
+    ),
+    WhereComparison(
+      WhereColumnValue("is_wild"),
+      Equal,
+      WhereParamValue(BoolParam(True)),
+    ),
+  ]),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

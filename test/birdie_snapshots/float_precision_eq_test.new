@@ -1,0 +1,25 @@
+---
+version: 2.0.0
+title: float_precision_eq_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([
+    SelectColumn("name"),
+    SelectColumn("rating"),
+  ]),
+  FromTable("cats"),
+  NoJoins,
+  WhereComparison(
+    WhereColumnValue("rating"),
+    Equal,
+    WhereParamValue(FloatParam(1.1)),
+  ),
+  NoGroupBy,
+  NoWhere,
+  OrderBy([OrderByColumn("name", Asc)]),
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

@@ -1,0 +1,10 @@
+---
+version: 2.0.0
+title: float_precision_eq_execution_result_test
+---
+#(
+  Ok([#("Biffy", 1.100000023841858)]),
+  Ok([#("Biffy", 1.1)]),
+  Ok([]),
+  Ok([]),
+)
