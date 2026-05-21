@@ -29,14 +29,9 @@ fn insert_on_conflict_ignore_with_where_query() {
 // │ Tests                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// Snapshots the generated SQL for an `ON CONFLICT … DO NOTHING` with an index
-/// predicate `WHERE` across all four dialects.
-///
-/// Correct order: ON CONFLICT (name) WHERE counters.is_active IS TRUE DO NOTHING
-/// Bug order:     ON CONFLICT (name) DO NOTHING WHERE counters.is_active IS TRUE
-///
-/// The snapshot captures the current (buggy) output.  Once bug 6 is fixed the
-/// snapshot must be updated to reflect the corrected clause ordering.
+/// Proves that `ON CONFLICT … DO NOTHING` with an index predicate emits
+/// clauses in the correct order across all four dialects:
+/// `ON CONFLICT (name) WHERE … IS TRUE DO NOTHING`.
 ///
 pub fn insert_on_conflict_ignore_where_ordering_test() {
   let query = insert_on_conflict_ignore_with_where_query()
@@ -51,13 +46,10 @@ pub fn insert_on_conflict_ignore_where_ordering_test() {
   |> birdie.snap("insert_on_conflict_ignore_where_ordering_test")
 }
 
-/// Executes the insert against all four databases and snapshots the results.
-///
-/// With the current bug the generated SQL has `DO NOTHING WHERE …` which is
-/// invalid syntax, so all four engines return an error.  Once bug 6 is fixed
-/// the clause order becomes `WHERE … DO NOTHING`; 🐘PostgreSQL and 🪶SQLite
-/// will then execute successfully, while 🦭MariaDB and 🐬MySQL are expected to
-/// return an error because they do not support the `ON CONFLICT` syntax.
+/// Proves execution results for an `ON CONFLICT (name) WHERE … DO NOTHING`
+/// insert across all four databases. 🐘PostgreSQL and 🪶SQLite execute
+/// the statement directly; 🦭MariaDB and 🐬MySQL translate it to a
+/// `SELECT … WHERE NOT EXISTS` upsert.
 ///
 pub fn insert_on_conflict_ignore_where_ordering_execution_result_test() {
   let query = insert_on_conflict_ignore_with_where_query()

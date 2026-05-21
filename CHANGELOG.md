@@ -8,19 +8,60 @@ and this project adheres to
 ## [Unreleased]
 -->
 
-## [4.0.0] - 2026-05-20
+## [4.0.0] - 2026-05-21
 
-- [BREAKING]: `xor` on 🦭MariaDB and 🐬MySQL uses the databases' native `XOR`
-  operator, which chains left-to-right as a binary operator and returns `TRUE`
-  when an **odd number** of conditions are true. On 🐘PostgreSQL and 🪶SQLite,
-  `xor` was emulated to return `TRUE` when **exactly one** condition is true.
-  These semantics agree for two conditions but diverge for three or more.
-  The emulation has been corrected to match the MariaDB/MySQL parity behaviour,
-  so `xor` is now consistent across all four dialects.
-- Added `where.xor_parity` as an explicit alias for the left-to-right
-  odd-parity XOR. Prefer `xor_parity` over `xor` when XORing three or more
-  conditions to make the intent clear, especially in codebases that target
-  multiple dialects.
+### Breaking changes
+
+- [BREAKING] **`where.xor` semantics unified to "exactly one" across all
+  dialects.** Previously, 🦭MariaDB and 🐬MySQL used the engines' native `XOR`
+  operator, which evaluates left-to-right and returns `TRUE` when an **odd
+  number** of operands are true (odd-parity semantics). 🐘PostgreSQL and
+  🪶SQLite emulated `xor` as **exactly one** condition being true via a
+  combinatorial expansion. These two semantics are equivalent for two operands
+  but diverge for three or more.
+
+  MariaDB/MySQL now use the same combinatorial "exactly one" expansion as
+  PostgreSQL/SQLite, making `where.xor` consistent across all four dialects.
+  Any code that relied on the native-`XOR` (odd-parity) behaviour of `xor` on
+  MariaDB or MySQL with three or more conditions will observe different query
+  results after upgrading.
+
+### Added
+
+- **`where.xor_parity`**: a new function implementing odd-parity XOR (returns
+  `TRUE` when an **odd number** of conditions are true). On 🦭MariaDB and
+  🐬MySQL it delegates to the engines' native left-to-right `XOR` operator;
+  on 🐘PostgreSQL it uses `((cond)::int + …) % 2 = 1`; on 🪶SQLite it uses
+  the same arithmetic without casts. `NULL` propagates through the expression
+  on all four dialects, matching native `XOR` behaviour. Prefer `xor_parity`
+  over `xor` when targeting three or more conditions and odd-count semantics
+  are required.
+
+### Fixed
+
+- **`insert.on_constraint_conflict_ignore` and
+  `insert.on_constraint_conflict_update` emitted wrong SQL**: queries
+  using `InsertConflictTargetConstraint` produced
+  `ON CONFLICT (constraint_name)` instead of the correct
+  `ON CONFLICT ON CONSTRAINT constraint_name`. The generated SQL was invalid
+  and rejected by the database.
+
+- **Epilog silently discarded in write queries when a single-line comment is
+  set**: in `INSERT`, `UPDATE`, and `DELETE` query builders,
+  `comment_apply` was called before `epilog_apply`. When the comment used the
+  `--` single-line style, the SQL parser treated everything after `--` on the
+  same line — including the epilog — as a comment, silently dropping it. The
+  order is now `… <epilog> -- <comment>`, consistent with the existing
+  `SELECT` and `COMBINED` builders.
+
+- **`INSERT` modifier placed after the column list instead of before `INTO`**:
+  setting a modifier via `insert.modifier` produced invalid SQL such
+  as `INSERT INTO cats (name) OR REPLACE VALUES ($1)`. The modifier is now
+  emitted between `INSERT` and `INTO` on all four dialects, giving the correct
+  form `INSERT OR REPLACE INTO cats (name) VALUES ($1)`. The fix also covers
+  the 🦭MariaDB / 🐬MySQL `INSERT IGNORE` fallback path, where a
+  user-supplied priority modifier (e.g. `LOW_PRIORITY`) is now correctly
+  placed before `IGNORE INTO`: `INSERT LOW_PRIORITY IGNORE INTO …`.
 
 ## [3.0.0] - 2026-04-29
 

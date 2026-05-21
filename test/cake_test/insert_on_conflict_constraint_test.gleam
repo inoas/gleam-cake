@@ -41,10 +41,9 @@ fn insert_on_constraint_conflict_update_query() {
 // │ Tests                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// Snapshots the generated SQL for `ON CONFLICT ON CONSTRAINT … DO NOTHING`.
-///
-/// Bug 7: emits `ON CONFLICT (counters_name_key)` instead of
-///        `ON CONFLICT ON CONSTRAINT counters_name_key`.
+/// Proves that `insert.on_constraint_conflict_ignore` emits the correct
+/// SQL: `ON CONFLICT ON CONSTRAINT name DO NOTHING` rather than
+/// wrapping the constraint name in parentheses.
 ///
 pub fn insert_on_constraint_conflict_ignore_prepared_statement_test() {
   let pgo =
@@ -59,10 +58,9 @@ pub fn insert_on_constraint_conflict_ignore_prepared_statement_test() {
   |> birdie.snap("insert_on_constraint_conflict_ignore_prepared_statement_test")
 }
 
-/// Snapshots the generated SQL for `ON CONFLICT ON CONSTRAINT … DO UPDATE`.
-///
-/// Bug 7: emits `ON CONFLICT (counters_name_key)` instead of
-///        `ON CONFLICT ON CONSTRAINT counters_name_key`.
+/// Proves that `insert.on_constraint_conflict_update` emits the correct
+/// SQL: `ON CONFLICT ON CONSTRAINT name DO UPDATE …` rather than
+/// wrapping the constraint name in parentheses.
 ///
 pub fn insert_on_constraint_conflict_update_prepared_statement_test() {
   let pgo =

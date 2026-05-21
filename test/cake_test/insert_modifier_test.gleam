@@ -25,11 +25,8 @@ fn insert_with_modifier_query() {
 // │ Tests                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-/// Bug 9: the modifier is applied after the column list instead of between
-/// `INSERT` and `INTO`, producing invalid SQL.
-///
-/// Correct: INSERT OR REPLACE INTO cats (name) VALUES ($1)
-/// Bug:     INSERT INTO cats (name) OR REPLACE VALUES ($1)
+/// Proves that the modifier is emitted between `INSERT` and `INTO`:
+/// `INSERT OR REPLACE INTO cats (name) VALUES ($1)`.
 ///
 pub fn insert_modifier_prepared_statement_test() {
   let pgo =
@@ -46,14 +43,10 @@ pub fn insert_modifier_prepared_statement_test() {
   |> birdie.snap("insert_modifier_prepared_statement_test")
 }
 
-/// Executes the insert against all four databases and snapshots the results.
-///
-/// With the bug the generated SQL is `INSERT INTO cats (name) OR REPLACE VALUES (…)`
-/// which is rejected as a syntax error by every engine.
-/// Once bug 9 is fixed the SQL becomes `INSERT OR REPLACE INTO cats (name) VALUES (…)`;
-/// 🪶SQLite will then execute successfully, while 🐘PostgreSQL, 🦭MariaDB and
-/// 🐬MySQL are expected to return an error because `INSERT OR REPLACE` is
-/// SQLite-specific syntax.
+/// Proves execution results for `INSERT OR REPLACE INTO cats (name) …`
+/// across all four adapters. 🪶SQLite accepts `OR REPLACE` and
+/// executes successfully; 🐘PostgreSQL, 🦭MariaDB, and 🐬MySQL
+/// reject it because `INSERT OR REPLACE` is SQLite-specific syntax.
 ///
 pub fn insert_modifier_execution_result_test() {
   let pgo =
