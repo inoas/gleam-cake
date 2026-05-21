@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: insert_on_conflict_ignore_where_ordering_test
-file: ./test/cake_test/insert_on_conflict_ignore_test.gleam
+file: ./../test/cake_test/insert_on_conflict_ignore_test.gleam
 test_name: insert_on_conflict_ignore_where_ordering_test
 ---
 #(
@@ -27,22 +27,24 @@ test_name: insert_on_conflict_ignore_where_ordering_test
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO counters (name, counter) VALUES (?, ?) ON CONFLICT (name) WHERE counters.is_active IS TRUE DO NOTHING",
+    "INSERT INTO counters (name, counter) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM counters WHERE name = ? FOR UPDATE)",
     [
       StringParam("Whiskers"),
       IntParam(1),
+      StringParam("Whiskers"),
     ],
-    2,
+    3,
     Maria,
   ),
   PreparedStatement(
     "?",
-    "INSERT INTO counters (name, counter) VALUES (?, ?) ON CONFLICT (name) WHERE counters.is_active IS TRUE DO NOTHING",
+    "INSERT INTO counters (name, counter) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM counters WHERE name = ? FOR UPDATE)",
     [
       StringParam("Whiskers"),
       IntParam(1),
+      StringParam("Whiskers"),
     ],
-    2,
+    3,
     Mysql,
   ),
 )

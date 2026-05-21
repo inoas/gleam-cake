@@ -186,15 +186,38 @@ fn insert_apply(
   prepared_statement prepared_statement: PreparedStatement,
   insert insert: Insert(a),
 ) {
-  prepared_statement
-  |> insert_into_table_apply(insert.table)
-  |> insert_columns_apply(insert.columns)
-  |> insert_modifier_apply(insert.modifier)
-  |> insert_source_apply(insert.source)
-  |> insert_on_conflict_apply(insert.on_conflict)
-  |> returning_apply(insert.returning)
-  |> read_query.comment_apply(insert.comment)
-  |> read_query.epilog_apply(insert.epilog)
+  case
+    prepared_statement |> prepared_statement.get_dialect,
+    insert.on_conflict
+  {
+    // 🦭MariaDB and 🐬MySQL do not support `ON CONFLICT`.
+    // `InsertConflictIgnore` is translated to `INSERT IGNORE INTO`, which
+    // silently discards all key-constraint violations on any column.
+    //
+    // ⚠️  `INSERT IGNORE` is broader than `ON CONFLICT DO NOTHING`:
+    //   - it applies to every unique/primary-key constraint, not just the
+    //     specified target columns.
+    //   - it also suppresses other warnings such as data-truncation errors.
+    //   - the index predicate (`WHERE`) has no equivalent and is dropped.
+    dialect.Maria, InsertConflictIgnore(..)
+    | dialect.Mysql, InsertConflictIgnore(..)
+    ->
+      prepared_statement
+      |> insert_conflict_ignore_maria_mysql_apply(insert)
+      |> returning_apply(insert.returning)
+      |> read_query.comment_apply(insert.comment)
+      |> read_query.epilog_apply(insert.epilog)
+    _, _ ->
+      prepared_statement
+      |> insert_into_table_apply(insert.table)
+      |> insert_columns_apply(insert.columns)
+      |> insert_modifier_apply(insert.modifier)
+      |> insert_source_apply(insert.source)
+      |> insert_on_conflict_apply(insert.on_conflict)
+      |> returning_apply(insert.returning)
+      |> read_query.comment_apply(insert.comment)
+      |> read_query.epilog_apply(insert.epilog)
+  }
 }
 
 fn insert_into_table_apply(
@@ -210,6 +233,19 @@ fn insert_into_table_apply(
   }
 }
 
+fn insert_ignore_into_table_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  table_name table_name: InsertIntoTable,
+) -> PreparedStatement {
+  case table_name {
+    NoInsertIntoTable ->
+      prepared_statement |> prepared_statement.append_sql("INSERT IGNORE INTO")
+    InsertIntoTable(name: table_name) ->
+      prepared_statement
+      |> prepared_statement.append_sql("INSERT IGNORE INTO " <> table_name)
+  }
+}
+
 fn insert_columns_apply(
   prepared_statement prepared_statement: PreparedStatement,
   columns columns: InsertColumns,
@@ -221,6 +257,156 @@ fn insert_columns_apply(
       |> prepared_statement.append_sql(
         " (" <> columns |> string.join(", ") <> ")",
       )
+  }
+}
+
+/// Generates `INSERT INTO … SELECT … WHERE NOT EXISTS (SELECT 1 FROM … FOR UPDATE)`
+/// for 🦭MariaDB and 🐬MySQL when the conflict strategy is `InsertConflictIgnore`.
+///
+/// Falls back to `INSERT IGNORE` when:
+/// - the conflict target is a named constraint (no column names to build
+///   the `WHERE` predicate from), or
+/// - the insert source is not a concrete list of rows (query / DEFAULT).
+///
+/// The `WHERE` index predicate carried by `InsertConflictIgnore` has no
+/// MariaDB/MySQL equivalent and is silently dropped in both paths.
+///
+fn insert_conflict_ignore_maria_mysql_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  insert insert: Insert(a),
+) -> PreparedStatement {
+  case insert.table, insert.columns, insert.on_conflict {
+    InsertIntoTable(name: table_name),
+      InsertColumns(columns: col_names),
+      InsertConflictIgnore(
+        target: InsertConflictTarget(columns: target_cols),
+        ..,
+      )
+    -> {
+      let row_values = case insert.source {
+        InsertSourceRows(rows) ->
+          rows
+          |> list.map(fn(r) {
+            let InsertRow(row) = r
+            row
+          })
+        InsertSourceRecords(records: records, encoder: encoder) ->
+          records
+          |> list.map(fn(r) {
+            let InsertRow(row) = r |> encoder
+            row
+          })
+        _ -> []
+      }
+      case row_values {
+        [] ->
+          // Non-row source: fall back to INSERT IGNORE
+          prepared_statement
+          |> insert_ignore_into_table_apply(insert.table)
+          |> insert_columns_apply(insert.columns)
+          |> insert_modifier_apply(insert.modifier)
+          |> insert_source_apply(insert.source)
+        _ ->
+          prepared_statement
+          |> insert_into_table_apply(insert.table)
+          |> insert_columns_apply(insert.columns)
+          |> insert_modifier_apply(insert.modifier)
+          |> insert_select_not_exists_rows_apply(
+            row_values,
+            col_names,
+            table_name,
+            target_cols,
+          )
+      }
+    }
+    // Constraint-based target or missing table/columns: fall back to INSERT IGNORE
+    _, _, _ ->
+      prepared_statement
+      |> insert_ignore_into_table_apply(insert.table)
+      |> insert_columns_apply(insert.columns)
+      |> insert_modifier_apply(insert.modifier)
+      |> insert_source_apply(insert.source)
+  }
+}
+
+/// Emits one `SELECT val, … WHERE NOT EXISTS (…)` per row, joined by
+/// `UNION ALL`, so the whole batch can be wrapped in a single `INSERT INTO`.
+///
+fn insert_select_not_exists_rows_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  rows rows: List(List(InsertValue)),
+  col_names col_names: List(String),
+  table_name table_name: String,
+  target_cols target_cols: List(String),
+) -> PreparedStatement {
+  rows
+  |> list.fold(prepared_statement, fn(new_prepared_statement, values) {
+    let new_prepared_statement = case
+      new_prepared_statement == prepared_statement
+    {
+      True ->
+        new_prepared_statement
+        |> prepared_statement.append_sql(" SELECT ")
+      False ->
+        new_prepared_statement
+        |> prepared_statement.append_sql(" UNION ALL SELECT ")
+    }
+    new_prepared_statement
+    |> row_apply(values)
+    |> insert_not_exists_where_apply(values, col_names, table_name, target_cols)
+  })
+}
+
+/// Appends `WHERE NOT EXISTS (SELECT 1 FROM <table> WHERE <col> = ? … FOR UPDATE)`
+/// and re-emits the target-column parameter values so they appear in the
+/// prepared-statement param list a second time.
+///
+fn insert_not_exists_where_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  row_values row_values: List(InsertValue),
+  col_names col_names: List(String),
+  table_name table_name: String,
+  target_cols target_cols: List(String),
+) -> PreparedStatement {
+  let target_col_values =
+    list.zip(col_names, row_values)
+    |> list.filter(fn(pair) { list.contains(target_cols, pair.0) })
+
+  case target_col_values {
+    [] -> prepared_statement
+    _ -> {
+      let prepared_statement =
+        prepared_statement
+        |> prepared_statement.append_sql(
+          " WHERE NOT EXISTS (SELECT 1 FROM " <> table_name <> " WHERE ",
+        )
+      let prepared_statement =
+        target_col_values
+        |> list.fold(prepared_statement, fn(new_prepared_statement, pair) {
+          let #(col_name, insert_value) = pair
+          let new_prepared_statement = case
+            new_prepared_statement == prepared_statement
+          {
+            True -> new_prepared_statement
+            False ->
+              new_prepared_statement
+              |> prepared_statement.append_sql(" AND ")
+          }
+          case insert_value {
+            InsertParam(param) ->
+              new_prepared_statement
+              |> prepared_statement.append_sql(col_name <> " = ")
+              |> prepared_statement.append_param(param)
+            InsertDefault -> new_prepared_statement
+            InsertFragment(fragment) ->
+              new_prepared_statement
+              |> prepared_statement.append_sql(col_name <> " = ")
+              |> read_query.fragment_apply(fragment)
+          }
+        })
+      prepared_statement
+      |> prepared_statement.append_sql(" FOR UPDATE)")
+    }
   }
 }
 

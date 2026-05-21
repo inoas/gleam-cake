@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: combined_limit_offset_execution_result_test
-file: ./test/cake_test/limit_offset_test.gleam
+file: ./../test/cake_test/limit_offset_test.gleam
 test_name: combined_limit_offset_execution_result_test
 ---
 #(

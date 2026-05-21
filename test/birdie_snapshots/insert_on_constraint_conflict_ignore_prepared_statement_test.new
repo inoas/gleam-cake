@@ -1,0 +1,26 @@
+---
+version: 2.0.0
+title: insert_on_constraint_conflict_ignore_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "INSERT INTO counters (name, counter) VALUES ($1, $2) ON CONFLICT (counters_name_key) WHERE counters.is_active IS TRUE DO NOTHING",
+    [
+      StringParam("Whiskers"),
+      IntParam(1),
+    ],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT INTO counters (name, counter) VALUES (?1, ?2) ON CONFLICT (counters_name_key) WHERE counters.is_active IS TRUE DO NOTHING",
+    [
+      StringParam("Whiskers"),
+      IntParam(1),
+    ],
+    2,
+    Sqlite,
+  ),
+)

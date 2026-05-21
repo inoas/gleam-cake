@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: insert_on_conflict_update_values_prepared_statement_test
-file: ./test/cake_test/insert_on_conflict_update_test.gleam
+file: ./../test/cake_test/insert_on_conflict_update_test.gleam
 test_name: insert_on_conflict_update_values_prepared_statement_test
 ---
 #(
