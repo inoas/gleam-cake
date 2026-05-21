@@ -1,0 +1,22 @@
+---
+version: 2.0.0
+title: update_joins_empty_on_empty_query_test
+file: ./../test/cake_test/joins_empty_shadowing_test.gleam
+test_name: update_joins_empty_on_empty_query_test
+---
+UpdateQuery(Update(
+  UpdateTable("owners"),
+  NoUpdateModifier,
+  UpdateSets([
+    UpdateParamSet(
+      "name",
+      StringParam("Alice"),
+    ),
+  ]),
+  NoFrom,
+  NoJoins,
+  NoWhere,
+  NoReturning,
+  NoEpilog,
+  NoComment,
+))

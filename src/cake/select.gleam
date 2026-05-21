@@ -331,8 +331,8 @@ pub fn get_select(select select: Select) -> Selects {
 ///
 pub fn join(select select: Select, join join: Join) -> Select {
   case select.join {
-    Joins(values: joins) ->
-      Select(..select, join: joins |> list.append([join]) |> Joins)
+    Joins(joins: existing_joins) ->
+      Select(..select, join: existing_joins |> list.append([join]) |> Joins)
     NoJoins -> Select(..select, join: [join] |> Joins)
   }
 }
@@ -347,10 +347,10 @@ pub fn replace_join(select select: Select, join join: Join) -> Select {
 ///
 pub fn joins(select select: Select, joins joins: List(Join)) -> Select {
   case joins, select.join {
-    [], _ -> Select(..select, join: joins |> Joins)
-    joins, Joins(existing_joins) ->
+    [], _ -> select
+    _, Joins(joins: existing_joins) ->
       Select(..select, join: existing_joins |> list.append(joins) |> Joins)
-    joins, NoJoins -> Select(..select, join: joins |> Joins)
+    _, NoJoins -> Select(..select, join: joins |> Joins)
   }
 }
 

@@ -207,7 +207,7 @@ pub fn sets_sub_query(
 pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
   case update.set {
     NoUpdateSets -> []
-    UpdateSets(sets) -> sets
+    UpdateSets(update_sets:) -> update_sets
   }
 }
 
@@ -216,8 +216,8 @@ pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
 pub fn set(update update: Update(a), set set: UpdateSet) -> Update(a) {
   case update.set {
     NoUpdateSets -> Update(..update, set: [set] |> UpdateSets)
-    UpdateSets(sets) ->
-      Update(..update, set: sets |> list.append([set]) |> UpdateSets)
+    UpdateSets(update_sets) ->
+      Update(..update, set: update_sets |> list.append([set]) |> UpdateSets)
   }
 }
 
@@ -232,8 +232,8 @@ pub fn set_replace(update update: Update(a), set set: UpdateSet) -> Update(a) {
 pub fn sets(update update: Update(a), set sets: List(UpdateSet)) -> Update(a) {
   case update.set {
     NoUpdateSets -> Update(..update, set: sets |> UpdateSets)
-    UpdateSets(existing_sets) ->
-      Update(..update, set: existing_sets |> list.append(sets) |> UpdateSets)
+    UpdateSets(update_sets:) ->
+      Update(..update, set: update_sets |> list.append(sets) |> UpdateSets)
   }
 }
 
@@ -288,8 +288,8 @@ pub fn get_from(update update: Update(a)) -> From {
 ///
 pub fn join(update update: Update(a), join join: Join) -> Update(a) {
   case update.join {
-    Joins(values: joins) ->
-      Update(..update, join: joins |> list.append([join]) |> Joins)
+    Joins(joins: existing_joins) ->
+      Update(..update, join: existing_joins |> list.append([join]) |> Joins)
     NoJoins -> Update(..update, join: [join] |> Joins)
   }
 }
@@ -310,10 +310,10 @@ pub fn replace_join(update update: Update(a), join join: Join) -> Update(a) {
 ///
 pub fn joins(update update: Update(a), joins joins: List(Join)) -> Update(a) {
   case joins, update.join {
-    [], _ -> Update(..update, join: joins |> Joins)
-    joins, Joins(update_joins) ->
-      Update(..update, join: update_joins |> list.append(joins) |> Joins)
-    joins, NoJoins -> Update(..update, join: joins |> Joins)
+    [], _ -> update
+    _, Joins(joins: existing_joins) ->
+      Update(..update, join: existing_joins |> list.append(joins) |> Joins)
+    _, NoJoins -> Update(..update, join: joins |> Joins)
   }
 }
 

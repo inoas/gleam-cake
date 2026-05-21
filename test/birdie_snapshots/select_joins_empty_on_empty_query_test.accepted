@@ -1,0 +1,20 @@
+---
+version: 2.0.0
+title: select_joins_empty_on_empty_query_test
+file: ./../test/cake_test/joins_empty_shadowing_test.gleam
+test_name: select_joins_empty_on_empty_query_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([SelectColumn("owners.name")]),
+  FromTable("owners"),
+  NoJoins,
+  NoWhere,
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

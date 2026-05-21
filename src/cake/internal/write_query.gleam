@@ -634,14 +634,14 @@ pub type UpdateModifier {
 ///
 pub type UpdateTable {
   NoUpdateTable
-  UpdateTable(String)
+  UpdateTable(table: String)
 }
 
 /// Specifies the columns to `UPDATE` and their values.
 ///
 pub type UpdateSets {
   NoUpdateSets
-  UpdateSets(List(UpdateSet))
+  UpdateSets(update_sets: List(UpdateSet))
 }
 
 /// Specifies an update set
@@ -680,7 +680,7 @@ fn update_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoUpdateTable -> prepared_statement
-    UpdateTable(table) ->
+    UpdateTable(table:) ->
       prepared_statement
       |> prepared_statement.append_sql(" " <> table)
   }
@@ -703,7 +703,7 @@ fn update_set_apply(
 ) -> PreparedStatement {
   case update_sets {
     NoUpdateSets -> prepared_statement
-    UpdateSets(update_sets) ->
+    UpdateSets(update_sets:) ->
       prepared_statement |> update_sets_apply(update_sets)
   }
 }
