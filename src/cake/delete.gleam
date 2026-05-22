@@ -354,7 +354,7 @@ pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 /// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite, and
 /// *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 ///
-/// NOTICE: This operator exists in 🦭MariaDB and 🐬MySQL, nativly.
+/// NOTICE: This operator exists in 🦭MariaDB and 🐬MySQL, natively.
 ///
 pub fn xor_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {

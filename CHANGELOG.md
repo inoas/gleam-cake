@@ -70,7 +70,7 @@ and this project adheres to
   which can break downstream compilation for exhaustive pattern matches.
 
   This is MOST LIKELY not a breaking change, if only the builder
-  functions have been use to construct inserts.
+  functions have been used to construct inserts.
 
 ## [2.2.2] - 2026-04-26
 
@@ -133,7 +133,7 @@ and this project adheres to
 
 ## [1.1.2] - 2024-08-30
 
-- Consistent dialect function names across all 4 RDMBS, fixed/renamed functions:
+- Consistent dialect function names across all 4 RDBMS, fixed/renamed functions:
   - `postgres_dialect/read_cake_query_to_prepared_statement` =>
     `postgres_dialect/cake_query_to_prepared_statement`
   - `postgres_dialect/query_to_prepared_statement` =>
@@ -279,7 +279,7 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
   for `insert`, `update`, `delete` ontop of the existing
   `select` and `combined` interface modules.
 - Added support for 🦭MariaDB and 🐬MySQL.
-- Removed the hard dependency on any RDMBS specific
+- Removed the hard dependency on any RDBMS specific
   library. These are now only required when developing and testing
   this library, but when running you can chose any of the following adapters:
   - `pog`

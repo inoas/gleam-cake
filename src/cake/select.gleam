@@ -250,7 +250,7 @@ pub fn replace_select_col(select select: Select, name name: String) -> Select {
   name |> col |> replace_select(select:)
 }
 
-/// Add a `SelectValue`s to the `Select` query.
+/// Add a `SelectValue` to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
@@ -343,7 +343,7 @@ pub fn join(select select: Select, join join: Join) -> Select {
   }
 }
 
-/// Replaces any `Join`s of the `Select` query with a signle `Join`.
+/// Replaces any `Join`s of the `Select` query with a single `Join`.
 ///
 pub fn replace_join(select select: Select, join join: Join) -> Select {
   Select(..select, join: [join] |> Joins)
@@ -539,7 +539,7 @@ pub fn no_having(select select: Select) -> Select {
   Select(..select, having: NoWhere)
 }
 
-/// Gets`HAVING` in the `Select` query.
+/// Gets `HAVING` in the `Select` query.
 ///
 /// See function `having` on details why this returns a `Where`.
 ///

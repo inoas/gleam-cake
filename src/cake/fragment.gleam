@@ -129,7 +129,7 @@ pub fn true() -> Param {
   True |> BoolParam
 }
 
-/// Create a new `Param` with a `True` value.
+/// Create a new `Param` with a `False` value.
 ///
 pub fn false() -> Param {
   False |> BoolParam

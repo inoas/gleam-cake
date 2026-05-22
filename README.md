@@ -101,7 +101,7 @@ flexible and powerful tool to compose and craft SQL read and write queries.
 - High degree of flexibility to compose queries:
   While the focus is on building queries there is also support for replacing
   or removing parts of queries.
-- General support on these 4 large RDMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and
+- General support on these 4 large RDBMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and
   🐬MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
@@ -125,7 +125,7 @@ flexible and powerful tool to compose and craft SQL read and write queries.
   🦭MariaDB or 🐬MySQL.
 - No automagic optimization: This library is not here to replace SQL knowledge,
   but to allow crafting and combining SQL queries in a flexible and type safe
-  way. It might however work as a gateway to obtain SQL knowlege because
+  way. It might however work as a gateway to obtain SQL knowledge because
   the typed builder functions help to some degree in understanding how SQL
   queries can be crafted.
 

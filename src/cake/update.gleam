@@ -227,7 +227,7 @@ pub fn set_replace(update update: Update(a), set set: UpdateSet) -> Update(a) {
   Update(..update, set: [set] |> UpdateSets)
 }
 
-/// Sets or appends many column sets n an `Update` query.
+/// Sets or appends many column sets in an `Update` query.
 ///
 pub fn sets(update update: Update(a), set sets: List(UpdateSet)) -> Update(a) {
   case update.set {
@@ -294,7 +294,7 @@ pub fn join(update update: Update(a), join join: Join) -> Update(a) {
   }
 }
 
-/// Replaces any `Join`s of the `Update` query with a signle `Join`.
+/// Replaces any `Join`s of the `Update` query with a single `Join`.
 ///
 /// NOTICE: On 🐘PostgreSQL and 🪶SQLite `Joins` are only allowed if the `FROM`
 /// clause is set as well.
