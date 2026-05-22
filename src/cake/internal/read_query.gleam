@@ -1347,15 +1347,15 @@ pub type OrderByValue {
 /// Order by direction can be one of:
 ///
 /// - `Asc` - Ascending order
-/// - `AscNullsFirst` - Ascending order with nulls first, supported by
-///   🦭MariaDB nor 🐬MySQL
-/// - `AscNullsLast` - Ascending order with nulls last, supported by
-///   🦭MariaDB nor 🐬MySQL
+/// - `AscNullsFirst` - Ascending order with nulls first, NOT supported by
+///   🦭MariaDB or 🐬MySQL
+/// - `AscNullsLast` - Ascending order with nulls last, NOT supported by
+///   🦭MariaDB or 🐬MySQL
 /// - `Desc` - Descending order
-/// - `DescNullsFirst` - Descending order with nulls first, supported by
-///    🦭MariaDB nor 🐬MySQL
-/// - `DescNullsLast` - Descending order with nulls last, supported by
-///    🦭MariaDB nor 🐬MySQL
+/// - `DescNullsFirst` - Descending order with nulls first, NOT supported by
+///    🦭MariaDB or 🐬MySQL
+/// - `DescNullsLast` - Descending order with nulls last, NOT supported by
+///    🦭MariaDB or 🐬MySQL
 ///
 pub type OrderByDirection {
   Asc

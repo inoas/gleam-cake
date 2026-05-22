@@ -85,8 +85,6 @@ pub fn union_all(query_a query_a: Select, query_b query_b: Select) -> Combined {
 /// Creates a `UNION ALL` query out of two or more queries as a `Combined`
 /// `ReadQuery`.
 ///
-/// NOTICE: Not supported by 🪶SQLite.
-///
 pub fn unions_all(
   query_a query_a: Select,
   query_b query_b: Select,
@@ -148,7 +146,7 @@ pub fn intersect(query_a query_a: Select, query_b query_b: Select) -> Combined {
 }
 
 /// Creates an `INTERSECT` query out of two or more queries as a `Combined`
-/// read_query.
+/// `ReadQuery`.
 ///
 pub fn intersects(
   query_a query_a: Select,
