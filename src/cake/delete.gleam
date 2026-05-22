@@ -401,9 +401,9 @@ pub fn no_returning(delete delete: Delete(a)) -> Delete(a) {
   Delete(..delete, returning: NoReturning)
 }
 
-// ▒▒▒ Epilogue ▒▒▒
+// ▒▒▒ Epilog ▒▒▒
 
-/// Specify an epilogue for the `Delete` query.
+/// Specify an epilog for the `Delete` query.
 ///
 pub fn epilog(delete delete: Delete(a), epilog epilog: String) -> Delete(a) {
   let epilog = epilog |> string.trim
@@ -413,13 +413,13 @@ pub fn epilog(delete delete: Delete(a), epilog epilog: String) -> Delete(a) {
   }
 }
 
-/// Specify that no epilogue should be added to the `Delete` query.
+/// Specify that no epilog should be added to the `Delete` query.
 ///
 pub fn no_epilog(delete delete: Delete(a)) -> Delete(a) {
   Delete(..delete, epilog: NoEpilog)
 }
 
-/// Get the epilogue from a `Delete` query.
+/// Get the epilog from a `Delete` query.
 ///
 pub fn get_epilog(delete delete: Delete(a)) -> Epilog {
   delete.epilog

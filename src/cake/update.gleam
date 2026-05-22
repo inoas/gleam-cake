@@ -454,7 +454,7 @@ pub fn no_returning(update update: Update(a)) -> Update(a) {
   Update(..update, returning: NoReturning)
 }
 
-// ▒▒▒ Epilogue ▒▒▒
+// ▒▒▒ Epilog ▒▒▒
 
 /// Sets an `Epilog` or appends into an existing `Epilog`.
 ///

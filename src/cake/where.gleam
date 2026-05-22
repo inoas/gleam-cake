@@ -52,19 +52,19 @@ pub fn col(name name: String) -> WhereValue {
 
 /// Creates a `WhereValue` from a `Float`.
 ///
-pub fn float(v value: Float) -> WhereValue {
+pub fn float(value value: Float) -> WhereValue {
   value |> FloatParam |> WhereParamValue
 }
 
 /// Creates a `WhereValue` from an `Int`.
 ///
-pub fn int(v value: Int) -> WhereValue {
+pub fn int(value value: Int) -> WhereValue {
   value |> IntParam |> WhereParamValue
 }
 
 /// Creates a `WhereValue` from a `String`.
 ///
-pub fn string(v value: String) -> WhereValue {
+pub fn string(value value: String) -> WhereValue {
   value |> StringParam |> WhereParamValue
 }
 
@@ -76,7 +76,7 @@ pub fn null() -> WhereValue {
 
 /// Creates a `WhereValue` from a `calendar.Date`.
 ///
-pub fn date(v value: calendar.Date) -> WhereValue {
+pub fn date(value value: calendar.Date) -> WhereValue {
   value |> DateParam |> WhereParamValue
 }
 
