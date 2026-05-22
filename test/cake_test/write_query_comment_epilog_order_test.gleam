@@ -44,7 +44,7 @@ fn insert_query() {
 /// Proves that the epilog appears before the `--` comment in a
 /// `DELETE` query: `DELETE FROM cats FOR SHARE -- trace id 42`.
 ///
-pub fn delete_epilog_after_comment_prepared_statement_test() {
+pub fn delete_epilog_before_comment_prepared_statement_test() {
   let pgo = delete_query() |> postgres.write_query_to_prepared_statement
   let lit = delete_query() |> sqlite.write_query_to_prepared_statement
   let mdb = delete_query() |> maria.write_query_to_prepared_statement
@@ -52,14 +52,14 @@ pub fn delete_epilog_after_comment_prepared_statement_test() {
 
   #(pgo, lit, mdb, myq)
   |> to_string
-  |> birdie.snap("delete_epilog_after_comment_prepared_statement_test")
+  |> birdie.snap("delete_epilog_before_comment_prepared_statement_test")
 }
 
 /// Proves that the epilog appears before the `--` comment in an
 /// `UPDATE` query:
 /// `UPDATE cats SET name = $1 FOR SHARE -- trace id 42`.
 ///
-pub fn update_epilog_after_comment_prepared_statement_test() {
+pub fn update_epilog_before_comment_prepared_statement_test() {
   let pgo = update_query() |> postgres.write_query_to_prepared_statement
   let lit = update_query() |> sqlite.write_query_to_prepared_statement
   let mdb = update_query() |> maria.write_query_to_prepared_statement
@@ -67,14 +67,14 @@ pub fn update_epilog_after_comment_prepared_statement_test() {
 
   #(pgo, lit, mdb, myq)
   |> to_string
-  |> birdie.snap("update_epilog_after_comment_prepared_statement_test")
+  |> birdie.snap("update_epilog_before_comment_prepared_statement_test")
 }
 
 /// Proves that the epilog appears before the `--` comment in an
 /// `INSERT` query:
 /// `INSERT INTO cats (name) VALUES ($1) FOR SHARE -- trace id 42`.
 ///
-pub fn insert_epilog_after_comment_prepared_statement_test() {
+pub fn insert_epilog_before_comment_prepared_statement_test() {
   let pgo = insert_query() |> postgres.write_query_to_prepared_statement
   let lit = insert_query() |> sqlite.write_query_to_prepared_statement
   let mdb = insert_query() |> maria.write_query_to_prepared_statement
@@ -82,5 +82,5 @@ pub fn insert_epilog_after_comment_prepared_statement_test() {
 
   #(pgo, lit, mdb, myq)
   |> to_string
-  |> birdie.snap("insert_epilog_after_comment_prepared_statement_test")
+  |> birdie.snap("insert_epilog_before_comment_prepared_statement_test")
 }
