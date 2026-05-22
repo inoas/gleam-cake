@@ -258,10 +258,7 @@ pub fn replace_select(
   select select: Select,
   select_value select_value: SelectValue,
 ) -> Select {
-  case select.select {
-    NoSelects -> Select(..select, select: [select_value] |> Selects)
-    Selects(_) -> Select(..select, select: [select_value] |> Selects)
-  }
+  Select(..select, select: [select_value] |> Selects)
 }
 
 /// Adds many column names as `SelectValue`s to the `Select` query.
@@ -312,16 +309,15 @@ pub fn replace_select_cols(
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
+/// If no `SelectValue`s are provided, the query is returned as-is.
+///
 pub fn replace_selects(
   select select: Select,
   select_values select_values: List(SelectValue),
 ) -> Select {
-  case select_values, select.select {
-    [], _ -> select
-    select_values, NoSelects ->
-      Select(..select, select: select_values |> Selects)
-    select_values, Selects(_) ->
-      Select(..select, select: select_values |> Selects)
+  case select_values {
+    [] -> select
+    _ -> Select(..select, select: select_values |> Selects)
   }
 }
 

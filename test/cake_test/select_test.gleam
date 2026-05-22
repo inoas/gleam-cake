@@ -55,6 +55,14 @@ fn select_mdb_myq_query() {
   |> s.to_query
 }
 
+fn replace_selects_query() {
+  s.new()
+  |> s.from_table("cats")
+  |> s.selects([s.col("a"), s.col("b")])
+  |> s.replace_selects([s.col("c"), s.col("d")])
+  |> s.to_query
+}
+
 fn select_pog_query() {
   new_select()
   // Unsupported/buggy on POG, see <https://github.com/lpil/pog/pull/71>
@@ -108,6 +116,23 @@ pub fn select_execution_result_test() {
   #(pgo, lit, mdb, myq)
   |> to_string
   |> birdie.snap("select_execution_result_test")
+}
+
+pub fn replace_selects_test() {
+  replace_selects_query()
+  |> to_string
+  |> birdie.snap("replace_selects_test")
+}
+
+pub fn replace_selects_prepared_statement_test() {
+  let pgo = replace_selects_query() |> postgres.read_query_to_prepared_statement
+  let lit = replace_selects_query() |> sqlite.read_query_to_prepared_statement
+  let mdb = replace_selects_query() |> maria.read_query_to_prepared_statement
+  let myq = replace_selects_query() |> mysql.read_query_to_prepared_statement
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("replace_selects_prepared_statement_test")
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

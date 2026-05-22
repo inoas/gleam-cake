@@ -214,12 +214,7 @@ pub fn replace_using_sub_query(
   query query: ReadQuery,
   alias alias: String,
 ) -> Delete(a) {
-  case delete.using {
-    NoDeleteUsing ->
-      Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
-    DeleteUsing(_) ->
-      Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
-  }
+  Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
 }
 
 /// Removes the `USING` clause from the `Delete` query.

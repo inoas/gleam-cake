@@ -50,7 +50,7 @@ pub type ReadQuery =
 pub type Select =
   read_query.Select
 
-/// Creates a `ReadQuery` from a `Combined` read_query.
+/// Creates a `ReadQuery` from a `Combined` `ReadQuery`.
 ///
 pub fn to_query(combined combined: Combined) -> ReadQuery {
   combined |> CombinedQuery
