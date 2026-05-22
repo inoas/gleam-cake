@@ -427,7 +427,7 @@ fn insert_not_exists_where_apply(
 
 fn insert_modifier_apply(
   prepared_statement prepared_statement: PreparedStatement,
-  insert_modifer insert_modifier: InsertModifier,
+  insert_modifier insert_modifier: InsertModifier,
 ) -> PreparedStatement {
   case insert_modifier {
     NoInsertModifier -> prepared_statement
@@ -452,8 +452,8 @@ fn insert_source_apply(
       |> insert_from_values_apply(source:)
     InsertSourceQuery(query:) ->
       prepared_statement
-      |> prepared_statement.append_sql(" VALUES")
-      |> insert_from_query_apply(query:)
+      |> prepared_statement.append_sql(" ")
+      |> read_query.apply(query)
     InsertSourceDefault ->
       prepared_statement |> prepared_statement.append_sql(" DEFAULT VALUES")
   }
@@ -561,16 +561,6 @@ fn row_apply(
       }
     },
   )
-}
-
-fn insert_from_query_apply(
-  prepared_statement prepared_statement: PreparedStatement,
-  query query: ReadQuery,
-) {
-  prepared_statement
-  |> prepared_statement.append_sql(" (")
-  |> read_query.apply(query)
-  |> prepared_statement.append_sql(")")
 }
 
 fn insert_on_conflict_apply(
@@ -790,7 +780,7 @@ fn update_sets_apply(
 /// `DELETE * FROM a USING a, b, WHERE a.b_id = b.id;`
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL may not support sub-queries in the `USING`
-/// clause. In such case you may use a sub-query in a `WHERE` clause, or use a ]
+/// clause. In such case you may use a sub-query in a `WHERE` clause, or use a
 /// join instead.
 ///
 pub type Delete(a) {
@@ -860,9 +850,9 @@ fn delete_table_apply(
 
 fn delete_modifier_apply(
   prepared_statement prepared_statement: PreparedStatement,
-  delete_modifer update_modifier: DeleteModifier,
+  delete_modifier delete_modifier: DeleteModifier,
 ) -> PreparedStatement {
-  case update_modifier {
+  case delete_modifier {
     NoDeleteModifier -> prepared_statement
     DeleteModifier(modifier:) ->
       prepared_statement |> prepared_statement.append_sql(" " <> modifier)
