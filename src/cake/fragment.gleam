@@ -9,12 +9,13 @@
 
 import cake/internal/read_query
 import cake/param.{
-  type Param, BoolParam, FloatParam, IntParam, NullParam, StringParam,
+  type Param, BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
 }
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/order
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │ read_query type re-exports                                                │
@@ -157,4 +158,10 @@ pub fn string(value value: String) -> Param {
 ///
 pub fn null() -> Param {
   NullParam
+}
+
+/// Create a new `Param` with a `calendar.Date` value.
+///
+pub fn date(date date: calendar.Date) -> Param {
+  DateParam(date:)
 }

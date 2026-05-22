@@ -11,9 +11,12 @@ import cake/internal/write_query.{
   UpdateExpressionSet, UpdateFragmentSet, UpdateParamSet, UpdateQuery,
   UpdateSets, UpdateSubQuerySet, UpdateTable,
 }
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/list
 import gleam/string
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │ read_query type re-exports                                                │
@@ -142,6 +145,12 @@ pub fn set_string(column column: String, value value: String) -> UpdateSet {
 ///
 pub fn set_null(column column: String) -> UpdateSet {
   NullParam |> UpdateParamSet(column:)
+}
+
+/// Sets a column to a `calendar.Date` `UpdateParamSet`.
+///
+pub fn set_date(column column: String, date date: calendar.Date) -> UpdateSet {
+  date |> DateParam |> UpdateParamSet(column:)
 }
 
 /// Sets a column to an expression value.

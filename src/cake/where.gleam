@@ -13,11 +13,11 @@
 
 import cake/internal/read_query.{
   AndWhere, Equal, Greater, GreaterOrEqual, Lower, LowerOrEqual, NoWhere,
-  NotWhere, OrWhere, WhereAllOfSubQuery, WhereAnyOfSubQuery, WhereBetween,
-  WhereColumnValue, WhereComparison, WhereExistsInSubQuery, WhereFragment,
-  WhereFragmentValue, WhereILike, WhereIn, WhereIsBool, WhereIsNotBool,
-  WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue, WhereSimilarTo,
-  WhereSubQueryValue, XorParityWhere, XorWhere,
+  NotWhere, OrWhere, Unequal, WhereAllOfSubQuery, WhereAnyOfSubQuery,
+  WhereBetween, WhereColumnValue, WhereComparison, WhereExistsInSubQuery,
+  WhereFragment, WhereFragmentValue, WhereILike, WhereIn, WhereIsBool,
+  WhereIsNotBool, WhereIsNotNull, WhereIsNull, WhereLike, WhereParamValue,
+  WhereSimilarTo, WhereSubQueryValue, XorParityWhere, XorWhere,
 }
 import cake/param.{
   BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
@@ -94,6 +94,12 @@ pub fn true() -> WhereValue {
 ///
 pub fn false() -> WhereValue {
   False |> BoolParam |> WhereParamValue
+}
+
+/// Creates a `WhereValue` from a `Bool`.
+///
+pub fn bool(value value: Bool) -> WhereValue {
+  value |> BoolParam |> WhereParamValue
 }
 
 /// Creates a `WhereValue` off a `ReadQuery`.
@@ -254,6 +260,13 @@ pub fn gte(value_a value_a: WhereValue, value_b value_b: WhereValue) -> Where {
   value_a |> WhereComparison(operator: GreaterOrEqual, value_b:)
 }
 
+/// Creates a `WHERE` clause that checks if a `WhereValue` is not equal to
+/// another `WhereValue`.
+///
+pub fn neq(value_a value_a: WhereValue, value_b value_b: WhereValue) -> Where {
+  value_a |> WhereComparison(operator: Unequal, value_b:)
+}
+
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches any
 /// in a sub-query.
 ///
@@ -314,6 +327,18 @@ pub fn gte_any_query(
   value |> WhereAnyOfSubQuery(operator: GreaterOrEqual, query:)
 }
 
+/// Creates a `WHERE` clause that checks if a `WhereValue` is not equal to any
+/// in a sub-query.
+///
+/// NOTICE: Not supported by 🪶SQLite.
+///
+pub fn neq_any_query(
+  value value: WhereValue,
+  sub_query query: ReadQuery,
+) -> Where {
+  value |> WhereAnyOfSubQuery(operator: Unequal, query:)
+}
+
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches all
 /// in a sub-query.
 ///
@@ -372,6 +397,18 @@ pub fn gte_all_query(
   sub_query query: ReadQuery,
 ) -> Where {
   value |> WhereAllOfSubQuery(operator: GreaterOrEqual, query:)
+}
+
+/// Creates a `WHERE` clause that checks if a `WhereValue` is not equal to all
+/// in a sub-query.
+///
+/// NOTICE: Not supported by 🪶SQLite.
+///
+pub fn neq_all_query(
+  value value: WhereValue,
+  sub_query query: ReadQuery,
+) -> Where {
+  value |> WhereAllOfSubQuery(operator: Unequal, query:)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is IN a sub-query.

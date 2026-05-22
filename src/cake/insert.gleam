@@ -10,8 +10,11 @@ import cake/internal/write_query.{
   InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
   NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
 }
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/string
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │ read_query type re-exports                                                │
@@ -99,6 +102,12 @@ pub fn string(value value: String) -> InsertValue {
 ///
 pub fn null() -> InsertValue {
   NullParam |> InsertParam
+}
+
+/// Create an `InsertValue` from a `calendar.Date`.
+///
+pub fn date(date date: calendar.Date) -> InsertValue {
+  date |> DateParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a `Fragment`.
