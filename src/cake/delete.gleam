@@ -204,12 +204,7 @@ pub fn replace_using_table(
   delete delete: Delete(a),
   table_name table_name: String,
 ) -> Delete(a) {
-  case delete.using {
-    NoDeleteUsing ->
-      Delete(..delete, using: [table_name |> FromTable] |> DeleteUsing)
-    DeleteUsing(_) ->
-      Delete(..delete, using: [table_name |> FromTable] |> DeleteUsing)
-  }
+  Delete(..delete, using: [table_name |> FromTable] |> DeleteUsing)
 }
 
 /// Replaces the `USING` clause of the `Delete` query with a sub-query.
