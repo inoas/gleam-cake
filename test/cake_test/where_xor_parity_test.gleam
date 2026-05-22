@@ -102,7 +102,7 @@ fn where_xor_parity_null_data_check_query() {
 ///
 /// **BoolParam encoding:** MariaDB and MySQL store booleans as TINYINT(1).
 /// Their Erlang driver (mysql_encode) has no clause for Erlang boolean atoms,
-/// so the adapters convert BoolParam to shork.int(1 | 0) before binding.
+/// so the adapters convert BoolParam to shork.int(1 or 0) before binding.
 /// The prepared-statement representation still shows BoolParam(True) as the
 /// logical param type; the int conversion is an adapter-level detail.
 ///
