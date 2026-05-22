@@ -710,7 +710,7 @@ pub fn order_by_asc_nulls_last(
 ) -> Select {
   select
   |> read_query.select_order_by(
-    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsFirst)]
+    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsLast)]
       |> OrderBy,
     append: True,
   )
@@ -755,7 +755,7 @@ pub fn replace_order_by_asc_nulls_last(
 ) -> Select {
   select
   |> read_query.select_order_by(
-    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsFirst)]
+    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsLast)]
       |> OrderBy,
     append: False,
   )
@@ -800,7 +800,7 @@ pub fn order_by_desc_nulls_last(
 ) -> Select {
   select
   |> read_query.select_order_by(
-    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsFirst)]
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsLast)]
       |> OrderBy,
     append: True,
   )
@@ -845,7 +845,7 @@ pub fn replace_order_by_desc_nulls_last(
 ) -> Select {
   select
   |> read_query.select_order_by(
-    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsFirst)]
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsLast)]
       |> OrderBy,
     append: False,
   )
