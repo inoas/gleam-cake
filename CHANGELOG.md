@@ -26,6 +26,11 @@ and this project adheres to
   MariaDB or MySQL with three or more conditions will observe different query
   results after upgrading.
 
+- [BREAKING] **`where.float`, `where.int`, `where.string`, `where.date`
+  external parameter label renamed from `v` to `value`.**  Any call site
+  using named-argument syntax (e.g. `where.float(v: 1.0)`) must be updated
+  to `where.float(value: 1.0)`. Positional call sites are unaffected.
+
 ### Added
 
 - **`where.xor_parity`**: a new function implementing odd-parity XOR (returns
@@ -36,6 +41,17 @@ and this project adheres to
   on all four dialects, matching native `XOR` behaviour. Prefer `xor_parity`
   over `xor` when targeting three or more conditions and odd-count semantics
   are required.
+
+- **`where.bool`**: creates a `WhereValue` from a runtime `Bool` variable.
+  Complements the existing `where.true()` and `where.false()` constants.
+
+- **`where.neq`, `where.neq_any_query`, `where.neq_all_query`**: not-equal
+  comparison functions, emitting `<>`, `<> ANY`, and `<> ALL` respectively.
+  `neq_any_query` and `neq_all_query` are not supported by 🪶SQLite.
+
+- **`fragment.date`, `insert.date`, `update.set_date`**: convenience
+  constructors for `calendar.Date` values, bringing date support in line with
+  the other param-creating helpers across all builder modules.
 
 ### Fixed
 
@@ -62,6 +78,13 @@ and this project adheres to
   the 🦭MariaDB / 🐬MySQL `INSERT IGNORE` fallback path, where a
   user-supplied priority modifier (e.g. `LOW_PRIORITY`) is now correctly
   placed before `IGNORE INTO`: `INSERT LOW_PRIORITY IGNORE INTO …`.
+
+- **`select.order_by_asc_nulls_last`, `select.replace_order_by_asc_nulls_last`,
+  `select.order_by_desc_nulls_last`, `select.replace_order_by_desc_nulls_last`
+  emitted `NULLS FIRST` instead of `NULLS LAST`**: all four functions passed
+  the wrong `OrderByDirection` variant internally, causing e.g.
+  `ORDER BY col ASC NULLS FIRST` to be emitted when `NULLS LAST` was
+  requested. The equivalent functions in `combined` were unaffected.
 
 ## [3.0.0] - 2026-04-29
 
