@@ -8,7 +8,7 @@ and this project adheres to
 ## [Unreleased]
 -->
 
-## [4.0.0] - 2026-05-22
+## [4.0.0] - 2026-05-23
 
 ### Breaking changes
 

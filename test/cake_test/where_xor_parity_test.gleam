@@ -100,12 +100,6 @@ fn where_xor_parity_null_data_check_query() {
 /// Biffy is absent on all four adapters, confirming NULL-poisoning works
 /// consistently for boolean columns.
 ///
-/// **BoolParam encoding:** MariaDB and MySQL store booleans as TINYINT(1).
-/// Their Erlang driver (mysql_encode) has no clause for Erlang boolean atoms,
-/// so the adapters convert BoolParam to shork.int(1 or 0) before binding.
-/// The prepared-statement representation still shows BoolParam(True) as the
-/// logical param type; the int conversion is an adapter-level detail.
-///
 /// Expected matches:     Nubi (0+1=1), Ginny (1+0=1), Clara (0+1=1).
 /// Expected non-match:   Biffy — poisoned by NULL is_wild (all adapters).
 fn where_xor_parity_null_bool_query() {
@@ -140,8 +134,8 @@ fn where_xor_parity_null_bool_query() {
 /// does not equal that value (FALSE), so TRUE XOR FALSE = 1 true = odd
 /// = match. Both outcomes are correct given each engine’s storage type.
 ///
-/// Expected on 🐘PostgreSQL / 🪶SQLite:  Karl only (1+0=1, Ginny absent).
-/// Expected on 🦭MariaDB / 🐬MySQL:         Biffy, Karl (Ginny still absent).
+/// Expected on 🐘PostgreSQL / 🪶SQLite: Karl only (1+0=1, Ginny absent).
+/// Expected on 🦭MariaDB / 🐬MySQL: Biffy, Karl (Ginny still absent).
 fn where_xor_parity_null_float_query() {
   s.new()
   |> s.from_table("cats")

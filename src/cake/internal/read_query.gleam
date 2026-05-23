@@ -1701,7 +1701,7 @@ pub fn fragment_apply(
           // TODO: consider logger.warning at runtime.
           params |> list.take(up_to: fragment_placeholder_count)
         // User error: Not enough params or too many placeholders
-        order.Gt -> {
+        order.Gt ->
           case params |> list.last {
             Ok(last_item) -> {
               // If there are more placeholders than params, we repeat the last
@@ -1717,7 +1717,6 @@ pub fn fragment_apply(
             // `FragmentPrepared(fragment:, params: []) ->`
             Error(Nil) -> params
           }
-        }
       }
 
       case fragments {
