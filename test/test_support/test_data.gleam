@@ -74,7 +74,7 @@ pub fn drop_counters_table_if_exists() {
 
 pub fn create_counters_table() {
   "CREATE TABLE counters (
-    name TEXT,
+    name VARCHAR(255),
     counter INT,
     is_active BOOLEAN,
     UNIQUE (name)

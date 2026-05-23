@@ -79,6 +79,7 @@ pub fn inner_join_lateral_execution_result_test() {
   let lit = inner_join_lateral_query() |> sqlite_test_helper.setup_and_run
   // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
   let mdb = inner_join_lateral_query() |> maria_test_helper.setup_and_run
+  // ... however, 🐬MySQL supports them
   let myq = inner_join_lateral_query() |> mysql_test_helper.setup_and_run
 
   #(pgo, lit, mdb, myq)
@@ -112,6 +113,7 @@ pub fn left_join_lateral_execution_result_test() {
   let lit = left_join_lateral_query() |> sqlite_test_helper.setup_and_run
   // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
   let mdb = left_join_lateral_query() |> maria_test_helper.setup_and_run
+  // ... however, 🐬MySQL supports them
   let myq = left_join_lateral_query() |> mysql_test_helper.setup_and_run
 
   #(pgo, lit, mdb, myq)
@@ -146,6 +148,7 @@ pub fn cross_join_lateral_execution_result_test() {
   let lit = cross_join_lateral_query() |> sqlite_test_helper.setup_and_run
   // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
   let mdb = cross_join_lateral_query() |> maria_test_helper.setup_and_run
+  // ... however, 🐬MySQL supports them
   let myq = cross_join_lateral_query() |> mysql_test_helper.setup_and_run
 
   #(pgo, lit, mdb, myq)

@@ -15,6 +15,6 @@ title: insert_modifier_execution_result_test
   )),
   Error(ServerError(
     1064,
-    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'OR REPLACE INTO cats (name) VALUES (?)' at line 1",
+    "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'OR REPLACE INTO cats (name) VALUES (?)' at line 1",
   )),
 )
