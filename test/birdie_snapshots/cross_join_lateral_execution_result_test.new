@@ -1,8 +1,6 @@
 ---
 version: 2.0.0
 title: cross_join_lateral_execution_result_test
-file: ./../test/cake_test/join_lateral_test.gleam
-test_name: cross_join_lateral_execution_result_test
 ---
 #(
   Ok([#("Nubi"), #("Biffy"), #("Ginny")]),

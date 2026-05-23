@@ -1,21 +1,13 @@
 ---
 version: 2.0.0
-title: left_join_lateral_execution_result_test
-file: ./../test/cake_test/join_lateral_test.gleam
-test_name: left_join_lateral_execution_result_test
+title: inner_join_lateral_execution_result_test
 ---
 #(
-  Ok([
-    #("Nubi"),
-    #("Biffy"),
-    #("Ginny"),
-    #("Karl"),
-    #("Clara"),
-  ]),
+  Ok([#("Nubi"), #("Biffy"), #("Ginny")]),
   Error(SqlightError(
     GenericError,
     "near "SELECT": syntax error",
-    46,
+    47,
   )),
   Error(ServerError(
     1064,
