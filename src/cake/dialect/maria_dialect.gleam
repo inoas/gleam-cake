@@ -1,4 +1,4 @@
-//// 🦭MariaDB dialect to be used in conjunction with the `shork` or `gmysql` libraries.
+//// 🦭MariaDB dialect to be used in conjunction with the `shork` library.
 ////
 
 import cake

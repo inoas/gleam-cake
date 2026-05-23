@@ -109,7 +109,6 @@ flexible and powerful tool to compose and craft SQL read and write queries.
   - Postgres: [pog](https://hex.pm/packages/pog)
   - SQLite: [sqlight](https://hex.pm/packages/sqlight)
   - MariaDB & MySQL: [shork](https://hex.pm/packages/shork)
-    or [gmysql](https://hex.pm/packages/gmysql)
 - Allow to define custom SQL fragments while still being safe
   from SQL injections by using prepared statements.
 

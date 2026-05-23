@@ -86,6 +86,13 @@ and this project adheres to
   `ORDER BY col ASC NULLS FIRST` to be emitted when `NULLS LAST` was
   requested. The equivalent functions in `combined` were unaffected.
 
+- Fixed examples to run without tinkering.
+
+### Removed
+
+- `gmysql` not mentioned anymore because it seems unmaintained.
+  The old adapter may still work with old cake versions.
+
 ## [3.0.0] - 2026-04-29
 
 - Added support for fragments in Inserts and Updates. Thanks to @qwexvf.

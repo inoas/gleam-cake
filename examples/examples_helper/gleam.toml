@@ -1,6 +1,6 @@
 name = "examples_helper"
 description = "An examples helper for Cake"
-gleam = ">= 1.11.1"
+gleam = ">= 1.15.0"
 
 [dependencies]
 # cake = ">= 2.1.2 and < 3.0.0"

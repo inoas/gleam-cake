@@ -1,6 +1,6 @@
 name = "cake_demo_select_join"
 description = "A demo of using Gleam with Cake and 🐘PostgreSQL to run SELECT with JOIN queries"
-gleam = ">= 1.11.1"
+gleam = ">= 1.15.0"
 
 [dependencies]
 # cake = ">= 2.1.2 and < 3.0.0"
