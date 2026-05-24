@@ -153,7 +153,7 @@ pub fn using_table(
   case delete.using {
     NoDeleteUsing ->
       Delete(..delete, using: [table_name |> FromTable] |> DeleteUsing)
-    DeleteUsing(delete_usings) ->
+    DeleteUsing(froms: delete_usings) ->
       Delete(
         ..delete,
         using: delete_usings
@@ -188,7 +188,7 @@ pub fn using_sub_query(
   case delete.using {
     NoDeleteUsing ->
       Delete(..delete, using: [query |> FromSubQuery(alias:)] |> DeleteUsing)
-    DeleteUsing(delete_usings) ->
+    DeleteUsing(froms: delete_usings) ->
       Delete(
         ..delete,
         using: delete_usings
@@ -228,7 +228,7 @@ pub fn no_using(delete delete: Delete(a)) -> Delete(a) {
 pub fn get_using(delete delete: Delete(a)) -> List(From) {
   case delete.using {
     NoDeleteUsing -> []
-    DeleteUsing(using) -> using
+    DeleteUsing(froms: using) -> using
   }
 }
 
