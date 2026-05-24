@@ -1,0 +1,7 @@
+---
+version: 2.0.0
+title: insert_conflict_ignore_column_single_row_execution_test
+file: ./../test/cake_test/insert_conflict_ignore_maria_mysql_test.gleam
+test_name: insert_conflict_ignore_column_single_row_execution_test
+---
+Ok([#(0, 1, 0)])

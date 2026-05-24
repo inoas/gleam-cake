@@ -5,7 +5,7 @@
 // TODO v3 Add to query validator?
 
 import cake/fragment.{type Fragment}
-import cake/internal/dialect.{type Dialect}
+import cake/internal/dialect.{type Dialect, Maria, Mysql}
 import cake/internal/prepared_statement.{type PreparedStatement}
 import cake/internal/read_query.{
   type Comment, type Epilog, type From, type Joins, type ReadQuery, type Where,
@@ -194,14 +194,14 @@ fn insert_apply(
     // `InsertConflictIgnore` is translated to `INSERT IGNORE INTO`, which
     // silently discards all key-constraint violations on any column.
     //
-    // ⚠️  `INSERT IGNORE` is broader than `ON CONFLICT DO NOTHING`:
-    //   - it applies to every unique/primary-key constraint, not just the
-    //     specified target columns.
-    //   - it also suppresses other warnings such as data-truncation errors.
-    //   - the index predicate (`WHERE`) has no equivalent and is dropped.
-    dialect.Maria, InsertConflictIgnore(..)
-    | dialect.Mysql, InsertConflictIgnore(..)
-    ->
+    // ⚠️ `INSERT IGNORE` is broader than `ON CONFLICT DO NOTHING`:
+    //
+    // - it applies to every unique/primary-key constraint, not just the
+    //   specified target columns.
+    // - it also suppresses other warnings such as data-truncation errors.
+    // - the index predicate (`WHERE`) has no equivalent and is dropped.
+    //
+    Maria, InsertConflictIgnore(..) | Mysql, InsertConflictIgnore(..) ->
       prepared_statement
       |> insert_conflict_ignore_maria_mysql_apply(insert)
       |> returning_apply(insert.returning)
@@ -261,8 +261,10 @@ fn insert_columns_apply(
   }
 }
 
-/// Generates `INSERT INTO … SELECT … WHERE NOT EXISTS (SELECT 1 FROM … FOR UPDATE)`
-/// for 🦭MariaDB and 🐬MySQL when the conflict strategy is `InsertConflictIgnore`.
+/// Generates
+/// `INSERT INTO … SELECT … WHERE NOT EXISTS (SELECT 1 FROM … FOR UPDATE)`
+/// for 🦭MariaDB and 🐬MySQL when the conflict strategy is
+/// `InsertConflictIgnore`.
 ///
 /// Falls back to `INSERT IGNORE` when:
 /// - the conflict target is a named constraint (no column names to build
@@ -322,7 +324,8 @@ fn insert_conflict_ignore_maria_mysql_apply(
           )
       }
     }
-    // Constraint-based target or missing table/columns: fall back to INSERT IGNORE
+    // Constraint-based target or missing table/columns:
+    // fall back to INSERT IGNORE
     _, _, _ ->
       prepared_statement
       |> prepared_statement.append_sql("INSERT")
