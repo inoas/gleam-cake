@@ -102,7 +102,7 @@ pub fn no_modifier(delete delete: Delete(a)) -> Delete(a) {
 pub fn get_modifier(delete delete: Delete(a)) -> String {
   case delete.modifier {
     NoDeleteModifier -> ""
-    DeleteModifier(modifier) -> modifier
+    DeleteModifier(modifier:) -> modifier
   }
 }
 
