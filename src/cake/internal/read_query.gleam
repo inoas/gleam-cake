@@ -1732,8 +1732,7 @@ pub fn fragment_apply(
                 accumulator: #(PreparedStatement, List(Param)),
                 fragment: String,
               ) -> #(PreparedStatement, List(Param)) {
-                let new_prepared_statement = accumulator.0
-                let params = accumulator.1
+                let #(new_prepared_statement, params) = accumulator
                 case fragment == fragment_placeholder_grapheme, params {
                   False, _ -> #(
                     new_prepared_statement
