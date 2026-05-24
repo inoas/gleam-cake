@@ -252,7 +252,7 @@ pub fn source_values(
 }
 
 /// Get the source from an `Insert` query which is either a list of records,
-/// accompanied by a encoder function or a list of `InsertRow`s.
+/// accompanied by an encoder function or a list of `InsertRow`s.
 ///
 pub fn get_source(insert insert: Insert(a)) -> InsertSource(a) {
   insert.source
@@ -260,7 +260,7 @@ pub fn get_source(insert insert: Insert(a)) -> InsertSource(a) {
 
 /// Specify the columns to insert into.
 ///
-/// NOTICE: You have to specify the columns and keep track if their names are
+/// NOTICE: You have to specify the columns and ensure their names are
 /// correct, as well as their count which must be equal to the count of
 /// `InsertRows` the encoder function returns or is given as source
 ///          values.

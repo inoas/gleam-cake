@@ -288,7 +288,7 @@ pub fn order_by_asc_nulls_last(
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy`.
 ///
 pub fn replace_order_by_asc(
   query query: Combined,
@@ -301,7 +301,7 @@ pub fn replace_order_by_asc(
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS FIRST`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy` with `NULLS FIRST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
@@ -316,7 +316,7 @@ pub fn replace_order_by_asc_nulls_first(
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS LAST`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy` with `NULLS LAST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
@@ -374,7 +374,7 @@ pub fn order_by_desc_nulls_last(
   )
 }
 
-/// Replaces the `OrderBy` a single descending order.
+/// Replaces the `OrderBy` with a single descending order.
 ///
 pub fn replace_order_by_desc(
   query query: Combined,
@@ -387,7 +387,7 @@ pub fn replace_order_by_desc(
   )
 }
 
-/// Replaces the `OrderBy` a single descending order with `NULLS FIRST`.
+/// Replaces the `OrderBy` with a single descending order with `NULLS FIRST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
@@ -402,7 +402,7 @@ pub fn replace_order_by_desc_nulls_first(
   )
 }
 
-/// Replaces the `OrderBy` a single descending `OrderBy` with `NULLS LAST`.
+/// Replaces the `OrderBy` with a single descending `OrderBy` with `NULLS LAST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
@@ -417,7 +417,7 @@ pub fn replace_order_by_desc_nulls_last(
   )
 }
 
-/// Creates or appends an `OrderBy` a column with a direction.
+/// Creates or appends an `OrderBy` for a column with a direction.
 ///
 /// The direction can either `ASC` or `DESC`.
 ///
@@ -434,7 +434,7 @@ pub fn order_by(
   )
 }
 
-/// Replaces the `OrderBy` a column with a direction.
+/// Replaces the `OrderBy` with a column with a direction.
 ///
 pub fn replace_order_by(
   query query: Combined,

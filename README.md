@@ -1,11 +1,13 @@
 # 🎂 Cake SQL Query Builder for Gleam
 
-[![Package <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a> Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
+[![Downloads](https://img.shields.io/hexpm/dt/cake)](https://hex.pm/packages/cake)
 [![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)](https://www.erlang.org/)
 [![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)](https://en.wikipedia.org/wiki/JavaScript)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
-[![Discord](https://img.shields.io/discord/768594524158427167?label=discord%20chat&amp;color=5865F2)](https://discord.gg/Fm8Pwmy)
+[![Package <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a> Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
+[![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/main/LICENCE)
+[![Discord](https://img.shields.io/discord/768594524158427167?label=discord%20chat&amp;color=5865F2)](https://discord.gg/Fm8Pwmy)
 
 <br>
 <br>
@@ -168,12 +170,3 @@ bin/birdie/interactive-review
 bin/birdie/accept-all
 bin/birdie/reject-all
 ```
-
-## Library naming
-
-The best part of working with CakePHP 3+ used to be its Query Builder. This
-library is inspired by that and thus the name.
-
-Thank you [@lorenzo](https://github.com/lorenzo) and
-[@markstory](https://github.com/markstory) for creating and maintaining CakePHP
-and its awesome query builder over the years.
