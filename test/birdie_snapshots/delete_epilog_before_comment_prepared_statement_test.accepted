@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: delete_epilog_before_comment_prepared_statement_test
-file: ./../test/cake_test/write_query_comment_epilog_order_test.gleam
+file: ./test/cake_test/write_query_comment_epilog_order_test.gleam
 test_name: delete_epilog_before_comment_prepared_statement_test
 ---
 #(

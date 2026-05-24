@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: insert_records_test
-file: ./../test/cake_test/insert_records_test.gleam
+file: ./test/cake_test/insert_records_test.gleam
 test_name: insert_records_test
 ---
 #(
