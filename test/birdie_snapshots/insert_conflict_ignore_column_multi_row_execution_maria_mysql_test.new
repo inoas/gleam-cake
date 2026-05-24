@@ -1,0 +1,5 @@
+---
+version: 2.0.0
+title: insert_conflict_ignore_column_multi_row_execution_maria_mysql_test
+---
+#(Ok([#(0, 1, 0)]), Ok([#(0, 1, 0)]))

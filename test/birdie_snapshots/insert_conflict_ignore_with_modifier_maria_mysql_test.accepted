@@ -1,0 +1,30 @@
+---
+version: 2.0.0
+title: insert_conflict_ignore_with_modifier_maria_mysql_test
+file: ./../test/cake_test/insert_conflict_ignore_maria_mysql_test.gleam
+test_name: insert_conflict_ignore_with_modifier_maria_mysql_test
+---
+#(
+  PreparedStatement(
+    "?",
+    "INSERT HIGH_PRIORITY INTO counters (name, counter) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM counters WHERE name = ? FOR UPDATE)",
+    [
+      StringParam("Whiskers"),
+      IntParam(1),
+      StringParam("Whiskers"),
+    ],
+    3,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "INSERT HIGH_PRIORITY INTO counters (name, counter) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM counters WHERE name = ? FOR UPDATE)",
+    [
+      StringParam("Whiskers"),
+      IntParam(1),
+      StringParam("Whiskers"),
+    ],
+    3,
+    Mysql,
+  ),
+)
