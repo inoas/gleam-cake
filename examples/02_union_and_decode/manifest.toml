@@ -21,4 +21,4 @@ packages = [
 cake = { path = "../../" }
 cake_pog = { version = ">= 1.2.0 and < 2.0.0" }
 examples_helper = { path = "../examples_helper" }
-gleam_stdlib = { version = ">= 0.62.0 and < 2.0.0" }
+gleam_stdlib = { version = ">= 0.71.0 and < 2.0.0" }

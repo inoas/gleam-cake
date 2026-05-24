@@ -51,7 +51,7 @@ packages = [
 [requirements]
 birdie = { version = ">= 2.0.0 and < 3.0.0" }
 gleam_erlang = { version = ">= 1.3.0 and < 2.0.0" }
-gleam_stdlib = { version = ">= 0.62.0 and < 2.0.0" }
+gleam_stdlib = { version = ">= 0.71.0 and < 2.0.0" }
 gleam_time = { version = ">= 1.4.0 and < 2.0.0" }
 pog = { version = ">= 4.0.0 and < 5.0.0" }
 pprint = { version = ">= 1.0.6 and < 2.0.0" }

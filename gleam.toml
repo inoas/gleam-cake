@@ -13,7 +13,7 @@ pages = [
 ]
 
 [dependencies]
-gleam_stdlib = ">= 0.62.0 and < 2.0.0"
+gleam_stdlib = ">= 0.71.0 and < 2.0.0"
 gleam_time = ">= 1.4.0 and < 2.0.0"
 
 [dev-dependencies]

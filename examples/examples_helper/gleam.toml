@@ -5,4 +5,4 @@ gleam = ">= 1.15.0"
 [dependencies]
 cake = { path = "../../" }
 cake_pog = ">= 1.2.0 and < 2.0.0"
-gleam_stdlib = ">= 0.62.0 and < 2.0.0"
+gleam_stdlib = ">= 0.71.0 and < 2.0.0"
