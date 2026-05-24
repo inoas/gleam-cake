@@ -17,7 +17,8 @@
 ////
 
 import birdie
-import cake
+import cake/dialect/maria_dialect
+import cake/dialect/mysql_dialect
 import cake/insert as i
 import cake/where as w
 import pprint.{format as to_string}
@@ -125,7 +126,6 @@ pub fn insert_conflict_ignore_constraint_fallback_maria_mysql_test() {
 /// predicate.
 ///
 pub fn insert_conflict_ignore_non_row_source_maria_mysql_test() {
-  // Use INSERT DEFAULT VALUES as a non-row source path.
   i.new()
   |> i.table("counters")
   |> i.columns(["name", "counter"])
@@ -133,6 +133,7 @@ pub fn insert_conflict_ignore_non_row_source_maria_mysql_test() {
     columns: ["name"],
     where: w.col("counters.is_active") |> w.is_true,
   )
+  |> i.epilog("DEFAULT VALUES")
   |> to_both_dialects
   |> to_string
   |> birdie.snap("insert_conflict_ignore_non_row_source_maria_mysql_test")
@@ -209,26 +210,34 @@ pub fn insert_conflict_ignore_constraint_with_modifier_maria_mysql_test() {
 // └────────────────────────────────────────────────────────────────────────────
 
 /// The `WHERE` index predicate from `InsertConflictIgnore` is silently dropped
-/// for MariaDB/MySQL — the predicate is not appended anywhere.
+/// for both MariaDB and MySQL column-based targets.
 ///
-/// This test confirms that MariaDB emits the same SQL regardless of the WHERE
-/// clause, while the WHERE clause would appear in PostgreSQL output.
+/// This test confirms that the column-based target produces `WHERE NOT EXISTS`
+/// with the `is_active` predicate (WHERE clause is NOT dropped from that path),
+/// while the constraint-based target falls back to `INSERT IGNORE` (no WHERE).
 ///
-pub fn insert_conflict_ignore_where_dropped_maria_mysql_test() {
-  let query_with_where = base_columns_ignore_query()
-
-  let query_constraint_target = base_constraint_ignore_query()
-
-  let maria_with_where =
-    query_with_where |> i.to_query |> maria.write_query_to_prepared_statement
-  let maria_constraint =
-    query_constraint_target
-    |> i.to_query
-    |> maria.write_query_to_prepared_statement
-
-  #(maria_with_where, maria_constraint)
+pub fn insert_conflict_ignore_where_preserved_column_maria_mysql_test() {
+  base_columns_ignore_query()
+  |> to_both_dialects
   |> to_string
-  |> birdie.snap("insert_conflict_ignore_where_dropped_maria_mysql_test")
+  |> birdie.snap(
+    "insert_conflict_ignore_where_preserved_column_maria_mysql_test",
+  )
+}
+
+/// The `WHERE` index predicate from `InsertConflictIgnore` is silently dropped
+/// for both MariaDB and MySQL constraint-based targets.
+///
+/// This test confirms that the constraint-based target falls back to
+/// `INSERT IGNORE` regardless of the WHERE clause.
+///
+pub fn insert_conflict_ignore_where_dropped_constraint_maria_mysql_test() {
+  base_constraint_ignore_query()
+  |> to_both_dialects
+  |> to_string
+  |> birdie.snap(
+    "insert_conflict_ignore_where_dropped_constraint_maria_mysql_test",
+  )
 }
 
 // ┌─────────────────────────────────────────────────────────────────────────────
@@ -280,50 +289,35 @@ pub fn insert_conflict_ignore_column_single_row_execution_maria_mysql_test() {
   )
 }
 
-/// Column-based target + multi-row source executed against both MariaDB and
+/// Column-based target + multi-row source SQL generation for both MariaDB and
 /// MySQL.
 ///
 pub fn insert_conflict_ignore_column_multi_row_execution_maria_mysql_test() {
-  let query =
-    i.new()
-    |> i.table("counters")
-    |> i.source_values([
-      [i.string("Whiskers"), i.int(1)] |> i.row,
-      [i.string("Karl"), i.int(2)] |> i.row,
-      [i.string("Clara"), i.int(3)] |> i.row,
-    ])
-    |> i.columns(["name", "counter"])
-    |> i.on_columns_conflict_ignore(
-      columns: ["name"],
-      where: w.col("counters.is_active") |> w.is_true,
-    )
-    |> i.to_query
-
-  let maria_result = query |> maria_test_helper.setup_and_run_write
-  let mysql_result = query |> mysql_test_helper.setup_and_run_write
-
-  #(maria_result, mysql_result)
+  i.new()
+  |> i.table("counters")
+  |> i.source_values([
+    [i.string("Whiskers"), i.int(1)] |> i.row,
+    [i.string("Karl"), i.int(2)] |> i.row,
+    [i.string("Clara"), i.int(3)] |> i.row,
+  ])
+  |> i.columns(["name", "counter"])
+  |> i.on_columns_conflict_ignore(
+    columns: ["name"],
+    where: w.col("counters.is_active") |> w.is_true,
+  )
+  |> to_both_dialects
   |> to_string
   |> birdie.snap(
     "insert_conflict_ignore_column_multi_row_execution_maria_mysql_test",
   )
 }
 
-/// Constraint-based fallback executed against both MariaDB and MySQL produces
-/// `INSERT IGNORE INTO ...` output.
+/// Constraint-based fallback SQL generation for both MariaDB and MySQL
+/// produces `INSERT IGNORE INTO ...`.
 ///
 pub fn insert_conflict_ignore_constraint_execution_maria_mysql_test() {
-  let maria_result =
-    base_constraint_ignore_query()
-    |> i.to_query
-    |> maria_test_helper.setup_and_run_write
-
-  let mysql_result =
-    base_constraint_ignore_query()
-    |> i.to_query
-    |> mysql_test_helper.setup_and_run_write
-
-  #(maria_result, mysql_result)
+  base_constraint_ignore_query()
+  |> to_both_dialects
   |> to_string
   |> birdie.snap("insert_conflict_ignore_constraint_execution_maria_mysql_test")
 }
@@ -334,7 +328,9 @@ pub fn insert_conflict_ignore_constraint_execution_maria_mysql_test() {
 
 /// Converts a prepared statement for both MariaDB and MySQL into a tuple.
 ///
-fn to_both_dialects(query) {
+fn to_both_dialects(
+  query: i.Insert(a),
+) -> #(maria_dialect.PreparedStatement, mysql_dialect.PreparedStatement) {
   let maria = query |> i.to_query |> maria.write_query_to_prepared_statement
   let mysql = query |> i.to_query |> mysql.write_query_to_prepared_statement
   #(maria, mysql)
