@@ -85,7 +85,7 @@ pub fn col(name name: String) -> SelectValue {
 /// Creates an alias `SelectValue` from `String`.
 ///
 pub fn alias(value value: SelectValue, alias alias: String) -> SelectValue {
-  value |> SelectAlias(alias:)
+  value |> SelectAlias(name: alias)
 }
 
 /// Creates a `SelectValue` from a `Bool`.

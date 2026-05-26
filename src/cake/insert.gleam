@@ -226,7 +226,7 @@ pub fn no_modifier(insert insert: Insert(a)) -> Insert(a) {
 pub fn get_modifier(insert insert: Insert(a)) -> String {
   case insert.modifier {
     NoInsertModifier -> ""
-    InsertModifier(modifier:) -> modifier
+    InsertModifier(keyword:) -> keyword
   }
 }
 

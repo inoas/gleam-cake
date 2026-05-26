@@ -194,23 +194,23 @@ pub fn none() -> Where {
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches a `Bool`.
 pub fn is_bool(value value: WhereValue, bool bool: Bool) -> Where {
-  value |> WhereIsBool(bool:)
+  value |> WhereIsBool(expected: bool)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` does not match a
 /// `Bool`.
 pub fn is_not_bool(value value: WhereValue, bool bool: Bool) -> Where {
-  value |> WhereIsNotBool(bool:)
+  value |> WhereIsNotBool(expected: bool)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is `False`.
 pub fn is_false(value value: WhereValue) -> Where {
-  value |> WhereIsBool(bool: False)
+  value |> WhereIsBool(expected: False)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is `True`.
 pub fn is_true(value value: WhereValue) -> Where {
-  value |> WhereIsBool(bool: True)
+  value |> WhereIsBool(expected: True)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is SQL `NULL`.
@@ -276,7 +276,7 @@ pub fn eq_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: Equal, query:)
+  value |> WhereAnyOfSubQuery(operator: Equal, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than an any
@@ -288,7 +288,7 @@ pub fn lt_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: Lower, query:)
+  value |> WhereAnyOfSubQuery(operator: Lower, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
@@ -300,7 +300,7 @@ pub fn lte_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: LowerOrEqual, query:)
+  value |> WhereAnyOfSubQuery(operator: LowerOrEqual, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than any
@@ -312,7 +312,7 @@ pub fn gt_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: Greater, query:)
+  value |> WhereAnyOfSubQuery(operator: Greater, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
@@ -324,7 +324,7 @@ pub fn gte_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: GreaterOrEqual, query:)
+  value |> WhereAnyOfSubQuery(operator: GreaterOrEqual, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is not equal to any
@@ -336,7 +336,7 @@ pub fn neq_any_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAnyOfSubQuery(operator: Unequal, query:)
+  value |> WhereAnyOfSubQuery(operator: Unequal, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` matches all
@@ -348,7 +348,7 @@ pub fn eq_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: Equal, query:)
+  value |> WhereAllOfSubQuery(operator: Equal, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower than all
@@ -360,7 +360,7 @@ pub fn lt_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: Lower, query:)
+  value |> WhereAllOfSubQuery(operator: Lower, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is lower or equal to
@@ -372,7 +372,7 @@ pub fn lte_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: LowerOrEqual, query:)
+  value |> WhereAllOfSubQuery(operator: LowerOrEqual, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater than all
@@ -384,7 +384,7 @@ pub fn gt_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: Greater, query:)
+  value |> WhereAllOfSubQuery(operator: Greater, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is greater or equal
@@ -396,7 +396,7 @@ pub fn gte_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: GreaterOrEqual, query:)
+  value |> WhereAllOfSubQuery(operator: GreaterOrEqual, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is not equal to all
@@ -408,7 +408,7 @@ pub fn neq_all_query(
   value value: WhereValue,
   sub_query query: ReadQuery,
 ) -> Where {
-  value |> WhereAllOfSubQuery(operator: Unequal, query:)
+  value |> WhereAllOfSubQuery(operator: Unequal, select: query)
 }
 
 /// Creates a `WHERE` clause that checks if a `WhereValue` is IN a sub-query.

@@ -318,7 +318,7 @@ pub fn select_order_by(
 ///
 pub type Selects {
   NoSelects
-  Selects(select_values: List(SelectValue))
+  Selects(values: List(SelectValue))
 }
 
 /// A value that can be selected in a `SELECT` query.
@@ -328,11 +328,11 @@ pub type Selects {
 /// SELECT?
 ///
 pub type SelectValue {
-  SelectColumn(column: String)
+  SelectColumn(name: String)
   // TODO v2 Investigate -> probably makes no sense to have params in SELECT?
-  SelectParam(param: Param)
+  SelectParam(value: Param)
   SelectFragment(fragment: Fragment)
-  SelectAlias(value: SelectValue, alias: String)
+  SelectAlias(value: SelectValue, name: String)
 }
 
 fn select_clause_apply(
@@ -348,8 +348,8 @@ fn select_clause_apply(
     NoSelects ->
       prepared_statement
       |> prepared_statement.append_sql(sql: select_command <> " *")
-    Selects(select_values) -> {
-      case select_values {
+    Selects(values) -> {
+      case values {
         [] -> prepared_statement
         vs -> {
           let prepared_statement =
@@ -382,15 +382,15 @@ fn select_value_apply(
   value value: SelectValue,
 ) -> PreparedStatement {
   case value {
-    SelectColumn(column) ->
-      prepared_statement |> prepared_statement.append_sql(sql: column)
-    SelectParam(param) ->
-      prepared_statement |> prepared_statement.append_param(param:)
+    SelectColumn(name) ->
+      prepared_statement |> prepared_statement.append_sql(sql: name)
+    SelectParam(val) ->
+      prepared_statement |> prepared_statement.append_param(param: val)
     SelectFragment(fragment) -> prepared_statement |> fragment_apply(fragment)
-    SelectAlias(value, alias) ->
+    SelectAlias(value, name) ->
       prepared_statement
       |> select_value_apply(value)
-      |> prepared_statement.append_sql(sql: " AS " <> alias)
+      |> prepared_statement.append_sql(sql: " AS " <> name)
   }
 }
 
@@ -423,10 +423,10 @@ pub fn from_clause_apply(
     FromTable(table_name) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: " FROM " <> table_name)
-    FromSubQuery(query, alias) ->
+    FromSubQuery(sub_q, alias) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: " FROM (")
-      |> apply(query:)
+      |> apply(query: sub_q)
       |> prepared_statement.append_sql(sql: ") AS " <> alias)
   }
 }
@@ -445,13 +445,13 @@ pub fn from_clause_apply(
 ///
 pub type Where {
   NoWhere
-  NotWhere(where: Where)
-  AndWhere(wheres: List(Where))
-  OrWhere(wheres: List(Where))
-  XorWhere(wheres: List(Where))
-  XorParityWhere(wheres: List(Where))
-  WhereIsBool(value: WhereValue, bool: Bool)
-  WhereIsNotBool(value: WhereValue, bool: Bool)
+  NotWhere(condition: Where)
+  AndWhere(conditions: List(Where))
+  OrWhere(conditions: List(Where))
+  XorWhere(conditions: List(Where))
+  XorParityWhere(conditions: List(Where))
+  WhereIsBool(value: WhereValue, expected: Bool)
+  WhereIsNotBool(value: WhereValue, expected: Bool)
   WhereIsNull(value: WhereValue)
   WhereIsNotNull(value: WhereValue)
   WhereComparison(
@@ -462,15 +462,15 @@ pub type Where {
   WhereAnyOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    query: ReadQuery,
+    select: ReadQuery,
   )
   WhereAllOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    query: ReadQuery,
+    select: ReadQuery,
   )
   WhereIn(value: WhereValue, values: List(WhereValue))
-  WhereExistsInSubQuery(query: ReadQuery)
+  WhereExistsInSubQuery(select: ReadQuery)
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, pattern: String)
   WhereILike(value: WhereValue, pattern: String)
@@ -492,8 +492,8 @@ pub type WhereComparisonOperator {
 /// Describes the values for the `WHERE` clause of SQL queries.
 ///
 pub type WhereValue {
-  WhereColumnValue(column: String)
-  WhereParamValue(param: Param)
+  WhereColumnValue(name: String)
+  WhereParamValue(value: Param)
   WhereFragmentValue(fragment: Fragment)
   // NOTICE: For some commands, the return value must be scalar:
   // e.g. a result of 1 column, 1 row (LIMIT 1, and a single
@@ -502,7 +502,7 @@ pub type WhereValue {
   // TODO v3 If there are multiple, take the list of select values (projections)
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1?
-  WhereSubQueryValue(query: ReadQuery)
+  WhereSubQueryValue(select: ReadQuery)
 }
 
 /// Applies the `WHERE` clause to a prepared statement by appending the SQL
@@ -540,22 +540,22 @@ fn where_apply(
 ) -> PreparedStatement {
   case where {
     NoWhere -> prepared_statement
-    AndWhere(wheres) ->
+    AndWhere(conditions) ->
       prepared_statement
-      |> where_logical_operator_apply("AND", wheres, False)
-    OrWhere(wheres) ->
+      |> where_logical_operator_apply("AND", conditions, False)
+    OrWhere(conditions) ->
       prepared_statement
-      |> where_logical_operator_apply("OR", wheres, True)
-    XorWhere(wheres) ->
+      |> where_logical_operator_apply("OR", conditions, True)
+    XorWhere(conditions) ->
       prepared_statement
-      |> where_xor_apply(wheres)
-    XorParityWhere(wheres) ->
+      |> where_xor_apply(conditions)
+    XorParityWhere(conditions) ->
       prepared_statement
-      |> where_xor_parity_apply(wheres)
-    NotWhere(where) ->
+      |> where_xor_parity_apply(conditions)
+    NotWhere(condition) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: "NOT(")
-      |> where_apply(where)
+      |> where_apply(condition)
       |> prepared_statement.append_sql(sql: ")")
     WhereIsBool(value, True) ->
       prepared_statement
@@ -647,10 +647,10 @@ fn where_apply(
     WhereIn(value, values) ->
       prepared_statement
       |> where_value_in_values_apply(value, values)
-    WhereExistsInSubQuery(query) ->
+    WhereExistsInSubQuery(sub_q) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: " EXISTS ")
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(sub_q)
     WhereLike(value, param) ->
       prepared_statement
       |> where_comparison_apply(
@@ -685,19 +685,19 @@ fn where_literal_apply(
   literal literal: String,
 ) -> PreparedStatement {
   case value {
-    WhereColumnValue(column) ->
+    WhereColumnValue(col_name) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: column <> " " <> literal)
-    WhereParamValue(param) ->
+      |> prepared_statement.append_sql(sql: col_name <> " " <> literal)
+    WhereParamValue(param_val) ->
       prepared_statement
-      |> prepared_statement.append_param(param:)
+      |> prepared_statement.append_param(param: param_val)
     WhereFragmentValue(fragment:) ->
       prepared_statement
       |> fragment_apply(fragment)
       |> prepared_statement.append_sql(sql: " " <> literal)
-    WhereSubQueryValue(query) ->
+    WhereSubQueryValue(sub_q) ->
       prepared_statement
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(sub_q)
       |> prepared_statement.append_sql(sql: " " <> literal)
   }
 }

@@ -90,11 +90,8 @@ pub fn new() -> Update(a) {
 
 /// Sets the table of the `Update` query.
 ///
-pub fn table(
-  update update: Update(a),
-  table_name table_name: String,
-) -> Update(a) {
-  Update(..update, table: table_name |> UpdateTable)
+pub fn table(update update: Update(a), name name: String) -> Update(a) {
+  Update(..update, table: name |> UpdateTable)
 }
 
 /// Get the table of the `Update` query.
