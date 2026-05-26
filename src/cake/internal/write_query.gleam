@@ -115,7 +115,35 @@ pub type InsertColumns {
 }
 
 /// The `InsertModifier` type is used to define the modifier to be used when
-/// inserting data into a table.
+/// An optional modifier placed between `INSERT` and `INTO`, e.g.
+/// `INSERT <modifier> INTO ...`.
+///
+/// Common modifiers by RDBMS:
+///
+/// **🪶SQLite**
+/// - `OR ABORT`    – abort the statement on conflict, roll back only that
+///                   statement, preserve the transaction (default behaviour)
+/// - `OR FAIL`     – abort the statement on conflict, leave already-inserted
+///                   rows intact, do not roll back the transaction
+/// - `OR IGNORE`   – silently skip rows that violate a constraint
+/// - `OR REPLACE`  – delete the conflicting row and insert the new one (upsert)
+/// - `OR ROLLBACK` – abort the statement on conflict and roll back the entire
+///                   transaction
+///
+/// **🦭MariaDB**
+/// - `LOW_PRIORITY`  – delay the insert until no other clients are reading the
+///                    table (MyISAM / MEMORY / MERGE engines only)
+/// - `DELAYED`       – deprecated since MariaDB 10.6; inserts are queued and
+///                    executed in the background (MyISAM only)
+/// - `HIGH_PRIORITY` – overrides a `LOW_PRIORITY` table setting
+/// - `IGNORE`        – silently ignore rows that violate a constraint (duplicate
+///                    key, type conversion errors, etc.)
+///
+/// **🐬MySQL**
+/// - `LOW_PRIORITY`  – as above
+/// - `DELAYED`       – deprecated in MySQL 5.6, removed in 8.0
+/// - `HIGH_PRIORITY` – as above
+/// - `IGNORE`        – as above
 ///
 pub type InsertModifier {
   NoInsertModifier
