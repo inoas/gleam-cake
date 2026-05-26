@@ -123,6 +123,30 @@ pub fn where_in_fragment_value_prepared_statement_accumulator_test() {
     == expected_params
 }
 
+pub fn where_in_fragment_value_execution_result_test() {
+  let query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.select(s.col("name"))
+    |> s.where(
+      w.col("cats.age")
+      |> w.in([
+        w.int(1),
+        w.fragment_value(f.prepared(f.placeholder, [f.int(2)])),
+      ]),
+    )
+    |> s.to_query
+
+  let pgo = query |> postgres_test_helper.setup_and_run
+  let lit = query |> sqlite_test_helper.setup_and_run
+  let mdb = query |> maria_test_helper.setup_and_run
+  let myq = query |> mysql_test_helper.setup_and_run
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("where_in_fragment_value_execution_result_test")
+}
+
 /// `IN` list with a `WhereParamValue`, a parameterless `WhereSubQueryValue`,
 /// and another `WhereParamValue`.
 ///
@@ -174,4 +198,36 @@ pub fn where_in_sub_query_value_prepared_statement_accumulator_test() {
     |> mysql.read_query_to_prepared_statement
     |> cake.get_params
     == expected_params
+}
+
+pub fn where_in_sub_query_value_execution_result_test() {
+  let new_sub_q =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("name"))
+    |> s.limit(1)
+    |> s.to_query
+
+  let query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.select(s.col("name"))
+    |> s.where(
+      w.col("cats.name")
+      |> w.in([
+        w.string("Alice"),
+        w.sub_query(new_sub_q),
+        w.string("Bob"),
+      ]),
+    )
+    |> s.to_query
+
+  let pgo = query |> postgres_test_helper.setup_and_run
+  let lit = query |> sqlite_test_helper.setup_and_run
+  let mdb = query |> maria_test_helper.setup_and_run
+  let myq = query |> mysql_test_helper.setup_and_run
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("where_in_sub_query_value_execution_result_test")
 }

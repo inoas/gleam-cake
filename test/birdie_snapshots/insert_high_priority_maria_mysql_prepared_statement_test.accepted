@@ -1,8 +1,8 @@
 ---
 version: 2.0.0
-title: insert_high_priority_prepared_statement_test
-file: ./../test/cake_test/insert_modifier_test.gleam
-test_name: insert_high_priority_prepared_statement_test
+title: insert_high_priority_maria_mysql_prepared_statement_test
+file: ./test/cake_test/insert_modifier_test.gleam
+test_name: insert_high_priority_maria_mysql_prepared_statement_test
 ---
 #(
   PreparedStatement(

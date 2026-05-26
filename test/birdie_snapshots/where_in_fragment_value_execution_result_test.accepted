@@ -1,0 +1,7 @@
+---
+version: 2.0.0
+title: where_in_fragment_value_execution_result_test
+file: ./test/cake_test/where_in_test.gleam
+test_name: where_in_fragment_value_execution_result_test
+---
+#(Ok([]), Ok([]), Ok([]), Ok([]))

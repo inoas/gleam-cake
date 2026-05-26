@@ -12,8 +12,8 @@
 ////
 //// ## Notice
 ////
-//// This module is a placeholder until rexporting functions is supported by
+//// This module is a placeholder until re-exporting functions is supported by
 //// Gleam.
 ////
 
-const waiting_for_gleam_export_feature = True
+pub const waiting_for_gleam_export_feature = True

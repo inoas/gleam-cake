@@ -1,17 +1,12 @@
-// Tests for the bug where calling `.joins(query, [])` — an empty list — on a
-// query that already has joins incorrectly replaces the existing joins with
-// `Joins([])` instead of leaving the query unchanged.
+// Tests verify that calling `.joins(query, [])` — an empty list — on a
+// query that already has joins leaves the query unchanged.
 //
-// Root cause: the first arm of each `joins` function was
-//
-//   [], _ -> X(..x, join: joins |> Joins)
-//
-// which creates `Joins([])` (shadowing the outer `joins = []` variable).
-// The correct behaviour, consistent with the `selects` function, is
+// The implementation follows the same behaviour as the `selects` function:
 //
 //   [], _ -> x
 //
-// i.e. return the query unchanged when the new-joins list is empty.
+// meaning that when the new-joins list is empty, the original query is
+// returned as-is without modifying existing joins.
 
 import birdie
 import cake/delete as d

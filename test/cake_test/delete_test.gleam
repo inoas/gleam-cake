@@ -136,11 +136,9 @@ pub fn delete_execution_result_test() {
 /// Two `USING` sub-queries, each carrying its own parameter.
 ///
 /// The second sub-query must not reset the prepared-statement accumulator to
-/// the outer state; before the fix it would have, causing `StringParam("Alice")`
-/// to be discarded and `StringParam("Bob")` to receive placeholder index `$1`
-/// instead of `$2`.
+/// the outer state.
 ///
-pub fn delete_using_from_sub_query_prepared_statement_accumulator_test() {
+pub fn delete_pgo_using_sub_query_prepared_statement_accumulator_test() {
   let new_sub_q1 =
     s.new()
     |> s.from_table("owners")
@@ -183,4 +181,37 @@ pub fn delete_using_from_sub_query_prepared_statement_accumulator_test() {
     |> mysql.write_query_to_prepared_statement
     |> cake.get_params
     == expected_params
+}
+
+/// 🦭MariaDB and 🐬MySQL do not support derived tables (sub-queries) in the
+/// `USING` clause of a multi-table `DELETE` - only literal table names are
+/// allowed there. 🪶SQLite does not support `USING` at all.
+/// This test therefore only covers 🐘PostgreSQL.
+///
+pub fn delete_pgo_using_sub_query_execution_result_test() {
+  let new_sub_q1 =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("id"))
+    |> s.where(w.col("name") |> w.eq(w.string("Alice")))
+    |> s.to_query
+
+  let new_sub_q2 =
+    s.new()
+    |> s.from_table("owners")
+    |> s.select(s.col("id"))
+    |> s.where(w.col("name") |> w.eq(w.string("Bob")))
+    |> s.to_query
+
+  let query =
+    d.new()
+    |> d.table("owners")
+    |> d.using_sub_query(new_sub_q1, "sub1")
+    |> d.using_sub_query(new_sub_q2, "sub2")
+    |> d.to_query
+
+  query
+  |> postgres_test_helper.setup_and_run_write
+  |> to_string
+  |> birdie.snap("delete_pgo_using_sub_query_execution_result_test")
 }

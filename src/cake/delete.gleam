@@ -175,10 +175,11 @@ pub fn using_table(
 ///
 /// NOTICE: 🪶SQLite does not support `USING`.
 ///
-/// NOTICE: 🦭MariaDB and 🐬MySQL may not support sub-queries in the `USING`
-/// clause.
-/// In such case you may use a sub-query in a `WHERE` clause,  or use a join
-/// instead.
+/// NOTICE: 🦭MariaDB and 🐬MySQL do not support derived tables (sub-queries)
+/// in the `USING` clause of a multi-table `DELETE` - only literal table names
+/// are accepted there. Use a sub-query in a `WHERE` clause or a `JOIN` instead.
+///
+/// NOTICE: 🪶SQLite does not support `USING` at all.
 ///
 pub fn using_sub_query(
   delete delete: Delete(a),

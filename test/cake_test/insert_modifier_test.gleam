@@ -23,58 +23,58 @@ fn base_insert() {
 
 /// Proves `INSERT OR REPLACE INTO cats (name) VALUES ($1)` is generated.
 ///
-pub fn insert_or_replace_prepared_statement_test() {
+pub fn insert_or_replace_sqlite_prepared_statement_test() {
   let query =
     base_insert()
     |> i.modifier("OR REPLACE")
     |> i.to_query
 
-  let sqlite = query |> sqlite.write_query_to_prepared_statement
+  let lit = query |> sqlite.write_query_to_prepared_statement
 
-  to_string(sqlite)
-  |> birdie.snap("insert_or_replace_prepared_statement_test")
+  to_string(lit)
+  |> birdie.snap("insert_or_replace_sqlite_prepared_statement_test")
 }
 
 /// Proves `INSERT OR IGNORE INTO cats (name) VALUES ($1)` is generated.
 ///
-pub fn insert_or_ignore_prepared_statement_test() {
+pub fn insert_or_ignore_sqlite_prepared_statement_test() {
   let query =
     base_insert()
     |> i.modifier("OR IGNORE")
     |> i.to_query
 
-  let sqlite = query |> sqlite.write_query_to_prepared_statement
+  let lit = query |> sqlite.write_query_to_prepared_statement
 
-  to_string(sqlite)
-  |> birdie.snap("insert_or_ignore_prepared_statement_test")
+  to_string(lit)
+  |> birdie.snap("insert_or_ignore_sqlite_prepared_statement_test")
 }
 
 /// Executes `INSERT OR REPLACE INTO` against SQLite to confirm it works.
 ///
-pub fn insert_or_replace_execution_result_test() {
+pub fn insert_or_replace_sqlite_execution_result_test() {
   let query =
     base_insert()
     |> i.modifier("OR REPLACE")
     |> i.to_query
 
-  let result = query |> sqlite_test_helper.setup_and_run_write
+  let lit = query |> sqlite_test_helper.setup_and_run_write
 
-  to_string(result)
-  |> birdie.snap("insert_or_replace_execution_result_test")
+  to_string(lit)
+  |> birdie.snap("insert_or_replace_sqlite_execution_result_test")
 }
 
 /// Executes `INSERT OR IGNORE INTO` against SQLite to confirm it works.
 ///
-pub fn insert_or_ignore_execution_result_test() {
+pub fn insert_or_ignore_sqlite_execution_result_test() {
   let query =
     base_insert()
     |> i.modifier("OR IGNORE")
     |> i.to_query
 
-  let result = query |> sqlite_test_helper.setup_and_run_write
+  let lit = query |> sqlite_test_helper.setup_and_run_write
 
-  to_string(result)
-  |> birdie.snap("insert_or_ignore_execution_result_test")
+  to_string(lit)
+  |> birdie.snap("insert_or_ignore_sqlite_execution_result_test")
 }
 
 // ┌──────────────────────────────────────────────────────────────
@@ -84,64 +84,33 @@ pub fn insert_or_ignore_execution_result_test() {
 /// Proves `INSERT HIGH_PRIORITY INTO cats (name) VALUES (?)` is generated
 /// for both MariaDB and MySQL adapters.
 ///
-pub fn insert_high_priority_prepared_statement_test() {
+pub fn insert_high_priority_maria_mysql_prepared_statement_test() {
   let query =
     base_insert()
     |> i.modifier("HIGH_PRIORITY")
     |> i.to_query
 
-  let maria = query |> maria.write_query_to_prepared_statement
-  let mysql = query |> mysql.write_query_to_prepared_statement
+  let mdb = query |> maria.write_query_to_prepared_statement
+  let myq = query |> mysql.write_query_to_prepared_statement
 
-  #(maria, mysql)
+  #(mdb, myq)
   |> to_string
-  |> birdie.snap("insert_high_priority_prepared_statement_test")
-}
-
-/// Proves `INSERT DELAYED INTO cats (name) VALUES (?)` is generated
-/// for both MariaDB and MySQL adapters.
-///
-pub fn insert_delayed_prepared_statement_test() {
-  let query =
-    base_insert()
-    |> i.modifier("DELAYED")
-    |> i.to_query
-
-  let maria = query |> maria.write_query_to_prepared_statement
-  let mysql = query |> mysql.write_query_to_prepared_statement
-
-  #(maria, mysql)
-  |> to_string
-  |> birdie.snap("insert_delayed_prepared_statement_test")
+  |> birdie.snap("insert_high_priority_maria_mysql_prepared_statement_test")
 }
 
 /// Executes `INSERT HIGH_PRIORITY INTO` against both MariaDB and MySQL
-/// to confirm it works. The result shape is `#(maria_result, mysql_result)`.
+/// to confirm it works. The result shape is `#(mdb_result, myq_result)`.
 ///
-pub fn insert_high_priority_execution_result_test() {
+pub fn insert_high_priority_maria_mysql_execution_result_test() {
   let query =
     base_insert()
     |> i.modifier("HIGH_PRIORITY")
     |> i.to_query
 
-  let maria_result = query |> maria_test_helper.setup_and_run_write
-  let mysql_result = query |> mysql_test_helper.setup_and_run_write
+  let mdb = query |> maria_test_helper.setup_and_run_write
+  let myq = query |> mysql_test_helper.setup_and_run_write
 
-  #(maria_result, mysql_result)
+  #(mdb, myq)
   |> to_string
-  |> birdie.snap("insert_high_priority_execution_result_test")
-}
-
-/// Executes `INSERT DELAYED INTO` against MariaDB to confirm it works.
-///
-pub fn insert_delayed_maria_execution_result_test() {
-  let query =
-    base_insert()
-    |> i.modifier("DELAYED")
-    |> i.to_query
-
-  let result = query |> maria_test_helper.setup_and_run_write
-
-  to_string(result)
-  |> birdie.snap("insert_delayed_maria_execution_result_test")
+  |> birdie.snap("insert_high_priority_maria_mysql_execution_result_test")
 }

@@ -135,6 +135,26 @@ pub fn replace_selects_prepared_statement_test() {
   |> birdie.snap("replace_selects_prepared_statement_test")
 }
 
+pub fn replace_selects_execution_result_test() {
+  // replace_selects_query() uses non-existent columns 'c'/'d'; use real
+  // cats columns here to exercise replace_selects against a live database.
+  let query =
+    s.new()
+    |> s.from_table("cats")
+    |> s.selects([s.col("name"), s.col("age")])
+    |> s.replace_selects([s.col("name"), s.col("is_wild")])
+    |> s.to_query
+
+  let pgo = query |> postgres_test_helper.setup_and_run
+  let lit = query |> sqlite_test_helper.setup_and_run
+  let mdb = query |> maria_test_helper.setup_and_run
+  let myq = query |> mysql_test_helper.setup_and_run
+
+  #(pgo, lit, mdb, myq)
+  |> to_string
+  |> birdie.snap("replace_selects_execution_result_test")
+}
+
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │ Unit Tests                                                                │
 // └───────────────────────────────────────────────────────────────────────────┘

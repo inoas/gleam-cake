@@ -1,0 +1,24 @@
+---
+version: 2.0.0
+title: insert_epilog_before_comment_execution_result_test
+---
+#(
+  Error(PostgresqlError(
+    "0A000",
+    "feature_not_supported",
+    "FOR SHARE cannot be applied to VALUES",
+  )),
+  Error(SqlightError(
+    GenericError,
+    "near "FOR": syntax error",
+    36,
+  )),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'SHARE -- trace id 42' at line 1",
+  )),
+  Error(ServerError(
+    1064,
+    "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FOR SHARE -- trace id 42' at line 1",
+  )),
+)

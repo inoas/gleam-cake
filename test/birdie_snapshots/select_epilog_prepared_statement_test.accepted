@@ -1,0 +1,29 @@
+---
+version: 2.0.0
+title: select_epilog_prepared_statement_test
+file: ./test/cake_test/epilog_test.gleam
+test_name: select_epilog_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT name, age FROM cats FOR UPDATE",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name, age FROM cats FOR UPDATE",
+    [],
+    0,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name, age FROM cats FOR UPDATE",
+    [],
+    0,
+    Mysql,
+  ),
+)
