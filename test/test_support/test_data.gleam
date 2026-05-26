@@ -77,7 +77,7 @@ pub fn create_counters_table() {
     name VARCHAR(255),
     counter INT,
     is_active BOOLEAN,
-    UNIQUE (name)
+    CONSTRAINT counters_name_unique UNIQUE (name)
   );"
 }
 

@@ -1,0 +1,43 @@
+---
+version: 2.0.0
+title: insert_pgo_on_constraint_conflict_update_test
+---
+InsertQuery(Insert(
+  InsertIntoTable("counters"),
+  InsertColumns([
+    "name",
+    "counter",
+    "is_active",
+  ]),
+  NoInsertModifier,
+  InsertSourceRows([
+    InsertRow([
+      InsertParam(StringParam("Fubi")),
+      InsertParam(IntParam(1)),
+      InsertParam(BoolParam(True)),
+    ]),
+  ]),
+  InsertConflictUpdate(
+    InsertConflictTargetConstraint("counters_name_unique"),
+    NoWhere,
+    Update(
+      NoUpdateTable,
+      NoUpdateModifier,
+      UpdateSets([
+        UpdateExpressionSet(
+          ["counter"],
+          "excluded.counter",
+        ),
+      ]),
+      NoFrom,
+      NoJoins,
+      NoWhere,
+      NoReturning,
+      NoEpilog,
+      NoComment,
+    ),
+  ),
+  Returning(["name", "counter"]),
+  NoEpilog,
+  NoComment,
+))

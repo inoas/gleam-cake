@@ -1,0 +1,15 @@
+---
+version: 2.0.0
+title: insert_pgo_on_constraint_conflict_update_prepared_statement_test
+---
+PreparedStatement(
+  "$",
+  "INSERT INTO counters (name, counter, is_active) VALUES ($1, $2, $3) ON CONFLICT ON CONSTRAINT counters_name_unique DO UPDATE SET counter = excluded.counter RETURNING name, counter",
+  [
+    StringParam("Fubi"),
+    IntParam(1),
+    BoolParam(True),
+  ],
+  3,
+  Postgres,
+)
