@@ -12,8 +12,10 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/examples/05_update/src/).
+See the
+[src directory](https://github.com/inoas/gleam-cake/blob/main/examples/05_update/src/).
 
 ---
 
-For further demos see [examples/README.md](../../README.md#available-examples).
+For further demos see
+[examples/README.md](../../README.md#available-examples).

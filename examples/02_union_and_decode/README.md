@@ -13,8 +13,10 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/examples/02_union_and_decode/src/).
+See the
+[src directory](https://github.com/inoas/gleam-cake/blob/main/examples/02_union_and_decode/src/).
 
 ---
 
-For further demos see [examples/README.md](../../README.md#available-examples).
+For further demos see
+[examples/README.md](../../README.md#available-examples).
