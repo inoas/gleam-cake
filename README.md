@@ -4,7 +4,7 @@
 [![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)](https://www.erlang.org/)
 [![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)](https://en.wikipedia.org/wiki/JavaScript)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
-[![Package <a href="https://github.com/inoas/gleam-cake/releases"><img src="https://img.shields.io/github/release/inoas/gleam-cake" alt="GitHub release"></a> Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
+[![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
 [![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/main/LICENCE)
 [![Discord](https://img.shields.io/discord/768594524158427167?label=discord%20chat&amp;color=5865F2)](https://discord.gg/Fm8Pwmy)
@@ -13,15 +13,22 @@
 <br>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/inoas/gleam-cake/main/cake-logo.png" alt="Cake Logo" style="max-height: 33vh; width: auto; height: auto" width="480" height="480"/>
+  <img
+    src="https://raw.githubusercontent.com/inoas/gleam-cake/main/cake-logo.png"
+    alt="Cake Logo"
+    style="max-height: 33vh; width: auto; height: auto"
+    width="480"
+    height="480"
+  />
 </p>
 
 <br>
 
 <p align="center">
   <i>
-    🎂Cake is a library written in Gleam to compose SQL queries targeting SQL
-    dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and 🐬MySQL.
+    🎂Cake is a library written in Gleam to compose SQL queries
+    targeting SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and
+    🐬MySQL.
   </i>
 </p>
 
@@ -34,13 +41,17 @@
 gleam add cake@4
 ```
 
-Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake).
+Further documentation can be found on
+[hexdocs.pm/cake](https://hexdocs.pm/cake).
 
 ### Adapters
 
-- 🐘PostgreSQL on Erlang: [hex.pm/packages/cake_pog](https://hex.pm/packages/cake_pog)
-- 🪶SQLite on Erlang: [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
-- 🦭MariaDB and 🐬MySQL on Erlang: [hex.pm/packages/cake_shork](https://hex.pm/packages/cake_shork)
+- 🐘PostgreSQL on Erlang:
+  [hex.pm/packages/cake_pog](https://hex.pm/packages/cake_pog)
+- 🪶SQLite on Erlang:
+  [hex.pm/packages/cake_sqlight](https://hex.pm/packages/cake_sqlight)
+- 🦭MariaDB and 🐬MySQL on Erlang:
+  [hex.pm/packages/cake_shork](https://hex.pm/packages/cake_shork)
 
 <!--
 TODO:
@@ -52,22 +63,32 @@ TODO:
 
 ### Demos
 
-See [docs/examples/README.md](https://github.com/inoas/gleam-cake/blob/main/examples/README.md#available-examples).
+See
+[docs/examples/README.md](https://github.com/inoas/gleam-cake/blob/main/examples/README.md#available-examples).
 
 #### Code examples (from the demos)
 
-- [cake\_demo\_select\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
-- [cake\_demo\_union\_and\_decode.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
-- [cake\_demo\_insert.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/03_insert/src/cake_demo_insert.gleam)
-- [cake\_demo\_delete.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/04_delete/src/cake_demo_delete.gleam)
-- [cake\_demo\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/05_update/src/cake_demo_update.gleam)
-- [cake\_demo\_insert\_on\_conflict\_update.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
-- [cake\_demo\_select\_join.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/cake_demo_select_join.gleam)
-- [cake\_demo\_prepared\_fragment.gleam](https://github.com/inoas/gleam-cake/blob/main/examples/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
+- [cake\_demo\_select\_and\_decode.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
+- [cake\_demo\_union\_and\_decode.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
+- [cake\_demo\_insert.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/03_insert/src/cake_demo_insert.gleam)
+- [cake\_demo\_delete.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/04_delete/src/cake_demo_delete.gleam)
+- [cake\_demo\_update.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/05_update/src/cake_demo_update.gleam)
+- [cake\_demo\_insert\_on\_conflict\_update.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
+- [cake\_demo\_select\_join.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/cake_demo_select_join.gleam)
+- [cake\_demo\_prepared\_fragment.gleam](
+  https://github.com/inoas/gleam-cake/blob/main/examples/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
 
 ### Unit tests as examples
 
-See Cake's [tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test),
+See Cake's
+[tests](https://github.com/inoas/gleam-cake/tree/main/test/cake_test),
 especially the _Setup_ sections in each test module.
 
 You may also compare the tests with the
@@ -79,22 +100,23 @@ results.
 Use the following aliases to make the library more ergonomic:
 
 ```gleam
-import cake/select as s // SELECT statements
-import cake/where as w // WHERE clauses
-import cake/join as j // JOIN clauses
-import cake/update as u // UPDATE statements
-import cake/insert as i // INSERT statements
-import cake/delete as d // DELETE statements
-import cake/combined as c // For combined queries such as UNION
-import cake/fragment as f // For arbitrary SQL code including functions
-import cake/param as p // Typed params
+import cake/select as s    // SELECT statements
+import cake/where as w     // WHERE clauses
+import cake/join as j      // JOIN clauses
+import cake/update as u    // UPDATE statements
+import cake/insert as i    // INSERT statements
+import cake/delete as d    // DELETE statements
+import cake/combined as c  // For combined queries such as UNION
+import cake/fragment as f  // For arbitrary SQL code including functions
+import cake/param as p     // Typed params
 ```
 
 ## Library Design
 
 ### CakeQuery Type Hierarchy
 
-The following diagram shows the type hierarchy of `CakeQuery` and its constructors:
+The following diagram shows the type hierarchy of `CakeQuery` and its
+constructors:
 
 ```mermaid
 graph TD
@@ -122,27 +144,31 @@ graph TD
 ```
 
 **Legend:**
+
 - `CakeQuery(a)` is the top-level type with type parameter `a`
-- **Read Queries** (`CakeReadQuery`) are for SELECT and combined operations (UNION, INTERSECT, EXCEPT)
-- **Write Queries** (`CakeWriteQuery`) are for INSERT, UPDATE, and DELETE operations
+- **Read Queries** (`CakeReadQuery`) are for SELECT and combined
+  operations (UNION, INTERSECT, EXCEPT)
+- **Write Queries** (`CakeWriteQuery`) are for INSERT, UPDATE, and DELETE
+  operations
 - Each query type contains structured fields for building SQL statements
 
 ### Scope
 
-This is an SQL query building library, thus it is not concerned about executing
-queries or decoding return values from queries, but merely about being a
-flexible and powerful tool to compose and craft SQL read and write queries.
+This is an SQL query building library, thus it is not concerned about
+executing queries or decoding return values from queries, but merely about
+being a flexible and powerful tool to compose and craft SQL read and write
+queries.
 
 #### Goals
 
 - High degree of flexibility to compose queries:
   While the focus is on building queries there is also support for replacing
   or removing parts of queries.
-- General support on these 4 large RDBMS: 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB and
-  🐬MySQL.
+- General support on these 4 large RDBMS: 🐘PostgreSQL, 🪶SQLite,
+  🦭MariaDB and 🐬MySQL.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
-- It should be easy to use with existing gleam dialect adapters such as:
+- It should be easy to use with existing Gleam dialect adapters such as:
   - 🐘PostgreSQL: [pog](https://hex.pm/packages/pog)
   - 🪶SQLite: [sqlight](https://hex.pm/packages/sqlight)
   - 🦭MariaDB & 🐬MySQL: [shork](https://hex.pm/packages/shork)
@@ -156,27 +182,30 @@ flexible and powerful tool to compose and craft SQL read and write queries.
   - Omitting certain parts of queries required for them to run, such as
     not specifying a table name
   - Comparing values incompatible by SQL type
-- Backporting many features between different RDMBS. For example, while Cake
-  supports `RETURNING` on 🐘PostgreSQL and 🪶SQLite, it does not support it on
-  🦭MariaDB or 🐬MySQL.
-- No automagic optimization: This library is not here to replace SQL knowledge,
-  but to allow crafting and combining SQL queries in a flexible and type safe
-  way. It might however work as a gateway to obtain SQL knowledge because
-  the typed builder functions help to some degree in understanding how SQL
-  queries can be crafted.
+- Backporting many features between different RDMBS. For example, while
+  Cake supports `RETURNING` on 🐘PostgreSQL and 🪶SQLite, it does not
+  support it on 🦭MariaDB or 🐬MySQL.
+- No automagic optimization: This library is not here to replace SQL
+  knowledge, but to allow crafting and combining SQL queries in a flexible
+  and type safe way. It might however work as a gateway to obtain SQL
+  knowledge because the typed builder functions help to some degree in
+  understanding how SQL queries can be crafted.
 
 ### Tested targets
 
-- Sqlite3 as part of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
-- [postgres:latest (Docker)](https://hub.docker.com/_/postgres) for 🐘PostgreSQL
-- [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb) for 🦭MariaDB
+- Sqlite3 as part of
+  [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
+- [postgres:latest (Docker)](https://hub.docker.com/_/postgres) for
+  🐘PostgreSQL
+- [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb) for
+  🦭MariaDB
 - [mysql:latest (Docker)](https://hub.docker.com/_/mysql) for 🐬MySQL
 
 The tests run on Erlang but are generally target agnostic.
 
-While the primary use case is to run queries on servers, this library runs on
-any Gleam target and for example in conjunction with following adapters, you may
-run queries composed with this library in browsers:
+While the primary use case is to run queries on servers, this library runs
+on any Gleam target and for example in conjunction with following adapters,
+you may run queries composed with this library in browsers:
 
 - [sqlite3 WASM/JS](https://sqlite.org/wasm) for 🪶SQLite
 - [PGLite (Postgres WASM)](https://pglite.dev/) for 🐘PostgreSQL

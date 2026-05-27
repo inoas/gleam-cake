@@ -1,8 +1,8 @@
 # Changelog
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!--
 ## [Unreleased]
@@ -13,45 +13,47 @@ and this project adheres to
 ### Breaking changes
 
 - [BREAKING] **`where.xor` semantics unified to "exactly one" across all
-  dialects.** Previously, 🦭MariaDB and 🐬MySQL used the engines' native `XOR`
-  operator, which evaluates left-to-right and returns `TRUE` when an **odd
-  number** of operands are true (odd-parity semantics). 🐘PostgreSQL and
-  🪶SQLite emulated `xor` as **exactly one** condition being true via a
-  combinatorial expansion. These two semantics are equivalent for two operands
-  but diverge for three or more.
+  dialects.** Previously, 🦭MariaDB and 🐬MySQL used the engines' native
+  `XOR` operator, which evaluates left-to-right and returns `TRUE` when an
+  **odd number** of operands are true (odd-parity semantics).
+  🐘PostgreSQL and 🪶SQLite emulated `xor` as **exactly one** condition
+  being true via a combinatorial expansion. These two semantics are
+  equivalent for two operands but diverge for three or more.
 
-  🦭MariaDB/🐬MySQL now use the same combinatorial "exactly one" expansion as
-  🐘PostgreSQL/🪶SQLite, making `where.xor` consistent across all four dialects.
-  Any code that relied on the native-`XOR` (odd-parity) behaviour of `xor` on
-  🦭MariaDB or 🐬MySQL with three or more conditions will observe different query
-  results after upgrading.
+  🦭MariaDB/🐬MySQL now use the same combinatorial "exactly one" expansion
+  as 🐘PostgreSQL/🪶SQLite, making `where.xor` consistent across all four
+  dialects. Any code that relied on the native-`XOR` (odd-parity)
+  behaviour of `xor` on 🦭MariaDB or 🐬MySQL with three or more conditions
+  will observe different query results after upgrading.
 
 - [BREAKING] **`where.float`, `where.int`, `where.string`, `where.date`
-  external parameter label renamed from `v` to `value`.**  Any call site
-  using named-argument syntax (e.g. `where.float(v: 1.0)`) must be updated
-  to `where.float(value: 1.0)`. Positional call sites are unaffected.
+  external parameter label renamed from `v` to `value`.** Any call site
+  using named-argument syntax (e.g. `where.float(v: 1.0)`) must be
+  updated to `where.float(value: 1.0)`. Positional call sites are
+  unaffected.
 
 ### Added
 
-- **`where.xor_parity`**: a new function implementing odd-parity XOR (returns
-  `TRUE` when an **odd number** of conditions are true). On 🦭MariaDB and
-  🐬MySQL it delegates to the engines' native left-to-right `XOR` operator;
-  on 🐘PostgreSQL it uses `((cond)::int + …) % 2 = 1`; on 🪶SQLite it uses
-  the same arithmetic without casts. `NULL` propagates through the expression
-  on all four dialects, matching native `XOR` behaviour. Prefer `xor_parity`
-  over `xor` when targeting three or more conditions and odd-count semantics
-  are required.
+- **`where.xor_parity`**: a new function implementing odd-parity XOR
+  (returns `TRUE` when an **odd number** of conditions are true). On
+  🦭MariaDB and 🐬MySQL it delegates to the engines' native left-to-right
+  `XOR` operator; on 🐘PostgreSQL it uses `((cond)::int + …) % 2 = 1`; on
+  🪶SQLite it uses the same arithmetic without casts. `NULL` propagates
+  through the expression on all four dialects, matching native `XOR`
+  behaviour. Prefer `xor_parity` over `xor` when targeting three or more
+  conditions and odd-count semantics are required.
 
 - **`where.bool`**: creates a `WhereValue` from a runtime `Bool` variable.
   Complements the existing `where.true()` and `where.false()` constants.
 
-- **`where.neq`, `where.neq_any_query`, `where.neq_all_query`**: not-equal
-  comparison functions, emitting `<>`, `<> ANY`, and `<> ALL` respectively.
-  `neq_any_query` and `neq_all_query` are not supported by 🪶SQLite.
+- **`where.neq`, `where.neq_any_query`, `where.neq_all_query`**:
+  not-equal comparison functions, emitting `<>`, `<> ANY`, and `<> ALL`
+  respectively. `neq_any_query` and `neq_all_query` are not supported by
+  🪶SQLite.
 
 - **`fragment.date`, `insert.date`, `update.set_date`**: convenience
-  constructors for `calendar.Date` values, bringing date support in line with
-  the other param-creating helpers across all builder modules.
+  constructors for `calendar.Date` values, bringing date support in line
+  with the other param-creating helpers across all builder modules.
 
 ### Fixed
 
@@ -59,32 +61,35 @@ and this project adheres to
   `insert.on_constraint_conflict_update` emitted wrong SQL**: queries
   using `InsertConflictTargetConstraint` produced
   `ON CONFLICT (constraint_name)` instead of the correct
-  `ON CONFLICT ON CONSTRAINT constraint_name`. The generated SQL was invalid
-  and rejected by the database.
+  `ON CONFLICT ON CONSTRAINT constraint_name`. The generated SQL was
+  invalid and rejected by the database.
 
-- **Epilog silently discarded in write queries when a single-line comment is
-  set**: in `INSERT`, `UPDATE`, and `DELETE` query builders,
-  `comment_apply` was called before `epilog_apply`. When the comment used the
-  `--` single-line style, the SQL parser treated everything after `--` on the
-  same line — including the epilog — as a comment, silently dropping it. The
-  order is now `… <epilog> -- <comment>`, consistent with the existing
-  `SELECT` and `COMBINED` builders.
+- **Epilog silently discarded in write queries when a single-line comment
+  is set**: in `INSERT`, `UPDATE`, and `DELETE` query builders,
+  `comment_apply` was called before `epilog_apply`. When the comment used
+  the `--` single-line style, the SQL parser treated everything after `--`
+  on the same line — including the epilog — as a comment, silently
+  dropping it. The order is now `… <epilog> -- <comment>`, consistent with
+  the existing `SELECT` and `COMBINED` builders.
 
-- **`INSERT` modifier placed after the column list instead of before `INTO`**:
-  setting a modifier via `insert.modifier` produced invalid SQL such
-  as `INSERT INTO cats (name) OR REPLACE VALUES ($1)`. The modifier is now
-  emitted between `INSERT` and `INTO` on all four dialects, giving the correct
-  form `INSERT OR REPLACE INTO cats (name) VALUES ($1)`. The fix also covers
-  the 🦭MariaDB / 🐬MySQL `INSERT IGNORE` fallback path, where a
-  user-supplied priority modifier (e.g. `LOW_PRIORITY`) is now correctly
-  placed before `IGNORE INTO`: `INSERT LOW_PRIORITY IGNORE INTO …`.
+- **`INSERT` modifier placed after the column list instead of before
+  `INTO`**: setting a modifier via `insert.modifier` produced invalid SQL
+  such as `INSERT INTO cats (name) OR REPLACE VALUES ($1)`. The modifier
+  is now emitted between `INSERT` and `INTO` on all four dialects, giving
+  the correct form `INSERT OR REPLACE INTO cats (name) VALUES ($1)`. The
+  fix also covers the 🦭MariaDB / 🐬MySQL `INSERT IGNORE` fallback path,
+  where a user-supplied priority modifier (e.g. `LOW_PRIORITY`) is now
+  correctly placed before `IGNORE INTO`: `INSERT LOW_PRIORITY IGNORE INTO
+  …`.
 
-- **`select.order_by_asc_nulls_last`, `select.replace_order_by_asc_nulls_last`,
-  `select.order_by_desc_nulls_last`, `select.replace_order_by_desc_nulls_last`
-  emitted `NULLS FIRST` instead of `NULLS LAST`**: all four functions passed
-  the wrong `OrderByDirection` variant internally, causing e.g.
-  `ORDER BY col ASC NULLS FIRST` to be emitted when `NULLS LAST` was
-  requested. The equivalent functions in `combined` were unaffected.
+- **`select.order_by_asc_nulls_last`,
+  `select.replace_order_by_asc_nulls_last`,
+  `select.order_by_desc_nulls_last`,
+  `select.replace_order_by_desc_nulls_last` emitted `NULLS FIRST` instead
+  of `NULLS LAST`**: all four functions passed the wrong
+  `OrderByDirection` variant internally, causing e.g. `ORDER BY col ASC
+  NULLS FIRST` to be emitted when `NULLS LAST` was requested. The
+  equivalent functions in `combined` were unaffected.
 
 - Fixed examples to run without tinkering.
 
@@ -96,8 +101,9 @@ and this project adheres to
 ## [3.0.0] - 2026-04-29
 
 - Added support for fragments in Inserts and Updates. Thanks to @qwexvf.
-  This adds constructors to the public `InsertValue` / `UpdateSet` union types,
-  which can break downstream compilation for exhaustive pattern matches.
+  This adds constructors to the public `InsertValue` / `UpdateSet` union
+  types, which can break downstream compilation for exhaustive pattern
+  matches.
 
   This is MOST LIKELY not a breaking change, if only the builder
   functions have been used to construct inserts.
@@ -133,7 +139,8 @@ and this project adheres to
 
 ## [2.1.0] - 2024-11-14
 
-- Added convenience functions to `select` module to select columns by col names:
+- Added convenience functions to `select` module to select columns by col
+  names:
   - `select_cols`
   - `replace_select_cols`
   - `select_col`
@@ -143,9 +150,10 @@ and this project adheres to
 
 ## [2.0.2] - 2024-11-03
 
-- [BREAKING]: Renamed `select.offset` function's `offst` label to `offset`
-- Updated test runner to target lowest and highest erlang and gleam versions
-  supported:
+- [BREAKING]: Renamed `select.offset` function's `offst` label to
+  `offset`
+- Updated test runner to target lowest and highest Erlang and Gleam
+  versions supported:
   - Lowest is at the moment Erlang/OTP 26 and Gleam 1.4
 - Updated dependencies
 - Fixed typos
@@ -163,7 +171,8 @@ and this project adheres to
 
 ## [1.1.2] - 2024-08-30
 
-- Consistent dialect function names across all 4 RDBMS, fixed/renamed functions:
+- Consistent dialect function names across all 4 RDBMS, fixed/renamed
+  functions:
   - `postgres_dialect/read_cake_query_to_prepared_statement` =>
     `postgres_dialect/cake_query_to_prepared_statement`
   - `postgres_dialect/query_to_prepared_statement` =>
@@ -172,8 +181,8 @@ and this project adheres to
     `sqlite_dialect/cake_query_to_prepared_statement`
   - `sqlite_dialect/query_to_prepared_statement` =>
     `sqlite_dialect/read_query_to_prepared_statement`
-  - Note that while this a breaking change, the compiler will complain and the
-    fix is trivial.
+  - Note that while this a breaking change, the compiler will complain and
+    the fix is trivial.
 
 ## [1.1.1] - 2024-08-09
 
@@ -181,10 +190,11 @@ and this project adheres to
 
 ## [1.1.0] - 2024-08-09
 
-- Added `join.left_lateral` and `join.inner_lateral` and `join.cross_lateral`
-  support `LATERAL JOIN`s available on 🐘PostgreSQL 9.3+ and recent 🐬MySQL versions.
-  Notice: You may also use `LATERAL` literally to prefix table names in `FROM`
-  clauses with multiple tables.
+- Added `join.left_lateral` and `join.inner_lateral` and
+  `join.cross_lateral` support `LATERAL JOIN`s available on
+  🐘PostgreSQL 9.3+ and recent 🐬MySQL versions. Notice: You may also use
+  `LATERAL` literally to prefix table names in `FROM` clauses with
+  multiple tables.
 
 ## [1.0.1] - 2024-07-26
 
@@ -224,30 +234,33 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
 
 - Added more utility to the `where` module, such as `where.none`, `where.true` and `where.false`.
 - Fixed unit tests around `INSERT...ON CONFLICT...UPDATE` with `WHERE` clause.
-- Renamed `update.set_many_to_expression` to `update.sets_to_expression` and `update.set_many_to_sub_query` to `update.sets_to_sub_query`.
+- Renamed `update.set_many_to_expression` to `update.sets_to_expression`
+  and `update.set_many_to_sub_query` to `update.sets_to_sub_query`.
 - Renamed `union_many` to `unions`, `union_all_many` to `unions_all`,
   `except_many` to `excepts`, `except_all_many` to `excepts_all`, and
-  `intersect_many` to `intersects`, `intersect_all_many` to `intersects_all`
-  in module `combined`.
+  `intersect_many` to `intersects`, `intersect_all_many` to
+  `intersects_all` in module `combined`.
 - Made `where.similar_to` `escape_char` an argument.
 
 ## [0.13.0] - 2024-07-12
 
-- Added `where.in_query` which allows to use a sub-query as the right hand side
-  of an `IN` clause.
+- Added `where.in_query` which allows to use a sub-query as the right
+  hand side of an `IN` clause.
 - Added `where.sub_query` which allows to use a sub-query as a `WhereValue`.
 
 ## [0.12.0] - 2024-07-12
 
 - Re-export types which can be used in public APIs, this should hopefully
-  close the last gaps to never be required to use `cake/internal/*` modules.
+  close the last gaps to never be required to use `cake/internal/*`
+  modules.
 
-  In case you are tempted to do so, please get in touch to see what we can do
-  about it.
+  In case you are tempted to do so, please get in touch to see what we
+  can do about it.
 
 ## [0.11.0] - 2024-07-11
 
-- Renamed `Query` and the internal query module to `ReadQuery` and `read_query`.
+- Renamed `Query` and the internal query module to `ReadQuery` and
+  `read_query`.
 - Fixed some issues around upserts (INSERT ON CONFLICT UPDATE).
 - Moved internal/params module into public namespace.
 
