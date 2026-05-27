@@ -1,4 +1,4 @@
-//// 🐬MySQL dialect to be used in conjunction with the `shork library.
+//// 🐬MySQL dialect to be used in conjunction with the `shork` library.
 ////
 
 import cake
