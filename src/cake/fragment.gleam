@@ -162,6 +162,6 @@ pub fn null() -> Param {
 
 /// Create a new `Param` with a `calendar.Date` value.
 ///
-pub fn date(date date: calendar.Date) -> Param {
-  DateParam(date:)
+pub fn date(date value: calendar.Date) -> Param {
+  value |> DateParam
 }

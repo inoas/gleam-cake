@@ -212,10 +212,10 @@ pub fn select_col(select select: Select, name name: String) -> Select {
   let select_value = name |> col
   case select.select {
     NoSelects -> Select(..select, select: [select_value] |> Selects)
-    Selects(existing_selects) ->
+    Selects(values:) ->
       Select(
         ..select,
-        select: existing_selects
+        select: values
           |> list.append([select_value])
           |> Selects,
       )
@@ -232,10 +232,10 @@ pub fn select(
 ) -> Select {
   case select.select {
     NoSelects -> Select(..select, select: [select_value] |> Selects)
-    Selects(existing_selects) ->
+    Selects(values:) ->
       Select(
         ..select,
-        select: existing_selects
+        select: values
           |> list.append([select_value])
           |> Selects,
       )
@@ -333,7 +333,7 @@ pub fn get_select(select select: Select) -> Selects {
 ///
 pub fn join(select select: Select, join join: Join) -> Select {
   case select.join {
-    Joins(joins: existing_joins) ->
+    Joins(items: existing_joins) ->
       Select(..select, join: existing_joins |> list.append([join]) |> Joins)
     NoJoins -> Select(..select, join: [join] |> Joins)
   }
@@ -350,7 +350,7 @@ pub fn replace_join(select select: Select, join join: Join) -> Select {
 pub fn joins(select select: Select, joins joins: List(Join)) -> Select {
   case joins, select.join {
     [], _ -> select
-    _, Joins(joins: existing_joins) ->
+    _, Joins(items: existing_joins) ->
       Select(..select, join: existing_joins |> list.append(joins) |> Joins)
     _, NoJoins -> Select(..select, join: joins |> Joins)
   }
@@ -388,8 +388,8 @@ pub fn get_joins(select select: Select) -> Joins {
 pub fn where(select select: Select, where where: Where) -> Select {
   case select.where {
     NoWhere -> Select(..select, where:)
-    AndWhere(wheres) ->
-      Select(..select, where: wheres |> list.append([where]) |> AndWhere)
+    AndWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> AndWhere)
     _ -> Select(..select, where: [select.where, where] |> AndWhere)
   }
 }
@@ -406,8 +406,8 @@ pub fn where(select select: Select, where where: Where) -> Select {
 pub fn or_where(select select: Select, where where: Where) -> Select {
   case select.where {
     NoWhere -> Select(..select, where:)
-    OrWhere(wheres) ->
-      Select(..select, where: wheres |> list.append([where]) |> OrWhere)
+    OrWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> OrWhere)
     _ -> Select(..select, where: [select.where, where] |> OrWhere)
   }
 }
@@ -428,8 +428,8 @@ pub fn or_where(select select: Select, where where: Where) -> Select {
 pub fn xor_where(select select: Select, where where: Where) -> Select {
   case select.where {
     NoWhere -> Select(..select, where:)
-    XorWhere(wheres) ->
-      Select(..select, where: wheres |> list.append([where]) |> XorWhere)
+    XorWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, where: [select.where, where] |> XorWhere)
   }
 }
@@ -471,8 +471,8 @@ pub fn get_where(select select: Select) -> Where {
 pub fn having(select select: Select, having where: Where) -> Select {
   case select.having {
     NoWhere -> Select(..select, having: where)
-    AndWhere(wheres) ->
-      Select(..select, having: wheres |> list.append([where]) |> AndWhere)
+    AndWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> AndWhere)
     _ -> Select(..select, having: [select.having, where] |> AndWhere)
   }
 }
@@ -491,8 +491,8 @@ pub fn having(select select: Select, having where: Where) -> Select {
 pub fn or_having(select select: Select, having where: Where) -> Select {
   case select.having {
     NoWhere -> Select(..select, having: where)
-    OrWhere(wheres) ->
-      Select(..select, having: wheres |> list.append([where]) |> OrWhere)
+    OrWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> OrWhere)
     _ -> Select(..select, having: [select.having, where] |> OrWhere)
   }
 }
@@ -515,8 +515,8 @@ pub fn or_having(select select: Select, having where: Where) -> Select {
 pub fn xor_having(select select: Select, having where: Where) -> Select {
   case select.having {
     NoWhere -> Select(..select, having: where)
-    XorWhere(wheres) ->
-      Select(..select, having: wheres |> list.append([where]) |> XorWhere)
+    XorWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, having: [select.having, where] |> XorWhere)
   }
 }
@@ -550,11 +550,8 @@ pub fn get_having(select select: Select) -> Where {
 pub fn group_by(select select: Select, group_by group_by: String) -> Select {
   case select.group_by {
     NoGroupBy -> Select(..select, group_by: [group_by] |> GroupBy)
-    GroupBy(group_bys) ->
-      Select(
-        ..select,
-        group_by: group_bys |> list.append([group_by]) |> GroupBy,
-      )
+    GroupBy(columns:) ->
+      Select(..select, group_by: columns |> list.append([group_by]) |> GroupBy)
   }
 }
 
@@ -575,10 +572,10 @@ pub fn group_bys(
 ) -> Select {
   case select.group_by {
     NoGroupBy -> Select(..select, group_by: group_bys |> GroupBy)
-    GroupBy(existing_group_bys) ->
+    GroupBy(columns:) ->
       Select(
         ..select,
-        group_by: existing_group_bys
+        group_by: columns
           |> list.append(group_bys)
           |> GroupBy,
       )

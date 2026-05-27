@@ -40,8 +40,8 @@ pub fn to_prepared_statement(
   dialect dialect: Dialect,
 ) -> PreparedStatement {
   placeholder_base
-  |> prepared_statement.new(dialect)
-  |> apply(query)
+  |> prepared_statement.new(dialect:)
+  |> apply(query:)
 }
 
 fn apply(
@@ -49,9 +49,9 @@ fn apply(
   query query: WriteQuery(a),
 ) -> PreparedStatement {
   case query {
-    InsertQuery(insert) -> prepared_statement |> insert_apply(insert)
-    UpdateQuery(update) -> prepared_statement |> update_apply(update)
-    DeleteQuery(delete) -> prepared_statement |> delete_apply(delete)
+    InsertQuery(query:) -> prepared_statement |> insert_apply(insert: query)
+    UpdateQuery(query:) -> prepared_statement |> update_apply(update: query)
+    DeleteQuery(query:) -> prepared_statement |> delete_apply(delete: query)
   }
 }
 
@@ -182,7 +182,7 @@ pub type InsertValue {
   /// A fragment value, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
   /// Allows type casts and expressions in INSERT VALUES which for instance
   /// 🐘Postgres may require.
-  InsertFragment(fragment: Fragment)
+  InsertFragment(value: Fragment)
 }
 
 /// The `InsertConflictStrategy` defines how to handle conflicts when inserting
@@ -231,21 +231,21 @@ fn insert_apply(
     //
     Maria, InsertConflictIgnore(..) | Mysql, InsertConflictIgnore(..) ->
       prepared_statement
-      |> insert_conflict_ignore_maria_mysql_apply(insert)
-      |> returning_apply(insert.returning)
-      |> read_query.epilog_apply(insert.epilog)
-      |> read_query.comment_apply(insert.comment)
+      |> insert_conflict_ignore_maria_mysql_apply(insert:)
+      |> returning_apply(returning: insert.returning)
+      |> read_query.epilog_apply(epilog: insert.epilog)
+      |> read_query.comment_apply(comment: insert.comment)
     _, _ ->
       prepared_statement
       |> prepared_statement.append_sql(sql: "INSERT")
-      |> insert_modifier_apply(insert.modifier)
-      |> insert_into_table_apply(insert.table)
-      |> insert_columns_apply(insert.columns)
-      |> insert_source_apply(insert.source)
-      |> insert_on_conflict_apply(insert.on_conflict)
-      |> returning_apply(insert.returning)
-      |> read_query.epilog_apply(insert.epilog)
-      |> read_query.comment_apply(insert.comment)
+      |> insert_modifier_apply(insert_modifier: insert.modifier)
+      |> insert_into_table_apply(table_name: insert.table)
+      |> insert_columns_apply(columns: insert.columns)
+      |> insert_source_apply(source: insert.source)
+      |> insert_on_conflict_apply(on_conflict_strategy: insert.on_conflict)
+      |> returning_apply(returning: insert.returning)
+      |> read_query.epilog_apply(epilog: insert.epilog)
+      |> read_query.comment_apply(comment: insert.comment)
   }
 }
 
@@ -315,7 +315,7 @@ fn insert_conflict_ignore_maria_mysql_apply(
       )
     -> {
       let row_values = case insert.source {
-        InsertSourceRows(data) ->
+        InsertSourceRows(data:) ->
           data
           |> list.map(with: fn(r) {
             let InsertRow(values) = r
@@ -334,16 +334,17 @@ fn insert_conflict_ignore_maria_mysql_apply(
           // Non-row source: fall back to INSERT IGNORE
           prepared_statement
           |> prepared_statement.append_sql(sql: "INSERT")
-          |> insert_modifier_apply(insert.modifier)
-          |> insert_ignore_into_table_apply(insert.table)
-          |> insert_columns_apply(insert.columns)
-          |> insert_source_apply(insert.source)
+          |> insert_modifier_apply(insert_modifier: insert.modifier)
+          |> insert_ignore_into_table_apply(table_name: insert.table)
+          |> insert_columns_apply(columns: insert.columns)
+          |> insert_source_apply(source: insert.source)
         _ ->
           prepared_statement
           |> prepared_statement.append_sql(sql: "INSERT")
-          |> insert_modifier_apply(insert.modifier)
-          |> insert_into_table_apply(insert.table)
-          |> insert_columns_apply(insert.columns)
+          |> insert_modifier_apply(insert_modifier: insert.modifier)
+          |> insert_into_table_apply(table_name: insert.table)
+          |> insert_columns_apply(columns: insert.columns)
+          |> insert_source_apply(source: insert.source)
           |> insert_select_not_exists_rows_apply(
             row_values,
             col_names,
@@ -357,10 +358,10 @@ fn insert_conflict_ignore_maria_mysql_apply(
     _, _, _ ->
       prepared_statement
       |> prepared_statement.append_sql(sql: "INSERT")
-      |> insert_modifier_apply(insert.modifier)
-      |> insert_ignore_into_table_apply(insert.table)
-      |> insert_columns_apply(insert.columns)
-      |> insert_source_apply(insert.source)
+      |> insert_modifier_apply(insert_modifier: insert.modifier)
+      |> insert_ignore_into_table_apply(table_name: insert.table)
+      |> insert_columns_apply(columns: insert.columns)
+      |> insert_source_apply(source: insert.source)
   }
 }
 
@@ -389,12 +390,12 @@ fn insert_select_not_exists_rows_apply(
           |> prepared_statement.append_sql(sql: " UNION ALL SELECT ")
       }
       new_prepared_statement
-      |> row_apply(values)
+      |> row_apply(row: values)
       |> insert_not_exists_where_apply(
-        values,
-        col_names,
-        table_name,
-        target_cols,
+        row_values: values,
+        col_names:,
+        table_name:,
+        target_cols:,
       )
     },
   )
@@ -438,15 +439,15 @@ fn insert_not_exists_where_apply(
                 |> prepared_statement.append_sql(sql: " AND ")
             }
             case insert_value {
-              InsertParam(param) ->
+              InsertParam(value:) ->
                 new_prepared_statement
                 |> prepared_statement.append_sql(sql: col_name <> " = ")
-                |> prepared_statement.append_param(param)
+                |> prepared_statement.append_param(value)
               InsertDefault -> new_prepared_statement
-              InsertFragment(fragment) ->
+              InsertFragment(value:) ->
                 new_prepared_statement
                 |> prepared_statement.append_sql(sql: col_name <> " = ")
-                |> read_query.fragment_apply(fragment)
+                |> read_query.fragment_apply(fragment: value)
             }
           },
         )
@@ -562,11 +563,11 @@ fn row_apply(
           case new_prepared_statement_inner == new_prepared_statement {
             True ->
               new_prepared_statement_inner
-              |> prepared_statement.append_param(value)
+              |> prepared_statement.append_param(param: value)
             False ->
               new_prepared_statement_inner
               |> prepared_statement.append_sql(sql: ", ")
-              |> prepared_statement.append_param(value)
+              |> prepared_statement.append_param(param: value)
           }
         }
         InsertDefault -> {
@@ -579,15 +580,15 @@ fn row_apply(
               |> prepared_statement.append_sql(sql: ", DEFAULT")
           }
         }
-        InsertFragment(fragment:) -> {
+        InsertFragment(value:) -> {
           case new_prepared_statement_inner == new_prepared_statement {
             True ->
               new_prepared_statement_inner
-              |> read_query.fragment_apply(fragment)
+              |> read_query.fragment_apply(fragment: value)
             False ->
               new_prepared_statement_inner
               |> prepared_statement.append_sql(sql: ", ")
-              |> read_query.fragment_apply(fragment)
+              |> read_query.fragment_apply(fragment: value)
           }
         }
       }
@@ -603,15 +604,15 @@ fn insert_on_conflict_apply(
     InsertConflictError -> prepared_statement
     InsertConflictIgnore(target:, where:) ->
       prepared_statement
-      |> insert_on_conflict_target_apply(target)
-      |> read_query.where_clause_apply(where)
+      |> insert_on_conflict_target_apply(target:)
+      |> read_query.where_clause_apply(where:)
       |> prepared_statement.append_sql(sql: " DO NOTHING")
     InsertConflictUpdate(target:, where:, update:) ->
       prepared_statement
-      |> insert_on_conflict_target_apply(target)
+      |> insert_on_conflict_target_apply(target:)
       |> prepared_statement.append_sql(sql: " DO ")
-      |> update_apply(update)
-      |> read_query.where_clause_apply(where)
+      |> update_apply(update:)
+      |> read_query.where_clause_apply(where:)
   }
 }
 
@@ -674,7 +675,7 @@ pub type UpdateTable {
 ///
 pub type UpdateSets {
   NoUpdateSets
-  UpdateSets(update_sets: List(UpdateSet))
+  UpdateSets(items: List(UpdateSet))
 }
 
 /// Specifies an update set
@@ -686,7 +687,7 @@ pub type UpdateSet {
   /// A fragment set, e.g. `fragment.prepared("$::uuid", [fragment.string(id)])`.
   /// Allows type casts and parameterized expressions in UPDATE SET,
   /// which for instance 🐘Postgres may require.
-  UpdateFragmentSet(column: String, fragment: Fragment)
+  UpdateFragmentSet(column: String, value: Fragment)
 }
 
 fn update_apply(
@@ -695,16 +696,16 @@ fn update_apply(
 ) {
   prepared_statement
   |> prepared_statement.append_sql(sql: "UPDATE")
-  |> update_table_apply(update.table)
-  |> update_modifier_apply(update.modifier)
+  |> update_table_apply(table_name: update.table)
+  |> update_modifier_apply(update_modifier: update.modifier)
   |> prepared_statement.append_sql(sql: " SET")
-  |> update_set_apply(update.set)
-  |> read_query.from_clause_apply(update.from)
-  |> read_query.join_clause_apply(update.join)
-  |> read_query.where_clause_apply(update.where)
-  |> returning_apply(update.returning)
-  |> read_query.epilog_apply(update.epilog)
-  |> read_query.comment_apply(update.comment)
+  |> update_set_apply(items: update.set)
+  |> read_query.from_clause_apply(from: update.from)
+  |> read_query.join_clause_apply(joins: update.join)
+  |> read_query.where_clause_apply(where: update.where)
+  |> returning_apply(returning: update.returning)
+  |> read_query.epilog_apply(epilog: update.epilog)
+  |> read_query.comment_apply(comment: update.comment)
 }
 
 fn update_table_apply(
@@ -732,12 +733,11 @@ fn update_modifier_apply(
 
 fn update_set_apply(
   prepared_statement prepared_statement: PreparedStatement,
-  update_sets update_sets: UpdateSets,
+  items update_sets: UpdateSets,
 ) -> PreparedStatement {
   case update_sets {
     NoUpdateSets -> prepared_statement
-    UpdateSets(update_sets:) ->
-      prepared_statement |> update_sets_apply(update_sets)
+    UpdateSets(items:) -> prepared_statement |> update_sets_apply(items)
   }
 }
 
@@ -790,11 +790,11 @@ fn update_sets_apply(
           |> prepared_statement.append_sql(sql: " (")
           |> read_query.apply(query:)
           |> prepared_statement.append_sql(sql: ")")
-        UpdateFragmentSet(column:, fragment:) ->
+        UpdateFragmentSet(column:, value:) ->
           new_prepared_statement
           |> columns_apply([column])
           |> prepared_statement.append_sql(sql: " ")
-          |> read_query.fragment_apply(fragment)
+          |> read_query.fragment_apply(fragment: value)
       }
     },
   )
@@ -859,14 +859,14 @@ fn delete_apply(
 ) {
   prepared_statement
   |> prepared_statement.append_sql(sql: "DELETE")
-  |> delete_table_apply(delete.table)
-  |> delete_modifier_apply(delete.modifier)
-  |> using_apply(delete.using)
-  |> read_query.join_clause_apply(delete.join)
-  |> read_query.where_clause_apply(delete.where)
-  |> returning_apply(delete.returning)
-  |> read_query.epilog_apply(delete.epilog)
-  |> read_query.comment_apply(delete.comment)
+  |> delete_table_apply(table_name: delete.table)
+  |> delete_modifier_apply(delete_modifier: delete.modifier)
+  |> using_apply(using: delete.using)
+  |> read_query.join_clause_apply(joins: delete.join)
+  |> read_query.where_clause_apply(where: delete.where)
+  |> returning_apply(returning: delete.returning)
+  |> read_query.epilog_apply(epilog: delete.epilog)
+  |> read_query.comment_apply(comment: delete.comment)
 }
 
 fn delete_table_apply(
@@ -875,9 +875,9 @@ fn delete_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoDeleteTable -> prepared_statement
-    DeleteTable(table) ->
+    DeleteTable(name:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " FROM " <> table)
+      |> prepared_statement.append_sql(sql: " FROM " <> name)
   }
 }
 

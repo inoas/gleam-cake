@@ -60,11 +60,11 @@ pub fn to_prepared_statement(
   dialect dialect: Dialect,
 ) -> PreparedStatement {
   case query {
-    CakeReadQuery(read_query) ->
-      read_query
+    CakeReadQuery(query:) ->
+      query
       |> read_query_to_prepared_statement(dialect:)
-    CakeWriteQuery(write_query) ->
-      write_query
+    CakeWriteQuery(query:) ->
+      query
       |> write_query_to_prepared_statement(dialect:)
   }
 }

@@ -194,7 +194,7 @@ pub fn get_queries(combined combined: Combined) -> List(Select) {
 /// Sets a `Limit` in the `Combined` `ReadQuery`.
 ///
 pub fn limit(query query: Combined, limit limit: Int) -> Combined {
-  let limit = limit |> read_query.limit_new
+  let limit = read_query.limit_new(limit:)
   Combined(..query, limit:)
 }
 
@@ -213,7 +213,7 @@ pub fn get_limit(query query: Combined) -> Limit {
 /// Sets an `Offset` in the `Combined` `ReadQuery`.
 ///
 pub fn offset(query query: Combined, offset offset: Int) -> Combined {
-  let offset = offset |> read_query.offset_new
+  let offset = read_query.offset_new(offset:)
   Combined(..query, offset:)
 }
 

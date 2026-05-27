@@ -242,7 +242,7 @@ pub fn get_using(delete delete: Delete(a)) -> List(From) {
 ///
 pub fn join(delete delete: Delete(a), join join: Join) -> Delete(a) {
   case delete.join {
-    Joins(joins: existing_joins) ->
+    Joins(items: existing_joins) ->
       Delete(..delete, join: existing_joins |> list.append([join]) |> Joins)
     NoJoins -> Delete(..delete, join: [join] |> Joins)
   }
@@ -265,7 +265,7 @@ pub fn replace_join(delete delete: Delete(a), join join: Join) -> Delete(a) {
 pub fn joins(delete delete: Delete(a), joins joins: List(Join)) -> Delete(a) {
   case joins, delete.join {
     [], _ -> delete
-    _, Joins(joins: existing_joins) ->
+    _, Joins(items: existing_joins) ->
       Delete(..delete, join: existing_joins |> list.append(joins) |> Joins)
     _, NoJoins -> Delete(..delete, join: joins |> Joins)
   }
@@ -309,8 +309,8 @@ pub fn get_joins(delete delete: Delete(a)) -> Joins {
 pub fn where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
     NoWhere -> Delete(..delete, where:)
-    AndWhere(wheres) ->
-      Delete(..delete, where: wheres |> list.append([where]) |> AndWhere)
+    AndWhere(conditions:) ->
+      Delete(..delete, where: conditions |> list.append([where]) |> AndWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> AndWhere)
   }
 }
@@ -327,8 +327,8 @@ pub fn where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
     NoWhere -> Delete(..delete, where:)
-    OrWhere(wheres) ->
-      Delete(..delete, where: wheres |> list.append([where]) |> OrWhere)
+    OrWhere(conditions:) ->
+      Delete(..delete, where: conditions |> list.append([where]) |> OrWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> OrWhere)
   }
 }
@@ -350,8 +350,8 @@ pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 pub fn xor_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
     NoWhere -> Delete(..delete, where:)
-    XorWhere(wheres) ->
-      Delete(..delete, where: wheres |> list.append([where]) |> XorWhere)
+    XorWhere(conditions:) ->
+      Delete(..delete, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> XorWhere)
   }
 }

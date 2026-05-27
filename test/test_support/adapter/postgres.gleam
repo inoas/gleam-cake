@@ -122,10 +122,8 @@ pub fn run_query(
   db_connection db_connection: Connection,
 ) -> Result(List(a), QueryError) {
   case query {
-    CakeReadQuery(read_query) ->
-      read_query |> run_read_query(decoder, db_connection)
-    CakeWriteQuery(write_query) ->
-      write_query |> run_write_query(decoder, db_connection)
+    CakeReadQuery(query:) -> query |> run_read_query(decoder, db_connection)
+    CakeWriteQuery(query:) -> query |> run_write_query(decoder, db_connection)
   }
 }
 
@@ -140,12 +138,12 @@ pub fn execute_raw_sql(
 
 fn cake_param_to_client_param(param param: Param) -> Value {
   case param {
-    BoolParam(param) -> pog.bool(param)
-    FloatParam(param) -> pog.float(param)
-    IntParam(param) -> pog.int(param)
-    StringParam(param) -> pog.text(param)
+    BoolParam(value:) -> pog.bool(value)
+    FloatParam(value:) -> pog.float(value)
+    IntParam(value:) -> pog.int(value)
+    StringParam(value:) -> pog.text(value)
     NullParam -> pog.null()
-    DateParam(param) -> pog.calendar_date(param)
+    DateParam(value:) -> pog.calendar_date(value)
   }
 }
 

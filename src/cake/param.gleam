@@ -13,8 +13,8 @@ pub type Param {
   FloatParam(value: Float)
   IntParam(value: Int)
   StringParam(value: String)
+  DateParam(value: calendar.Date)
   NullParam
-  DateParam(date: calendar.Date)
   //
   // Not sure this should be here, but should it not?
   // Maybe add:
@@ -73,8 +73,8 @@ pub fn null() -> Param {
 
 /// Create a new `Param` with a `calendar.Date` value.
 ///
-pub fn date(date date: calendar.Date) -> Param {
-  DateParam(date:)
+pub fn date(date value: calendar.Date) -> Param {
+  value |> DateParam
 }
 //
 // // This should ONLY be used for debugging purposes

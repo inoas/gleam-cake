@@ -179,11 +179,8 @@ pub fn set_sub_query(
 /// "org_id" |> u.set_fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
-pub fn set_fragment(
-  column column: String,
-  fragment fragment: Fragment,
-) -> UpdateSet {
-  UpdateFragmentSet(column:, fragment:)
+pub fn set_fragment(column column: String, value value: Fragment) -> UpdateSet {
+  UpdateFragmentSet(column:, value:)
 }
 
 /// Sets many columns to an expression value.
@@ -213,7 +210,7 @@ pub fn sets_sub_query(
 pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
   case update.set {
     NoUpdateSets -> []
-    UpdateSets(update_sets:) -> update_sets
+    UpdateSets(items:) -> items
   }
 }
 
@@ -222,8 +219,8 @@ pub fn get_set(update update: Update(a)) -> List(UpdateSet) {
 pub fn set(update update: Update(a), set set: UpdateSet) -> Update(a) {
   case update.set {
     NoUpdateSets -> Update(..update, set: [set] |> UpdateSets)
-    UpdateSets(update_sets) ->
-      Update(..update, set: update_sets |> list.append([set]) |> UpdateSets)
+    UpdateSets(items:) ->
+      Update(..update, set: items |> list.append([set]) |> UpdateSets)
   }
 }
 
@@ -238,8 +235,8 @@ pub fn set_replace(update update: Update(a), set set: UpdateSet) -> Update(a) {
 pub fn sets(update update: Update(a), set sets: List(UpdateSet)) -> Update(a) {
   case update.set {
     NoUpdateSets -> Update(..update, set: sets |> UpdateSets)
-    UpdateSets(update_sets:) ->
-      Update(..update, set: update_sets |> list.append(sets) |> UpdateSets)
+    UpdateSets(items:) ->
+      Update(..update, set: items |> list.append(sets) |> UpdateSets)
   }
 }
 
@@ -294,7 +291,7 @@ pub fn get_from(update update: Update(a)) -> From {
 ///
 pub fn join(update update: Update(a), join join: Join) -> Update(a) {
   case update.join {
-    Joins(joins: existing_joins) ->
+    Joins(items: existing_joins) ->
       Update(..update, join: existing_joins |> list.append([join]) |> Joins)
     NoJoins -> Update(..update, join: [join] |> Joins)
   }
@@ -317,7 +314,7 @@ pub fn replace_join(update update: Update(a), join join: Join) -> Update(a) {
 pub fn joins(update update: Update(a), joins joins: List(Join)) -> Update(a) {
   case joins, update.join {
     [], _ -> update
-    _, Joins(joins: existing_joins) ->
+    _, Joins(items: existing_joins) ->
       Update(..update, join: existing_joins |> list.append(joins) |> Joins)
     _, NoJoins -> Update(..update, join: joins |> Joins)
   }
@@ -361,8 +358,8 @@ pub fn get_joins(update update: Update(a)) -> Joins {
 pub fn where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
     NoWhere -> Update(..update, where:)
-    AndWhere(wheres) ->
-      Update(..update, where: wheres |> list.append([where]) |> AndWhere)
+    AndWhere(conditions:) ->
+      Update(..update, where: conditions |> list.append([where]) |> AndWhere)
     _ -> Update(..update, where: [update.where, where] |> AndWhere)
   }
 }
@@ -379,8 +376,8 @@ pub fn where(update update: Update(a), where where: Where) -> Update(a) {
 pub fn or_where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
     NoWhere -> Update(..update, where:)
-    OrWhere(wheres) ->
-      Update(..update, where: wheres |> list.append([where]) |> OrWhere)
+    OrWhere(conditions:) ->
+      Update(..update, where: conditions |> list.append([where]) |> OrWhere)
     _ -> Update(..update, where: [update.where, where] |> OrWhere)
   }
 }
@@ -402,8 +399,8 @@ pub fn or_where(update update: Update(a), where where: Where) -> Update(a) {
 pub fn xor_where(update update: Update(a), where where: Where) -> Update(a) {
   case update.where {
     NoWhere -> Update(..update, where:)
-    XorWhere(wheres) ->
-      Update(..update, where: wheres |> list.append([where]) |> XorWhere)
+    XorWhere(conditions:) ->
+      Update(..update, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Update(..update, where: [update.where, where] |> XorWhere)
   }
 }

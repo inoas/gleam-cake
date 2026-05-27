@@ -106,8 +106,8 @@ pub fn null() -> InsertValue {
 
 /// Create an `InsertValue` from a `calendar.Date`.
 ///
-pub fn date(date date: calendar.Date) -> InsertValue {
-  date |> DateParam |> InsertParam
+pub fn date(date value: calendar.Date) -> InsertValue {
+  value |> DateParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a `Fragment`.
@@ -121,8 +121,8 @@ pub fn date(date date: calendar.Date) -> InsertValue {
 /// i.fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
-pub fn fragment(value fragment: Fragment) -> InsertValue {
-  InsertFragment(fragment:)
+pub fn fragment(value value: Fragment) -> InsertValue {
+  InsertFragment(value:)
 }
 
 // ▒▒▒ Constructors ▒▒▒
