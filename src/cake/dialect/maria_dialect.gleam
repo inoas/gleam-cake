@@ -26,23 +26,21 @@ pub type WriteQuery(a) =
 /// Converts a cake query to a 🦭MariaDB prepared statement.
 ///
 pub fn cake_query_to_prepared_statement(
-  query query: CakeQuery(a),
+  query: CakeQuery(a),
 ) -> PreparedStatement {
   query |> cake.to_prepared_statement(dialect: Maria)
 }
 
 /// Converts read query to a 🦭MariaDB prepared statement.
 ///
-pub fn read_query_to_prepared_statement(
-  query query: ReadQuery,
-) -> PreparedStatement {
+pub fn read_query_to_prepared_statement(query: ReadQuery) -> PreparedStatement {
   query |> cake.read_query_to_prepared_statement(dialect: Maria)
 }
 
 /// Converts a write query to a 🦭MariaDB prepared statement.
 ///
 pub fn write_query_to_prepared_statement(
-  query query: WriteQuery(a),
+  query: WriteQuery(a),
 ) -> PreparedStatement {
   query |> cake.write_query_to_prepared_statement(dialect: Maria)
 }

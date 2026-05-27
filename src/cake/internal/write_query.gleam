@@ -506,11 +506,11 @@ fn insert_from_params_apply(
       with: fn(new_prepared_statement: PreparedStatement, record: a) -> PreparedStatement {
         let InsertRow(row) = record |> row_encoder
         case new_prepared_statement == prepared_statement {
-          True -> new_prepared_statement |> row_apply(row)
+          True -> new_prepared_statement |> row_apply(row:)
           False ->
             new_prepared_statement
             |> prepared_statement.append_sql(sql: "), (")
-            |> row_apply(row)
+            |> row_apply(row:)
         }
       },
     )
@@ -533,11 +533,11 @@ fn insert_from_values_apply(
       with: fn(new_prepared_statement: PreparedStatement, row: InsertRow) -> PreparedStatement {
         let InsertRow(row) = row
         case new_prepared_statement == prepared_statement {
-          True -> new_prepared_statement |> row_apply(row)
+          True -> new_prepared_statement |> row_apply(row:)
           False ->
             new_prepared_statement
             |> prepared_statement.append_sql(sql: "), (")
-            |> row_apply(row)
+            |> row_apply(row:)
         }
       },
     )
@@ -737,7 +737,8 @@ fn update_set_apply(
 ) -> PreparedStatement {
   case update_sets {
     NoUpdateSets -> prepared_statement
-    UpdateSets(items:) -> prepared_statement |> update_sets_apply(items)
+    UpdateSets(items:) ->
+      prepared_statement |> update_sets_apply(update_sets: items)
   }
 }
 

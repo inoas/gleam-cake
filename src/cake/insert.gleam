@@ -122,7 +122,7 @@ pub fn date(date value: calendar.Date) -> InsertValue {
 /// ```
 ///
 pub fn fragment(value value: Fragment) -> InsertValue {
-  InsertFragment(value:)
+  InsertFragment(value)
 }
 
 // ▒▒▒ Constructors ▒▒▒

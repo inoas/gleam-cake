@@ -38,11 +38,11 @@ pub fn new(
 ///
 pub fn append_param(
   prepared_statement prepared_statement: PreparedStatement,
-  param new_param: Param,
+  param param: Param,
 ) {
-  let new_sql =
+  let sql =
     prepared_statement |> next_placeholder(dialect: prepared_statement.dialect)
-  prepared_statement |> append_sql_and_param(sql: new_sql, param: new_param)
+  prepared_statement |> append_sql_and_param(sql:, param:)
 }
 
 /// Appends arbitrary SQL to the prepared statement.
@@ -99,24 +99,24 @@ pub fn get_dialect(
 ///
 fn append_sql_and_param(
   prepared_statement prepared_statement: PreparedStatement,
-  sql new_sql: String,
-  param new_param: Param,
+  sql sql: String,
+  param param: Param,
 ) {
-  prepared_statement |> append_sql_and_params(sql: new_sql, params: [new_param])
+  prepared_statement |> append_sql_and_params(sql:, params: [param])
 }
 
 /// Append SQL and parameters to the prepared statement.
 ///
 fn append_sql_and_params(
   prepared_statement prepared_statement: PreparedStatement,
-  sql new_sql: String,
-  params new_params: List(Param),
+  sql sql: String,
+  params params: List(Param),
 ) {
   PreparedStatement(
     ..prepared_statement,
-    sql: prepared_statement.sql <> new_sql,
-    params: prepared_statement.params |> list.append(new_params),
-    index: prepared_statement.index + list.length(of: new_params),
+    sql: prepared_statement.sql <> sql,
+    params: prepared_statement.params |> list.append(params),
+    index: prepared_statement.index + list.length(params),
   )
 }
 

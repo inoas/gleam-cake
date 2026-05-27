@@ -429,7 +429,7 @@ pub fn order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction)] |> OrderBy,
     append: True,
   )
 }
@@ -444,7 +444,7 @@ pub fn replace_order_by(
   let direction = direction |> map_order_by_direction_constructor
   query
   |> read_query.combined_order_by(
-    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction)] |> OrderBy,
     append: False,
   )
 }

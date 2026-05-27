@@ -166,7 +166,7 @@ pub fn combined_clause_apply(
         let #(new_prepared_statement, nested_index) = accumulator
         case new_prepared_statement == prepared_statement {
           True -> #(
-            new_prepared_statement |> select_builder(query),
+            new_prepared_statement |> select_builder(select_query: query),
             nested_index,
           )
           False -> {
@@ -176,7 +176,7 @@ pub fn combined_clause_apply(
               |> close_nested_query(nested_index)
               |> prepared_statement.append_sql(sql: " " <> sql_command <> " ")
               |> open_nested_query
-              |> select_builder(query)
+              |> select_builder(select_query: query)
 
             #(new_prepared_statement, nested_index)
           }
@@ -392,7 +392,7 @@ fn select_value_apply(
       prepared_statement |> fragment_apply(fragment: value)
     SelectAlias(value, name) ->
       prepared_statement
-      |> select_value_apply(value)
+      |> select_value_apply(value:)
       |> prepared_statement.append_sql(sql: " AS " <> name)
   }
 }
@@ -429,7 +429,7 @@ pub fn from_clause_apply(
     FromSubQuery(query, alias) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: " FROM (")
-      |> apply(query: query)
+      |> apply(query:)
       |> prepared_statement.append_sql(sql: ") AS " <> alias)
   }
 }
@@ -465,15 +465,15 @@ pub type Where {
   WhereAnyOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    select: ReadQuery,
+    query: ReadQuery,
   )
   WhereAllOfSubQuery(
     value_a: WhereValue,
     operator: WhereComparisonOperator,
-    select: ReadQuery,
+    query: ReadQuery,
   )
   WhereIn(value: WhereValue, values: List(WhereValue))
-  WhereExistsInSubQuery(select: ReadQuery)
+  WhereExistsInSubQuery(query: ReadQuery)
   WhereBetween(value_a: WhereValue, value_b: WhereValue, value_c: WhereValue)
   WhereLike(value: WhereValue, pattern: String)
   WhereILike(value: WhereValue, pattern: String)
@@ -505,7 +505,7 @@ pub type WhereValue {
   // TODO v3 If there are multiple, take the list of select values (projections)
   // and return the last one, if there is none, return NULL
   // And also potentially apply LIMIT 1?
-  WhereSubQueryValue(select: ReadQuery)
+  WhereSubQueryValue(query: ReadQuery)
 }
 
 /// Applies the `WHERE` clause to a prepared statement by appending the SQL
@@ -658,10 +658,10 @@ fn where_apply(
     WhereIn(value, values) ->
       prepared_statement
       |> where_value_in_values_apply(value:, values:)
-    WhereExistsInSubQuery(select:) ->
+    WhereExistsInSubQuery(query:) ->
       prepared_statement
       |> prepared_statement.append_sql(sql: " EXISTS ")
-      |> where_sub_query_apply(select)
+      |> where_sub_query_apply(query:)
     WhereLike(value, param) ->
       prepared_statement
       |> where_comparison_apply(
@@ -700,15 +700,14 @@ fn where_literal_apply(
       prepared_statement
       |> prepared_statement.append_sql(sql: name <> " " <> literal)
     WhereParamValue(value:) ->
-      prepared_statement
-      |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(param: value)
     WhereFragmentValue(value:) ->
       prepared_statement
       |> fragment_apply(fragment: value)
       |> prepared_statement.append_sql(sql: " " <> literal)
-    WhereSubQueryValue(select:) ->
+    WhereSubQueryValue(query:) ->
       prepared_statement
-      |> where_sub_query_apply(select)
+      |> where_sub_query_apply(query:)
       |> prepared_statement.append_sql(sql: " " <> literal)
   }
 }
@@ -726,16 +725,16 @@ fn where_comparison_apply(
     WhereColumnValue(column), WhereParamValue(param) ->
       prepared_statement
       |> where_sql_apply(column <> " " <> operator <> " ")
-      |> where_param_apply(param)
+      |> where_param_apply(param:)
     WhereParamValue(param), WhereColumnValue(column) ->
       prepared_statement
-      |> where_param_apply(param)
+      |> where_param_apply(param:)
       |> where_sql_apply(" " <> operator <> " " <> column)
     WhereParamValue(param_a), WhereParamValue(param_b) ->
       prepared_statement
-      |> where_param_apply(param_a)
+      |> where_param_apply(param: param_a)
       |> where_sql_apply(" " <> operator <> " ")
-      |> where_param_apply(param_b)
+      |> where_param_apply(param: param_b)
     WhereFragmentValue(value), WhereColumnValue(column) ->
       prepared_statement
       |> fragment_apply(fragment: value)
@@ -756,40 +755,40 @@ fn where_comparison_apply(
       |> fragment_apply(fragment: value)
     WhereFragmentValue(value_a), WhereFragmentValue(value_b) ->
       prepared_statement
-      |> fragment_apply(value_a)
+      |> fragment_apply(fragment: value_a)
       |> where_sql_apply(" " <> operator <> " ")
-      |> fragment_apply(value_b)
+      |> fragment_apply(fragment: value_b)
     WhereSubQueryValue(query_a), WhereSubQueryValue(query_b) ->
       prepared_statement
-      |> where_sub_query_apply(query_a)
+      |> where_sub_query_apply(query: query_a)
       |> where_sql_apply(" " <> operator <> " ")
-      |> where_sub_query_apply(query_b)
+      |> where_sub_query_apply(query: query_b)
     WhereColumnValue(column), WhereSubQueryValue(query) ->
       prepared_statement
       |> where_sql_apply(column <> " " <> operator <> " ")
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
     WhereSubQueryValue(query), WhereColumnValue(column) ->
       prepared_statement
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
       |> where_sql_apply(" " <> operator <> " " <> column)
     WhereParamValue(param), WhereSubQueryValue(query) ->
       prepared_statement
-      |> where_param_apply(param)
+      |> where_param_apply(param:)
       |> where_sql_apply(" " <> operator <> " ")
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
     WhereSubQueryValue(query), WhereParamValue(param) ->
       prepared_statement
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
       |> where_sql_apply(" " <> operator <> " ")
-      |> where_param_apply(param)
+      |> where_param_apply(param:)
     WhereFragmentValue(value), WhereSubQueryValue(query) ->
       prepared_statement
       |> fragment_apply(fragment: value)
       |> where_sql_apply(" " <> operator <> " ")
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
     WhereSubQueryValue(query), WhereFragmentValue(value) ->
       prepared_statement
-      |> where_sub_query_apply(query)
+      |> where_sub_query_apply(query:)
       |> where_sql_apply(" " <> operator <> " ")
       |> fragment_apply(fragment: value)
   }
@@ -1048,8 +1047,8 @@ fn where_value_in_values_apply(
         prepared_statement |> prepared_statement.append_param(param: value)
       WhereFragmentValue(value:) ->
         prepared_statement |> fragment_apply(fragment: value)
-      WhereSubQueryValue(select:) ->
-        prepared_statement |> where_sub_query_apply(select)
+      WhereSubQueryValue(query:) ->
+        prepared_statement |> where_sub_query_apply(query:)
     }
     |> prepared_statement.append_sql(sql: " IN (")
 
@@ -1084,13 +1083,13 @@ fn where_value_in_values_apply(
               new_prepared_statement |> prepared_statement.append_sql(sql: ", ")
           }
           |> fragment_apply(fragment: value)
-        WhereSubQueryValue(select:) ->
+        WhereSubQueryValue(query:) ->
           case new_prepared_statement == prepared_statement {
             True -> new_prepared_statement
             False ->
               new_prepared_statement |> prepared_statement.append_sql(sql: ", ")
           }
-          |> where_sub_query_apply(select)
+          |> where_sub_query_apply(query:)
       }
     },
   )
@@ -1110,8 +1109,8 @@ fn where_between_apply(
       prepared_statement |> prepared_statement.append_param(param: value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
-    WhereSubQueryValue(select:) ->
-      prepared_statement |> where_sub_query_apply(select)
+    WhereSubQueryValue(query:) ->
+      prepared_statement |> where_sub_query_apply(query:)
   }
 
   let prepared_statement =
@@ -1124,8 +1123,8 @@ fn where_between_apply(
       prepared_statement |> prepared_statement.append_param(param: value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
-    WhereSubQueryValue(select:) ->
-      prepared_statement |> where_sub_query_apply(select)
+    WhereSubQueryValue(query:) ->
+      prepared_statement |> where_sub_query_apply(query:)
   }
 
   let prepared_statement =
@@ -1138,8 +1137,8 @@ fn where_between_apply(
       prepared_statement |> prepared_statement.append_param(param: value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
-    WhereSubQueryValue(select:) ->
-      prepared_statement |> where_sub_query_apply(select)
+    WhereSubQueryValue(query:) ->
+      prepared_statement |> where_sub_query_apply(query:)
   }
 
   prepared_statement
@@ -1281,37 +1280,37 @@ pub fn join_clause_apply(
           ) -> PreparedStatement {
             new_prepared_statement
             |> prepared_statement.append_sql(sql: " ON ")
-            |> where_apply(on)
+            |> where_apply(where: on)
           }
 
           case join {
-            InnerJoin(_, _, on:) ->
+            InnerJoin(_, alias: _, on:) ->
               new_prepared_statement
               |> join_command_apply("INNER JOIN")
               |> on_apply(on)
-            InnerJoinLateralOnTrue(_, _) ->
+            InnerJoinLateralOnTrue(_, alias: _) ->
               new_prepared_statement
               |> join_command_apply("INNER JOIN LATERAL")
               |> prepared_statement.append_sql(sql: " ON TRUE")
-            LeftJoin(_, _, on:) ->
+            LeftJoin(_, alias: _, on:) ->
               new_prepared_statement
               |> join_command_apply("LEFT OUTER JOIN")
               |> on_apply(on)
-            LeftJoinLateralOnTrue(_, _) ->
+            LeftJoinLateralOnTrue(_, alias: _) ->
               new_prepared_statement
               |> join_command_apply("LEFT JOIN LATERAL")
               |> prepared_statement.append_sql(sql: " ON TRUE")
-            RightJoin(_, _, on:) ->
+            RightJoin(_, alias: _, on:) ->
               new_prepared_statement
               |> join_command_apply("RIGHT OUTER JOIN")
               |> on_apply(on)
-            FullJoin(_, _, on:) ->
+            FullJoin(_, alias: _, on:) ->
               new_prepared_statement
               |> join_command_apply("FULL OUTER JOIN")
               |> on_apply(on)
-            CrossJoin(_, _) ->
+            CrossJoin(_, alias: _) ->
               new_prepared_statement |> join_command_apply("CROSS JOIN")
-            CrossJoinLateral(_, _) ->
+            CrossJoinLateral(_, alias: _) ->
               new_prepared_statement |> join_command_apply("CROSS JOIN LATERAL")
           }
         },
@@ -1450,7 +1449,7 @@ fn order_by_value_apply(
       )
     OrderByFragment(fragment:, direction:) ->
       prepared_statement
-      |> fragment_apply(fragment)
+      |> fragment_apply(fragment: fragment)
       |> prepared_statement.append_sql(
         sql: " " <> direction |> order_by_direction_to_sql,
       )
@@ -1504,7 +1503,7 @@ fn limit_clause_apply(
     NoLimit -> ""
     Limit(limit:) -> " LIMIT " <> limit |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement:)
+  |> prepared_statement.append_sql(prepared_statement:, sql: _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1535,7 +1534,7 @@ fn offset_clause_apply(
     NoOffset -> ""
     Offset(offset:) -> " OFFSET " <> offset |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement:)
+  |> prepared_statement.append_sql(prepared_statement:, sql: _)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐

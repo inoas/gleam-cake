@@ -48,7 +48,7 @@ pub const placeholder = read_query.fragment_placeholder_grapheme
 ///
 /// ⛔ ⛔ ⛔
 ///
-pub fn prepared(string string: String, params params: List(Param)) -> Fragment {
+pub fn prepared(string: String, params: List(Param)) -> Fragment {
   let placeholder_count =
     string
     |> read_query.fragment_prepared_split_string
@@ -110,7 +110,7 @@ pub fn prepared(string string: String, params params: List(Param)) -> Fragment {
 ///
 /// ⛔ ⛔ ⛔
 ///
-pub fn literal(string string: String) -> Fragment {
+pub fn literal(string: String) -> Fragment {
   string |> read_query.FragmentLiteral
 }
 
@@ -120,7 +120,7 @@ pub fn literal(string string: String) -> Fragment {
 
 /// Create a new `Param` with a `Bool` value.
 ///
-pub fn bool(value value: Bool) -> Param {
+pub fn bool(value: Bool) -> Param {
   value |> BoolParam
 }
 
@@ -138,19 +138,19 @@ pub fn false() -> Param {
 
 /// Create a new `Param` with a `Float` value.
 ///
-pub fn float(value value: Float) -> Param {
+pub fn float(value: Float) -> Param {
   value |> FloatParam
 }
 
 /// Create a new `Param` with an `Int` value.
 ///
-pub fn int(value value: Int) -> Param {
+pub fn int(value: Int) -> Param {
   value |> IntParam
 }
 
 /// Create a new `Param` with a `String` value.
 ///
-pub fn string(value value: String) -> Param {
+pub fn string(value: String) -> Param {
   value |> StringParam
 }
 
@@ -162,6 +162,6 @@ pub fn null() -> Param {
 
 /// Create a new `Param` with a `calendar.Date` value.
 ///
-pub fn date(date value: calendar.Date) -> Param {
+pub fn date(value: calendar.Date) -> Param {
   value |> DateParam
 }

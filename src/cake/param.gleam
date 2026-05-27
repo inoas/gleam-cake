@@ -43,25 +43,25 @@ pub type Param {
 
 /// Create a new `Param` with a `Bool` value.
 ///
-pub fn bool(value value: Bool) -> Param {
+pub fn bool(value: Bool) -> Param {
   value |> BoolParam
 }
 
 /// Create a new `Param` with a `Float` value.
 ///
-pub fn float(value value: Float) -> Param {
+pub fn float(value: Float) -> Param {
   value |> FloatParam
 }
 
 /// Create a new `Param` with an `Int` value.
 ///
-pub fn int(value value: Int) -> Param {
+pub fn int(value: Int) -> Param {
   value |> IntParam
 }
 
 /// Create a new `Param` with a `String` value.
 ///
-pub fn string(value value: String) -> Param {
+pub fn string(value: String) -> Param {
   value |> StringParam
 }
 
@@ -73,7 +73,7 @@ pub fn null() -> Param {
 
 /// Create a new `Param` with a `calendar.Date` value.
 ///
-pub fn date(date value: calendar.Date) -> Param {
+pub fn date(value: calendar.Date) -> Param {
   value |> DateParam
 }
 //
