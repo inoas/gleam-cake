@@ -26,11 +26,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   behaviour of `xor` on 🦭MariaDB or 🐬MySQL with three or more conditions
   will observe different query results after upgrading.
 
-- [BREAKING] **`where.float`, `where.int`, `where.string`, `where.date`
-  external parameter label renamed from `v` to `value`.** Any call site
-  using named-argument syntax (e.g. `where.float(v: 1.0)`) must be
-  updated to `where.float(value: 1.0)`. Positional call sites are
-  unaffected.
+- [BREAKING] **`where` module parameter labels renamed.** The functions
+  `where.float`, `where.int`, `where.string`, and `where.date` had their
+  external parameter labels renamed from `v` to `value`. Any call site
+  using named-argument syntax (e.g. `where.float(v: 1.0)`) must be updated
+  to `where.float(value: 1.0)`. Positional call sites are unaffected.
+
+  **Note:** Similar internal variable name changes were made in `insert`,
+  `update`, and `fragment` modules for consistency (e.g., `vl` → `value`,
+  `col` → `column`, `str` → `string`, `prms` → `params`), but these do
+  **not** affect external APIs since the external labels remained the same.
 
 ### Added
 
@@ -95,8 +100,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Removed
 
-- `gmysql` not mentioned anymore because it seems unmaintained.
-  The old adapter may still work with old cake versions.
+- Documentation references to `gmysql` have been removed as the package
+  appears unmaintained. This is not a breaking change — `gmysql` was never
+  a dependency, only mentioned as an adapter option in documentation. Users
+  of older Cake versions may still be able to use it.
 
 ## [3.0.0] - 2026-04-29
 
