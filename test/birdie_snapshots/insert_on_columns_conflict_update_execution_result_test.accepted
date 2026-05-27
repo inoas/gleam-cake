@@ -1,8 +1,0 @@
----
-version: 2.0.0
-title: insert_on_columns_conflict_update_execution_result_test
----
-#(
-  Ok([#("Fubi", 1)]),
-  Ok([#("Fubi", 1)]),
-)
