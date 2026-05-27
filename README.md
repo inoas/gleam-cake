@@ -44,8 +44,8 @@ Further documentation can be found on [hexdocs.pm/cake](https://hexdocs.pm/cake)
 
 <!--
 TODO:
-- SQLite on WASM/JS https://sqlite.org/wasm
-- Postgres WASM via https://pglite.dev/
+- 🪶SQLite on WASM/JS https://sqlite.org/wasm
+- 🐘PostgreSQL WASM via https://pglite.dev/
 -->
 
 ## Usage
@@ -143,9 +143,9 @@ flexible and powerful tool to compose and craft SQL read and write queries.
 - Not being tied to any specific dialect or dialect adapter library.
 - Documentation should be comprehensive.
 - It should be easy to use with existing gleam dialect adapters such as:
-  - Postgres: [pog](https://hex.pm/packages/pog)
-  - SQLite: [sqlight](https://hex.pm/packages/sqlight)
-  - MariaDB & MySQL: [shork](https://hex.pm/packages/shork)
+  - 🐘PostgreSQL: [pog](https://hex.pm/packages/pog)
+  - 🪶SQLite: [sqlight](https://hex.pm/packages/sqlight)
+  - 🦭MariaDB & 🐬MySQL: [shork](https://hex.pm/packages/shork)
 - Allow to define custom SQL fragments while still being safe
   from SQL injections by using prepared statements.
 
@@ -168,9 +168,9 @@ flexible and powerful tool to compose and craft SQL read and write queries.
 ### Tested targets
 
 - Sqlite3 as part of [ubuntu:latest (Docker)](https://hub.docker.com/_/ubuntu)
-- [postgres:latest (Docker)](https://hub.docker.com/_/postgres)
-- [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb)
-- [mysql:latest (Docker)](https://hub.docker.com/_/mysql)
+- [postgres:latest (Docker)](https://hub.docker.com/_/postgres) for 🐘PostgreSQL
+- [mariadb:latest (Docker)](https://hub.docker.com/_/mariadb) for 🦭MariaDB
+- [mysql:latest (Docker)](https://hub.docker.com/_/mysql) for 🐬MySQL
 
 The tests run on Erlang but are generally target agnostic.
 
@@ -178,8 +178,8 @@ While the primary use case is to run queries on servers, this library runs on
 any Gleam target and for example in conjunction with following adapters, you may
 run queries composed with this library in browsers:
 
-- [sqlite3 WASM/JS](https://sqlite.org/wasm)
-- [PGLite (Postgres WASM)](https://pglite.dev/)
+- [sqlite3 WASM/JS](https://sqlite.org/wasm) for 🪶SQLite
+- [PGLite (Postgres WASM)](https://pglite.dev/) for 🐘PostgreSQL
 
 ## Development
 

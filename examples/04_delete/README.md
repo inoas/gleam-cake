@@ -2,7 +2,7 @@
 
 This demo of Cake shows how to `DELETE`.
 
-To start postgres via docker compose, see
+To start 🐘PostgreSQL via docker compose, see
 [examples/README.md](../../README.md#demo-apps.md#Installing-prerequisites), then:
 
 ```shell

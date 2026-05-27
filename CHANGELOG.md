@@ -20,10 +20,10 @@ and this project adheres to
   combinatorial expansion. These two semantics are equivalent for two operands
   but diverge for three or more.
 
-  MariaDB/MySQL now use the same combinatorial "exactly one" expansion as
-  PostgreSQL/SQLite, making `where.xor` consistent across all four dialects.
+  🦭MariaDB/🐬MySQL now use the same combinatorial "exactly one" expansion as
+  🐘PostgreSQL/🪶SQLite, making `where.xor` consistent across all four dialects.
   Any code that relied on the native-`XOR` (odd-parity) behaviour of `xor` on
-  MariaDB or MySQL with three or more conditions will observe different query
+  🦭MariaDB or 🐬MySQL with three or more conditions will observe different query
   results after upgrading.
 
 - [BREAKING] **`where.float`, `where.int`, `where.string`, `where.date`

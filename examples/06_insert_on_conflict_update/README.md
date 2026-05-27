@@ -2,7 +2,7 @@
 
 This demo of Cake shows how to `INSERT ON CONFLICT UPDATE`.
 
-To start postgres via docker compose, see
+To start 🐘PostgreSQL via docker compose, see
 [examples/README.md](../../README.md#Installing-prerequisites), then:
 
 ```shell
