@@ -116,7 +116,7 @@ fn append_sql_and_params(
     ..prepared_statement,
     sql: prepared_statement.sql <> sql,
     params: prepared_statement.params |> list.append(params),
-    index: prepared_statement.index + list.length(params),
+    index: prepared_statement.index + list.length(of: params),
   )
 }
 

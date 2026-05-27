@@ -75,8 +75,8 @@ fn returning_apply(
     NoReturning -> prepared_statement
     Returning(columns:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " RETURNING ")
-      |> prepared_statement.append_sql(sql: columns |> string.join(with: ", "))
+      |> prepared_statement.append_sql(" RETURNING ")
+      |> prepared_statement.append_sql(columns |> string.join(with: ", "))
   }
 }
 
@@ -248,7 +248,7 @@ fn insert_apply(
       |> read_query.comment_apply(comment: insert.comment)
     _, _ ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: "INSERT")
+      |> prepared_statement.append_sql("INSERT")
       |> insert_modifier_apply(insert_modifier: insert.modifier)
       |> insert_into_table_apply(table_name: insert.table)
       |> insert_columns_apply(columns: insert.columns)
@@ -266,10 +266,10 @@ fn insert_into_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoInsertIntoTable ->
-      prepared_statement |> prepared_statement.append_sql(sql: " INTO")
+      prepared_statement |> prepared_statement.append_sql(" INTO")
     InsertIntoTable(name: table_name) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " INTO " <> table_name)
+      |> prepared_statement.append_sql(" INTO " <> table_name)
   }
 }
 
@@ -279,10 +279,10 @@ fn insert_ignore_into_table_apply(
 ) -> PreparedStatement {
   case table_name {
     NoInsertIntoTable ->
-      prepared_statement |> prepared_statement.append_sql(sql: " IGNORE INTO")
+      prepared_statement |> prepared_statement.append_sql(" IGNORE INTO")
     InsertIntoTable(name: table_name) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " IGNORE INTO " <> table_name)
+      |> prepared_statement.append_sql(" IGNORE INTO " <> table_name)
   }
 }
 
@@ -344,14 +344,14 @@ fn insert_conflict_ignore_maria_mysql_apply(
         [] ->
           // Non-row source: fall back to INSERT IGNORE
           prepared_statement
-          |> prepared_statement.append_sql(sql: "INSERT")
+          |> prepared_statement.append_sql("INSERT")
           |> insert_modifier_apply(insert_modifier: insert.modifier)
           |> insert_ignore_into_table_apply(table_name: insert.table)
           |> insert_columns_apply(columns: insert.columns)
           |> insert_source_apply(source: insert.source)
         _ ->
           prepared_statement
-          |> prepared_statement.append_sql(sql: "INSERT")
+          |> prepared_statement.append_sql("INSERT")
           |> insert_modifier_apply(insert_modifier: insert.modifier)
           |> insert_into_table_apply(table_name: insert.table)
           |> insert_columns_apply(columns: insert.columns)
@@ -368,7 +368,7 @@ fn insert_conflict_ignore_maria_mysql_apply(
     // fall back to INSERT IGNORE
     _, _, _ ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: "INSERT")
+      |> prepared_statement.append_sql("INSERT")
       |> insert_modifier_apply(insert_modifier: insert.modifier)
       |> insert_ignore_into_table_apply(table_name: insert.table)
       |> insert_columns_apply(columns: insert.columns)
@@ -395,10 +395,10 @@ fn insert_select_not_exists_rows_apply(
       {
         True ->
           new_prepared_statement
-          |> prepared_statement.append_sql(sql: " SELECT ")
+          |> prepared_statement.append_sql(" SELECT ")
         False ->
           new_prepared_statement
-          |> prepared_statement.append_sql(sql: " UNION ALL SELECT ")
+          |> prepared_statement.append_sql(" UNION ALL SELECT ")
       }
       new_prepared_statement
       |> row_apply(row: values)
@@ -447,23 +447,23 @@ fn insert_not_exists_where_apply(
               True -> new_prepared_statement
               False ->
                 new_prepared_statement
-                |> prepared_statement.append_sql(sql: " AND ")
+                |> prepared_statement.append_sql(" AND ")
             }
             case insert_value {
               InsertParam(value:) ->
                 new_prepared_statement
-                |> prepared_statement.append_sql(sql: col_name <> " = ")
+                |> prepared_statement.append_sql(col_name <> " = ")
                 |> prepared_statement.append_param(value)
               InsertDefault -> new_prepared_statement
               InsertFragment(value:) ->
                 new_prepared_statement
-                |> prepared_statement.append_sql(sql: col_name <> " = ")
+                |> prepared_statement.append_sql(col_name <> " = ")
                 |> read_query.fragment_apply(fragment: value)
             }
           },
         )
       prepared_statement
-      |> prepared_statement.append_sql(sql: " FOR UPDATE)")
+      |> prepared_statement.append_sql(" FOR UPDATE)")
     }
   }
 }
@@ -483,12 +483,12 @@ fn insert_duplicate_key_update_apply(
   let assert InsertDuplicateKeyUpdate(update:) = insert.on_conflict
 
   prepared_statement
-  |> prepared_statement.append_sql(sql: "INSERT")
+  |> prepared_statement.append_sql("INSERT")
   |> insert_modifier_apply(insert_modifier: insert.modifier)
   |> insert_into_table_apply(table_name: insert.table)
   |> insert_columns_apply(columns: insert.columns)
   |> insert_source_apply(source: insert.source)
-  |> prepared_statement.append_sql(sql: " ON DUPLICATE KEY UPDATE")
+  |> prepared_statement.append_sql(" ON DUPLICATE KEY UPDATE")
   |> update_set_apply(items: update.set)
 }
 
@@ -499,7 +499,7 @@ fn insert_modifier_apply(
   case insert_modifier {
     NoInsertModifier -> prepared_statement
     InsertModifier(keyword:) ->
-      prepared_statement |> prepared_statement.append_sql(sql: " " <> keyword)
+      prepared_statement |> prepared_statement.append_sql(" " <> keyword)
   }
 }
 
@@ -511,19 +511,19 @@ fn insert_source_apply(
     NoInsertSource -> prepared_statement
     InsertSourceRecords(data: source, encoder: row_encoder) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " VALUES")
+      |> prepared_statement.append_sql(" VALUES")
       |> insert_from_params_apply(source:, row_encoder:)
     InsertSourceRows(data: source) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " VALUES")
+      |> prepared_statement.append_sql(" VALUES")
       |> insert_from_values_apply(source:)
     InsertSourceQuery(query:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " ")
+      |> prepared_statement.append_sql(" ")
       |> read_query.apply(query:)
     InsertSourceDefault ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " DEFAULT VALUES")
+      |> prepared_statement.append_sql(" DEFAULT VALUES")
   }
 }
 
@@ -533,7 +533,7 @@ fn insert_from_params_apply(
   row_encoder row_encoder: fn(a) -> InsertRow,
 ) {
   let prepared_statement =
-    prepared_statement |> prepared_statement.append_sql(sql: " (")
+    prepared_statement |> prepared_statement.append_sql(" (")
   let prepared_statement =
     source
     |> list.fold(
@@ -544,13 +544,13 @@ fn insert_from_params_apply(
           True -> new_prepared_statement |> row_apply(row:)
           False ->
             new_prepared_statement
-            |> prepared_statement.append_sql(sql: "), (")
+            |> prepared_statement.append_sql("), (")
             |> row_apply(row:)
         }
       },
     )
   let prepared_statement =
-    prepared_statement |> prepared_statement.append_sql(sql: ")")
+    prepared_statement |> prepared_statement.append_sql(")")
 
   prepared_statement
 }
@@ -560,7 +560,7 @@ fn insert_from_values_apply(
   source source: List(InsertRow),
 ) {
   let prepared_statement =
-    prepared_statement |> prepared_statement.append_sql(sql: " (")
+    prepared_statement |> prepared_statement.append_sql(" (")
   let prepared_statement =
     source
     |> list.fold(
@@ -571,13 +571,13 @@ fn insert_from_values_apply(
           True -> new_prepared_statement |> row_apply(row:)
           False ->
             new_prepared_statement
-            |> prepared_statement.append_sql(sql: "), (")
+            |> prepared_statement.append_sql("), (")
             |> row_apply(row:)
         }
       },
     )
   let prepared_statement =
-    prepared_statement |> prepared_statement.append_sql(sql: ")")
+    prepared_statement |> prepared_statement.append_sql(")")
 
   prepared_statement
 }
@@ -601,7 +601,7 @@ fn row_apply(
               |> prepared_statement.append_param(param: value)
             False ->
               new_prepared_statement_inner
-              |> prepared_statement.append_sql(sql: ", ")
+              |> prepared_statement.append_sql(", ")
               |> prepared_statement.append_param(param: value)
           }
         }
@@ -609,10 +609,10 @@ fn row_apply(
           case new_prepared_statement_inner == new_prepared_statement {
             True ->
               new_prepared_statement_inner
-              |> prepared_statement.append_sql(sql: "DEFAULT")
+              |> prepared_statement.append_sql("DEFAULT")
             False ->
               new_prepared_statement_inner
-              |> prepared_statement.append_sql(sql: ", DEFAULT")
+              |> prepared_statement.append_sql(", DEFAULT")
           }
         }
         InsertFragment(value:) -> {
@@ -622,7 +622,7 @@ fn row_apply(
               |> read_query.fragment_apply(fragment: value)
             False ->
               new_prepared_statement_inner
-              |> prepared_statement.append_sql(sql: ", ")
+              |> prepared_statement.append_sql(", ")
               |> read_query.fragment_apply(fragment: value)
           }
         }
@@ -641,11 +641,11 @@ fn insert_on_conflict_apply(
       prepared_statement
       |> insert_on_conflict_target_apply(target:)
       |> read_query.where_clause_apply(where:)
-      |> prepared_statement.append_sql(sql: " DO NOTHING")
+      |> prepared_statement.append_sql(" DO NOTHING")
     InsertConflictUpdate(target:, where:, update:) ->
       prepared_statement
       |> insert_on_conflict_target_apply(target:)
-      |> prepared_statement.append_sql(sql: " DO ")
+      |> prepared_statement.append_sql(" DO ")
       |> update_apply(update:)
       |> read_query.where_clause_apply(where:)
     // InsertDuplicateKeyUpdate is handled separately in insert_apply
@@ -661,13 +661,13 @@ fn insert_on_conflict_target_apply(
   case target {
     InsertConflictTarget(columns:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " ON CONFLICT (")
-      |> prepared_statement.append_sql(sql: columns |> string.join(with: ", "))
-      |> prepared_statement.append_sql(sql: ")")
+      |> prepared_statement.append_sql(" ON CONFLICT (")
+      |> prepared_statement.append_sql(columns |> string.join(with: ", "))
+      |> prepared_statement.append_sql(")")
     InsertConflictTargetConstraint(name:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " ON CONFLICT ON CONSTRAINT ")
-      |> prepared_statement.append_sql(sql: name)
+      |> prepared_statement.append_sql(" ON CONFLICT ON CONSTRAINT ")
+      |> prepared_statement.append_sql(name)
   }
 }
 
@@ -733,10 +733,10 @@ fn update_apply(
   update update: Update(a),
 ) {
   prepared_statement
-  |> prepared_statement.append_sql(sql: "UPDATE")
+  |> prepared_statement.append_sql("UPDATE")
   |> update_table_apply(table_name: update.table)
   |> update_modifier_apply(update_modifier: update.modifier)
-  |> prepared_statement.append_sql(sql: " SET")
+  |> prepared_statement.append_sql(" SET")
   |> update_set_apply(items: update.set)
   |> read_query.from_clause_apply(from: update.from)
   |> read_query.join_clause_apply(joins: update.join)
@@ -754,7 +754,7 @@ fn update_table_apply(
     NoUpdateTable -> prepared_statement
     UpdateTable(name:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " " <> name)
+      |> prepared_statement.append_sql(" " <> name)
   }
 }
 
@@ -765,7 +765,7 @@ fn update_modifier_apply(
   case update_modifier {
     NoUpdateModifier -> prepared_statement
     UpdateModifier(keyword:) ->
-      prepared_statement |> prepared_statement.append_sql(sql: " " <> keyword)
+      prepared_statement |> prepared_statement.append_sql(" " <> keyword)
   }
 }
 
@@ -792,13 +792,13 @@ fn update_sets_apply(
       [] -> new_prepared_statement
       [column] ->
         new_prepared_statement
-        |> prepared_statement.append_sql(sql: " " <> column <> " =")
+        |> prepared_statement.append_sql(" " <> column <> " =")
       [_column, ..] ->
         new_prepared_statement
         |> prepared_statement.append_sql(
           sql: " (" <> columns |> string.join(with: ", ") <> ")",
         )
-        |> prepared_statement.append_sql(sql: " =")
+        |> prepared_statement.append_sql(" =")
     }
   }
 
@@ -810,29 +810,28 @@ fn update_sets_apply(
         new_prepared_statement == prepared_statement
       {
         True -> new_prepared_statement
-        False ->
-          new_prepared_statement |> prepared_statement.append_sql(sql: ",")
+        False -> new_prepared_statement |> prepared_statement.append_sql(",")
       }
       case update_set {
         UpdateParamSet(column:, param:) ->
           new_prepared_statement
           |> columns_apply([column])
-          |> prepared_statement.append_sql(sql: " ")
+          |> prepared_statement.append_sql(" ")
           |> prepared_statement.append_param(param)
         UpdateExpressionSet(columns:, expression:) ->
           new_prepared_statement
           |> columns_apply(columns)
-          |> prepared_statement.append_sql(sql: " " <> expression)
+          |> prepared_statement.append_sql(" " <> expression)
         UpdateSubQuerySet(columns:, query:) ->
           new_prepared_statement
           |> columns_apply(columns)
-          |> prepared_statement.append_sql(sql: " (")
+          |> prepared_statement.append_sql(" (")
           |> read_query.apply(query:)
-          |> prepared_statement.append_sql(sql: ")")
+          |> prepared_statement.append_sql(")")
         UpdateFragmentSet(column:, value:) ->
           new_prepared_statement
           |> columns_apply([column])
-          |> prepared_statement.append_sql(sql: " ")
+          |> prepared_statement.append_sql(" ")
           |> read_query.fragment_apply(fragment: value)
       }
     },
@@ -897,7 +896,7 @@ fn delete_apply(
   delete delete: Delete(a),
 ) {
   prepared_statement
-  |> prepared_statement.append_sql(sql: "DELETE")
+  |> prepared_statement.append_sql("DELETE")
   |> delete_table_apply(table_name: delete.table)
   |> delete_modifier_apply(delete_modifier: delete.modifier)
   |> using_apply(using: delete.using)
@@ -916,7 +915,7 @@ fn delete_table_apply(
     NoDeleteTable -> prepared_statement
     DeleteTable(name:) ->
       prepared_statement
-      |> prepared_statement.append_sql(sql: " FROM " <> name)
+      |> prepared_statement.append_sql(" FROM " <> name)
   }
 }
 
@@ -927,7 +926,7 @@ fn delete_modifier_apply(
   case delete_modifier {
     NoDeleteModifier -> prepared_statement
     DeleteModifier(keyword:) ->
-      prepared_statement |> prepared_statement.append_sql(sql: " " <> keyword)
+      prepared_statement |> prepared_statement.append_sql(" " <> keyword)
   }
 }
 
@@ -939,7 +938,7 @@ fn using_apply(
     NoDeleteUsing -> prepared_statement
     DeleteUsing(froms:) -> {
       let prepared_statement =
-        prepared_statement |> prepared_statement.append_sql(sql: " USING ")
+        prepared_statement |> prepared_statement.append_sql(" USING ")
 
       froms
       |> list.fold(
@@ -951,19 +950,19 @@ fn using_apply(
           {
             True, _ | _, NoFrom -> new_prepared_statement
             False, _ ->
-              new_prepared_statement |> prepared_statement.append_sql(sql: ", ")
+              new_prepared_statement |> prepared_statement.append_sql(", ")
           }
 
           case from {
             NoFrom -> new_prepared_statement
             FromTable(name: table_name) ->
               new_prepared_statement
-              |> prepared_statement.append_sql(sql: table_name)
+              |> prepared_statement.append_sql(table_name)
             FromSubQuery(query:, alias:) ->
               new_prepared_statement
-              |> prepared_statement.append_sql(sql: " (")
+              |> prepared_statement.append_sql(" (")
               |> read_query.apply(query:)
-              |> prepared_statement.append_sql(sql: ") AS " <> alias)
+              |> prepared_statement.append_sql(") AS " <> alias)
           }
         },
       )
