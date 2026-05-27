@@ -16,4 +16,6 @@
 //// Gleam.
 ////
 
+/// This constant is a placeholder until re-exporting functions is supported by
+/// Gleam.
 pub const waiting_for_gleam_export_feature = True
