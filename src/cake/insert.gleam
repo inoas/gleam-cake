@@ -6,9 +6,10 @@ import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/internal/write_query.{
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
   InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
-  InsertFragment, InsertIntoTable, InsertModifier, InsertParam, InsertQuery,
-  InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
-  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
+  InsertDuplicateKeyUpdate, InsertFragment, InsertIntoTable, InsertModifier,
+  InsertParam, InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows,
+  NoInsertColumns, NoInsertIntoTable, NoInsertModifier, NoInsertSource,
+  NoReturning, Returning,
 }
 import cake/param.{
   BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
@@ -328,7 +329,25 @@ pub fn on_constraint_conflict_ignore(
 
 /// Inserts or updates on conflict, also called ´UPSERT´.
 ///
+/// This function generates PostgreSQL/SQLite-specific upsert queries using
+/// `ON CONFLICT ... DO UPDATE` syntax.
+///
+/// **For MySQL/MariaDB, use `on_duplicate_key_update()` instead.**
+///
 /// Conflict Target: Columns
+///
+/// ## Important
+///
+/// - Use `excluded.column` in UPDATE expressions to reference insert values
+/// - Explicitly specify which columns to check for conflicts
+/// - Supports optional WHERE clause for conditional updates
+///
+/// ## Database Support
+///
+/// - **🐘PostgreSQL**: ✅ Fully supported
+/// - **🪶SQLite**: ✅ Fully supported
+/// - **🦭MariaDB**: ❌ Not supported - use `on_duplicate_key_update()`
+/// - **🐬MySQL**: ❌ Not supported - use `on_duplicate_key_update()`
 ///
 pub fn on_columns_conflict_update(
   insert insert: Insert(a),
@@ -348,7 +367,20 @@ pub fn on_columns_conflict_update(
 
 /// Inserts or updates on conflict, also called ´UPSERT´.
 ///
-/// Conflict Target: Constraint
+/// This function generates PostgreSQL-specific upsert queries using
+/// `ON CONFLICT ON CONSTRAINT ... DO UPDATE` syntax.
+///
+/// **For MySQL/MariaDB, use `on_duplicate_key_update()` instead.**
+/// **For SQLite, use `on_columns_conflict_update()` instead.**
+///
+/// Conflict Target: Named Constraint
+///
+/// ## Database Support
+///
+/// - **🐘PostgreSQL**: ✅ Fully supported
+/// - **🪶SQLite**: ❌ Not supported - use `on_columns_conflict_update()`
+/// - **🦭MariaDB**: ❌ Not supported - use `on_duplicate_key_update()`
+/// - **🐬MySQL**: ❌ Not supported - use `on_duplicate_key_update()`
 ///
 pub fn on_constraint_conflict_update(
   insert insert: Insert(a),
@@ -370,6 +402,56 @@ pub fn on_constraint_conflict_update(
 ///
 pub fn get_on_conflict(insert insert: Insert(a)) -> InsertConflictStrategy(a) {
   insert.on_conflict
+}
+
+// ▒▒▒ ON DUPLICATE KEY UPDATE (MySQL/MariaDB) ▒▒▒
+
+/// MySQL/MariaDB upsert using `ON DUPLICATE KEY UPDATE` syntax.
+///
+/// This function generates MySQL/MariaDB-specific upsert queries.
+/// **Only use this when targeting MySQL or MariaDB databases.**
+///
+/// For PostgreSQL/SQLite, use `on_columns_conflict_update()` or
+/// `on_constraint_conflict_update()` instead.
+///
+/// ## Important
+///
+/// - Use `VALUES(column)` (not `excluded.column`) in your UPDATE expressions
+/// - Updates occur on the **first** matched unique/primary key constraint
+/// - No explicit conflict target - relies on existing indexes
+///
+/// ## Example
+///
+/// ```gleam
+/// import cake/insert as i
+/// import cake/update as u
+///
+/// [[i.string("user1"), i.int(100)] |> i.row]
+/// |> i.from_values(table_name: "scores", columns: ["username", "score"])
+/// |> i.on_duplicate_key_update(
+///   update: u.new()
+///     |> u.set("score" |> u.set_expression("VALUES(score) + scores.score")),
+/// )
+/// ```
+///
+/// Generates:
+/// ```sql
+/// INSERT INTO scores (username, score) VALUES (?, ?)
+/// ON DUPLICATE KEY UPDATE score = VALUES(score) + scores.score
+/// ```
+///
+/// ## Database Support
+///
+/// - **🦭MariaDB**: ✅ Supported
+/// - **🐬MySQL**: ✅ Supported
+/// - **🐘PostgreSQL**: ❌ Not supported - use `on_columns_conflict_update()`
+/// - **🪶SQLite**: ❌ Not supported - use `on_columns_conflict_update()`
+///
+pub fn on_duplicate_key_update(
+  insert insert: Insert(a),
+  update update: Update(a),
+) -> Insert(a) {
+  Insert(..insert, on_conflict: InsertDuplicateKeyUpdate(update:))
 }
 
 // ▒▒▒ RETURNING ▒▒▒

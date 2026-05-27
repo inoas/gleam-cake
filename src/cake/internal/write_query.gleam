@@ -190,7 +190,10 @@ pub type InsertValue {
 ///
 /// - `InsertConflictError` is the default behaviour, which will raise an error.
 /// - `InsertConflictUpdate` is also known as `INSERT OR UPDATE` aka `UPSERT`.
+///   Generates `ON CONFLICT ... DO UPDATE` for PostgreSQL/SQLite.
 /// - `InsertConflictIgnore` is also known as `INSERT IGNORE`.
+/// - `InsertDuplicateKeyUpdate` is MySQL/MariaDB-specific upsert syntax.
+///   Generates `ON DUPLICATE KEY UPDATE` for MySQL/MariaDB only.
 ///
 pub type InsertConflictStrategy(a) {
   InsertConflictError
@@ -200,6 +203,7 @@ pub type InsertConflictStrategy(a) {
     where: Where,
     update: Update(a),
   )
+  InsertDuplicateKeyUpdate(update: Update(a))
 }
 
 /// The `InsertConflictTarget` type is used to define the target of the conflict
@@ -232,6 +236,13 @@ fn insert_apply(
     Maria, InsertConflictIgnore(..) | Mysql, InsertConflictIgnore(..) ->
       prepared_statement
       |> insert_conflict_ignore_maria_mysql_apply(insert:)
+      |> returning_apply(returning: insert.returning)
+      |> read_query.epilog_apply(epilog: insert.epilog)
+      |> read_query.comment_apply(comment: insert.comment)
+    // 🦭MariaDB and 🐬MySQL: Handle ON DUPLICATE KEY UPDATE explicitly
+    _, InsertDuplicateKeyUpdate(..) ->
+      prepared_statement
+      |> insert_duplicate_key_update_apply(insert:)
       |> returning_apply(returning: insert.returning)
       |> read_query.epilog_apply(epilog: insert.epilog)
       |> read_query.comment_apply(comment: insert.comment)
@@ -457,6 +468,30 @@ fn insert_not_exists_where_apply(
   }
 }
 
+/// Generates `INSERT INTO … VALUES … ON DUPLICATE KEY UPDATE …`
+/// for 🦭MariaDB and 🐬MySQL.
+///
+/// This generates the explicit MySQL/MariaDB upsert syntax.
+/// Use `VALUES(column)` in your UPDATE expressions to reference the
+/// values from the INSERT clause.
+///
+fn insert_duplicate_key_update_apply(
+  prepared_statement prepared_statement: PreparedStatement,
+  insert insert: Insert(a),
+) -> PreparedStatement {
+  // This function is only called when on_conflict is InsertDuplicateKeyUpdate
+  let assert InsertDuplicateKeyUpdate(update:) = insert.on_conflict
+
+  prepared_statement
+  |> prepared_statement.append_sql(sql: "INSERT")
+  |> insert_modifier_apply(insert_modifier: insert.modifier)
+  |> insert_into_table_apply(table_name: insert.table)
+  |> insert_columns_apply(columns: insert.columns)
+  |> insert_source_apply(source: insert.source)
+  |> prepared_statement.append_sql(sql: " ON DUPLICATE KEY UPDATE")
+  |> update_set_apply(items: update.set)
+}
+
 fn insert_modifier_apply(
   prepared_statement prepared_statement: PreparedStatement,
   insert_modifier insert_modifier: InsertModifier,
@@ -613,6 +648,9 @@ fn insert_on_conflict_apply(
       |> prepared_statement.append_sql(sql: " DO ")
       |> update_apply(update:)
       |> read_query.where_clause_apply(where:)
+    // InsertDuplicateKeyUpdate is handled separately in insert_apply
+    // It should never reach here, but we handle it for completeness
+    InsertDuplicateKeyUpdate(..) -> prepared_statement
   }
 }
 
