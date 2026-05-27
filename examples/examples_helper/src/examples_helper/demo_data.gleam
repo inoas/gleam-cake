@@ -138,7 +138,7 @@ pub fn insert_counters_rows() {
 fn run_and_echo(query, label, conn) {
   io.print(label <> ": ")
 
-  let _ = echo query |> postgres.execute_raw_sql(conn)
+  let assert Ok(_) = echo query |> postgres.execute_raw_sql(conn)
 
   Nil
 }

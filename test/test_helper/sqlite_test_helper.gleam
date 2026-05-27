@@ -39,7 +39,7 @@ fn setup_database_default_values(conn) {
 pub fn setup_and_run(query) {
   use conn <- with_local_test_connection
 
-  let _ = setup_database_default_values(conn)
+  let assert Ok(_) = setup_database_default_values(conn)
 
   query |> sqlite.run_read_query(decode.dynamic, conn)
 }
