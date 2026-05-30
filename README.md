@@ -3,7 +3,7 @@
 [![Downloads](https://img.shields.io/hexpm/dt/cake)](https://hex.pm/packages/cake)
 [![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)](https://www.erlang.org/)
 [![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)](https://en.wikipedia.org/wiki/JavaScript)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://cake.hexdocs.pm)
 [![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
 [![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/main/LICENCE)
@@ -42,7 +42,7 @@ gleam add cake@4
 ```
 
 Further documentation can be found on
-[hexdocs.pm/cake](https://hexdocs.pm/cake).
+[cake.hexdocs.pm](https://cake.hexdocs.pm).
 
 ### Adapters
 
@@ -113,44 +113,18 @@ import cake/param as p     // Typed params
 
 ## Library Design
 
-### CakeQuery Type Hierarchy
+### Builder API Design and Type Design
 
-The following diagram shows the type hierarchy of `CakeQuery` and its
-constructors:
-
-```mermaid
-graph TD
-    CakeQuery["CakeQuery(a)"]:::accent0
-    
-    CakeQuery --> CakeReadQuery["CakeReadQuery(ReadQuery)"]:::accent1
-    CakeQuery --> CakeWriteQuery["CakeWriteQuery(WriteQuery(a))"]:::accent2
-    
-    CakeReadQuery --> SelectQuery["SelectQuery(Select)"]:::accent3
-    CakeReadQuery --> CombinedQuery["CombinedQuery(Combined)"]:::accent3
-    
-    CakeWriteQuery --> InsertQuery["InsertQuery(Insert(a))"]:::accent4
-    CakeWriteQuery --> UpdateQuery["UpdateQuery(Update(a))"]:::accent4
-    CakeWriteQuery --> DeleteQuery["DeleteQuery(Delete(a))"]:::accent4
-    
-    SelectQuery --> Select["Select<br/>• SelectKind<br/>• Selects<br/>• From<br/>• Joins<br/>• Where<br/>• GroupBy<br/>• Having<br/>• OrderBy<br/>• Limit<br/>• Offset<br/>• Epilog<br/>• Comment"]:::accent5
-    
-    CombinedQuery --> Combined["Combined<br/>• CombinedQueryKind<br/>• queries: List(Select)<br/>• OrderBy<br/>• Limit<br/>• Offset<br/>• Epilog<br/>• Comment"]:::accent5
-    
-    InsertQuery --> Insert["Insert(a)<br/>• InsertIntoTable<br/>• InsertColumns<br/>• InsertModifier<br/>• InsertSource(a)<br/>• InsertConflictStrategy(a)<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-    
-    UpdateQuery --> Update["Update(a)<br/>• UpdateTable<br/>• UpdateModifier<br/>• UpdateSets<br/>• From<br/>• Joins<br/>• Where<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-    
-    DeleteQuery --> Delete["Delete(a)<br/>• DeleteModifier<br/>• DeleteTable<br/>• DeleteUsing<br/>• Joins<br/>• Where<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-```
-
-**Legend:**
-
-- `CakeQuery(a)` is the top-level type with type parameter `a`
-- **Read Queries** (`CakeReadQuery`) are for SELECT and combined
-  operations (UNION, INTERSECT, EXCEPT)
-- **Write Queries** (`CakeWriteQuery`) are for INSERT, UPDATE, and DELETE
-  operations
-- Each query type contains structured fields for building SQL statements
+- [Builder API Overview](./readme/diagrams.md#builder-api-overview)
+- [SELECT Query Builder](./readme/diagrams.md#select-query-builder-flow)
+- [INSERT Query Builder](./readme/diagrams.md#insert-query-builder-flow)
+- [UPDATE Query Builder](./readme/diagrams.md#update-query-builder-flow)
+- [DELETE Query Builder](./readme/diagrams.md#delete-query-builder-flow)
+- [Value Types and Parameters](./readme/diagrams.md#value-types-and-parameters)
+- [JOIN Types and Structure](./readme/diagrams.md#join-types-and-structure)
+- [Complete Query Building Example](./readme/diagrams.md#complete-query-building-example)
+- [Builder Pattern Characteristics](./readme/diagrams.md#builder-pattern-characteristics)
+- [Type Hierarchy](./readme/diagrams.md#type-hierarchy)
 
 ### Scope
 
