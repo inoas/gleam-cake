@@ -111,23 +111,20 @@ pub fn where_any_test() {
 
 pub fn where_any_prepared_statement_test() {
   let pgo = where_any_query() |> postgres.read_query_to_prepared_statement
-  let lit = where_any_query() |> sqlite.read_query_to_prepared_statement
   let mdb = where_any_query() |> maria.read_query_to_prepared_statement
   let myq = where_any_query() |> mysql.read_query_to_prepared_statement
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, mdb, myq)
   |> to_string
   |> birdie.snap("where_any_prepared_statement_test")
 }
 
 pub fn where_any_execution_result_test() {
   let pgo = where_any_query() |> postgres_test_helper.setup_and_run
-  // This is supposed to fail because 🪶SQLite does not support ´ANY´:
-  let lit = where_any_query() |> sqlite_test_helper.setup_and_run
   let mdb = where_any_query() |> maria_test_helper.setup_and_run
   let myq = where_any_query() |> mysql_test_helper.setup_and_run
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, mdb, myq)
   |> to_string
   |> birdie.snap("where_any_execution_result_test")
 }

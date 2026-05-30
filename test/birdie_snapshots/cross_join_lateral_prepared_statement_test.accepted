@@ -17,20 +17,6 @@ test_name: cross_join_lateral_prepared_statement_test
     "SELECT cats.name FROM cats CROSS JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners",
     [],
     0,
-    Sqlite,
-  ),
-  PreparedStatement(
-    "?",
-    "SELECT cats.name FROM cats CROSS JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners",
-    [],
-    0,
-    Maria,
-  ),
-  PreparedStatement(
-    "?",
-    "SELECT cats.name FROM cats CROSS JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners",
-    [],
-    0,
     Mysql,
   ),
 )

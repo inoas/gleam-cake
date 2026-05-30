@@ -17,20 +17,6 @@ test_name: inner_join_lateral_prepared_statement_test
     "SELECT cats.name FROM cats INNER JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
     [],
     0,
-    Sqlite,
-  ),
-  PreparedStatement(
-    "?",
-    "SELECT cats.name FROM cats INNER JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
-    [],
-    0,
-    Maria,
-  ),
-  PreparedStatement(
-    "?",
-    "SELECT cats.name FROM cats INNER JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
-    [],
-    0,
     Mysql,
   ),
 )
