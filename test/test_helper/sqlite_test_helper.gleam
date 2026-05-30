@@ -7,7 +7,7 @@ fn with_local_test_connection(callback callback) {
 }
 
 fn setup_database_default_values(conn) {
-  let _ =
+  let assert Ok(_) =
     test_data.drop_owners_table_if_exists() |> sqlite.execute_raw_sql(conn)
   let assert Ok(_) =
     test_data.create_owners_table() |> sqlite.execute_raw_sql(conn)
@@ -28,7 +28,7 @@ fn setup_database_default_values(conn) {
   let assert Ok(_) =
     test_data.insert_dogs_rows() |> sqlite.execute_raw_sql(conn)
 
-  let _ =
+  let assert Ok(_) =
     test_data.drop_counters_table_if_exists() |> sqlite.execute_raw_sql(conn)
   let assert Ok(_) =
     test_data.create_counters_table() |> sqlite.execute_raw_sql(conn)

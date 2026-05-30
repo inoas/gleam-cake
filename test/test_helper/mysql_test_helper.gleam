@@ -34,7 +34,7 @@ fn setup_database_default_values(conn) {
     test_data.create_dogs_table() |> mysql.execute_raw_sql(conn)
   let assert Ok(_) = test_data.insert_dogs_rows() |> mysql.execute_raw_sql(conn)
 
-  let _ =
+  let assert Ok(_) =
     test_data.drop_counters_table_if_exists() |> mysql.execute_raw_sql(conn)
   let assert Ok(_) =
     test_data.create_counters_table() |> mysql.execute_raw_sql(conn)

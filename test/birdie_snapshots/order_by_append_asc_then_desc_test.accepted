@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: order_by_append_asc_then_desc_test
-file: ./test/cake_test/order_by_append_test.gleam
+file: ./../test/cake_test/order_by_append_test.gleam
 test_name: order_by_append_asc_then_desc_test
 ---
 #(

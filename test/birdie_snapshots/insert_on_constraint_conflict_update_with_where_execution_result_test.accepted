@@ -1,0 +1,9 @@
+---
+version: 2.0.0
+title: insert_on_constraint_conflict_update_with_where_execution_result_test
+file: ./../test/cake_test/insert_on_conflict_constraint_test.gleam
+test_name: insert_on_constraint_conflict_update_with_where_execution_result_test
+---
+Ok([
+  #("bob@example.com", "Bob Jones", 1),
+])

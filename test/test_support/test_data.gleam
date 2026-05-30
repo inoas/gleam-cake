@@ -90,3 +90,23 @@ pub fn insert_counters_rows() {
     ('Clara', 9003, true)
   ;"
 }
+
+pub fn drop_users_table_if_exists() {
+  "DROP TABLE IF EXISTS users;"
+}
+
+pub fn create_users_table() {
+  "CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL,
+    name TEXT NOT NULL,
+    login_count INTEGER DEFAULT 0,
+    CONSTRAINT users_email_key UNIQUE (email)
+  );"
+}
+
+pub fn insert_users_rows() {
+  "INSERT INTO users (email, name, login_count) VALUES
+    ('existing@example.com', 'Existing User', 5)
+  ;"
+}

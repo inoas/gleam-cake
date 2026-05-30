@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: fragment_test
-file: ./test/cake_test/fragment_test.gleam
+file: ./../test/cake_test/fragment_test.gleam
 test_name: fragment_test
 ---
 SelectQuery(Select(

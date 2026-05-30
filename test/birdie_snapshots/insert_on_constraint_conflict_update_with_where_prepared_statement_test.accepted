@@ -1,0 +1,18 @@
+---
+version: 2.0.0
+title: insert_on_constraint_conflict_update_with_where_prepared_statement_test
+file: ./../test/cake_test/insert_on_conflict_constraint_test.gleam
+test_name: insert_on_constraint_conflict_update_with_where_prepared_statement_test
+---
+PreparedStatement(
+  "$",
+  "INSERT INTO users (email, name, login_count) VALUES ($1, $2, $3) ON CONFLICT ON CONSTRAINT users_email_key DO UPDATE SET login_count = users.login_count + 1, name = EXCLUDED.name WHERE users.login_count < $4 RETURNING email, name, login_count",
+  [
+    StringParam("bob@example.com"),
+    StringParam("Bob Jones"),
+    IntParam(1),
+    IntParam(100),
+  ],
+  4,
+  Postgres,
+)

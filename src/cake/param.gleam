@@ -77,16 +77,35 @@ pub fn date(value: calendar.Date) -> Param {
   value |> DateParam
 }
 //
-// // This should ONLY be used for debugging purposes
-// // not to ever run actual queries.
-// pub fn to_debug(param: Param) -> String {
+// import cake/param
+// import gleam/float
+// import gleam/int
+// import gleam/string
+// import gleam/time/calendar
+
+// pub fn debug(param: param.Param) -> String {
 //   case param {
-//     BoolParam(True) -> "TRUE"
-//     BoolParam(False) -> "FALSE"
-//     FloatParam(value) -> float.to_string(value)
-//     IntParam(value) -> int.to_string(value)
-//     // TODO: no injection
-//     StringParam(value) -> "'" <> value <> "'"
-//     NullParam -> "NULL"
+//     param.StringParam(value:) -> "'" <> value <> "'"
+//     param.IntParam(value:) -> int.to_string(value)
+//     param.FloatParam(value:) -> float.to_string(value)
+//     param.BoolParam(True) -> "TRUE"
+//     param.BoolParam(False) -> "FALSE"
+//     param.NullParam -> "NULL"
+//     param.DateParam(calendar.Date(year:, month:, day:)) -> {
+//       let year =
+//         year
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 4)
+//       let month =
+//         month
+//         |> calendar.month_to_int
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 2)
+//       let day =
+//         day
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 2)
+//       "SQL: " <> year <> "-" <> month <> "-" <> day
+//     }
 //   }
 // }

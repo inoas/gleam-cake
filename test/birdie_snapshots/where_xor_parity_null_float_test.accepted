@@ -1,7 +1,7 @@
 ---
 version: 2.0.0
 title: where_xor_parity_null_float_test
-file: ./test/cake_test/where_xor_parity_test.gleam
+file: ./../test/cake_test/where_xor_parity_test.gleam
 test_name: where_xor_parity_null_float_test
 ---
 SelectQuery(Select(
