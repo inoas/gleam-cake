@@ -56,28 +56,3 @@ cd 01_select_and_decode # ...or any other example app!
 gleam clean
 gleam run
 ```
-
-<!--
----
-
-If you want to edit and change the demos to try and explore _Cake_ you
-may chose whatever code editor you prefer but _Cake_ recommends chosing
-either [Zed](https://zed.dev/) or
-[Visual Studio Code](https://code.visualstudio.com/) — both feature
-_Gleam_ plugins and thus _Gleam_ specific _Language Server Protocol_
-support — especially if you are new to _Gleam_.
-
-To just explore a single demo app, open just that app in your editor, so
-that the _Gleam_ LSP can pick up that demo projects's `gleam.toml` file.
-
-For example if you have `Zed` or `Visual Studio Code` installed you may
-run one of these form the `gleam-cake` directory cloned above:
-
-- `code examples/01_select_and_decode`
-- `zed examples/01_select_and_decode`
--->
-
-<!--
-TODO v2
-- Maybe move Erlang, Rebar and Gleam requirement into docker compose.
--->
