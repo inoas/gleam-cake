@@ -64,7 +64,7 @@ TODO:
 ### Demos
 
 See
-[docs/examples/README.md](https://github.com/inoas/gleam-cake/blob/main/examples/README.md#available-examples).
+[examples/README.md](https://github.com/inoas/gleam-cake/blob/main/examples/README.md#available-examples).
 
 #### Code examples (from the demos)
 
@@ -92,7 +92,7 @@ See Cake's
 especially the _Setup_ sections in each test module.
 
 You may also compare the tests with the
-[snapshots](https://github.com/inoas/gleam-cake/tree/main/birdie_snapshots)
+[snapshots](https://github.com/inoas/gleam-cake/tree/main/test/birdie_snapshots)
 results.
 
 ### Intended aliases

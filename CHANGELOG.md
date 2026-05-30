@@ -199,7 +199,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Added `join.left_lateral` and `join.inner_lateral` and
   `join.cross_lateral` support `LATERAL JOIN`s available on
-  🐘PostgreSQL 9.3+ and recent 🐬MySQL versions. Notice: You may also use
+  🐘PostgreSQL 9.3+ and recent 🐬MySQL versions. NOTICE: You may also use
   `LATERAL` literally to prefix table names in `FROM` clauses with
   multiple tables.
 
