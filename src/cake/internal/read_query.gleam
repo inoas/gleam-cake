@@ -1491,7 +1491,7 @@ fn limit_clause_apply(
     NoLimit -> ""
     Limit(limit:) -> " LIMIT " <> limit |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement:, sql: _)
+  |> prepared_statement.append_sql(prepared_statement:)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
@@ -1522,7 +1522,7 @@ fn offset_clause_apply(
     NoOffset -> ""
     Offset(offset:) -> " OFFSET " <> offset |> int.to_string
   }
-  |> prepared_statement.append_sql(prepared_statement:, sql: _)
+  |> prepared_statement.append_sql(prepared_statement:)
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
