@@ -322,7 +322,7 @@ graph TB
     Characteristics[Builder Pattern Features]:::accent0
     
     Characteristics --> Immutable[Immutable Updates]:::accent1
-    Immutable --> Pipe[Pipeable with |> operator]
+    Immutable --> Pipe[Pipeable with \|\> operator]
     Immutable --> Copy[Each function returns new query]
     
     Characteristics --> TypeSafe[Type Safety]:::accent2
