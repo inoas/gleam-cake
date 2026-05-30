@@ -118,6 +118,28 @@ import cake/param as p     // Typed params
 The following diagram shows the type hierarchy of `CakeQuery` and its
 constructors:
 
+<script type="module">
+  import mermaid from 'assets/mermaid.esm.min.mjs';
+  
+  mermaid.initialize({
+    startOnLoad: false
+  });
+
+  document.querySelectorAll('code.language-mermaid').forEach((el, index) => {
+    const graphDefinition = el.textContent;
+
+    const container = document.createElement('div');
+    container.className = 'mermaid';
+    container.textContent = graphDefinition;
+
+    el.parentElement.replaceWith(container);
+  });
+
+  await mermaid.run({
+    nodes: document.querySelectorAll('.mermaid')
+  });
+</script>
+
 ```mermaid
 graph TD
     CakeQuery["CakeQuery(a)"]:::accent0
