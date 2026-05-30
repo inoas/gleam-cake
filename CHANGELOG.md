@@ -8,7 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 -->
 
-## [4.0.0] - 2026-05-23
+## [4.0.0] - 2026-05-30
 
 ### Breaking changes
 
@@ -239,7 +239,8 @@ about a few slight breaking changes around mostly inserts, updates and deletes.
 
 ## [0.14.0] - 2024-07-19
 
-- Added more utility to the `where` module, such as `where.none`, `where.true` and `where.false`.
+- Added more utility to the `where` module, such as `where.none`, `where.true`
+  and `where.false`.
 - Fixed unit tests around `INSERT...ON CONFLICT...UPDATE` with `WHERE` clause.
 - Renamed `update.set_many_to_expression` to `update.sets_to_expression`
   and `update.set_many_to_sub_query` to `update.sets_to_sub_query`.
