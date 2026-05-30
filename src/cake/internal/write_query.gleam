@@ -49,9 +49,9 @@ fn apply(
   query query: WriteQuery(a),
 ) -> PreparedStatement {
   case query {
-    InsertQuery(query:) -> prepared_statement |> insert_apply(insert: query)
-    UpdateQuery(query:) -> prepared_statement |> update_apply(update: query)
-    DeleteQuery(query:) -> prepared_statement |> delete_apply(delete: query)
+    InsertQuery(query: insert) -> prepared_statement |> insert_apply(insert:)
+    UpdateQuery(query: update) -> prepared_statement |> update_apply(update:)
+    DeleteQuery(query: delete) -> prepared_statement |> delete_apply(delete:)
   }
 }
 
