@@ -385,7 +385,7 @@ fn select_value_apply(
     SelectColumn(name:) ->
       prepared_statement |> prepared_statement.append_sql(name)
     SelectParam(value:) ->
-      prepared_statement |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(value)
     SelectFragment(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
     SelectAlias(value, name) ->
@@ -698,7 +698,7 @@ fn where_literal_apply(
       prepared_statement
       |> prepared_statement.append_sql(name <> " " <> literal)
     WhereParamValue(value:) ->
-      prepared_statement |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(value)
     WhereFragmentValue(value:) ->
       prepared_statement
       |> fragment_apply(fragment: value)
@@ -1042,7 +1042,7 @@ fn where_value_in_values_apply(
       WhereColumnValue(name:) ->
         prepared_statement |> prepared_statement.append_sql(name)
       WhereParamValue(value:) ->
-        prepared_statement |> prepared_statement.append_param(param: value)
+        prepared_statement |> prepared_statement.append_param(value)
       WhereFragmentValue(value:) ->
         prepared_statement |> fragment_apply(fragment: value)
       WhereSubQueryValue(query:) ->
@@ -1104,7 +1104,7 @@ fn where_between_apply(
     WhereColumnValue(name:) ->
       prepared_statement |> prepared_statement.append_sql(name)
     WhereParamValue(value:) ->
-      prepared_statement |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
     WhereSubQueryValue(query:) ->
@@ -1118,7 +1118,7 @@ fn where_between_apply(
     WhereColumnValue(name:) ->
       prepared_statement |> prepared_statement.append_sql(name)
     WhereParamValue(value:) ->
-      prepared_statement |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
     WhereSubQueryValue(query:) ->
@@ -1132,7 +1132,7 @@ fn where_between_apply(
     WhereColumnValue(name:) ->
       prepared_statement |> prepared_statement.append_sql(name)
     WhereParamValue(value:) ->
-      prepared_statement |> prepared_statement.append_param(param: value)
+      prepared_statement |> prepared_statement.append_param(value)
     WhereFragmentValue(value:) ->
       prepared_statement |> fragment_apply(fragment: value)
     WhereSubQueryValue(query:) ->
