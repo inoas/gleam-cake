@@ -1,0 +1,31 @@
+---
+version: 2.0.0
+title: where_like_similar_to_execution_result_test
+file: ./../test/cake_test/where_like_similar.gleam
+test_name: where_like_similar_to_execution_result_test
+---
+#(
+  Ok([
+    #("Ginny", 6, False, 3, Null, Null),
+    #(
+      "Karl",
+      8,
+      True,
+      Null,
+      10.0,
+      #(2016, 2, 19),
+    ),
+  ]),
+  Ok([
+    #(
+      "Ginny",
+      6,
+      0,
+      3,
+      Undefined,
+      Undefined,
+    ),
+  ]),
+  Ok([#("Ginny", 6, 0, 3, Null, Null)]),
+  Ok([#("Ginny", 6, 0, 3, Null, Null)]),
+)

@@ -1,0 +1,12 @@
+---
+version: 2.0.0
+title: delete_execution_result_test
+file: ./../test/cake_test/delete_test.gleam
+test_name: delete_execution_result_test
+---
+#(
+  Ok([]),
+  Ok([#(1)]),
+  #(Ok([#(0, 0, 0)]), Ok([#(5)])),
+  #(Ok([#(0, 0, 0)]), Ok([#(5)])),
+)

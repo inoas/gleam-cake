@@ -1,0 +1,57 @@
+---
+version: 2.0.0
+title: insert_on_constraint_conflict_update_with_where_test
+file: ./../test/cake_test/insert_on_conflict_constraint_test.gleam
+test_name: insert_on_constraint_conflict_update_with_where_test
+---
+InsertQuery(Insert(
+  InsertIntoTable("users"),
+  InsertColumns([
+    "email",
+    "name",
+    "login_count",
+  ]),
+  NoInsertModifier,
+  InsertSourceRows([
+    InsertRow([
+      InsertParam(StringParam("bob@example.com")),
+      InsertParam(StringParam("Bob Jones")),
+      InsertParam(IntParam(1)),
+    ]),
+  ]),
+  InsertConflictUpdate(
+    InsertConflictTargetConstraint("users_email_key"),
+    WhereComparison(
+      WhereColumnValue("users.login_count"),
+      Lower,
+      WhereParamValue(IntParam(100)),
+    ),
+    Update(
+      NoUpdateTable,
+      NoUpdateModifier,
+      UpdateSets([
+        UpdateExpressionSet(
+          ["login_count"],
+          "users.login_count + 1",
+        ),
+        UpdateExpressionSet(
+          ["name"],
+          "EXCLUDED.name",
+        ),
+      ]),
+      NoFrom,
+      NoJoins,
+      NoWhere,
+      NoReturning,
+      NoEpilog,
+      NoComment,
+    ),
+  ),
+  Returning([
+    "email",
+    "name",
+    "login_count",
+  ]),
+  NoEpilog,
+  NoComment,
+))

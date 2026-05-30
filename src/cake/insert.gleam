@@ -6,15 +6,19 @@ import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}
 import cake/internal/write_query.{
   Insert, InsertColumns, InsertConflictError, InsertConflictIgnore,
   InsertConflictTarget, InsertConflictTargetConstraint, InsertConflictUpdate,
-  InsertFragment, InsertIntoTable, InsertModifier, InsertParam, InsertQuery,
-  InsertRow, InsertSourceRecords, InsertSourceRows, NoInsertColumns,
-  NoInsertIntoTable, NoInsertModifier, NoInsertSource, NoReturning, Returning,
+  InsertDuplicateKeyUpdate, InsertFragment, InsertIntoTable, InsertModifier,
+  InsertParam, InsertQuery, InsertRow, InsertSourceRecords, InsertSourceRows,
+  NoInsertColumns, NoInsertIntoTable, NoInsertModifier, NoInsertSource,
+  NoReturning, Returning,
 }
-import cake/param.{BoolParam, FloatParam, IntParam, NullParam, StringParam}
+import cake/param.{
+  BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
+}
 import gleam/string
+import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Comment =
@@ -27,7 +31,7 @@ pub type Where =
   read_query.Where
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  write_query type re-exports                                              │
+// │ write_query type re-exports                                               │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Insert(a) =
@@ -59,46 +63,52 @@ pub type WriteQuery(a) =
 
 /// Creates a `WriteQuery` from an `Insert` query.
 ///
-pub fn to_query(insert isrt: Insert(a)) -> WriteQuery(a) {
-  isrt |> InsertQuery
+pub fn to_query(insert insert: Insert(a)) -> WriteQuery(a) {
+  insert |> InsertQuery
 }
 
 // ▒▒▒ Rows / Values / Params ▒▒▒
 
 /// Create an `InsertRow` from a list of `InsertValue`s.
 ///
-pub fn row(values vls: List(InsertValue)) -> InsertRow {
-  vls |> InsertRow
+pub fn row(values values: List(InsertValue)) -> InsertRow {
+  values |> InsertRow
 }
 
 /// Create an `InsertValue` from a column `String` and a `Bool` value.
 ///
-pub fn bool(value vl: Bool) -> InsertValue {
-  vl |> BoolParam |> InsertParam
+pub fn bool(value value: Bool) -> InsertValue {
+  value |> BoolParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `Float` value.
 ///
-pub fn float(value vl: Float) -> InsertValue {
-  vl |> FloatParam |> InsertParam
+pub fn float(value value: Float) -> InsertValue {
+  value |> FloatParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and an `Int` value.
 ///
-pub fn int(value vl: Int) -> InsertValue {
-  vl |> IntParam |> InsertParam
+pub fn int(value value: Int) -> InsertValue {
+  value |> IntParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a column `String` and a `String` value.
 ///
-pub fn string(value vl: String) -> InsertValue {
-  vl |> StringParam |> InsertParam
+pub fn string(value value: String) -> InsertValue {
+  value |> StringParam |> InsertParam
 }
 
 /// Create a NULL `InsertValue`.
 ///
 pub fn null() -> InsertValue {
   NullParam |> InsertParam
+}
+
+/// Create an `InsertValue` from a `calendar.Date`.
+///
+pub fn date(date value: calendar.Date) -> InsertValue {
+  value |> DateParam |> InsertParam
 }
 
 /// Create an `InsertValue` from a `Fragment`.
@@ -112,8 +122,8 @@ pub fn null() -> InsertValue {
 /// i.fragment(f.prepared("$::uuid", [f.string("0000000000-0000-4000-a000-a00000000000")]))
 /// ```
 ///
-pub fn fragment(value frgmt: Fragment) -> InsertValue {
-  InsertFragment(fragment: frgmt)
+pub fn fragment(value value: Fragment) -> InsertValue {
+  InsertFragment(value)
 }
 
 // ▒▒▒ Constructors ▒▒▒
@@ -138,16 +148,16 @@ pub fn new() -> Insert(a) {
 /// The `encoder` function is used to convert each record into an `InsertRow`.
 ///
 pub fn from_records(
-  table_name tbl_nm: String,
-  columns cols: List(String),
-  records rcrds: List(a),
-  encoder encdr: fn(a) -> InsertRow,
+  table_name table_name: String,
+  columns columns: List(String),
+  records records: List(a),
+  encoder encoder: fn(a) -> InsertRow,
 ) -> Insert(a) {
   Insert(
-    table: tbl_nm |> InsertIntoTable,
+    table: table_name |> InsertIntoTable,
     modifier: NoInsertModifier,
-    source: rcrds |> InsertSourceRecords(encoder: encdr),
-    columns: cols |> InsertColumns,
+    source: records |> InsertSourceRecords(encoder:),
+    columns: columns |> InsertColumns,
     on_conflict: InsertConflictError,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -158,15 +168,15 @@ pub fn from_records(
 /// Create an `INSERT` query from a list of `InsertRow`s.
 ///
 pub fn from_values(
-  table_name tbl_nm: String,
-  columns cols: List(String),
-  values vls: List(InsertRow),
+  table_name table_name: String,
+  columns columns: List(String),
+  values values: List(InsertRow),
 ) -> Insert(a) {
   Insert(
-    table: tbl_nm |> InsertIntoTable,
+    table: table_name |> InsertIntoTable,
     modifier: NoInsertModifier,
-    source: vls |> InsertSourceRows,
-    columns: cols |> InsertColumns,
+    source: values |> InsertSourceRows,
+    columns: columns |> InsertColumns,
     on_conflict: InsertConflictError,
     returning: NoReturning,
     epilog: NoEpilog,
@@ -178,40 +188,46 @@ pub fn from_values(
 
 /// Specify the table to insert into.
 ///
-pub fn table(insert isrt: Insert(a), table_name tbl_nm: String) -> Insert(a) {
-  Insert(..isrt, table: tbl_nm |> InsertIntoTable)
+pub fn table(
+  insert insert: Insert(a),
+  table_name table_name: String,
+) -> Insert(a) {
+  Insert(..insert, table: table_name |> InsertIntoTable)
 }
 
 /// Get the table name to insert into from an `Insert` query.
 ///
-pub fn get_table(insert isrt: Insert(a)) -> InsertIntoTable {
-  isrt.table
+pub fn get_table(insert insert: Insert(a)) -> InsertIntoTable {
+  insert.table
 }
 
 // ▒▒▒ Modifier ▒▒▒
 
 /// Specify a modifier for the `INSERT` query.
 ///
-pub fn modifier(insert isrt: Insert(a), modifier mdfr: String) -> Insert(a) {
-  let mdfr = mdfr |> string.trim
-  case mdfr {
-    "" -> Insert(..isrt, modifier: NoInsertModifier)
-    _ -> Insert(..isrt, modifier: mdfr |> InsertModifier)
+pub fn modifier(
+  insert insert: Insert(a),
+  modifier modifier: String,
+) -> Insert(a) {
+  let modifier = modifier |> string.trim
+  case modifier {
+    "" -> Insert(..insert, modifier: NoInsertModifier)
+    _ -> Insert(..insert, modifier: modifier |> InsertModifier)
   }
 }
 
 /// Specify that no modifier should be used for the given `INSERT` query.
 ///
-pub fn no_modifier(insert isrt: Insert(a)) -> Insert(a) {
-  Insert(..isrt, modifier: NoInsertModifier)
+pub fn no_modifier(insert insert: Insert(a)) -> Insert(a) {
+  Insert(..insert, modifier: NoInsertModifier)
 }
 
 /// Get the modifier from an `Insert` query.
 ///
-pub fn get_modifier(insert isrt: Insert(a)) -> String {
-  case isrt.modifier {
+pub fn get_modifier(insert insert: Insert(a)) -> String {
+  case insert.modifier {
     NoInsertModifier -> ""
-    InsertModifier(mdfr) -> mdfr
+    InsertModifier(keyword:) -> keyword
   }
 }
 
@@ -220,47 +236,47 @@ pub fn get_modifier(insert isrt: Insert(a)) -> String {
 /// Specify the source records to insert.
 ///
 pub fn source_records(
-  insert isrt: Insert(a),
-  source rcrds: List(a),
-  encoder encdr: fn(a) -> InsertRow,
+  insert insert: Insert(a),
+  source records: List(a),
+  encoder encoder: fn(a) -> InsertRow,
 ) -> Insert(a) {
-  Insert(..isrt, source: rcrds |> InsertSourceRecords(encoder: encdr))
+  Insert(..insert, source: records |> InsertSourceRecords(encoder:))
 }
 
 /// Specify the source values to insert.
 ///
 pub fn source_values(
-  insert isrt: Insert(a),
-  source rws: List(InsertRow),
+  insert insert: Insert(a),
+  source rows: List(InsertRow),
 ) -> Insert(a) {
-  Insert(..isrt, source: rws |> InsertSourceRows)
+  Insert(..insert, source: rows |> InsertSourceRows)
 }
 
 /// Get the source from an `Insert` query which is either a list of records,
-/// accompanied by a encoder function or a list of `InsertRow`s.
+/// accompanied by an encoder function or a list of `InsertRow`s.
 ///
-pub fn get_source(insert isrt: Insert(a)) -> InsertSource(a) {
-  isrt.source
+pub fn get_source(insert insert: Insert(a)) -> InsertSource(a) {
+  insert.source
 }
 
 /// Specify the columns to insert into.
 ///
-/// NOTICE: You have to specify the columns and keep track if their names are
+/// NOTICE: You have to specify the columns and ensure their names are
 /// correct, as well as their count which must be equal to the count of
 /// `InsertRows` the encoder function returns or is given as source
 ///          values.
 ///
 pub fn columns(
-  insert isrt: Insert(a),
-  columns cols: List(String),
+  insert insert: Insert(a),
+  columns columns: List(String),
 ) -> Insert(a) {
-  Insert(..isrt, columns: cols |> InsertColumns)
+  Insert(..insert, columns: columns |> InsertColumns)
 }
 
 /// Get the columns to insert into from an `Insert` query.
 ///
-pub fn get_columns(insert isrt: Insert(a)) -> InsertColumns {
-  isrt.columns
+pub fn get_columns(insert insert: Insert(a)) -> InsertColumns {
+  insert.columns
 }
 
 // ▒▒▒ ON CONFLICT ▒▒▒
@@ -269,8 +285,8 @@ pub fn get_columns(insert isrt: Insert(a)) -> InsertColumns {
 ///
 /// This is the default behaviour.
 ///
-pub fn on_conflict_error(insert isrt: Insert(a)) -> Insert(a) {
-  Insert(..isrt, on_conflict: InsertConflictError)
+pub fn on_conflict_error(insert insert: Insert(a)) -> Insert(a) {
+  Insert(..insert, on_conflict: InsertConflictError)
 }
 
 /// This specifies that specific conflicts do not result in an error but instead
@@ -279,15 +295,15 @@ pub fn on_conflict_error(insert isrt: Insert(a)) -> Insert(a) {
 /// Conflict Target: Columns
 ///
 pub fn on_columns_conflict_ignore(
-  insert isrt: Insert(a),
-  columns cols: List(String),
-  where whr: Where,
+  insert insert: Insert(a),
+  columns columns: List(String),
+  where where: Where,
 ) -> Insert(a) {
   Insert(
-    ..isrt,
+    ..insert,
     on_conflict: InsertConflictIgnore(
-      target: cols |> InsertConflictTarget,
-      where: whr,
+      target: columns |> InsertConflictTarget,
+      where:,
     ),
   )
 }
@@ -298,63 +314,144 @@ pub fn on_columns_conflict_ignore(
 /// Conflict Target: Constraint
 ///
 pub fn on_constraint_conflict_ignore(
-  insert isrt: Insert(a),
-  constraint cnstrt: String,
-  where whr: Where,
+  insert insert: Insert(a),
+  constraint constraint: String,
+  where where: Where,
 ) -> Insert(a) {
   Insert(
-    ..isrt,
+    ..insert,
     on_conflict: InsertConflictIgnore(
-      target: cnstrt |> InsertConflictTargetConstraint,
-      where: whr,
+      target: constraint |> InsertConflictTargetConstraint,
+      where:,
     ),
   )
 }
 
 /// Inserts or updates on conflict, also called ´UPSERT´.
+///
+/// This function generates PostgreSQL/SQLite-specific upsert queries using
+/// `ON CONFLICT ... DO UPDATE` syntax.
+///
+/// **For MySQL/MariaDB, use `on_duplicate_key_update()` instead.**
 ///
 /// Conflict Target: Columns
 ///
+/// ## Important
+///
+/// - Use `excluded.column` in UPDATE expressions to reference insert values
+/// - Explicitly specify which columns to check for conflicts
+/// - Supports optional WHERE clause for conditional updates
+///
+/// ## Database Support
+///
+/// - **🐘PostgreSQL**: ✅ Fully supported
+/// - **🪶SQLite**: ✅ Fully supported
+/// - **🦭MariaDB**: ❌ Not supported - use `on_duplicate_key_update()`
+/// - **🐬MySQL**: ❌ Not supported - use `on_duplicate_key_update()`
+///
 pub fn on_columns_conflict_update(
-  insert isrt: Insert(a),
-  columns cols: List(String),
-  where whr: Where,
-  update updt: Update(a),
+  insert insert: Insert(a),
+  columns columns: List(String),
+  where where: Where,
+  update update: Update(a),
 ) -> Insert(a) {
   Insert(
-    ..isrt,
+    ..insert,
     on_conflict: InsertConflictUpdate(
-      target: cols |> InsertConflictTarget,
-      where: whr,
-      update: updt,
+      target: columns |> InsertConflictTarget,
+      where:,
+      update:,
     ),
   )
 }
 
 /// Inserts or updates on conflict, also called ´UPSERT´.
 ///
-/// Conflict Target: Constraint
+/// This function generates PostgreSQL-specific upsert queries using
+/// `ON CONFLICT ON CONSTRAINT ... DO UPDATE` syntax.
+///
+/// **For MySQL/MariaDB, use `on_duplicate_key_update()` instead.**
+/// **For SQLite, use `on_columns_conflict_update()` instead.**
+///
+/// Conflict Target: Named Constraint
+///
+/// ## Database Support
+///
+/// - **🐘PostgreSQL**: ✅ Fully supported
+/// - **🪶SQLite**: ❌ Not supported - use `on_columns_conflict_update()`
+/// - **🦭MariaDB**: ❌ Not supported - use `on_duplicate_key_update()`
+/// - **🐬MySQL**: ❌ Not supported - use `on_duplicate_key_update()`
 ///
 pub fn on_constraint_conflict_update(
-  insert isrt: Insert(a),
-  constraint cnstrt: String,
-  where whr: Where,
-  update updt: Update(a),
+  insert insert: Insert(a),
+  constraint constraint: String,
+  where where: Where,
+  update update: Update(a),
 ) -> Insert(a) {
   Insert(
-    ..isrt,
+    ..insert,
     on_conflict: InsertConflictUpdate(
-      target: cnstrt |> InsertConflictTargetConstraint,
-      where: whr,
-      update: updt,
+      target: constraint |> InsertConflictTargetConstraint,
+      where:,
+      update:,
     ),
   )
 }
 
 /// Get the conflict strategy from an `Insert` query.
 ///
-pub fn get_on_conflict(insert isrt: Insert(a)) -> InsertConflictStrategy(a) {
-  isrt.on_conflict
+pub fn get_on_conflict(insert insert: Insert(a)) -> InsertConflictStrategy(a) {
+  insert.on_conflict
+}
+
+// ▒▒▒ ON DUPLICATE KEY UPDATE (MySQL/MariaDB) ▒▒▒
+
+/// MySQL/MariaDB upsert using `ON DUPLICATE KEY UPDATE` syntax.
+///
+/// This function generates MySQL/MariaDB-specific upsert queries.
+/// **Only use this when targeting MySQL or MariaDB databases.**
+///
+/// For PostgreSQL/SQLite, use `on_columns_conflict_update()` or
+/// `on_constraint_conflict_update()` instead.
+///
+/// ## Important
+///
+/// - Use `VALUES(column)` (not `excluded.column`) in your UPDATE expressions
+/// - Updates occur on the **first** matched unique/primary key constraint
+/// - No explicit conflict target - relies on existing indexes
+///
+/// ## Example
+///
+/// ```gleam
+/// import cake/insert as i
+/// import cake/update as u
+///
+/// [[i.string("user1"), i.int(100)] |> i.row]
+/// |> i.from_values(table_name: "scores", columns: ["username", "score"])
+/// |> i.on_duplicate_key_update(
+///   update: u.new()
+///     |> u.set("score" |> u.set_expression("VALUES(score) + scores.score")),
+/// )
+/// ```
+///
+/// Generates:
+/// ```sql
+/// INSERT INTO scores (username, score) VALUES (?, ?)
+/// ON DUPLICATE KEY UPDATE score = VALUES(score) + scores.score
+/// ```
+///
+/// ## Database Support
+///
+/// - **🦭MariaDB**: ✅ Supported
+/// - **🐬MySQL**: ✅ Supported
+/// - **🐘PostgreSQL**: ❌ Not supported - use `on_columns_conflict_update()`
+/// - **🪶SQLite**: ❌ Not supported - use `on_columns_conflict_update()`
+///
+pub fn on_duplicate_key_update(
+  insert insert: Insert(a),
+  update update: Update(a),
+) -> Insert(a) {
+  Insert(..insert, on_conflict: InsertDuplicateKeyUpdate(update:))
 }
 
 // ▒▒▒ RETURNING ▒▒▒
@@ -362,65 +459,65 @@ pub fn get_on_conflict(insert isrt: Insert(a)) -> InsertConflictStrategy(a) {
 /// Specify the columns to return after the `INSERT` query.
 ///
 pub fn returning(
-  insert isrt: Insert(a),
-  returning rtrn: List(String),
+  insert insert: Insert(a),
+  returning returning: List(String),
 ) -> Insert(a) {
-  case rtrn {
-    [] -> Insert(..isrt, returning: NoReturning)
-    _ -> Insert(..isrt, returning: rtrn |> Returning)
+  case returning {
+    [] -> Insert(..insert, returning: NoReturning)
+    _ -> Insert(..insert, returning: returning |> Returning)
   }
 }
 
 /// Specify that no columns should be returned after the `INSERT` query.
 ///
-pub fn no_returning(insert isrt: Insert(a)) -> Insert(a) {
-  Insert(..isrt, returning: NoReturning)
+pub fn no_returning(insert insert: Insert(a)) -> Insert(a) {
+  Insert(..insert, returning: NoReturning)
 }
 
 // ▒▒▒ Epilog ▒▒▒
 
 /// Specify an epilog for the `INSERT` query.
 ///
-pub fn epilog(insert isrt: Insert(a), epilog eplg: String) -> Insert(a) {
-  let eplg = eplg |> string.trim
-  case eplg {
-    "" -> Insert(..isrt, epilog: NoEpilog)
-    _ -> Insert(..isrt, epilog: { " " <> eplg } |> Epilog)
+pub fn epilog(insert insert: Insert(a), epilog epilog: String) -> Insert(a) {
+  let epilog = epilog |> string.trim
+  case epilog {
+    "" -> Insert(..insert, epilog: NoEpilog)
+    _ -> Insert(..insert, epilog: { " " <> epilog } |> Epilog)
   }
 }
 
 /// Specify that no epilog should be added to the `INSERT` query.
 ///
-pub fn no_epilog(insert isrt: Insert(a)) -> Insert(a) {
-  Insert(..isrt, epilog: NoEpilog)
+pub fn no_epilog(insert insert: Insert(a)) -> Insert(a) {
+  Insert(..insert, epilog: NoEpilog)
 }
 
 /// Get the epilog from an `INSERT` query.
 ///
-pub fn get_epilog(insert isrt: Insert(a)) -> Epilog {
-  isrt.epilog
+pub fn get_epilog(insert insert: Insert(a)) -> Epilog {
+  insert.epilog
 }
 
 // ▒▒▒ Comment ▒▒▒
 
 /// Specify a comment for the `INSERT` query.
 ///
-pub fn comment(insert isrt: Insert(a), comment cmmnt: String) -> Insert(a) {
-  let cmmnt = cmmnt |> string.trim
-  case cmmnt {
-    "" -> Insert(..isrt, comment: NoComment)
-    _ -> Insert(..isrt, comment: { " " <> cmmnt } |> Comment)
+pub fn comment(insert insert: Insert(a), comment comment: String) -> Insert(a) {
+  let comment = comment |> string.trim
+  case comment {
+    "" -> Insert(..insert, comment: NoComment)
+    _ -> Insert(..insert, comment: { " " <> comment } |> Comment)
   }
 }
 
 /// Specify that no comment should be added to the `INSERT` query.
 ///
-pub fn no_comment(insert isrt: Insert(a)) -> Insert(a) {
-  Insert(..isrt, comment: NoComment)
+pub fn no_comment(insert insert: Insert(a)) -> Insert(a) {
+  Insert(..insert, comment: NoComment)
 }
 
 /// Get the comment from an `INSERT` query.
 ///
-pub fn get_comment(insert isrt: Insert(a)) -> Comment {
-  isrt.comment
+pub fn get_comment(insert insert: Insert(a)) -> Comment {
+  insert.comment
 }

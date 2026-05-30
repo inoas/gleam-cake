@@ -9,12 +9,12 @@ import gleam/time/calendar
 /// used in SQL queries.
 ///
 pub type Param {
-  BoolParam(Bool)
-  FloatParam(Float)
-  IntParam(Int)
-  StringParam(String)
+  StringParam(value: String)
+  IntParam(value: Int)
+  FloatParam(value: Float)
   NullParam
-  DateParam(date: calendar.Date)
+  BoolParam(value: Bool)
+  DateParam(value: calendar.Date)
   //
   // Not sure this should be here, but should it not?
   // Maybe add:
@@ -43,26 +43,26 @@ pub type Param {
 
 /// Create a new `Param` with a `Bool` value.
 ///
-pub fn bool(value vl: Bool) -> Param {
-  vl |> BoolParam
+pub fn bool(value: Bool) -> Param {
+  value |> BoolParam
 }
 
 /// Create a new `Param` with a `Float` value.
 ///
-pub fn float(value vl: Float) -> Param {
-  vl |> FloatParam
+pub fn float(value: Float) -> Param {
+  value |> FloatParam
 }
 
 /// Create a new `Param` with an `Int` value.
 ///
-pub fn int(value vl: Int) -> Param {
-  vl |> IntParam
+pub fn int(value: Int) -> Param {
+  value |> IntParam
 }
 
 /// Create a new `Param` with a `String` value.
 ///
-pub fn string(value vl: String) -> Param {
-  vl |> StringParam
+pub fn string(value: String) -> Param {
+  value |> StringParam
 }
 
 /// Create a new `Param` with an SQL `NULL` value.
@@ -73,20 +73,39 @@ pub fn null() -> Param {
 
 /// Create a new `Param` with a `calendar.Date` value.
 ///
-pub fn date(date date: calendar.Date) -> Param {
-  DateParam(date:)
+pub fn date(value: calendar.Date) -> Param {
+  value |> DateParam
 }
 //
-// // This should ONLY be used for debugging purposes
-// // not to ever run actual queries.
-// pub fn to_debug(param: Param) -> String {
+// import cake/param
+// import gleam/float
+// import gleam/int
+// import gleam/string
+// import gleam/time/calendar
+
+// pub fn debug(param: param.Param) -> String {
 //   case param {
-//     BoolParam(True) -> "TRUE"
-//     BoolParam(False) -> "FALSE"
-//     FloatParam(value) -> float.to_string(value)
-//     IntParam(value) -> int.to_string(value)
-//     // TODO: no injection
-//     StringParam(value) -> "'" <> value <> "'"
-//     NullParam -> "NULL"
+//     param.StringParam(value:) -> "'" <> value <> "'"
+//     param.IntParam(value:) -> int.to_string(value)
+//     param.FloatParam(value:) -> float.to_string(value)
+//     param.BoolParam(True) -> "TRUE"
+//     param.BoolParam(False) -> "FALSE"
+//     param.NullParam -> "NULL"
+//     param.DateParam(calendar.Date(year:, month:, day:)) -> {
+//       let year =
+//         year
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 4)
+//       let month =
+//         month
+//         |> calendar.month_to_int
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 2)
+//       let day =
+//         day
+//         |> int.to_string
+//         |> string.pad_start(with: "0", to: 2)
+//       "SQL: " <> year <> "-" <> month <> "-" <> day
+//     }
 //   }
 // }

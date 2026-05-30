@@ -1,0 +1,7 @@
+---
+version: 2.0.0
+title: delete_pgo_using_sub_query_execution_result_test
+file: ./../test/cake_test/delete_test.gleam
+test_name: delete_pgo_using_sub_query_execution_result_test
+---
+Ok([])

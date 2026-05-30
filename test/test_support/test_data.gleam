@@ -74,10 +74,10 @@ pub fn drop_counters_table_if_exists() {
 
 pub fn create_counters_table() {
   "CREATE TABLE counters (
-    name TEXT,
+    name VARCHAR(255),
     counter INT,
     is_active BOOLEAN,
-    UNIQUE (name)
+    CONSTRAINT counters_name_unique UNIQUE (name)
   );"
 }
 
@@ -88,5 +88,25 @@ pub fn insert_counters_rows() {
     ('Tinny', 9001, true),
     ('Karl', 9002, false),
     ('Clara', 9003, true)
+  ;"
+}
+
+pub fn drop_users_table_if_exists() {
+  "DROP TABLE IF EXISTS users;"
+}
+
+pub fn create_users_table() {
+  "CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL,
+    name TEXT NOT NULL,
+    login_count INTEGER DEFAULT 0,
+    CONSTRAINT users_email_key UNIQUE (email)
+  );"
+}
+
+pub fn insert_users_rows() {
+  "INSERT INTO users (email, name, login_count) VALUES
+    ('existing@example.com', 'Existing User', 5)
   ;"
 }

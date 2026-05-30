@@ -2,7 +2,7 @@
 
 This demo of Cake shows how to `SELECT` with a `JOIN`.
 
-To start postgres via docker compose, see
+To start 🐘PostgreSQL via docker compose, see
 [examples/README.md](../../README.md#Installing-prerequisites), then:
 
 ```shell
@@ -12,8 +12,10 @@ gleam run
 
 ## Demo source code
 
-See the [src directory](https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/).
+See the
+[src directory](https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/).
 
 ---
 
-For further demos see [examples/README.md](../../README.md#available-examples).
+For further demos see
+[examples/README.md](../../README.md#available-examples).

@@ -1,0 +1,65 @@
+---
+version: 2.0.0
+title: where_any_execution_result_test
+file: ./../test/cake_test/where_test.gleam
+test_name: where_any_execution_result_test
+---
+#(
+  Ok([
+    #(
+      "Nubi",
+      4,
+      True,
+      1,
+      2.200000047683716,
+      #(2000, 1, 1),
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.100000023841858,
+      #(2000, 2, 2),
+    ),
+    #("Ginny", 6, False, 3, Null, Null),
+  ]),
+  Ok([
+    #(
+      "Nubi",
+      4,
+      1,
+      1,
+      2.2,
+      #(2000, 1, 1),
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.1,
+      #(2000, 2, 2),
+    ),
+    #("Ginny", 6, 0, 3, Null, Null),
+  ]),
+  Ok([
+    #(
+      "Nubi",
+      4,
+      1,
+      1,
+      2.2,
+      #(2000, 1, 1),
+    ),
+    #(
+      "Biffy",
+      10,
+      Null,
+      2,
+      1.1,
+      #(2000, 2, 2),
+    ),
+    #("Ginny", 6, 0, 3, Null, Null),
+  ]),
+)

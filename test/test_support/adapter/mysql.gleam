@@ -123,10 +123,8 @@ pub fn run_query(
   db_connection db_connection: Connection,
 ) -> Result(List(a), QueryError) {
   case query {
-    CakeReadQuery(read_query) ->
-      read_query |> run_read_query(decoder, db_connection)
-    CakeWriteQuery(write_query) ->
-      write_query |> run_write_query(decoder, db_connection)
+    CakeReadQuery(query:) -> query |> run_read_query(decoder, db_connection)
+    CakeWriteQuery(query:) -> query |> run_write_query(decoder, db_connection)
   }
 }
 
@@ -141,14 +139,18 @@ pub fn execute_raw_sql(
 
 fn cake_param_to_client_param(param param: Param) -> Value {
   case param {
-    BoolParam(param) -> shork.bool(param)
-    FloatParam(param) -> shork.float(param)
-    IntParam(param) -> shork.int(param)
-    StringParam(param) -> shork.text(param)
+    BoolParam(value:) ->
+      shork.int(case value {
+        True -> 1
+        False -> 0
+      })
+    FloatParam(value:) -> shork.float(value)
+    IntParam(value:) -> shork.int(value)
+    StringParam(value:) -> shork.text(value)
     NullParam -> shork.null()
     // Use shork's impl, once it is available
-    DateParam(param) -> {
-      let calendar.Date(year, month, day) = param
+    DateParam(value:) -> {
+      let calendar.Date(year, month, day) = value
       let year = year |> int.to_string |> string.pad_start(with: "0", to: 4)
       let month =
         month

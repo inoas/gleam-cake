@@ -1,0 +1,26 @@
+---
+version: 2.0.0
+title: delete_joins_empty_preserves_existing_test
+file: ./../test/cake_test/joins_empty_shadowing_test.gleam
+test_name: delete_joins_empty_preserves_existing_test
+---
+DeleteQuery(Delete(
+  NoDeleteModifier,
+  DeleteTable("owners"),
+  NoDeleteUsing,
+  Joins([
+    InnerJoin(
+      JoinTable("cats"),
+      "cats",
+      WhereComparison(
+        WhereColumnValue("cats.owner_id"),
+        Equal,
+        WhereColumnValue("owners.id"),
+      ),
+    ),
+  ]),
+  NoWhere,
+  NoReturning,
+  NoEpilog,
+  NoComment,
+))

@@ -26,7 +26,7 @@ import cake/internal/read_query.{
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Join =
@@ -43,20 +43,20 @@ pub type Where =
 
 /// Create a `JOIN` target from a table name.
 ///
-pub fn table(table_name tbl_nm: String) -> JoinTarget {
-  tbl_nm |> JoinTable
+pub fn table(table_name table_name: String) -> JoinTarget {
+  table_name |> JoinTable
 }
 
 /// Create a `JOIN` target from a sub-query.
 ///
-pub fn sub_query(sub_query sq: ReadQuery) -> JoinTarget {
-  sq |> JoinSubQuery
+pub fn sub_query(sub_query sub_query: ReadQuery) -> JoinTarget {
+  sub_query |> JoinSubQuery
 }
 
 /// Create an `INNER JOIN`.
 ///
-pub fn inner(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
-  wth |> InnerJoin(alias: als, on: on)
+pub fn inner(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
+  with |> InnerJoin(alias:, on:)
 }
 
 /// Creates a `LEFT JOIN`.
@@ -67,8 +67,8 @@ pub fn inner(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
 ///
 /// Set `on` to `WHERE a.key IS NULL` to make it _exclusive_.
 ///
-pub fn left(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
-  wth |> LeftJoin(alias: als, on: on)
+pub fn left(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
+  with |> LeftJoin(alias:, on:)
 }
 
 /// Creates a `RIGHT JOIN`.
@@ -79,8 +79,8 @@ pub fn left(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
 ///
 /// Set `on` to `WHERE b.key IS NULL` to make it _exclusive_.
 ///
-pub fn right(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
-  wth |> RightJoin(alias: als, on: on)
+pub fn right(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
+  with |> RightJoin(alias:, on:)
 }
 
 /// Creates a `FULL JOIN`.
@@ -91,16 +91,16 @@ pub fn right(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
 ///
 /// Set `on` to `WHERE a.key IS NULL OR b.key IS NULL` to make it _exclusive_.
 ///
-pub fn full(with wth: JoinTarget, on on: Where, alias als: String) -> Join {
-  wth |> FullJoin(alias: als, on: on)
+pub fn full(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
+  with |> FullJoin(alias:, on:)
 }
 
 /// Creates a `CROSS JOIN`.
 ///
 /// Also called _cartesian product_.
 ///
-pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
-  wth |> CrossJoin(alias: als)
+pub fn cross(with with: JoinTarget, alias alias: String) -> Join {
+  with |> CrossJoin(alias:)
 }
 
 /// Creates a `INNER JOIN LATERAL ... ON TRUE`.
@@ -122,8 +122,8 @@ pub fn cross(with wth: JoinTarget, alias als: String) -> Join {
 /// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
-pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
-  wth |> InnerJoinLateralOnTrue(alias: als)
+pub fn inner_lateral(with with: JoinTarget, alias alias: String) -> Join {
+  with |> InnerJoinLateralOnTrue(alias:)
 }
 
 /// Creates a `LEFT JOIN LATERAL ... ON TRUE`.
@@ -145,8 +145,8 @@ pub fn inner_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
-pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
-  wth |> LeftJoinLateralOnTrue(alias: als)
+pub fn left_lateral(with with: JoinTarget, alias alias: String) -> Join {
+  with |> LeftJoinLateralOnTrue(alias:)
 }
 
 /// Creates a `CROSS JOIN LATERAL`.
@@ -165,6 +165,6 @@ pub fn left_lateral(with wth: JoinTarget, alias als: String) -> Join {
 /// NOTICE: `LATERAL` is supported by 🐘PostgreSQL 9.3+ and recent 🐬MySQL
 /// versions.
 ///
-pub fn cross_lateral(with wth: JoinTarget, alias als: String) -> Join {
-  wth |> CrossJoinLateral(alias: als)
+pub fn cross_lateral(with with: JoinTarget, alias alias: String) -> Join {
+  with |> CrossJoinLateral(alias:)
 }

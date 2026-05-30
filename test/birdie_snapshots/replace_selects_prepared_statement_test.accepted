@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: replace_selects_prepared_statement_test
+file: ./../test/cake_test/select_test.gleam
+test_name: replace_selects_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT c, d FROM cats",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT c, d FROM cats",
+    [],
+    0,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT c, d FROM cats",
+    [],
+    0,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT c, d FROM cats",
+    [],
+    0,
+    Mysql,
+  ),
+)

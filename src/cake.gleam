@@ -31,24 +31,24 @@ pub type PreparedStatement =
 /// the same way.
 ///
 pub type CakeQuery(a) {
-  CakeReadQuery(ReadQuery)
-  CakeWriteQuery(WriteQuery(a))
+  CakeReadQuery(query: ReadQuery)
+  CakeWriteQuery(query: WriteQuery(a))
 }
 
 /// Create a Cake read query from a read query.
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn to_read_query(query qry: ReadQuery) -> CakeQuery(a) {
-  qry |> CakeReadQuery
+pub fn to_read_query(query query: ReadQuery) -> CakeQuery(a) {
+  query |> CakeReadQuery
 }
 
 /// Create a Cake write query from a write query.
 ///
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
-pub fn to_write_query(query qry: WriteQuery(a)) -> CakeQuery(a) {
-  qry |> CakeWriteQuery
+pub fn to_write_query(query query: WriteQuery(a)) -> CakeQuery(a) {
+  query |> CakeWriteQuery
 }
 
 /// Create a prepared statement from a Cake query.
@@ -56,53 +56,55 @@ pub fn to_write_query(query qry: WriteQuery(a)) -> CakeQuery(a) {
 /// Also see `cake/dialect/*` for dialect specific implementations of this.
 ///
 pub fn to_prepared_statement(
-  query qry: CakeQuery(a),
-  dialect dlct: Dialect,
+  query query: CakeQuery(a),
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  case qry {
-    CakeReadQuery(rd_qry) ->
-      rd_qry
-      |> read_query_to_prepared_statement(dialect: dlct)
-    CakeWriteQuery(wt_qry) ->
-      wt_qry
-      |> write_query_to_prepared_statement(dialect: dlct)
+  case query {
+    CakeReadQuery(query:) ->
+      query
+      |> read_query_to_prepared_statement(dialect:)
+    CakeWriteQuery(query:) ->
+      query
+      |> write_query_to_prepared_statement(dialect:)
   }
 }
 
 /// Create a prepared statement from a read query.
 ///
 pub fn read_query_to_prepared_statement(
-  query qry: ReadQuery,
-  dialect dlct: Dialect,
+  query query: ReadQuery,
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  dlct
+  dialect
   |> dialect.placeholder_base
-  |> read_query.to_prepared_statement(query: qry, dialect: dlct)
+  |> read_query.to_prepared_statement(query:, dialect:)
 }
 
 /// Create a prepared statement from a write query.
 ///
 pub fn write_query_to_prepared_statement(
-  query qry: WriteQuery(a),
-  dialect dlct: Dialect,
+  query query: WriteQuery(a),
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  dlct
+  dialect
   |> dialect.placeholder_base
-  |> write_query.to_prepared_statement(query: qry, dialect: dlct)
+  |> write_query.to_prepared_statement(query:, dialect:)
 }
 
 /// Get the SQL of the prepared statement.
 ///
-pub fn get_sql(prepared_statement prp_stm: PreparedStatement) -> String {
-  prp_stm |> prepared_statement.get_sql
+pub fn get_sql(
+  prepared_statement prepared_statement: PreparedStatement,
+) -> String {
+  prepared_statement |> prepared_statement.get_sql
 }
 
 /// Get the parameters of the prepared statement.
 ///
 pub fn get_params(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
 ) -> List(Param) {
-  prp_stm |> prepared_statement.get_params
+  prepared_statement |> prepared_statement.get_params
 }
 
 /// As a library *Cake* cannot be invoked directly in a meaningful way.

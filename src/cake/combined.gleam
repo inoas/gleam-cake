@@ -20,7 +20,7 @@ import cake/internal/read_query.{
 import gleam/string
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Combined =
@@ -50,65 +50,66 @@ pub type ReadQuery =
 pub type Select =
   read_query.Select
 
-/// Creates a `ReadQuery` from a `Combined` read_query.
+/// Creates a `ReadQuery` from a `Combined` `ReadQuery`.
 ///
-pub fn to_query(combined cmbnd: Combined) -> ReadQuery {
-  cmbnd |> CombinedQuery
+pub fn to_query(combined combined: Combined) -> ReadQuery {
+  combined |> CombinedQuery
 }
 
 // ▒▒▒ Combined Kind ▒▒▒
 
 /// Creates a `UNION` query out of two queries as a `Combined` `ReadQuery`.
 ///
-pub fn union(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  UnionDistinct |> read_query.combined_query_new([qry_a, qry_b])
+pub fn union(query_a query_a: Select, query_b query_b: Select) -> Combined {
+  UnionDistinct |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates a `UNION` query out of two or more queries as a `Combined`
 /// `ReadQuery`.
 ///
 pub fn unions(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  UnionDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  UnionDistinct
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates a `UNION ALL` query out of two queries as a `Combined` `ReadQuery`.
 ///
-pub fn union_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  UnionAll |> read_query.combined_query_new([qry_a, qry_b])
+pub fn union_all(query_a query_a: Select, query_b query_b: Select) -> Combined {
+  UnionAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates a `UNION ALL` query out of two or more queries as a `Combined`
 /// `ReadQuery`.
 ///
-/// NOTICE: Not supported by 🪶SQLite.
-///
 pub fn unions_all(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  UnionAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  UnionAll
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `EXCEPT` query out of two queries as a `Combined` `ReadQuery`.
 ///
-pub fn except(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  ExceptDistinct |> read_query.combined_query_new([qry_a, qry_b])
+pub fn except(query_a query_a: Select, query_b query_b: Select) -> Combined {
+  ExceptDistinct |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `EXCEPT` query out of two or more queries as a `Combined`
 /// `ReadQuery`.
 ///
 pub fn excepts(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  ExceptDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  ExceptDistinct
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `EXCEPT ALL` query out of two queries as a `Combined`
@@ -116,8 +117,11 @@ pub fn excepts(
 ///
 /// NOTICE: Not supported by 🪶SQLite.
 ///
-pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  ExceptAll |> read_query.combined_query_new([qry_a, qry_b])
+pub fn except_all(
+  query_a query_a: Select,
+  query_b query_b: Select,
+) -> Combined {
+  ExceptAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `EXCEPT ALL` query out of two or more queries as a `Combined`
@@ -126,28 +130,31 @@ pub fn except_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 /// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn excepts_all(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  ExceptAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  ExceptAll
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `INTERSECT` query out of two queries as a `Combined` `ReadQuery`.
 ///
-pub fn intersect(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  IntersectDistinct |> read_query.combined_query_new([qry_a, qry_b])
+pub fn intersect(query_a query_a: Select, query_b query_b: Select) -> Combined {
+  IntersectDistinct
+  |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `INTERSECT` query out of two or more queries as a `Combined`
-/// read_query.
+/// `ReadQuery`.
 ///
 pub fn intersects(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  IntersectDistinct |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  IntersectDistinct
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Creates an `INTERSECT ALL` query out of two queries as a `Combined`
@@ -155,8 +162,11 @@ pub fn intersects(
 ///
 /// NOTICE: Not supported by 🪶SQLite.
 ///
-pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
-  IntersectAll |> read_query.combined_query_new([qry_a, qry_b])
+pub fn intersect_all(
+  query_a query_a: Select,
+  query_b query_b: Select,
+) -> Combined {
+  IntersectAll |> read_query.combined_query_new(queries: [query_a, query_b])
 }
 
 /// Creates an `INTERSECT ALL` query out of two or more queries as a `Combined`
@@ -165,57 +175,58 @@ pub fn intersect_all(query_a qry_a: Select, query_b qry_b: Select) -> Combined {
 /// NOTICE: Not supported by 🪶SQLite.
 ///
 pub fn intersects_all(
-  query_a qry_a: Select,
-  query_b qry_b: Select,
-  more_queries mr_qrys: List(Select),
+  query_a query_a: Select,
+  query_b query_b: Select,
+  more_queries more_queries: List(Select),
 ) -> Combined {
-  IntersectAll |> read_query.combined_query_new([qry_a, qry_b, ..mr_qrys])
+  IntersectAll
+  |> read_query.combined_query_new(queries: [query_a, query_b, ..more_queries])
 }
 
 /// Gets the queries from a `Combined` `ReadQuery`.
 ///
-pub fn get_queries(combined cmbnd: Combined) -> List(Select) {
-  cmbnd.queries
+pub fn get_queries(combined combined: Combined) -> List(Select) {
+  combined.queries
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 /// Sets a `Limit` in the `Combined` `ReadQuery`.
 ///
-pub fn limit(query qry: Combined, limit lmt: Int) -> Combined {
-  let lmt = lmt |> read_query.limit_new
-  Combined(..qry, limit: lmt)
+pub fn limit(query query: Combined, limit limit: Int) -> Combined {
+  let limit = read_query.limit_new(limit:)
+  Combined(..query, limit:)
 }
 
 /// Removes `Limit` from the `Combined` `ReadQuery`.
 ///
-pub fn no_limit(query qry: Combined) -> Combined {
-  Combined(..qry, limit: NoLimit)
+pub fn no_limit(query query: Combined) -> Combined {
+  Combined(..query, limit: NoLimit)
 }
 
 /// Gets `Limit` in the `Combined` `ReadQuery`.
 ///
-pub fn get_limit(query qry: Combined) -> Limit {
-  qry.limit
+pub fn get_limit(query query: Combined) -> Limit {
+  query.limit
 }
 
 /// Sets an `Offset` in the `Combined` `ReadQuery`.
 ///
-pub fn offset(query qry: Combined, offest offst: Int) -> Combined {
-  let offst = offst |> read_query.offset_new
-  Combined(..qry, offset: offst)
+pub fn offset(query query: Combined, offset offset: Int) -> Combined {
+  let offset = read_query.offset_new(offset:)
+  Combined(..query, offset:)
 }
 
 /// Removes `Offset` from the `Combined` `ReadQuery`.
 ///
-pub fn no_offset(query qry: Combined) -> Combined {
-  Combined(..qry, offset: NoOffset)
+pub fn no_offset(query query: Combined) -> Combined {
+  Combined(..query, offset: NoOffset)
 }
 
 /// Gets `Offset` in the `Combined` `ReadQuery`.
 ///
-pub fn get_offset(query qry: Combined) -> Offset {
-  qry.offset
+pub fn get_offset(query query: Combined) -> Offset {
+  query.offset
 }
 
 // ▒▒▒ ORDER BY ▒▒▒
@@ -227,7 +238,7 @@ pub type Direction {
   Desc
 }
 
-fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
+fn map_order_by_direction_constructor(in in: Direction) -> OrderByDirection {
   case in {
     Asc -> read_query.Asc
     Desc -> read_query.Desc
@@ -236,10 +247,13 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 
 /// Creates or appends an ascending `OrderBy`.
 ///
-pub fn order_by_asc(query qry: Combined, by ordb: String) -> Combined {
-  qry
+pub fn order_by_asc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.Asc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.Asc)] |> OrderBy,
     append: True,
   )
 }
@@ -249,12 +263,12 @@ pub fn order_by_asc(query qry: Combined, by ordb: String) -> Combined {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_asc_nulls_first(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -264,62 +278,68 @@ pub fn order_by_asc_nulls_first(
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_asc_nulls_last(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.AscNullsLast)] |> OrderBy,
     append: True,
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy`.
 ///
-pub fn replace_order_by_asc(query qry: Combined, by ordb: String) -> Combined {
-  qry
+pub fn replace_order_by_asc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.Asc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.Asc)] |> OrderBy,
     append: False,
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS FIRST`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy` with `NULLS FIRST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_first(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
     append: False,
   )
 }
 
-/// Replaces the `OrderBy` a single ascending `OrderBy` with `NULLS LAST`.
+/// Replaces the `OrderBy` with a single ascending `OrderBy` with `NULLS LAST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_last(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.AscNullsLast)] |> OrderBy,
     append: False,
   )
 }
 
 /// Creates or appends a descending `OrderBy`.
 ///
-pub fn order_by_desc(query qry: Combined, by ordb: String) -> Combined {
-  qry
+pub fn order_by_desc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.Desc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.Desc)] |> OrderBy,
     append: True,
   )
 }
@@ -329,12 +349,12 @@ pub fn order_by_desc(query qry: Combined, by ordb: String) -> Combined {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_desc_nulls_first(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: True,
   )
 }
@@ -344,144 +364,147 @@ pub fn order_by_desc_nulls_first(
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_desc_nulls_last(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsLast)] |> OrderBy,
     append: True,
   )
 }
 
-/// Replaces the `OrderBy` a single descending order.
+/// Replaces the `OrderBy` with a single descending order.
 ///
-pub fn replace_order_by_desc(query qry: Combined, by ordb: String) -> Combined {
-  qry
+pub fn replace_order_by_desc(
+  query query: Combined,
+  order_by order_by: String,
+) -> Combined {
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.Desc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.Desc)] |> OrderBy,
     append: False,
   )
 }
 
-/// Replaces the `OrderBy` a single descending order with `NULLS FIRST`.
+/// Replaces the `OrderBy` with a single descending order with `NULLS FIRST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_first(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
     append: False,
   )
 }
 
-/// Replaces the `OrderBy` a single descending `OrderBy` with `NULLS LAST`.
+/// Replaces the `OrderBy` with a single descending `OrderBy` with `NULLS LAST`.
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_last(
-  query qry: Combined,
-  by ordb: String,
+  query query: Combined,
+  order_by order_by: String,
 ) -> Combined {
-  qry
+  query
   |> read_query.combined_order_by(
-    by: [ordb |> OrderByColumn(read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(read_query.DescNullsLast)] |> OrderBy,
     append: False,
   )
 }
 
-/// Creates or appends an `OrderBy` a column with a direction.
+/// Creates or appends an `OrderBy` for a column with a direction.
 ///
 /// The direction can either `ASC` or `DESC`.
 ///
 pub fn order_by(
-  query qry: Combined,
-  by ordb: String,
-  direction dir: Direction,
+  query query: Combined,
+  order_by order_by: String,
+  direction direction: Direction,
 ) -> Combined {
-  let dir = dir |> map_order_by_direction_constructor
-  qry
+  let direction = direction |> map_order_by_direction_constructor
+  query
   |> read_query.combined_order_by(
-    [ordb |> OrderByColumn(direction: dir)] |> OrderBy,
-    True,
+    order_by: [order_by |> OrderByColumn(direction)] |> OrderBy,
+    append: True,
   )
 }
 
-/// Replaces the `OrderBy` a column with a direction.
+/// Replaces the `OrderBy` with a column with a direction.
 ///
 pub fn replace_order_by(
-  query qry: Combined,
-  by ordb: String,
-  direction dir: Direction,
+  query query: Combined,
+  order_by order_by: String,
+  direction direction: Direction,
 ) -> Combined {
-  let dir = dir |> map_order_by_direction_constructor
-  qry
+  let direction = direction |> map_order_by_direction_constructor
+  query
   |> read_query.combined_order_by(
-    [ordb |> OrderByColumn(direction: dir)] |> OrderBy,
-    False,
+    order_by: [order_by |> OrderByColumn(direction)] |> OrderBy,
+    append: False,
   )
 }
 
 /// Removes the `OrderBy` from the `Combined` read_query.
 ///
-pub fn no_order_by(query qry: Combined) -> Combined {
-  Combined(..qry, order_by: NoOrderBy)
+pub fn no_order_by(query query: Combined) -> Combined {
+  Combined(..query, order_by: NoOrderBy)
 }
 
 /// Gets the `OrderBy` from the `Combined` read_query.
 ///
-pub fn get_order_by(query qry: Combined) -> OrderBy {
-  qry.order_by
+pub fn get_order_by(query query: Combined) -> OrderBy {
+  query.order_by
 }
 
 // ▒▒▒ EPILOG ▒▒▒
 
 /// Appends an `Epilog` to the `Combined` read_query.
 ///
-pub fn epilog(query qry: Combined, epilog eplg: String) -> Combined {
-  let eplg = eplg |> string.trim
-  case eplg {
-    "" -> Combined(..qry, epilog: NoEpilog)
-    _ -> Combined(..qry, epilog: { " " <> eplg } |> Epilog)
+pub fn epilog(query query: Combined, epilog epilog: String) -> Combined {
+  let epilog = epilog |> string.trim
+  case epilog {
+    "" -> Combined(..query, epilog: NoEpilog)
+    _ -> Combined(..query, epilog: { " " <> epilog } |> Epilog)
   }
 }
 
 /// Removes the `Epilog` from the `Combined` read_query.
 ///
-pub fn no_epilog(query qry: Combined) -> Combined {
-  Combined(..qry, epilog: NoEpilog)
+pub fn no_epilog(query query: Combined) -> Combined {
+  Combined(..query, epilog: NoEpilog)
 }
 
 /// Gets the `Epilog` from the `Combined` read_query.
 ///
-pub fn get_epilog(query qry: Combined) -> Epilog {
-  qry.epilog
+pub fn get_epilog(query query: Combined) -> Epilog {
+  query.epilog
 }
 
 // ▒▒▒ COMMENT ▒▒▒
 
 /// Appends a `Comment` to the `Combined` read_query.
 ///
-pub fn comment(query qry: Combined, comment cmmnt: String) -> Combined {
-  let cmmnt = cmmnt |> string.trim
-  case cmmnt {
-    "" -> Combined(..qry, comment: NoComment)
-    _ -> Combined(..qry, comment: { " " <> cmmnt } |> Comment)
+pub fn comment(query query: Combined, comment comment: String) -> Combined {
+  let comment = comment |> string.trim
+  case comment {
+    "" -> Combined(..query, comment: NoComment)
+    _ -> Combined(..query, comment: { " " <> comment } |> Comment)
   }
 }
 
 /// Removes the `Comment` from the `Combined` read_query.
 ///
-pub fn no_comment(query qry: Combined) -> Combined {
-  Combined(..qry, comment: NoComment)
+pub fn no_comment(query query: Combined) -> Combined {
+  Combined(..query, comment: NoComment)
 }
 
 /// Gets the `Comment` from the `Combined` read_query.
 ///
-pub fn get_comment(query qry: Combined) -> Comment {
-  qry.comment
+pub fn get_comment(query query: Combined) -> Comment {
+  query.comment
 }

@@ -26,9 +26,6 @@ pub fn main() {
 
   demo_data.create_tables_and_insert_rows(conn)
 
-  let result = insert_query() |> postgres.run_write_query(decode.dynamic, conn)
-
-  echo result
-
-  Nil
+  let assert Ok(_) =
+    echo insert_query() |> postgres.run_write_query(decode.dynamic, conn)
 }

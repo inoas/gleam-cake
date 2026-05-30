@@ -1,27 +1,26 @@
 name = "cake"
-version = "3.0.0"
-description = "An SQL query builder for Gleam for SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, and 🐬MySQL"
+version = "4.0.0"
+description = "🎂 An SQL query builder for Gleam for SQL dialects 🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, and 🐬MySQL"
 licences = ["MPL-2.0"]
 repository = { type = "github", user = "inoas", repo = "gleam-cake" }
 
-gleam = ">= 1.14.0"
+gleam = ">= 1.15.0"
 
 [documentation]
 pages = [
   { title = "CHANGELOG", path = "changelog.html", source = "CHANGELOG.md" },
-  { title = "LICENSE", path = "license.html", source = "LICENSE" },
+  { title = "LICENCE", path = "licence.html", source = "LICENCE" },
 ]
 
 [dependencies]
-gleam_stdlib = ">= 0.62.0 and < 2.0.0"
+gleam_stdlib = ">= 0.71.0 and < 2.0.0"
 gleam_time = ">= 1.4.0 and < 2.0.0"
 
 [dev-dependencies]
-pog = ">= 4.0.0 and < 5.0.0"
-shork = ">= 1.4.0 and < 2.0.0"
-birdie = ">= 1.4.1 and < 2.0.0"
-choire = ">= 1.0.8 and < 2.0.0"
-pprint = ">= 1.0.6 and < 2.0.0"
-sqlight = ">= 1.0.3 and < 2.0.0"
-gleeunit = ">= 1.7.0 and < 2.0.0"
+birdie = ">= 2.0.0 and < 3.0.0"
 gleam_erlang = ">= 1.3.0 and < 2.0.0"
+pog = ">= 4.0.0 and < 5.0.0"
+pprint = ">= 1.0.6 and < 2.0.0"
+shork = ">= 1.4.0 and < 2.0.0"
+sqlight = ">= 1.0.3 and < 2.0.0"
+unitest = ">= 1.5.0 and < 2.0.0"

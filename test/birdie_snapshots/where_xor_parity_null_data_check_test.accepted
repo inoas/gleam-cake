@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: where_xor_parity_null_data_check_test
+file: ./../test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_null_data_check_test
+---
+#(
+  Ok([
+    #("Biffy", Null, 1.100000023841858),
+    #("Clara", True, 10.0),
+    #("Ginny", False, Null),
+    #("Karl", True, 10.0),
+    #("Nubi", True, 2.200000047683716),
+  ]),
+  Ok([
+    #("Biffy", Undefined, 1.1),
+    #("Clara", 1, 10.0),
+    #("Ginny", 0, Undefined),
+    #("Karl", 1, 10.0),
+    #("Nubi", 1, 2.2),
+  ]),
+  Ok([
+    #("Biffy", Null, 1.1),
+    #("Clara", 1, 10.0),
+    #("Ginny", 0, Null),
+    #("Karl", 1, 10.0),
+    #("Nubi", 1, 2.2),
+  ]),
+  Ok([
+    #("Biffy", Null, 1.1),
+    #("Clara", 1, 10.0),
+    #("Ginny", 0, Null),
+    #("Karl", 1, 10.0),
+    #("Nubi", 1, 2.2),
+  ]),
+)

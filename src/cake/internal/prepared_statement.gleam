@@ -26,22 +26,23 @@ pub opaque type PreparedStatement {
 /// Create a new prepared statement.
 ///
 pub fn new(
-  placeholder_base plchldr_bs: String,
-  dialect db_adptr: Dialect,
+  placeholder_base placeholder_base: String,
+  dialect dialect: Dialect,
 ) -> PreparedStatement {
-  plchldr_bs
-  |> PreparedStatement(sql: "", params: [], index: 0, dialect: db_adptr)
+  placeholder_base
+  |> PreparedStatement(sql: "", params: [], index: 0, dialect:)
 }
 
 /// Append a parameter to the prepared statement SQL and
 /// to the parameters list.
 ///
 pub fn append_param(
-  prepared_statement prp_stm: PreparedStatement,
-  param nw_prm: Param,
+  prepared_statement prepared_statement: PreparedStatement,
+  param param: Param,
 ) {
-  let new_sql = prp_stm |> next_placeholder(prp_stm.dialect)
-  prp_stm |> append_sql_and_param(new_sql, nw_prm)
+  let sql =
+    prepared_statement |> next_placeholder(dialect: prepared_statement.dialect)
+  prepared_statement |> append_sql_and_param(sql:, param:)
 }
 
 /// Appends arbitrary SQL to the prepared statement.
@@ -53,71 +54,81 @@ pub fn append_param(
 /// ⛔ ⛔ ⛔
 ///
 pub fn append_sql(
-  prepared_statement prp_stm: PreparedStatement,
-  sql nw_sql: String,
+  prepared_statement prepared_statement: PreparedStatement,
+  sql new_sql: String,
 ) {
-  PreparedStatement(..prp_stm, sql: prp_stm.sql <> nw_sql)
+  PreparedStatement(
+    ..prepared_statement,
+    sql: prepared_statement.sql <> new_sql,
+  )
 }
 
 /// Get the prefix of the prepared statement.
 ///
-pub fn get_prefix(prepared_statement prp_stm: PreparedStatement) -> String {
-  prp_stm.prefix
+pub fn get_prefix(
+  prepared_statement prepared_statement: PreparedStatement,
+) -> String {
+  prepared_statement.prefix
 }
 
 /// Get the SQL of the prepared statement.
 ///
-pub fn get_sql(prepared_statement prp_stm: PreparedStatement) -> String {
-  prp_stm.sql
+pub fn get_sql(
+  prepared_statement prepared_statement: PreparedStatement,
+) -> String {
+  prepared_statement.sql
 }
 
 /// Get the parameters of the prepared statement.
 ///
 pub fn get_params(
-  prepared_statement prp_stm: PreparedStatement,
+  prepared_statement prepared_statement: PreparedStatement,
 ) -> List(Param) {
-  prp_stm.params
+  prepared_statement.params
 }
 
 /// Get the dialect of the prepared statement.
 ///
-pub fn get_dialect(prepared_statement prp_stm: PreparedStatement) -> Dialect {
-  prp_stm.dialect
+pub fn get_dialect(
+  prepared_statement prepared_statement: PreparedStatement,
+) -> Dialect {
+  prepared_statement.dialect
 }
 
 /// Append SQL and a parameter to the prepared statement.
 ///
 fn append_sql_and_param(
-  prepared_statement prp_stm: PreparedStatement,
-  sql nw_sql: String,
-  param nw_prm: Param,
+  prepared_statement prepared_statement: PreparedStatement,
+  sql sql: String,
+  param param: Param,
 ) {
-  prp_stm |> append_sql_and_params(sql: nw_sql, params: [nw_prm])
+  prepared_statement |> append_sql_and_params(sql:, params: [param])
 }
 
 /// Append SQL and parameters to the prepared statement.
 ///
 fn append_sql_and_params(
-  prepared_statement prp_stm: PreparedStatement,
-  sql nw_sql: String,
-  params nw_prms: List(Param),
+  prepared_statement prepared_statement: PreparedStatement,
+  sql sql: String,
+  params params: List(Param),
 ) {
   PreparedStatement(
-    ..prp_stm,
-    sql: prp_stm.sql <> nw_sql,
-    params: prp_stm.params |> list.append(nw_prms),
-    index: prp_stm.index + list.length(nw_prms),
+    ..prepared_statement,
+    sql: prepared_statement.sql <> sql,
+    params: prepared_statement.params |> list.append(params),
+    index: prepared_statement.index + list.length(of: params),
   )
 }
 
 fn next_placeholder(
-  prepared_statement prp_stm: PreparedStatement,
-  dialect dlct: Dialect,
+  prepared_statement prepared_statement: PreparedStatement,
+  dialect dialect: Dialect,
 ) -> String {
-  case dlct {
+  case dialect {
     Postgres | Sqlite ->
-      prp_stm.prefix <> prp_stm.index |> int.add(1) |> int.to_string
-    Maria | Mysql -> prp_stm.prefix
+      prepared_statement.prefix
+      <> prepared_statement.index |> int.add(1) |> int.to_string
+    Maria | Mysql -> prepared_statement.prefix
   }
 }
 // Maybe it is enough for this to be hidden in an internal module?

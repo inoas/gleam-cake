@@ -1,0 +1,22 @@
+---
+version: 2.0.0
+title: inner_join_lateral_prepared_statement_test
+file: ./../test/cake_test/join_lateral_test.gleam
+test_name: inner_join_lateral_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT cats.name FROM cats INNER JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT cats.name FROM cats INNER JOIN LATERAL (SELECT owners.name FROM owners WHERE owners.id = cats.owner_id) AS owners ON TRUE",
+    [],
+    0,
+    Mysql,
+  ),
+)

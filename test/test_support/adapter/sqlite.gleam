@@ -98,10 +98,8 @@ pub fn run_query(
   db_connection db_connection: Connection,
 ) -> Result(List(a), Error) {
   case query {
-    CakeReadQuery(read_query) ->
-      read_query |> run_read_query(decoder, db_connection)
-    CakeWriteQuery(write_query) ->
-      write_query |> run_write_query(decoder, db_connection)
+    CakeReadQuery(query:) -> query |> run_read_query(decoder, db_connection)
+    CakeWriteQuery(query:) -> query |> run_write_query(decoder, db_connection)
   }
 }
 
@@ -116,13 +114,12 @@ pub fn execute_raw_sql(
 
 fn cake_param_to_client_param(param param: Param) -> Value {
   case param {
-    BoolParam(param) -> sqlight.bool(param)
-    FloatParam(param) -> sqlight.float(param)
-    IntParam(param) -> sqlight.int(param)
-    StringParam(param) -> sqlight.text(param)
-    NullParam -> sqlight.null()
-    DateParam(param) -> {
-      let calendar.Date(year, month, day) = param
+    StringParam(value:) -> sqlight.text(value)
+    IntParam(value:) -> sqlight.int(value)
+    FloatParam(value:) -> sqlight.float(value)
+    BoolParam(value:) -> sqlight.bool(value)
+    DateParam(value:) -> {
+      let calendar.Date(year, month, day) = value
       let year = year |> int.to_string |> string.pad_start(with: "0", to: 4)
       let month =
         month
@@ -130,9 +127,10 @@ fn cake_param_to_client_param(param param: Param) -> Value {
         |> int.to_string
         |> string.pad_start(with: "0", to: 2)
       let day = day |> int.to_string |> string.pad_start(with: "0", to: 2)
-      let date = year <> "-" <> month <> "-" <> day
+      let value_string = year <> "-" <> month <> "-" <> day
 
-      date |> sqlight.text()
+      value_string |> sqlight.text()
     }
+    NullParam -> sqlight.null()
   }
 }

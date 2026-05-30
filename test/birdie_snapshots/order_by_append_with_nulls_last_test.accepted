@@ -1,0 +1,22 @@
+---
+version: 2.0.0
+title: order_by_append_with_nulls_last_test
+file: ./../test/cake_test/order_by_append_test.gleam
+test_name: order_by_append_with_nulls_last_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT name FROM cats ORDER BY name ASC, rating DESC NULLS LAST",
+    [],
+    0,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT name FROM cats ORDER BY name ASC, rating DESC NULLS LAST",
+    [],
+    0,
+    Sqlite,
+  ),
+)

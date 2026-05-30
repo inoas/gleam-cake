@@ -1,0 +1,31 @@
+---
+version: 2.0.0
+title: where_xor_parity_null_float_test
+file: ./../test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_null_float_test
+---
+SelectQuery(Select(
+  SelectAll,
+  NoSelects,
+  FromTable("cats"),
+  NoJoins,
+  XorParityWhere([
+    WhereComparison(
+      WhereColumnValue("age"),
+      Greater,
+      WhereParamValue(IntParam(5)),
+    ),
+    WhereComparison(
+      WhereColumnValue("rating"),
+      Equal,
+      WhereParamValue(FloatParam(1.1)),
+    ),
+  ]),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))

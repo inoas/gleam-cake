@@ -7,6 +7,6 @@
 
 /// Returns a callable that creates a qualified identifier
 ///
-pub fn qualified_identifier(scope scp: String) -> fn(String) -> String {
-  fn(identifier) -> String { scp <> "." <> identifier }
+pub fn qualified_identifier(scope scope: String) -> fn(String) -> String {
+  fn(identifier) -> String { scope <> "." <> identifier }
 }

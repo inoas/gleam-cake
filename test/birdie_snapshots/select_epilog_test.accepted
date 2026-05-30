@@ -1,0 +1,23 @@
+---
+version: 2.0.0
+title: select_epilog_test
+file: ./../test/cake_test/epilog_test.gleam
+test_name: select_epilog_test
+---
+SelectQuery(Select(
+  SelectAll,
+  Selects([
+    SelectColumn("name"),
+    SelectColumn("age"),
+  ]),
+  FromTable("cats"),
+  NoJoins,
+  NoWhere,
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  Epilog(" FOR UPDATE"),
+  NoComment,
+))

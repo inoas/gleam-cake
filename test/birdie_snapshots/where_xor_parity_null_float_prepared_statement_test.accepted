@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: where_xor_parity_null_float_prepared_statement_test
+file: ./../test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_null_float_prepared_statement_test
+---
+#(
+  PreparedStatement(
+    "$",
+    "SELECT * FROM cats WHERE (((age > $1)::int + (rating = $2)::int) % 2) = 1",
+    [IntParam(5), FloatParam(1.1)],
+    2,
+    Postgres,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (((age > ?1) + (rating = ?2)) % 2) = 1",
+    [IntParam(5), FloatParam(1.1)],
+    2,
+    Sqlite,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (age > ? XOR rating = ?)",
+    [IntParam(5), FloatParam(1.1)],
+    2,
+    Maria,
+  ),
+  PreparedStatement(
+    "?",
+    "SELECT * FROM cats WHERE (age > ? XOR rating = ?)",
+    [IntParam(5), FloatParam(1.1)],
+    2,
+    Mysql,
+  ),
+)

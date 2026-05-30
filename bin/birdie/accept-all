@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
+# Go to the root of the project
+cd "$(dirname "$0")" && cd ..
+
 gleam test >/dev/null 2>&1
-gleam run --module birdie accept-all
+gleam run --module birdie accept

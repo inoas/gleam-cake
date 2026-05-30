@@ -12,7 +12,7 @@ import test_support/adapter/postgres
 import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn where_like_similar_to_pg_query() {
@@ -43,7 +43,7 @@ fn where_like_similar_to_sqlite_mariadb_mysql_query() {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Tests                                                                    │
+// │ Tests                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub fn where_like_similar_to_test() {

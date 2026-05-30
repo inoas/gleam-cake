@@ -7,13 +7,15 @@
 ////   by that controls which rows go into the aggregate computation.
 //// - `HAVING` filters group rows after groups and aggregates are computed.
 ////
-//// Becaue of this difference, `WHERE` can refer to columns that are not part
+//// Because of this difference, `WHERE` can refer to columns that are not part
 //// of the `GROUP BY` clause, while `HAVING` cannot.
 ////
 //// ## Notice
 ////
-//// This module is a placeholder until rexporting functions is supported by
+//// This module is a placeholder until re-exporting functions is supported by
 //// Gleam.
 ////
 
-const waiting_for_gleam_export_feature = True
+/// This constant is a placeholder until re-exporting functions is supported by
+/// Gleam.
+pub const waiting_for_gleam_export_feature = True

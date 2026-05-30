@@ -3,17 +3,13 @@ import cake/join as j
 import cake/select as s
 import cake/where as w
 import pprint.{format as to_string}
-import test_helper/maria_test_helper
 import test_helper/mysql_test_helper
 import test_helper/postgres_test_helper
-import test_helper/sqlite_test_helper
-import test_support/adapter/maria
 import test_support/adapter/mysql
 import test_support/adapter/postgres
-import test_support/adapter/sqlite
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Setup                                                                    │
+// │ Setup                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 fn owners_query() {
@@ -49,7 +45,7 @@ fn cross_join_lateral_query() {
 }
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  Tests                                                                    │
+// │ Tests                                                                     │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 // INNER JOIN LATERAL
@@ -63,25 +59,18 @@ pub fn inner_join_lateral_test() {
 pub fn inner_join_lateral_prepared_statement_test() {
   let pgo =
     inner_join_lateral_query() |> postgres.read_query_to_prepared_statement
-  let lit =
-    inner_join_lateral_query() |> sqlite.read_query_to_prepared_statement
-  let mdb = inner_join_lateral_query() |> maria.read_query_to_prepared_statement
   let myq = inner_join_lateral_query() |> mysql.read_query_to_prepared_statement
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("inner_join_lateral_prepared_statement_test")
 }
 
 pub fn inner_join_lateral_execution_result_test() {
   let pgo = inner_join_lateral_query() |> postgres_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🪶SQlite does not support LATERAL JOINs.
-  let lit = inner_join_lateral_query() |> sqlite_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
-  let mdb = inner_join_lateral_query() |> maria_test_helper.setup_and_run
   let myq = inner_join_lateral_query() |> mysql_test_helper.setup_and_run
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("inner_join_lateral_execution_result_test")
 }
@@ -97,24 +86,18 @@ pub fn left_join_lateral_test() {
 pub fn left_join_lateral_prepared_statement_test() {
   let pgo =
     left_join_lateral_query() |> postgres.read_query_to_prepared_statement
-  let lit = left_join_lateral_query() |> sqlite.read_query_to_prepared_statement
-  let mdb = left_join_lateral_query() |> maria.read_query_to_prepared_statement
   let myq = left_join_lateral_query() |> mysql.read_query_to_prepared_statement
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("left_join_lateral_prepared_statement_test")
 }
 
 pub fn left_join_lateral_execution_result_test() {
   let pgo = left_join_lateral_query() |> postgres_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🪶SQlite does not support LATERAL JOINs.
-  let lit = left_join_lateral_query() |> sqlite_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
-  let mdb = left_join_lateral_query() |> maria_test_helper.setup_and_run
   let myq = left_join_lateral_query() |> mysql_test_helper.setup_and_run
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("left_join_lateral_execution_result_test")
 }
@@ -130,25 +113,18 @@ pub fn cross_join_lateral_test() {
 pub fn cross_join_lateral_prepared_statement_test() {
   let pgo =
     cross_join_lateral_query() |> postgres.read_query_to_prepared_statement
-  let lit =
-    cross_join_lateral_query() |> sqlite.read_query_to_prepared_statement
-  let mdb = cross_join_lateral_query() |> maria.read_query_to_prepared_statement
   let myq = cross_join_lateral_query() |> mysql.read_query_to_prepared_statement
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("cross_join_lateral_prepared_statement_test")
 }
 
 pub fn cross_join_lateral_execution_result_test() {
   let pgo = cross_join_lateral_query() |> postgres_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🪶SQlite does not support LATERAL JOINs.
-  let lit = cross_join_lateral_query() |> sqlite_test_helper.setup_and_run
-  // NOTICE: This crashes as long as 🦭MariaDB does not support LATERAL JOINs.
-  let mdb = cross_join_lateral_query() |> maria_test_helper.setup_and_run
   let myq = cross_join_lateral_query() |> mysql_test_helper.setup_and_run
 
-  #(pgo, lit, mdb, myq)
+  #(pgo, myq)
   |> to_string
   |> birdie.snap("cross_join_lateral_execution_result_test")
 }

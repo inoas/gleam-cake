@@ -16,7 +16,7 @@ import gleam/string
 import gleam/time/calendar
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
-// │  read_query type re-exports                                               │
+// │ read_query type re-exports                                                │
 // └───────────────────────────────────────────────────────────────────────────┘
 
 pub type Comment =
@@ -72,50 +72,50 @@ pub type Where =
 
 /// Creates a `ReadQuery` from a `Select` query.
 ///
-pub fn to_query(select slct: Select) -> ReadQuery {
-  slct |> SelectQuery
+pub fn to_query(select select: Select) -> ReadQuery {
+  select |> SelectQuery
 }
 
 /// Creates a column `SelectValue` from a `String`.
 ///
-pub fn col(name nm: String) -> SelectValue {
-  nm |> SelectColumn
+pub fn col(name name: String) -> SelectValue {
+  name |> SelectColumn
 }
 
 /// Creates an alias `SelectValue` from `String`.
 ///
-pub fn alias(value vl: SelectValue, alias als: String) -> SelectValue {
-  vl |> SelectAlias(alias: als)
+pub fn alias(value value: SelectValue, alias alias: String) -> SelectValue {
+  value |> SelectAlias(name: alias)
 }
 
 /// Creates a `SelectValue` from a `Bool`.
 ///
-pub fn bool(value vl: Bool) -> SelectValue {
-  vl |> BoolParam |> SelectParam
+pub fn bool(value value: Bool) -> SelectValue {
+  value |> BoolParam |> SelectParam
 }
 
 /// Creates a `SelectValue` from a `Float`.
 ///
-pub fn float(value vl: Float) -> SelectValue {
-  vl |> FloatParam |> SelectParam
+pub fn float(value value: Float) -> SelectValue {
+  value |> FloatParam |> SelectParam
 }
 
 /// Creates a `SelectValue` from an `Int`.
 ///
-pub fn int(value vl: Int) -> SelectValue {
-  vl |> IntParam |> SelectParam
+pub fn int(value value: Int) -> SelectValue {
+  value |> IntParam |> SelectParam
 }
 
 /// Creates a `SelectValue` from a `String`.
 ///
-pub fn string(value vl: String) -> SelectValue {
-  vl |> StringParam |> SelectParam
+pub fn string(value value: String) -> SelectValue {
+  value |> StringParam |> SelectParam
 }
 
 /// Creates a `SelectValue` from a `calendar.Date`.
 ///
-pub fn date(v vl: calendar.Date) -> SelectValue {
-  vl |> DateParam |> SelectParam
+pub fn date(v value: calendar.Date) -> SelectValue {
+  value |> DateParam |> SelectParam
 }
 
 /// Creates an SQL `NULL` `Param`.
@@ -125,8 +125,8 @@ pub fn null() -> SelectValue {
 }
 
 /// Creates a `SelectFragment` off a `Fragment`.
-pub fn fragment(fragment frgmt: Fragment) -> SelectValue {
-  frgmt |> SelectFragment
+pub fn fragment(fragment fragment: Fragment) -> SelectValue {
+  fragment |> SelectFragment
 }
 
 // ▒▒▒ NEW ▒▒▒
@@ -155,51 +155,51 @@ pub fn new() -> Select {
 /// Sets the kind of the `Select` query to
 /// return duplicates which is the default.
 ///
-pub fn all(select slct: Select) -> Select {
-  Select(..slct, kind: SelectAll)
+pub fn all(select select: Select) -> Select {
+  Select(..select, kind: SelectAll)
 }
 
 /// Sets the kind of the `Select` query to
 /// return distinct rows only.
 ///
-pub fn distinct(select slct: Select) -> Select {
-  Select(..slct, kind: SelectDistinct)
+pub fn distinct(select select: Select) -> Select {
+  Select(..select, kind: SelectDistinct)
 }
 
 /// Gets the kind of the `Select` query.
 ///
-pub fn get_kind(select slct: Select, kind knd: SelectKind) -> Select {
-  Select(..slct, kind: knd)
+pub fn get_kind(select select: Select) -> SelectKind {
+  select.kind
 }
 
 // ▒▒▒ FROM ▒▒▒
 
 /// Sets the `FROM` clause of the `Select` query to a table name.
 ///
-pub fn from_table(select slct: Select, name tbl_nm: String) -> Select {
-  Select(..slct, from: tbl_nm |> FromTable)
+pub fn from_table(select select: Select, name table_name: String) -> Select {
+  Select(..select, from: table_name |> FromTable)
 }
 
 /// Sets the `FROM` clause of the `Select` query to an aliased sub-query.
 ///
 pub fn from_query(
-  select slct: Select,
-  sub_query sb_qry: ReadQuery,
-  alias als: String,
+  select select: Select,
+  sub_query sub_query: ReadQuery,
+  alias alias: String,
 ) -> Select {
-  Select(..slct, from: sb_qry |> FromSubQuery(alias: als))
+  Select(..select, from: sub_query |> FromSubQuery(alias:))
 }
 
 /// Removes the `FROM` clause of the `Select` query.
 ///
-pub fn no_from(select slct: Select) -> Select {
-  Select(..slct, from: NoFrom)
+pub fn no_from(select select: Select) -> Select {
+  Select(..select, from: NoFrom)
 }
 
 /// Gets the `FROM` clause of the `Select` query.
 ///
-pub fn get_from(select slct: Select) -> From {
-  slct.from
+pub fn get_from(select select: Select) -> From {
+  select.from
 }
 
 // ▒▒▒ SELECT ▒▒▒
@@ -208,19 +208,37 @@ pub fn get_from(select slct: Select) -> From {
 ///
 /// If the query already has any `SelectValue`s, the new one is appended.
 ///
-pub fn select_col(select slct: Select, name nm: String) -> Select {
-  nm |> col |> select(select: slct)
+pub fn select_col(select select: Select, name name: String) -> Select {
+  let select_value = name |> col
+  case select.select {
+    NoSelects -> Select(..select, select: [select_value] |> Selects)
+    Selects(values:) ->
+      Select(
+        ..select,
+        select: values
+          |> list.append([select_value])
+          |> Selects,
+      )
+  }
 }
 
 /// Add a `SelectValue` to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, the new one is appended.
 ///
-pub fn select(select slct: Select, select_value sv: SelectValue) -> Select {
-  case slct.select {
-    NoSelects -> Select(..slct, select: [sv] |> Selects)
-    Selects(slct_slcts) ->
-      Select(..slct, select: slct_slcts |> list.append([sv]) |> Selects)
+pub fn select(
+  select select: Select,
+  select_value select_value: SelectValue,
+) -> Select {
+  case select.select {
+    NoSelects -> Select(..select, select: [select_value] |> Selects)
+    Selects(values:) ->
+      Select(
+        ..select,
+        select: values
+          |> list.append([select_value])
+          |> Selects,
+      )
   }
 }
 
@@ -228,23 +246,19 @@ pub fn select(select slct: Select, select_value sv: SelectValue) -> Select {
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
-pub fn replace_select_col(select slct: Select, name nm: String) -> Select {
-  nm |> col |> replace_select(select: slct)
+pub fn replace_select_col(select select: Select, name name: String) -> Select {
+  name |> col |> replace_select(select:)
 }
 
-/// Add a `SelectValue`s to the `Select` query.
+/// Add a `SelectValue` to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
 pub fn replace_select(
-  select slct: Select,
-  select_value sv: SelectValue,
+  select select: Select,
+  select_value select_value: SelectValue,
 ) -> Select {
-  case slct.select {
-    NoSelects -> Select(..slct, select: [sv] |> Selects)
-    Selects(slct_slcts) ->
-      Select(..slct, select: slct_slcts |> list.append([sv]) |> Selects)
-  }
+  Select(..select, select: [select_value] |> Selects)
 }
 
 /// Adds many column names as `SelectValue`s to the `Select` query.
@@ -252,10 +266,10 @@ pub fn replace_select(
 /// If the query already has any `SelectValue`s, the new ones are appended.
 ///
 pub fn select_cols(
-  select slct: Select,
-  select_cols scls: List(String),
+  select select: Select,
+  select_cols columns: List(String),
 ) -> Select {
-  scls |> list.map(col) |> selects(select: slct)
+  columns |> list.map(with: col) |> selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
@@ -263,14 +277,20 @@ pub fn select_cols(
 /// If the query already has any `SelectValue`s, the new ones are appended.
 ///
 pub fn selects(
-  select slct: Select,
-  select_values svs: List(SelectValue),
+  select select: Select,
+  select_values select_values: List(SelectValue),
 ) -> Select {
-  case svs, slct.select {
-    [], _ -> slct
-    svs, NoSelects -> Select(..slct, select: svs |> Selects)
-    svs, Selects(slct_slcts) ->
-      Select(..slct, select: slct_slcts |> list.append(svs) |> Selects)
+  case select_values, select.select {
+    [], _ -> select
+    select_values, NoSelects ->
+      Select(..select, select: select_values |> Selects)
+    select_values, Selects(existing_selects) ->
+      Select(
+        ..select,
+        select: existing_selects
+          |> list.append(select_values)
+          |> Selects,
+      )
   }
 }
 
@@ -279,78 +299,79 @@ pub fn selects(
 /// If the query already has any `SelectValue`s, the new ones are replaced.
 ///
 pub fn replace_select_cols(
-  select slct: Select,
-  select_cols scls: List(String),
+  select select: Select,
+  select_cols columns: List(String),
 ) -> Select {
-  scls |> list.map(col) |> replace_selects(select: slct)
+  columns |> list.map(with: col) |> replace_selects(select:)
 }
 
 /// Adds many `SelectValue`s to the `Select` query.
 ///
 /// If the query already has any `SelectValue`s, they are replaced.
 ///
+/// If no `SelectValue`s are provided, the query is returned as-is.
+///
 pub fn replace_selects(
-  select slct: Select,
-  select_values svs: List(SelectValue),
+  select select: Select,
+  select_values select_values: List(SelectValue),
 ) -> Select {
-  case svs, slct.select {
-    [], _ -> slct
-    svs, NoSelects -> Select(..slct, select: svs |> Selects)
-    svs, Selects(slct_slcts) ->
-      Select(..slct, select: slct_slcts |> list.append(svs) |> Selects)
+  case select_values {
+    [] -> select
+    _ -> Select(..select, select: select_values |> Selects)
   }
 }
 
 /// Gets the `SelectValue`s of the `Select` query.
 ///
-pub fn get_select(select slct: Select) -> Selects {
-  slct.select
+pub fn get_select(select select: Select) -> Selects {
+  select.select
 }
 
 // ▒▒▒ JOIN ▒▒▒
 
 /// Adds a `Join` to the `Select` query.
 ///
-pub fn join(select slct: Select, join jn: Join) -> Select {
-  case slct.join {
-    Joins(jns) -> Select(..slct, join: jns |> list.append([jn]) |> Joins)
-    NoJoins -> Select(..slct, join: [jn] |> Joins)
+pub fn join(select select: Select, join join: Join) -> Select {
+  case select.join {
+    Joins(items: existing_joins) ->
+      Select(..select, join: existing_joins |> list.append([join]) |> Joins)
+    NoJoins -> Select(..select, join: [join] |> Joins)
   }
 }
 
-/// Replaces any `Join`s of the `Select` query with a signle `Join`.
+/// Replaces any `Join`s of the `Select` query with a single `Join`.
 ///
-pub fn replace_join(select slct: Select, join jn: Join) -> Select {
-  Select(..slct, join: [jn] |> Joins)
+pub fn replace_join(select select: Select, join join: Join) -> Select {
+  Select(..select, join: [join] |> Joins)
 }
 
 /// Adds `Join`s to the `Select` query.
 ///
-pub fn joins(select slct: Select, joins jns: List(Join)) -> Select {
-  case jns, slct.join {
-    [], _ -> Select(..slct, join: jns |> Joins)
-    jns, Joins(slct_joins) ->
-      Select(..slct, join: slct_joins |> list.append(jns) |> Joins)
-    jns, NoJoins -> Select(..slct, join: jns |> Joins)
+pub fn joins(select select: Select, joins joins: List(Join)) -> Select {
+  case joins, select.join {
+    [], _ -> select
+    _, Joins(items: existing_joins) ->
+      Select(..select, join: existing_joins |> list.append(joins) |> Joins)
+    _, NoJoins -> Select(..select, join: joins |> Joins)
   }
 }
 
 /// Replaces any `Join`s of the `Select` query with the given `Join`s.
 ///
-pub fn replace_joins(select slct: Select, joins jns: List(Join)) -> Select {
-  Select(..slct, join: jns |> Joins)
+pub fn replace_joins(select select: Select, joins joins: List(Join)) -> Select {
+  Select(..select, join: joins |> Joins)
 }
 
 /// Removes any `Joins` from the `Select` query.
 ///
-pub fn no_join(select slct: Select) -> Select {
-  Select(..slct, join: NoJoins)
+pub fn no_join(select select: Select) -> Select {
+  Select(..select, join: NoJoins)
 }
 
 /// Gets the `Joins` of the `Select` query.
 ///
-pub fn get_joins(select slct: Select) -> Joins {
-  slct.join
+pub fn get_joins(select select: Select) -> Joins {
+  select.join
 }
 
 // ▒▒▒ WHERE ▒▒▒
@@ -364,12 +385,12 @@ pub fn get_joins(select slct: Select) -> Joins {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `AndWhere`.
 ///
-pub fn where(select slct: Select, where whr: Where) -> Select {
-  case slct.where {
-    NoWhere -> Select(..slct, where: whr)
-    AndWhere(wheres) ->
-      Select(..slct, where: wheres |> list.append([whr]) |> AndWhere)
-    _ -> Select(..slct, where: [slct.where, whr] |> AndWhere)
+pub fn where(select select: Select, where where: Where) -> Select {
+  case select.where {
+    NoWhere -> Select(..select, where:)
+    AndWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> AndWhere)
+    _ -> Select(..select, where: [select.where, where] |> AndWhere)
   }
 }
 
@@ -382,12 +403,12 @@ pub fn where(select slct: Select, where whr: Where) -> Select {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `OrWhere`.
 ///
-pub fn or_where(select slct: Select, where whr: Where) -> Select {
-  case slct.where {
-    NoWhere -> Select(..slct, where: whr)
-    OrWhere(wheres) ->
-      Select(..slct, where: wheres |> list.append([whr]) |> OrWhere)
-    _ -> Select(..slct, where: [slct.where, whr] |> OrWhere)
+pub fn or_where(select select: Select, where where: Where) -> Select {
+  case select.where {
+    NoWhere -> Select(..select, where:)
+    OrWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> OrWhere)
+    _ -> Select(..select, where: [select.where, where] |> OrWhere)
   }
 }
 
@@ -404,31 +425,31 @@ pub fn or_where(select slct: Select, where whr: Where) -> Select {
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in 🦭MariaDB and 🐬MySQL.
 ///
-pub fn xor_where(select slct: Select, where whr: Where) -> Select {
-  case slct.where {
-    NoWhere -> Select(..slct, where: whr)
-    XorWhere(wheres) ->
-      Select(..slct, where: wheres |> list.append([whr]) |> XorWhere)
-    _ -> Select(..slct, where: [slct.where, whr] |> XorWhere)
+pub fn xor_where(select select: Select, where where: Where) -> Select {
+  case select.where {
+    NoWhere -> Select(..select, where:)
+    XorWhere(conditions:) ->
+      Select(..select, where: conditions |> list.append([where]) |> XorWhere)
+    _ -> Select(..select, where: [select.where, where] |> XorWhere)
   }
 }
 
 /// Replaces the `Where` in the `Select` query.
 ///
-pub fn replace_where(select slct: Select, where whr: Where) -> Select {
-  Select(..slct, where: whr)
+pub fn replace_where(select select: Select, where where: Where) -> Select {
+  Select(..select, where:)
 }
 
 /// Removes the `Where` from the `Select` query.
 ///
-pub fn no_where(select slct: Select) -> Select {
-  Select(..slct, where: NoWhere)
+pub fn no_where(select select: Select) -> Select {
+  Select(..select, where: NoWhere)
 }
 
 /// Gets the `Where` of the `Select` query.
 ///
-pub fn get_where(select slct: Select) -> Where {
-  slct.where
+pub fn get_where(select select: Select) -> Where {
+  select.where
 }
 
 // ▒▒▒ HAVING ▒▒▒
@@ -447,12 +468,12 @@ pub fn get_where(select slct: Select) -> Where {
 /// `HAVING` uses the same semantics as `WHERE`, it
 ///         takes a `Where`.
 ///
-pub fn having(select slct: Select, having whr: Where) -> Select {
-  case slct.having {
-    NoWhere -> Select(..slct, having: whr)
-    AndWhere(wheres) ->
-      Select(..slct, having: wheres |> list.append([whr]) |> AndWhere)
-    _ -> Select(..slct, having: [slct.having, whr] |> AndWhere)
+pub fn having(select select: Select, having where: Where) -> Select {
+  case select.having {
+    NoWhere -> Select(..select, having: where)
+    AndWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> AndWhere)
+    _ -> Select(..select, having: [select.having, where] |> AndWhere)
   }
 }
 
@@ -467,12 +488,12 @@ pub fn having(select slct: Select, having whr: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-pub fn or_having(select slct: Select, having whr: Where) -> Select {
-  case slct.having {
-    NoWhere -> Select(..slct, having: whr)
-    OrWhere(wheres) ->
-      Select(..slct, having: wheres |> list.append([whr]) |> OrWhere)
-    _ -> Select(..slct, having: [slct.having, whr] |> OrWhere)
+pub fn or_having(select select: Select, having where: Where) -> Select {
+  case select.having {
+    NoWhere -> Select(..select, having: where)
+    OrWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> OrWhere)
+    _ -> Select(..select, having: [select.having, where] |> OrWhere)
   }
 }
 
@@ -491,12 +512,12 @@ pub fn or_having(select slct: Select, having whr: Where) -> Select {
 /// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
 /// This operator exists in 🦭MariaDB and 🐬MySQL.
 ///
-pub fn xor_having(select slct: Select, having whr: Where) -> Select {
-  case slct.having {
-    NoWhere -> Select(..slct, having: whr)
-    XorWhere(wheres) ->
-      Select(..slct, having: wheres |> list.append([whr]) |> XorWhere)
-    _ -> Select(..slct, having: [slct.having, whr] |> XorWhere)
+pub fn xor_having(select select: Select, having where: Where) -> Select {
+  case select.having {
+    NoWhere -> Select(..select, having: where)
+    XorWhere(conditions:) ->
+      Select(..select, having: conditions |> list.append([where]) |> XorWhere)
+    _ -> Select(..select, having: [select.having, where] |> XorWhere)
   }
 }
 
@@ -504,111 +525,122 @@ pub fn xor_having(select slct: Select, having whr: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-pub fn replace_having(select slct: Select, having whr: Where) -> Select {
-  Select(..slct, having: whr)
+pub fn replace_having(select select: Select, having where: Where) -> Select {
+  Select(..select, having: where)
 }
 
 /// Removes `HAVING` from the `Select` query.
 ///
-pub fn no_having(select slct: Select) -> Select {
-  Select(..slct, having: NoWhere)
+pub fn no_having(select select: Select) -> Select {
+  Select(..select, having: NoWhere)
 }
 
-/// Gets`HAVING` in the `Select` query.
+/// Gets `HAVING` in the `Select` query.
 ///
 /// See function `having` on details why this returns a `Where`.
 ///
-pub fn get_having(select slct: Select) -> Where {
-  slct.having
+pub fn get_having(select select: Select) -> Where {
+  select.having
 }
 
 // ▒▒▒ GROUP BY ▒▒▒
 
 /// Sets or appends `GroupBy` a single into an existing `GroupBy`.
 ///
-pub fn group_by(select slct: Select, group_by grpb: String) -> Select {
-  case slct.group_by {
-    NoGroupBy -> Select(..slct, group_by: [grpb] |> GroupBy)
-    GroupBy(grpbs) ->
-      Select(..slct, group_by: grpbs |> list.append([grpb]) |> GroupBy)
+pub fn group_by(select select: Select, group_by group_by: String) -> Select {
+  case select.group_by {
+    NoGroupBy -> Select(..select, group_by: [group_by] |> GroupBy)
+    GroupBy(columns:) ->
+      Select(..select, group_by: columns |> list.append([group_by]) |> GroupBy)
   }
 }
 
 /// Replaces `GroupBy` with a single `GroupBy`.
 ///
-pub fn replace_group_by(select slct: Select, group_by grpb: String) -> Select {
-  Select(..slct, group_by: [grpb] |> GroupBy)
+pub fn replace_group_by(
+  select select: Select,
+  group_by group_by: String,
+) -> Select {
+  Select(..select, group_by: [group_by] |> GroupBy)
 }
 
 /// Sets or appends a list of `GroupBy` into an existing `GroupBy`.
 ///
-pub fn group_bys(select slct: Select, group_bys grpbs: List(String)) -> Select {
-  case slct.group_by {
-    NoGroupBy -> Select(..slct, group_by: grpbs |> GroupBy)
-    GroupBy(grpbs) ->
-      Select(..slct, group_by: grpbs |> list.append(grpbs) |> GroupBy)
+pub fn group_bys(
+  select select: Select,
+  group_bys group_bys: List(String),
+) -> Select {
+  case select.group_by {
+    NoGroupBy -> Select(..select, group_by: group_bys |> GroupBy)
+    GroupBy(columns:) ->
+      Select(
+        ..select,
+        group_by: columns
+          |> list.append(group_bys)
+          |> GroupBy,
+      )
   }
 }
 
 /// Replaces `GroupBy` with a list of `GroupBy`s.
 ///
 pub fn replace_group_bys(
-  select slct: Select,
-  group_bys grpbs: List(String),
+  select select: Select,
+  group_bys group_bys: List(String),
 ) -> Select {
-  Select(..slct, group_by: grpbs |> GroupBy)
+  Select(..select, group_by: group_bys |> GroupBy)
 }
 
 /// Removes `GroupBy` from the `Select` query.
 ///
-pub fn no_group_by(select slct: Select) -> Select {
-  Select(..slct, group_by: NoGroupBy)
+pub fn no_group_by(select select: Select) -> Select {
+  Select(..select, group_by: NoGroupBy)
 }
 
 /// Gets `GroupBy` in the `Select` query.
 ///
-pub fn get_group_by(select slct: Select) -> GroupBy {
-  slct.group_by
+pub fn get_group_by(select select: Select) -> GroupBy {
+  select.group_by
 }
 
 // ▒▒▒ LIMIT & OFFSET ▒▒▒
 
 /// Sets a `Limit` in the `Select` query.
 ///
-pub fn limit(select slct: Select, limit lmt: Int) -> Select {
-  let lmt = lmt |> read_query.limit_new
-  Select(..slct, limit: lmt)
+pub fn limit(select select: Select, limit limit: Int) -> Select {
+  let limit = limit |> read_query.limit_new
+  Select(..select, limit:)
 }
 
 /// Removes `Limit` from the `Select` query.
 ///
-pub fn no_limit(select slct: Select) -> Select {
-  Select(..slct, limit: NoLimit)
+pub fn no_limit(select select: Select) -> Select {
+  Select(..select, limit: NoLimit)
 }
 
 /// Gets `Limit` in the `Select` query.
 ///
-pub fn get_limit(select slct: Select) -> Limit {
-  slct.limit
+pub fn get_limit(select select: Select) -> Limit {
+  select.limit
 }
 
 /// Sets an `Offset` in the `Select` query.
 ///
-pub fn offset(select slct: Select, offset offst: Int) -> Select {
-  let offst = offst |> read_query.offset_new
-  Select(..slct, offset: offst)
+pub fn offset(select select: Select, offset offset: Int) -> Select {
+  let offset = offset |> read_query.offset_new
+  Select(..select, offset:)
 }
 
 /// Removes `Offset` from the `Select` query.
 ///
-pub fn no_offset(select slct: Select) -> Select {
-  Select(..slct, offset: NoOffset)
+pub fn no_offset(select select: Select) -> Select {
+  Select(..select, offset: NoOffset)
 }
 
 /// Gets `Offset` in the `Select` query.
 ///
-pub fn get_offset(select slct: Select) -> Offset {
-  slct.offset
+pub fn get_offset(select select: Select) -> Offset {
+  select.offset
 }
 
 // ▒▒▒ ORDER BY ▒▒▒
@@ -622,7 +654,7 @@ pub type Direction {
   Desc
 }
 
-fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
+fn map_order_by_direction_constructor(in in: Direction) -> OrderByDirection {
   case in {
     Asc -> read_query.Asc
     Desc -> read_query.Desc
@@ -631,10 +663,14 @@ fn map_order_by_direction_constructor(in: Direction) -> OrderByDirection {
 
 /// Creates or appends an ascending `OrderBy`.
 ///
-pub fn order_by_asc(select slct: Select, by ordb: String) -> Select {
-  slct
+pub fn order_by_asc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.Asc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.Asc)]
+      |> OrderBy,
     append: True,
   )
 }
@@ -644,12 +680,15 @@ pub fn order_by_asc(select slct: Select, by ordb: String) -> Select {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_asc_nulls_first(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [
+      order_by |> OrderByColumn(direction: read_query.AscNullsFirst),
+    ]
+      |> OrderBy,
     append: True,
   )
 }
@@ -658,20 +697,27 @@ pub fn order_by_asc_nulls_first(
 ///
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
-pub fn order_by_asc_nulls_last(select slct: Select, by ordb: String) -> Select {
-  slct
+pub fn order_by_asc_nulls_last(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsLast)]
+      |> OrderBy,
     append: True,
   )
 }
 
 /// Replaces the `OrderBy` a single ascending `OrderBy`.
 ///
-pub fn replace_order_by_asc(select slct: Select, by ordb: String) -> Select {
-  slct
+pub fn replace_order_by_asc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.Asc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.Asc)] |> OrderBy,
     append: False,
   )
 }
@@ -681,12 +727,13 @@ pub fn replace_order_by_asc(select slct: Select, by ordb: String) -> Select {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_first(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsFirst)]
+      |> OrderBy,
     append: False,
   )
 }
@@ -696,22 +743,26 @@ pub fn replace_order_by_asc_nulls_first(
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_asc_nulls_last(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.AscNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.AscNullsLast)]
+      |> OrderBy,
     append: False,
   )
 }
 
 /// Creates or appends a descending `OrderBy`.
 ///
-pub fn order_by_desc(select slct: Select, by ordb: String) -> Select {
-  slct
+pub fn order_by_desc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
     append: True,
   )
 }
@@ -721,12 +772,13 @@ pub fn order_by_desc(select slct: Select, by ordb: String) -> Select {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn order_by_desc_nulls_first(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsFirst)]
+      |> OrderBy,
     append: True,
   )
 }
@@ -736,22 +788,26 @@ pub fn order_by_desc_nulls_first(
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn order_by_desc_nulls_last(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsLast)]
+      |> OrderBy,
     append: True,
   )
 }
 
 /// Replaces the `OrderBy` a single descending order.
 ///
-pub fn replace_order_by_desc(select slct: Select, by ordb: String) -> Select {
-  slct
+pub fn replace_order_by_desc(
+  select select: Select,
+  order_by order_by: String,
+) -> Select {
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.Desc)] |> OrderBy,
     append: False,
   )
 }
@@ -761,12 +817,13 @@ pub fn replace_order_by_desc(select slct: Select, by ordb: String) -> Select {
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS FIRST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_first(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsFirst)]
+      |> OrderBy,
     append: False,
   )
 }
@@ -776,12 +833,13 @@ pub fn replace_order_by_desc_nulls_first(
 /// NOTICE: 🦭MariaDB and 🐬MySQL do not support `NULLS LAST` out of the box.
 ///
 pub fn replace_order_by_desc_nulls_last(
-  select slct: Select,
-  by ordb: String,
+  select select: Select,
+  order_by order_by: String,
 ) -> Select {
-  slct
+  select
   |> read_query.select_order_by(
-    by: [ordb |> OrderByColumn(direction: read_query.DescNullsFirst)] |> OrderBy,
+    order_by: [order_by |> OrderByColumn(direction: read_query.DescNullsLast)]
+      |> OrderBy,
     append: False,
   )
 }
@@ -791,83 +849,89 @@ pub fn replace_order_by_desc_nulls_last(
 /// The direction can either `ASC` or `DESC`.
 ///
 pub fn order_by(
-  select slct: Select,
-  by ordb: String,
-  direction dir: Direction,
+  select select: Select,
+  order_by order_by: String,
+  direction direction: Direction,
 ) -> Select {
-  let dir = dir |> map_order_by_direction_constructor
-  slct
-  |> read_query.select_order_by([ordb |> OrderByColumn(dir)] |> OrderBy, True)
+  let direction = direction |> map_order_by_direction_constructor
+  select
+  |> read_query.select_order_by(
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: True,
+  )
 }
 
 /// Replaces the `OrderBy` a column with a direction.
 ///
 pub fn replace_order_by(
-  select slct: Select,
-  by ordb: String,
-  direction dir: Direction,
+  select select: Select,
+  order_by order_by: String,
+  direction direction: Direction,
 ) -> Select {
-  let dir = dir |> map_order_by_direction_constructor
-  slct
-  |> read_query.select_order_by([ordb |> OrderByColumn(dir)] |> OrderBy, False)
+  let direction = direction |> map_order_by_direction_constructor
+  select
+  |> read_query.select_order_by(
+    order_by: [order_by |> OrderByColumn(direction:)] |> OrderBy,
+    append: False,
+  )
 }
 
 /// Removes the `OrderBy` from the `Select` query.
 ///
-pub fn no_order_by(select slct: Select) -> Select {
-  Select(..slct, order_by: NoOrderBy)
+pub fn no_order_by(select select: Select) -> Select {
+  Select(..select, order_by: NoOrderBy)
 }
 
 /// Gets the `OrderBy` from the `Select` query.
 ///
-pub fn get_order_by(select slct: Select) -> OrderBy {
-  slct.order_by
+pub fn get_order_by(select select: Select) -> OrderBy {
+  select.order_by
 }
 
 // ▒▒▒ EPILOG ▒▒▒
 
 /// Appends an `Epilog` to the `Select` query.
 ///
-pub fn epilog(select slct: Select, epilog eplg: String) -> Select {
-  let eplg = eplg |> string.trim
-  case eplg {
-    "" -> Select(..slct, epilog: NoEpilog)
-    _ -> Select(..slct, epilog: { " " <> eplg } |> Epilog)
+pub fn epilog(select select: Select, epilog epilog: String) -> Select {
+  let epilog = epilog |> string.trim
+  case epilog {
+    "" -> Select(..select, epilog: NoEpilog)
+    _ -> Select(..select, epilog: { " " <> epilog } |> Epilog)
   }
 }
 
 /// Removes the `Epilog` from the `Select` query.
 ///
-pub fn no_epilog(select slct: Select) -> Select {
-  Select(..slct, epilog: NoEpilog)
+pub fn no_epilog(select select: Select) -> Select {
+  Select(..select, epilog: NoEpilog)
 }
 
 /// Gets the `Epilog` from the `Select` query.
 ///
-pub fn get_epilog(select slct: Select) -> Epilog {
-  slct.epilog
+pub fn get_epilog(select select: Select) -> Epilog {
+  select.epilog
 }
 
 // ▒▒▒ COMMENT ▒▒▒
 
 /// Appends a `Comment` to the `Select` query.
 ///
-pub fn comment(select slct: Select, comment cmmnt: String) -> Select {
-  let cmmnt = cmmnt |> string.trim
-  case cmmnt {
-    "" -> Select(..slct, comment: NoComment)
-    _ -> Select(..slct, comment: { " " <> cmmnt } |> Comment)
+pub fn comment(select select: Select, comment comment: String) -> Select {
+  let comment = comment |> string.trim
+  case comment {
+    "" -> Select(..select, comment: NoComment)
+    _ -> Select(..select, comment: { " " <> comment } |> Comment)
   }
 }
 
 /// Removes the `Comment` from the `Select` query.
 ///
-pub fn no_comment(select slct: Select) -> Select {
-  Select(..slct, comment: NoComment)
+pub fn no_comment(select select: Select) -> Select {
+  Select(..select, comment: NoComment)
 }
 
 /// Gets the `Comment` from the `Select` query.
 ///
-pub fn get_comment(select slct: Select) -> Comment {
-  slct.comment
+pub fn get_comment(select select: Select) -> Comment {
+  select.comment
 }

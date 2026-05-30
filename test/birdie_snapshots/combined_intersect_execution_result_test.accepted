@@ -1,0 +1,23 @@
+---
+version: 2.0.0
+title: combined_intersect_execution_result_test
+file: ./../test/cake_test/combined_test.gleam
+test_name: combined_intersect_execution_result_test
+---
+#(
+  Ok([
+    #("Ginny", 6, False, 3, Null, Null),
+  ]),
+  Ok([
+    #(
+      "Ginny",
+      6,
+      0,
+      3,
+      Undefined,
+      Undefined,
+    ),
+  ]),
+  Ok([#("Ginny", 6, 0, 3, Null, Null)]),
+  Ok([#("Ginny", 6, 0, 3, Null, Null)]),
+)

@@ -1,0 +1,36 @@
+---
+version: 2.0.0
+title: replace_selects_execution_result_test
+file: ./../test/cake_test/select_test.gleam
+test_name: replace_selects_execution_result_test
+---
+#(
+  Ok([
+    #("Nubi", True),
+    #("Biffy", Null),
+    #("Ginny", False),
+    #("Karl", True),
+    #("Clara", True),
+  ]),
+  Ok([
+    #("Nubi", 1),
+    #("Biffy", Undefined),
+    #("Ginny", 0),
+    #("Karl", 1),
+    #("Clara", 1),
+  ]),
+  Ok([
+    #("Nubi", 1),
+    #("Biffy", Null),
+    #("Ginny", 0),
+    #("Karl", 1),
+    #("Clara", 1),
+  ]),
+  Ok([
+    #("Nubi", 1),
+    #("Biffy", Null),
+    #("Ginny", 0),
+    #("Karl", 1),
+    #("Clara", 1),
+  ]),
+)

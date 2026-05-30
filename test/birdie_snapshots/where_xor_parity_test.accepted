@@ -1,0 +1,35 @@
+---
+version: 2.0.0
+title: where_xor_parity_test
+file: ./../test/cake_test/where_xor_parity_test.gleam
+test_name: where_xor_parity_test
+---
+SelectQuery(Select(
+  SelectAll,
+  NoSelects,
+  FromTable("cats"),
+  NoJoins,
+  XorParityWhere([
+    WhereComparison(
+      WhereColumnValue("name"),
+      Equal,
+      WhereParamValue(StringParam("Karl")),
+    ),
+    WhereIsBool(
+      WhereColumnValue("is_wild"),
+      True,
+    ),
+    WhereComparison(
+      WhereColumnValue("age"),
+      LowerOrEqual,
+      WhereParamValue(IntParam(9)),
+    ),
+  ]),
+  NoGroupBy,
+  NoWhere,
+  NoOrderBy,
+  NoLimit,
+  NoOffset,
+  NoEpilog,
+  NoComment,
+))
