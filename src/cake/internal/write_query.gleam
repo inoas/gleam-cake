@@ -328,14 +328,14 @@ fn insert_conflict_ignore_maria_mysql_apply(
       let row_values = case insert.source {
         InsertSourceRows(data:) ->
           data
-          |> list.map(with: fn(r) {
-            let InsertRow(values) = r
+          |> list.map(with: fn(row) {
+            let InsertRow(values) = row
             values
           })
         InsertSourceRecords(data:, encoder:) ->
           data
-          |> list.map(with: fn(r) {
-            let InsertRow(values) = r |> encoder
+          |> list.map(with: fn(row) {
+            let InsertRow(values) = row |> encoder
             values
           })
         _ -> []
@@ -432,8 +432,9 @@ fn insert_not_exists_where_apply(
     _ -> {
       let prepared_statement =
         prepared_statement
+        |> prepared_statement.append_sql(" WHERE NOT EXISTS (")
         |> prepared_statement.append_sql(
-          sql: " WHERE NOT EXISTS (SELECT 1 FROM " <> table_name <> " WHERE ",
+          "SELECT 1 FROM " <> table_name <> " WHERE ",
         )
       let prepared_statement =
         target_col_values
@@ -463,7 +464,8 @@ fn insert_not_exists_where_apply(
           },
         )
       prepared_statement
-      |> prepared_statement.append_sql(" FOR UPDATE)")
+      |> prepared_statement.append_sql(" FOR UPDATE")
+      |> prepared_statement.append_sql(")")
     }
   }
 }
@@ -796,7 +798,7 @@ fn update_sets_apply(
       [_column, ..] ->
         new_prepared_statement
         |> prepared_statement.append_sql(
-          sql: " (" <> columns |> string.join(with: ", ") <> ")",
+          " (" <> columns |> string.join(with: ", ") <> ")",
         )
         |> prepared_statement.append_sql(" =")
     }

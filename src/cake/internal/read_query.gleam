@@ -146,7 +146,7 @@ pub fn combined_clause_apply(
       Sqlite ->
         prepared_statement
         |> prepared_statement.append_sql(
-          sql: ") AS " <> computed_alias_prefix <> nested_index |> int.to_string,
+          ") AS " <> computed_alias_prefix <> nested_index |> int.to_string,
         )
       _ -> prepared_statement |> prepared_statement.append_sql(")")
     }
