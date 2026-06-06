@@ -111,46 +111,6 @@ import cake/fragment as f  // For arbitrary SQL code including functions
 import cake/param as p     // Typed params
 ```
 
-## Library Design
-
-### CakeQuery Type Hierarchy
-
-The following diagram shows the type hierarchy of `CakeQuery` and its
-constructors:
-
-```mermaid
-graph TD
-    CakeQuery["CakeQuery(a)"]:::accent0
-    
-    CakeQuery --> CakeReadQuery["CakeReadQuery(ReadQuery)"]:::accent1
-    CakeQuery --> CakeWriteQuery["CakeWriteQuery(WriteQuery(a))"]:::accent2
-    
-    CakeReadQuery --> SelectQuery["SelectQuery(Select)"]:::accent3
-    CakeReadQuery --> CombinedQuery["CombinedQuery(Combined)"]:::accent3
-    
-    CakeWriteQuery --> InsertQuery["InsertQuery(Insert(a))"]:::accent4
-    CakeWriteQuery --> UpdateQuery["UpdateQuery(Update(a))"]:::accent4
-    CakeWriteQuery --> DeleteQuery["DeleteQuery(Delete(a))"]:::accent4
-    
-    SelectQuery --> Select["Select<br/>• SelectKind<br/>• Selects<br/>• From<br/>• Joins<br/>• Where<br/>• GroupBy<br/>• Having<br/>• OrderBy<br/>• Limit<br/>• Offset<br/>• Epilog<br/>• Comment"]:::accent5
-    
-    CombinedQuery --> Combined["Combined<br/>• CombinedQueryKind<br/>• queries: List(Select)<br/>• OrderBy<br/>• Limit<br/>• Offset<br/>• Epilog<br/>• Comment"]:::accent5
-    
-    InsertQuery --> Insert["Insert(a)<br/>• InsertIntoTable<br/>• InsertColumns<br/>• InsertModifier<br/>• InsertSource(a)<br/>• InsertConflictStrategy(a)<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-    
-    UpdateQuery --> Update["Update(a)<br/>• UpdateTable<br/>• UpdateModifier<br/>• UpdateSets<br/>• From<br/>• Joins<br/>• Where<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-    
-    DeleteQuery --> Delete["Delete(a)<br/>• DeleteModifier<br/>• DeleteTable<br/>• DeleteUsing<br/>• Joins<br/>• Where<br/>• Returning<br/>• Epilog<br/>• Comment"]:::accent6
-```
-
-**Legend:**
-
-- `CakeQuery(a)` is the top-level type with type parameter `a`
-- **Read Queries** (`CakeReadQuery`) are for SELECT and combined
-  operations (UNION, INTERSECT, EXCEPT)
-- **Write Queries** (`CakeWriteQuery`) are for INSERT, UPDATE, and DELETE
-  operations
-- Each query type contains structured fields for building SQL statements
 
 ### Scope
 
