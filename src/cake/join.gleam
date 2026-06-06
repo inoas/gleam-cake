@@ -11,13 +11,13 @@
 //// - `CROSS JOIN`
 ////
 //// You can also build following joins using the provided query builder
-//// functions:
+//// functions combined with a `WHERE` filter on the outer side:
 ////
 //// - `SELF JOIN`: Use the same table, view, or sub-query with a different
 ////    alias.
-//// - `EXCLUSIVE LEFT JOIN`: `WHERE b.key IS NULL`
-//// - `EXCLUSIVE RIGHT JOIN`: `WHERE a.key IS NULL`
-//// - `EXCLUSIVE FULL JOIN`: `WHERE a.key IS NULL OR b.key IS NULL`
+//// - `EXCLUSIVE LEFT JOIN`: `LEFT JOIN` + `WHERE b.key IS NULL` filter
+//// - `EXCLUSIVE RIGHT JOIN`: `RIGHT JOIN` + `WHERE a.key IS NULL` filter
+//// - `EXCLUSIVE FULL JOIN`: `FULL JOIN` + `WHERE a.key IS NULL OR b.key IS NULL` filter
 ////
 
 import cake/internal/read_query.{
@@ -65,7 +65,9 @@ pub fn inner(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 ///
 /// _Inclusive_ by default.
 ///
-/// Set `on` to `WHERE a.key IS NULL` to make it _exclusive_.
+/// To make it _exclusive_ (only left rows with no right match), use the
+/// normal join condition in `on` and add `WHERE b.key IS NULL` as a
+/// `WHERE` filter on the query.
 ///
 pub fn left(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
   with |> LeftJoin(alias:, on:)
@@ -77,7 +79,9 @@ pub fn left(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 ///
 /// _Inclusive_ by default.
 ///
-/// Set `on` to `WHERE b.key IS NULL` to make it _exclusive_.
+/// To make it _exclusive_ (only right rows with no left match), use the
+/// normal join condition in `on` and add `WHERE a.key IS NULL` as a
+/// `WHERE` filter on the query.
 ///
 pub fn right(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
   with |> RightJoin(alias:, on:)
@@ -89,7 +93,9 @@ pub fn right(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
 ///
 /// _Inclusive_ by default.
 ///
-/// Set `on` to `WHERE a.key IS NULL OR b.key IS NULL` to make it _exclusive_.
+/// To make it _exclusive_ (only rows with no match on either side), use
+/// the normal join condition in `on` and add
+/// `WHERE a.key IS NULL OR b.key IS NULL` as a `WHERE` filter on the query.
 ///
 pub fn full(with with: JoinTarget, on on: Where, alias alias: String) -> Join {
   with |> FullJoin(alias:, on:)

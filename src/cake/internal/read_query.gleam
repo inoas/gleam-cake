@@ -1206,13 +1206,13 @@ fn group_by_apply(
 /// - `CROSS JOIN`
 ///
 /// You can also build following joins using the provided query builder
-/// functions:
+/// functions combined with a `WHERE` filter on the outer side:
 ///
 /// - `SELF JOIN`: Use the same table, view, or sub-query with a different
 ///    alias.
-/// - `EXCLUSIVE LEFT JOIN`: `WHERE b.key IS NULL`
-/// - `EXCLUSIVE RIGHT JOIN`: `WHERE a.key IS NULL`
-/// - `EXCLUSIVE FULL JOIN`: `WHERE a.key IS NULL OR b.key IS NULL`
+/// - `EXCLUSIVE LEFT JOIN`: `LEFT JOIN` + `WHERE b.key IS NULL` filter
+/// - `EXCLUSIVE RIGHT JOIN`: `RIGHT JOIN` + `WHERE a.key IS NULL` filter
+/// - `EXCLUSIVE FULL JOIN`: `FULL JOIN` + `WHERE a.key IS NULL OR b.key IS NULL` filter
 ///
 pub type Joins {
   NoJoins
