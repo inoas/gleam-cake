@@ -8,6 +8,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 -->
 
+## [4.1.0] - 2026-06-06
+
+
+
 ## [4.0.0] - 2026-05-30
 
 ### Breaking changes
