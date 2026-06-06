@@ -7,9 +7,306 @@
 //// - `INTERSECT`
 //// - `INTERSECT ALL`
 ////
-//// ## Compatibility
+//// ## Aliases
 ////
-//// - 🪶SQLite does not support `EXCEPT ALL` and `INTERSECT ALL`.
+//// ```gleam
+//// import cake/combined as c
+//// import cake/select as s
+//// import cake/where as w
+//// ```
+////
+//// ---
+////
+//// ## Query Lifecycle
+////
+//// ```mermaid
+//// flowchart LR
+////     A[s.new + query builders] --> B{set operation}
+////     B -->|union| C[c.union / c.unions]
+////     B -->|union_all| D[c.union_all / c.unions_all]
+////     B -->|except| E[c.except / c.excepts]
+////     B -->|except_all| F[c.except_all / c.excepts_all]
+////     B -->|intersect| G[c.intersect / c.intersects]
+////     B -->|intersect_all| H[c.intersect_all / c.intersects_all]
+////     C --> I[limit / offset / order_by]
+////     D --> I
+////     E --> I
+////     F --> I
+////     G --> I
+////     H --> I
+////     I --> J[c.epilog / c.comment]
+////     J --> K[c.to_query]
+//// ```
+////
+//// ---
+////
+//// ## Set Operations
+////
+//// All set operations take at least two `Select` queries (converted via
+//// `s.to_query`) and return a `Combined` value. The `_all` variants accept
+//// two queries; the plural variants accept a list of additional queries.
+////
+//// ### `union(a, b) -> Combined` / `unions(a, b, rest) -> Combined`
+////
+//// `UNION` — distinct rows from both queries.
+////
+//// ```gleam
+//// let q1 =
+////   s.new()
+////   |> s.from_table("users")
+////   |> s.col("name")
+////   |> s.to_query
+////
+//// let q2 =
+////   s.new()
+////   |> s.from_table("customers")
+////   |> s.col("name")
+////   |> s.to_query
+////
+//// c.union(q1, q2)
+//// // SELECT name FROM users UNION SELECT name FROM customers
+//// ```
+////
+//// ### `union_all(a, b) -> Combined` / `unions_all(a, b, rest) -> Combined`
+////
+//// `UNION ALL` — all rows from both queries (no deduplication).
+////
+//// ```gleam
+//// c.union_all(q1, q2)
+//// // SELECT name FROM users UNION ALL SELECT name FROM customers
+//// ```
+////
+//// ### `except(a, b) -> Combined` / `excepts(a, b, rest) -> Combined`
+////
+//// `EXCEPT` — rows in the first query that do not appear in the second.
+////
+//// ```gleam
+//// c.except(q1, q2)
+//// // SELECT name FROM users EXCEPT SELECT name FROM customers
+//// ```
+////
+//// ### `except_all(a, b) -> Combined` / `excepts_all(a, b, rest) -> Combined`
+////
+//// `EXCEPT ALL` — rows in the first query that do not appear in the second,
+//// including duplicates.
+////
+//// > Not supported by 🪶 SQLite.
+////
+//// ```gleam
+//// c.except_all(q1, q2)
+//// // SELECT name FROM users EXCEPT ALL SELECT name FROM customers
+//// ```
+////
+//// ### `intersect(a, b) -> Combined` / `intersects(a, b, rest) -> Combined`
+////
+//// `INTERSECT` — rows that appear in both queries.
+////
+//// ```gleam
+//// c.intersect(q1, q2)
+//// // SELECT name FROM users INTERSECT SELECT name FROM customers
+//// ```
+////
+//// ### `intersect_all(a, b) -> Combined` / `intersects_all(a, b, rest) -> Combined`
+////
+//// `INTERSECT ALL` — rows that appear in both queries, including duplicates.
+////
+//// > Not supported by 🪶 SQLite.
+////
+//// ```gleam
+//// c.intersect_all(q1, q2)
+//// // SELECT name FROM users INTERSECT ALL SELECT name FROM customers
+//// ```
+////
+//// ---
+////
+//// ## Helper
+////
+//// ### `get_queries(combined) -> List(Select)`
+////
+//// Extracts the original `Select` queries from a `Combined` value.
+////
+//// ```gleam
+//// c.get_queries(combined_query)
+//// ```
+////
+//// ---
+////
+//// ## LIMIT & OFFSET
+////
+//// Applied to the result of the combined query (not to individual sub-queries).
+////
+//// | Function                   | Effect               |
+//// | ------                   | ------               |
+//// | `limit(query, n)`        | Set LIMIT            |
+//// | `no_limit(query)`        | Remove LIMIT         |
+//// | `get_limit(query)`       | Get current LIMIT    |
+//// | `offset(query, n)`       | Set OFFSET           |
+//// | `no_offset(query)`       | Remove OFFSET        |
+//// | `get_offset(query)`      | Get current OFFSET   |
+////
+//// ```gleam
+//// c.union(q1, q2)
+//// |> c.limit(10)
+//// |> c.offset(20)
+//// ```
+////
+//// ---
+////
+//// ## ORDER BY
+////
+//// Sorts the combined result set.
+////
+//// ### Direction
+////
+//// | Constructor | Description |
+//// | --- | --- |
+//// | `c.Asc` | Ascending |
+//// | `c.Desc` | Descending |
+////
+//// ### Appending
+////
+//// | Function | Notes |
+//// | --- | --- |
+//// | `order_by_asc(query, col)` | Append ASC |
+//// | `order_by_asc_nulls_first(query, col)` | ASC NULLS FIRST |
+//// | `order_by_asc_nulls_last(query, col)` | ASC NULLS LAST |
+//// | `order_by_desc(query, col)` | Append DESC |
+//// | `order_by_desc_nulls_first(query, col)` | DESC NULLS FIRST |
+//// | `order_by_desc_nulls_last(query, col)` | DESC NULLS LAST |
+//// | `order_by(query, col, direction)` | Custom direction |
+////
+//// ### Replacing
+////
+//// | Function | Notes |
+//// | --- | --- |
+//// | `replace_order_by_asc(query, col)` | Replace all with ASC |
+//// | `replace_order_by_asc_nulls_first(query, col)` | Replace with ASC NULLS FIRST |
+//// | `replace_order_by_asc_nulls_last(query, col)` | Replace with ASC NULLS LAST |
+//// | `replace_order_by_desc(query, col)` | Replace all with DESC |
+//// | `replace_order_by_desc_nulls_first(query, col)` | Replace with DESC NULLS FIRST |
+//// | `replace_order_by_desc_nulls_last(query, col)` | Replace with DESC NULLS LAST |
+//// | `replace_order_by(query, col, direction)` | Replace with custom direction |
+////
+//// ### Removal / retrieval
+////
+//// | Function | Effect |
+//// | --- | --- |
+//// | `no_order_by(query)` | Remove ORDER BY |
+//// | `get_order_by(query)` | Get current ORDER BY |
+////
+//// > **Note:** `NULLS FIRST` / `NULLS LAST` are not supported out of the box by
+//// > 🦭 MariaDB or 🐬 MySQL.
+////
+//// ```gleam
+//// c.union(q1, q2)
+//// |> c.order_by_desc("name")
+//// // SELECT ... UNION SELECT ... ORDER BY name DESC
+//// ```
+////
+//// ---
+////
+//// ## Epilog and Comment
+////
+//// An **epilog** is appended verbatim to the end of the generated SQL.
+//// A **comment** is placed at the very end as a SQL `--` comment.
+////
+//// | Function | Effect |
+//// | --- | --- |
+//// | `epilog(query, text)` | Append epilog |
+//// | `no_epilog(query)` | Remove epilog |
+//// | `get_epilog(query)` | Get current epilog |
+//// | `comment(query, text)` | Append comment |
+//// | `no_comment(query)` | Remove comment |
+//// | `get_comment(query)` | Get current comment |
+////
+//// ```gleam
+//// c.union(q1, q2)
+//// |> c.epilog("FOR UPDATE")
+//// |> c.comment("fetching locked rows")
+//// // SELECT ... UNION SELECT ... FOR UPDATE -- fetching locked rows
+//// ```
+////
+//// ---
+////
+//// ## Converting to a Query
+////
+//// ### `to_query(combined) -> ReadQuery`
+////
+//// Converts a `Combined` into a `ReadQuery` suitable for passing to an adapter.
+////
+//// ```gleam
+//// c.union(q1, q2)
+//// |> c.limit(10)
+//// |> c.to_query
+//// ```
+////
+//// ---
+////
+//// ## Full Example
+////
+//// ```gleam
+//// import cake/combined as c
+//// import cake/select as s
+//// import cake/where as w
+////
+//// let active_users =
+////   s.new()
+////   |> s.from_table("users")
+////   |> s.select_cols(["id", "name", "active"])
+////   |> s.where(w.eq(w.col("active"), w.bool(True)))
+////   |> s.to_query
+////
+//// let active_customers =
+////   s.new()
+////   |> s.from_table("customers")
+////   |> s.select_cols(["id", "name", "active"])
+////   |> s.where(w.eq(w.col("active"), w.bool(True)))
+////   |> s.to_query
+////
+//// c.unions(active_users, active_customers, [
+////   s.new()
+////   |> s.from_table("admins")
+////   |> s.select_cols(["id", "name", "active"])
+////   |> s.where(w.eq(w.col("active"), w.bool(True)))
+////   |> s.to_query,
+//// ])
+//// |> c.order_by_asc("name")
+//// |> c.limit(50)
+//// |> c.to_query
+//// // (SELECT id, name, active FROM users WHERE active = $1)
+//// // UNION
+//// // (SELECT id, name, active FROM customers WHERE active = $2)
+//// // UNION
+//// // (SELECT id, name, active FROM admins WHERE active = $3)
+//// // ORDER BY name ASC
+//// // LIMIT 50
+//// ```
+////
+////
+//// <!-- html assets for docs gen -->
+//// <style>
+////  .page {
+////    display: block;
+////  }
+////  .content {
+////    width: auto;
+////    max-width: none;
+////  }
+//// </style>
+//// <!--<script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>-->
+//// <script
+////   src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+////   integrity="sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4="
+////   crossorigin="anonymous"
+//// ></script>
+//// <script>
+//// (callback => document.readyState !== 'loading' ? callback() : document.addEventListener('DOMContentLoaded', callback, { once: true }))(() => {
+////   mermaid.initialize({ startOnLoad: false })
+////   mermaid.run({
+////     querySelector: ".language-mermaid",
+////   })
+//// })
+//// </script>
 ////
 
 import cake/internal/read_query.{

@@ -1,5 +1,284 @@
 //// A DSL to build `DELETE` queries.
 ////
+//// ## Aliases
+////
+//// ```gleam
+//// import cake/delete as d
+//// import cake/where as w
+//// import cake/join as j
+//// ```
+////
+//// ---
+////
+//// ## Query Lifecycle
+////
+//// ```mermaid
+//// flowchart LR
+////     A[d.new] --> B[d.table]
+////     B --> C[d.using_table / d.join]
+////     C --> D[d.where]
+////     D --> E[d.returning]
+////     E --> F[d.to_query]
+//// ```
+////
+//// ---
+////
+//// ## Constructor
+////
+//// ### `new() -> Delete(a)`
+////
+//// Creates an empty `Delete` query.
+////
+//// ### `to_query(delete: Delete(a)) -> WriteQuery(a)`
+////
+//// Converts a `Delete` into a `WriteQuery` for execution.
+////
+//// ---
+////
+//// ## Table
+////
+//// ### `table(delete, table_name) -> Delete(a)`
+////
+//// Sets the table from which rows will be deleted.
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("sessions")
+//// |> d.where(w.lt(w.col("expires_at"), w.date(today)))
+//// |> d.to_query
+//// // DELETE FROM sessions WHERE expires_at < $1
+//// ```
+////
+//// | Function             | Effect                     |
+//// | ------               | ------                     |
+//// | `table(delete, name)` | Set the target table      |
+//// | `no_table(delete)`    | Remove the target table   |
+////
+//// ---
+////
+//// ## USING clause
+////
+//// `USING` allows referencing additional tables to filter which rows are deleted.
+//// It is the `DELETE` equivalent of a `FROM` join-helper on 🐘 PostgreSQL.
+////
+//// ```mermaid
+//// flowchart TD
+////     A[DELETE FROM a] --> B{USING}
+////     B -->|table| C[USING b]
+////     B -->|sub-query| D[USING sub AS alias]
+////     C --> E[WHERE a.b_id = b.id]
+////     D --> E
+//// ```
+////
+//// ### `using_table(delete, table_name) -> Delete(a)`
+////
+//// Appends a table reference to the `USING` clause.
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("order_items")
+//// |> d.using_table("orders")
+//// |> d.where(w.and([
+////   w.eq(w.col("order_items.order_id"), w.col("orders.id")),
+////   w.eq(w.col("orders.status"), w.string("cancelled")),
+//// ]))
+//// // DELETE FROM order_items USING orders
+//// // WHERE order_items.order_id = orders.id AND orders.status = $1
+//// ```
+////
+//// ### `using_sub_query(delete, query, alias) -> Delete(a)`
+////
+//// Appends an aliased sub-query to the `USING` clause.
+////
+//// > 🦭 MariaDB and 🐬 MySQL do not support sub-queries in `USING` — use a `JOIN`
+//// > or a `WHERE` sub-query instead.
+////
+//// ### Database compatibility for USING
+////
+//// | Database      | Table | Sub-query |
+//// | ------------- | ----- | --------- |
+//// | 🐘 PostgreSQL | ✅    | ✅        |
+//// | 🦭 MariaDB    | ✅    | ❌        |
+//// | 🐬 MySQL      | ✅    | ❌        |
+//// | 🪶 SQLite     | ❌    | ❌        |
+////
+//// > For 🦭 MariaDB and 🐬 MySQL the primary table used in `FROM` must also be
+//// > listed in `USING`. For example:
+//// >
+//// > ```sql
+//// > DELETE a FROM a USING a, b WHERE a.b_id = b.id
+//// > ```
+////
+//// ### Replace / remove variants
+////
+//// | Function                                              | Effect                         |
+//// | ------                                                | ------ |
+//// | `replace_using_table(delete, name)`         | Replace USING with one table     |
+//// | `replace_using_sub_query(delete, query, alias)` | Replace USING with one sub-query |
+//// | `no_using(delete)`                          | Remove USING clause              |
+////
+//// ---
+////
+//// ## JOIN
+////
+//// For 🦭 MariaDB and 🐬 MySQL, `JOIN` is the standard way to filter a `DELETE`
+//// against another table.
+////
+//// > On 🐘 PostgreSQL and 🪶 SQLite, `JOIN` on a `DELETE` requires a `USING`
+//// > clause to be set.
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("order_items")
+//// |> d.join(j.inner(
+////   with: j.table("orders"),
+////   on: w.eq(w.col("order_items.order_id"), w.col("orders.id")),
+////   alias: "orders",
+//// ))
+//// |> d.where(w.eq(w.col("orders.status"), w.string("cancelled")))
+//// ```
+////
+//// | Function                   | Effect                     |
+//// | ------                     | ------                     |
+//// | `join(delete, join)`            | Append one join            |
+//// | `replace_join(delete, join)`    | Replace all joins with one |
+//// | `joins(delete, joins)`          | Append many joins          |
+//// | `replace_joins(delete, joins)`  | Replace all joins          |
+//// | `no_join(delete)`               | Remove all joins           |
+////
+//// ---
+////
+//// ## WHERE clause
+////
+//// See [`cake/where`](where.md) for building `Where` values.
+////
+//// ### `where(delete, where) -> Delete(a)`
+////
+//// Adds a condition with `AND` semantics.
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("users")
+//// |> d.where(w.eq(w.col("active"), w.bool(False)))
+//// |> d.where(w.lt(w.col("created_at"), w.date(cutoff)))
+//// // DELETE FROM users WHERE active = $1 AND created_at < $2
+//// ```
+////
+//// ### `or_where(delete, where) -> Delete(a)`
+////
+//// Combines with `OR` semantics.
+////
+//// ### `xor_where(delete, where) -> Delete(a)`
+////
+//// Combines with exactly-one-true `XOR` semantics. Implemented via a custom
+//// `OR / AND / NOT` expansion on all adapters — native `XOR` is not used on any
+//// adapter, including 🦭 MariaDB / 🐬 MySQL.
+////
+//// > For odd-parity XOR (matching 🦭 MariaDB / 🐬 MySQL native `XOR`), use
+//// > `w.xor_parity` instead.
+////
+//// ### `not_where(delete, where) -> Delete(a)`
+////
+//// Negates the given condition with `NOT` and combines with `AND` semantics.
+////
+//// - If there is no current WHERE, the condition is set as a standalone `NOT`.
+//// - If the outermost WHERE is an `AndWhere`, the negated condition is appended to it.
+//// - Otherwise, the existing WHERE and the new `NOT` condition are wrapped in an `AndWhere`.
+////
+//// | Function                 | Effect                   |
+//// | ------                   | ------                   |
+//// | `replace_where(delete, where)` | Replace the entire WHERE |
+//// | `no_where(delete)`             | Remove WHERE clause      |
+////
+//// ---
+////
+//// ## RETURNING
+////
+//// Fetch column values from the deleted rows.
+////
+//// > Only supported by 🐘 PostgreSQL and 🪶 SQLite.
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("sessions")
+//// |> d.where(w.eq(w.col("user_id"), w.int(42)))
+//// |> d.returning(["id", "token"])
+//// // DELETE FROM sessions WHERE user_id = $1 RETURNING id, token
+//// ```
+////
+//// | Function             | Effect                   |
+//// | ------               | ------                   |
+//// | `returning(delete, cols)` | Return the listed columns |
+//// | `no_returning(delete)`    | Remove RETURNING clause   |
+////
+//// ---
+////
+//// ## Modifier
+////
+//// A raw string modifier inserted after `DELETE`
+//// (e.g. `LOW_PRIORITY` or `QUICK` for MySQL).
+////
+//// ```gleam
+//// d.new() |> d.modifier("LOW_PRIORITY")
+//// // DELETE LOW_PRIORITY FROM ...
+//// ```
+////
+//// ---
+////
+//// ## Epilog and Comment
+////
+//// ```gleam
+//// d.new()
+//// |> d.table("audit_log")
+//// |> d.where(w.lt(w.col("created_at"), w.date(cutoff)))
+//// |> d.epilog("RETURNING id")
+//// |> d.comment("purge old audit records")
+//// ```
+////
+//// ---
+////
+//// ## Full Example
+////
+//// ```gleam
+//// import cake/delete as d
+//// import cake/where as w
+////
+//// d.new()
+//// |> d.table("messages")
+//// |> d.where(w.and([
+////   w.eq(w.col("read"), w.bool(True)),
+////   w.lt(w.col("created_at"), w.date(thirty_days_ago)),
+//// ]))
+//// |> d.returning(["id"])
+//// |> d.to_query
+//// ```
+////
+////
+//// <!-- html assets for docs gen -->
+//// <style>
+////  .page {
+////    display: block;
+////  }
+////  .content {
+////    width: auto;
+////    max-width: none;
+////  }
+//// </style>
+//// <!--<script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>-->
+//// <script
+////   src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+////   integrity="sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4="
+////   crossorigin="anonymous"
+//// ></script>
+//// <script>
+//// (callback => document.readyState !== 'loading' ? callback() : document.addEventListener('DOMContentLoaded', callback, { once: true }))(() => {
+////   mermaid.initialize({ startOnLoad: false })
+////   mermaid.run({
+////     querySelector: ".language-mermaid",
+////   })
+//// })
+//// </script>
+////
 
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,

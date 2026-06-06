@@ -6,7 +6,7 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://cake.hexdocs.pm)
 [![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
-[![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/main/LICENCE)
+[![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/v4.0.0/LICENCE)
 [![Discord](https://img.shields.io/discord/768594524158427167?label=discord%20chat&amp;color=5865F2)](https://discord.gg/Fm8Pwmy)
 
 <br>
@@ -64,26 +64,26 @@ TODO:
 ### Demos
 
 See
-[examples/README.md](https://github.com/inoas/gleam-cake/blob/main/examples/README.md#available-examples).
+[examples/README.md](https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/README.md#available-examples).
 
 #### Code examples (from the demos)
 
 - [cake\_demo\_select\_and\_decode.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/01_select_and_decode/src/cake_demo_select_and_decode.gleam)
 - [cake\_demo\_union\_and\_decode.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/02_union_and_decode/src/cake_demo_union_and_decode.gleam)
 - [cake\_demo\_insert.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/03_insert/src/cake_demo_insert.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/03_insert/src/cake_demo_insert.gleam)
 - [cake\_demo\_delete.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/04_delete/src/cake_demo_delete.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/04_delete/src/cake_demo_delete.gleam)
 - [cake\_demo\_update.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/05_update/src/cake_demo_update.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/05_update/src/cake_demo_update.gleam)
 - [cake\_demo\_insert\_on\_conflict\_update.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/06_insert_on_conflict_update/src/cake_demo_insert_on_conflict_update.gleam)
 - [cake\_demo\_select\_join.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/07_select_join/src/cake_demo_select_join.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/07_select_join/src/cake_demo_select_join.gleam)
 - [cake\_demo\_prepared\_fragment.gleam](
-  https://github.com/inoas/gleam-cake/blob/main/examples/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
+  https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/08_prepared_fragment/src/cake_demo_prepared_fragment.gleam)
 
 ### Unit tests as examples
 
@@ -95,22 +95,9 @@ You may also compare the tests with the
 [snapshots](https://github.com/inoas/gleam-cake/tree/main/test/birdie_snapshots)
 results.
 
-### Intended aliases
+### API Documentation
 
-Use the following aliases to make the library more ergonomic:
-
-```gleam
-import cake/select as s    // SELECT statements
-import cake/where as w     // WHERE clauses
-import cake/join as j      // JOIN clauses
-import cake/update as u    // UPDATE statements
-import cake/insert as i    // INSERT statements
-import cake/delete as d    // DELETE statements
-import cake/combined as c  // For combined queries such as UNION
-import cake/fragment as f  // For arbitrary SQL code including functions
-import cake/param as p     // Typed params
-```
-
+<docs/api.md>
 
 ### Scope
 
