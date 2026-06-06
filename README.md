@@ -95,10 +95,6 @@ You may also compare the tests with the
 [snapshots](https://github.com/inoas/gleam-cake/tree/main/test/birdie_snapshots)
 results.
 
-### API Documentation
-
-<docs/api.md>
-
 ### Scope
 
 This is an SQL query building library, thus it is not concerned about
