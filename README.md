@@ -3,7 +3,7 @@
 [![Downloads](https://img.shields.io/hexpm/dt/cake)](https://hex.pm/packages/cake)
 [![Erlang-compatible](https://img.shields.io/badge/target-erlang-b83998)](https://www.erlang.org/)
 [![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)](https://en.wikipedia.org/wiki/JavaScript)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/cake/)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://cake.hexdocs.pm)
 [![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
 [![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/main/LICENCE)
@@ -42,7 +42,7 @@ gleam add cake@4
 ```
 
 Further documentation can be found on
-[hexdocs.pm/cake](https://hexdocs.pm/cake).
+[cake.hexdocs.pm](https://cake.hexdocs.pm).
 
 ### Adapters
 
