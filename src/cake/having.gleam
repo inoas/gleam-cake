@@ -1,6 +1,8 @@
 //// Please use the `where` module instead of this module to specify `HAVING`
 //// constraints.
 ////
+//// See <where.gleam>.
+////
 //// `HAVING` and `WHERE` are similar in so far that they both filter data:
 ////
 //// - `WHERE` filters input rows before groups and aggregates are computed, and

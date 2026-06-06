@@ -1,12 +1,460 @@
 //// A DSL to build `SELECT` queries.
 ////
+//// ## Aliases
+////
+//// ```gleam
+//// import cake/select as s
+//// import cake/where as w
+//// import cake/join as j
+//// ```
+////
+//// ---
+////
+//// ## Query Lifecycle
+////
+//// ```mermaid
+//// flowchart LR
+////     A[s.new] --> B[s.from_table / s.from_query]
+////     B --> C[s.col / s.select]
+////     C --> D[s.join]
+////     D --> E[s.where]
+////     E --> F[s.group_by / s.having]
+////     F --> G[s.order_by_asc / s.order_by_desc]
+////     G --> H[s.limit / s.offset]
+////     H --> I[s.to_query]
+//// ```
+////
+//// ---
+////
+//// ## Constructor
+////
+//// ### `new() -> Select`
+////
+//// Creates an empty `Select` query. All clauses are unset by default
+//// (`SELECT ALL`, no `FROM`, no `WHERE`, etc.).
+////
+//// ```gleam
+//// s.new()
+//// ```
+////
+//// ### `to_query(select: Select) -> ReadQuery`
+////
+//// Converts a `Select` into a `ReadQuery` suitable for passing to an adapter.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.to_query
+//// ```
+////
+//// ---
+////
+//// ## SELECT values
+////
+//// These functions create `SelectValue`s — the individual expressions that appear
+//// between `SELECT` and `FROM`.
+////
+//// | Function          | SQL equivalent        |
+//// | ----------        | ----------            |
+//// | `col("table.column")`   | `table.column`        |
+//// | `alias(value, "alias")` | `expression AS alias` |
+//// | `bool(True)`            | `TRUE` (as param)     |
+//// | `float(3.14)`           | `3.14` (as param)     |
+//// | `int(42)`               | `42` (as param)       |
+//// | `string("hi")`          | `'hi'` (as param)     |
+//// | `date(d)`               | date param            |
+//// | `null()`                | `NULL`                |
+//// | `fragment(f)`           | raw SQL fragment      |
+////
+//// ### Examples
+////
+//// ```gleam
+//// // Simple column
+//// s.col("users.name")
+////
+//// // Column with alias
+//// s.col("users.name") |> s.alias("full_name")
+////
+//// // Literal integer
+//// s.int(1)
+////
+//// // Fragment-based expression (e.g. database function)
+//// import cake/fragment as f
+//// s.fragment(f.literal("NOW()"))
+//// ```
+////
+//// ---
+////
+//// ## Adding columns to the SELECT list
+////
+//// ### `select_col(select, name) -> Select`
+////
+//// Appends a bare column name to the projection list.
+////
+//// ```gleam
+//// s.new()
+//// |> s.col("id")
+//// |> s.col("name")
+//// ```
+////
+//// ### `select(select, select_value) -> Select`
+////
+//// Appends any `SelectValue` (including aliases and fragments).
+////
+//// ```gleam
+//// s.new()
+//// |> s.select(s.col("id") |> s.alias("user_id"))
+//// |> s.select(s.fragment(f.literal("COUNT(*)")))
+//// ```
+////
+//// ### `select_cols(select, names) -> Select`
+////
+//// ### `selects(select, select_values) -> Select`
+////
+//// Append multiple columns or values at once.
+////
+//// ```gleam
+//// s.new()
+//// |> s.select_cols(["id", "name", "email"])
+//// ```
+////
+//// ### Replace variants
+////
+//// Use the `replace_*` variants to discard any previously added values:
+////
+//// | Function                             | Effect                             |
+//// | ----------                           | ----------                         |
+//// | `replace_select_col(select, name)`   | Replace all with one column        |
+//// | `replace_select(select, value)`      | Replace all with one value         |
+//// | `replace_select_cols(select, names)` | Replace all with a list of columns |
+//// | `replace_selects(select, values)`    | Replace all with a list of values  |
+////
+//// ---
+////
+//// ## FROM clause
+////
+//// ### `from_table(select, name) -> Select`
+////
+//// ```gleam
+//// s.new() |> s.from_table("users")
+//// // FROM users
+//// ```
+////
+//// ### `from_query(select, sub_query, alias) -> Select`
+////
+//// Use an aliased sub-query as the source.
+////
+//// ```gleam
+//// let sub =
+////   s.new()
+////   |> s.from_table("orders")
+////   |> s.col("user_id")
+////   |> s.to_query
+////
+//// s.new()
+//// |> s.from_query(sub, "recent_orders")
+//// |> s.col("user_id")
+//// // FROM (SELECT user_id FROM orders) AS recent_orders
+//// ```
+////
+//// ### `no_from(select) -> Select`
+////
+//// Removes the `FROM` clause (useful for `SELECT 1` style queries).
+////
+//// ---
+////
+//// ## SELECT DISTINCT
+////
+//// ```gleam
+//// s.new() |> s.distinct   // SELECT DISTINCT ...
+//// s.new() |> s.all        // SELECT ALL ... (default)
+//// ```
+////
+//// ---
+////
+//// ## JOIN
+////
+//// See the [`cake/join`](join.md) module for building `Join` values.
+////
+//// ```mermaid
+//// flowchart LR
+////     A[j.table / j.sub_query] --> B[j.inner / j.left / j.right / j.full / j.cross]
+////     B --> C[s.join]
+//// ```
+////
+//// ### `join(select, join) -> Select`
+////
+//// Appends a single `Join`.
+////
+//// ```gleam
+//// import cake/join as j
+////
+//// s.new()
+//// |> s.from_table("orders")
+//// |> s.join(j.inner(
+////   with: j.table("users"),
+////   on: w.eq(w.col("orders.user_id"), w.col("users.id")),
+////   alias: "users",
+//// ))
+//// ```
+////
+//// ### `joins(select, joins) -> Select`
+////
+//// Appends multiple `Join`s.
+////
+//// ### Replace / remove variants
+////
+//// | Function             | Effect                     |
+//// | ----------           | ------                     |
+//// | `replace_join(select, join)`   | Replace all joins with one |
+//// | `replace_joins(select, joins)` | Replace all joins          |
+//// | `no_join(select)`              | Remove all joins           |
+////
+//// ---
+////
+//// ## WHERE clause
+////
+//// See [`cake/where`](where.md) for building `Where` values.
+////
+//// ### `where(select, where) -> Select`
+////
+//// Adds a condition with `AND` semantics. If the current outermost clause is
+//// already an `AndWhere`, the new condition is appended to it.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.where(w.eq(w.col("active"), w.bool(True)))
+//// |> s.where(w.gt(w.col("age"), w.int(18)))
+//// // WHERE active = $1 AND age > $2
+//// ```
+////
+//// ### `or_where(select, where) -> Select`
+////
+//// Combines with `OR` semantics.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.or_where(w.eq(w.col("role"), w.string("admin")))
+//// |> s.or_where(w.eq(w.col("role"), w.string("mod")))
+//// // WHERE role = $1 OR role = $2
+//// ```
+////
+//// ### `xor_where(select, where) -> Select`
+////
+//// Combines with exactly-one-true `XOR` semantics. Implemented via a custom
+//// `OR / AND / NOT` expansion on all adapters — native `XOR` is not used on any
+//// adapter, including 🦭 MariaDB / 🐬 MySQL.
+////
+//// > For odd-parity XOR (matching 🦭 MariaDB / 🐬 MySQL native `XOR`), use
+//// > `w.xor_parity` instead.
+////
+//// ### `not_where(select, where) -> Select`
+////
+//// Negates the given condition with `NOT` and combines with `AND` semantics.
+////
+//// - If there is no current WHERE, the condition is set as a standalone `NOT`.
+//// - If the outermost WHERE is an `AndWhere`, the negated condition is appended to it.
+//// - Otherwise, the existing WHERE and the new `NOT` condition are wrapped in an `AndWhere`.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.where(w.eq(w.col("active"), w.bool(True)))
+//// |> s.not_where(w.eq(w.col("role"), w.string("banned")))
+//// // WHERE active = $1 AND NOT role = $2
+//// ```
+////
+//// ### Replace / remove variants
+////
+//// | Function             | Effect                      |
+//// | ----------           | ------                      |
+//// | `replace_where(select, where)` | Replace entire WHERE clause |
+//// | `no_where(select)`             | Remove WHERE clause         |
+////
+//// ---
+////
+//// ## GROUP BY / HAVING
+////
+//// ### `group_by(select, column) -> Select`
+////
+//// ### `group_bys(select, columns) -> Select`
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("orders")
+//// |> s.col("user_id")
+//// |> s.select(s.fragment(f.literal("SUM(amount)")) |> s.alias("total"))
+//// |> s.group_by("user_id")
+//// // GROUP BY user_id
+//// ```
+////
+//// ### `having(select, where) -> Select`
+////
+//// ### `or_having(select, where) -> Select`
+////
+//// ### `xor_having(select, where) -> Select`
+////
+//// `HAVING` works identically to `WHERE` but filters _after_ aggregation.
+//// Build the condition with the same `cake/where` functions.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("orders")
+//// |> s.group_by("user_id")
+//// |> s.having(w.gt(
+////   w.fragment_value(f.literal("SUM(amount)")),
+////   w.int(100),
+//// ))
+//// // HAVING SUM(amount) > $1
+//// ```
+////
+//// > **Note:** `cake/having` is a thin placeholder module. Use `cake/where` to
+//// > build `Having` conditions — the types are identical.
+////
+//// ### Replace / remove variants
+////
+//// | Function                          | Effect                           |
+//// | --------------------------------- | -------------------------------- |
+//// | `replace_group_by(select, col)`   | Replace GROUP BY with one column |
+//// | `replace_group_bys(select, cols)` | Replace GROUP BY with list       |
+//// | `no_group_by(select)`             | Remove GROUP BY                  |
+//// | `replace_having(select, where)`   | Replace HAVING clause            |
+//// | `no_having(select)`               | Remove HAVING clause             |
+////
+//// ---
+////
+//// ## ORDER BY
+////
+//// ```mermaid
+//// flowchart LR
+////     A[order_by_asc] --> B[ASC]
+////     C[order_by_asc_nulls_first] --> D[ASC NULLS FIRST]
+////     E[order_by_asc_nulls_last] --> F[ASC NULLS LAST]
+////     G[order_by_desc] --> H[DESC]
+////     I[order_by_desc_nulls_first] --> J[DESC NULLS FIRST]
+////     K[order_by_desc_nulls_last] --> L[DESC NULLS LAST]
+//// ```
+////
+//// | Function                                 | Notes                                  |
+//// | ---------------------------------------- | -------------------------------------- |
+//// | `order_by_asc(select, col)`              | Append ASC order                       |
+//// | `order_by_asc_nulls_first(select, col)`  | Not supported by 🦭 MariaDB / 🐬 MySQL |
+//// | `order_by_asc_nulls_last(select, col)`   | Not supported by 🦭 MariaDB / 🐬 MySQL |
+//// | `order_by_desc(select, col)`             | Append DESC order                      |
+//// | `order_by_desc_nulls_first(select, col)` | Not supported by 🦭 MariaDB / 🐬 MySQL |
+//// | `order_by_desc_nulls_last(select, col)`  | Not supported by 🦭 MariaDB / 🐬 MySQL |
+//// | `replace_order_by_asc(select, col)`      | Replace all order-bys                  |
+//// | `no_order_by(select)`                    | Remove ORDER BY                        |
+////
+//// ### Custom direction
+////
+//// ```gleam
+//// s.order_by(select, order_by: "name", direction: s.Asc)
+//// s.order_by(select, order_by: "created_at", direction: s.Desc)
+//// ```
+////
+//// ---
+////
+//// ## LIMIT and OFFSET
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.limit(20)
+//// |> s.offset(40)
+//// // LIMIT 20 OFFSET 40
+//// ```
+////
+//// | Function            | Effect        |
+//// | ------------------- | ------------- |
+//// | `limit(select, n)`  | Set LIMIT     |
+//// | `no_limit(select)`  | Remove LIMIT  |
+//// | `offset(select, n)` | Set OFFSET    |
+//// | `no_offset(select)` | Remove OFFSET |
+////
+//// ---
+////
+//// ## Epilog and Comment
+////
+//// An **epilog** is appended verbatim to the end of the generated SQL.
+//// A **comment** is placed at the very end, typically rendered as a SQL comment.
+////
+//// ```gleam
+//// s.new()
+//// |> s.from_table("users")
+//// |> s.epilog("FOR UPDATE")
+//// |> s.comment("fetching locked rows")
+//// // SELECT ... FROM users FOR UPDATE -- fetching locked rows
+//// ```
+////
+//// ---
+////
+//// ## Full Example
+////
+//// ```gleam
+//// import cake/select as s
+//// import cake/where as w
+//// import cake/join as j
+//// import cake/fragment as f
+////
+//// s.new()
+//// |> s.from_table("orders")
+//// |> s.select_cols(["orders.id", "users.name"])
+//// |> s.select(
+////   s.fragment(f.literal("SUM(orders.amount)")) |> s.alias("total"),
+//// )
+//// |> s.join(j.inner(
+////   with: j.table("users"),
+////   on: w.eq(w.col("orders.user_id"), w.col("users.id")),
+////   alias: "users",
+//// ))
+//// |> s.where(w.eq(w.col("orders.status"), w.string("paid")))
+//// |> s.group_by("orders.id")
+//// |> s.group_by("users.name")
+//// |> s.having(w.gt(
+////   w.fragment_value(f.literal("SUM(orders.amount)")),
+////   w.int(0),
+//// ))
+//// |> s.order_by_desc("total")
+//// |> s.limit(5)
+//// |> s.to_query
+//// ```
+////
+////
+//// <!-- html assets for docs gen -->
+//// <style>
+////  .page {
+////    display: block;
+////  }
+////  .content {
+////    width: auto;
+////    max-width: none;
+////  }
+//// </style>
+//// <!--<script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>-->
+//// <script
+////   src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+////   integrity="sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4="
+////   crossorigin="anonymous"
+//// ></script>
+//// <script>
+//// (callback => document.readyState !== 'loading' ? callback() : document.addEventListener('DOMContentLoaded', callback, { once: true }))(() => {
+////   mermaid.initialize({ startOnLoad: false })
+////   mermaid.run({
+////     querySelector: ".language-mermaid",
+////   })
+//// })
+//// </script>
+////
 
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, GroupBy, Joins, NoComment,
   NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects,
-  NoWhere, OrWhere, OrderBy, OrderByColumn, Select, SelectAlias, SelectAll,
-  SelectColumn, SelectDistinct, SelectFragment, SelectParam, SelectQuery,
-  Selects, XorWhere,
+  NoWhere, NotWhere, OrWhere, OrderBy, OrderByColumn, Select, SelectAlias,
+  SelectAll, SelectColumn, SelectDistinct, SelectFragment, SelectParam,
+  SelectQuery, Selects, XorWhere,
 }
 import cake/param.{
   BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
@@ -421,9 +869,11 @@ pub fn or_where(select select: Select, where where: Where) -> Select {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
-/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in 🦭MariaDB and 🐬MySQL.
+/// NOTICE: *Cake* implements this using a custom `OR / AND / NOT` expansion
+/// on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) —
+/// native `XOR` is **not** used on any adapter.
+/// For odd-parity XOR that delegates to 🦭MariaDB / 🐬MySQL native `XOR`,
+/// use `where.xor_parity` instead.
 ///
 pub fn xor_where(select select: Select, where where: Where) -> Select {
   case select.where {
@@ -431,6 +881,36 @@ pub fn xor_where(select select: Select, where where: Where) -> Select {
     XorWhere(conditions:) ->
       Select(..select, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, where: [select.where, where] |> XorWhere)
+  }
+}
+
+/// Sets a `NotWhere` or appends into an existing `AndWhere`.
+///
+/// Wraps the given `Where` in a `NotWhere`, then applies it with `AND`
+/// semantics:
+///
+/// - If the query does not have a `Where` clause, the given `Where` is set
+///   as a `NotWhere`.
+/// - If the outermost `Where` is an `AndWhere`, the new `NotWhere` is appended
+///   to the list within `AndWhere`.
+/// - If the outermost `Where` is any other kind of `Where`, this and the
+///   current outermost `Where` are wrapped in an `AndWhere`.
+///
+pub fn not_where(select select: Select, where where: Where) -> Select {
+  case select.where {
+    NoWhere -> Select(..select, where: NotWhere(condition: where))
+    AndWhere(conditions:) ->
+      Select(
+        ..select,
+        where: conditions
+          |> list.append([NotWhere(condition: where)])
+          |> AndWhere,
+      )
+    _ ->
+      Select(
+        ..select,
+        where: [select.where, NotWhere(condition: where)] |> AndWhere,
+      )
   }
 }
 
@@ -508,9 +988,12 @@ pub fn or_having(select select: Select, having where: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
-/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in 🦭MariaDB and 🐬MySQL.
+/// NOTICE: *Cake* implements this using a custom `OR / AND / NOT` expansion
+/// on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) —
+/// native `XOR` is **not** used on any adapter.
+///
+/// For odd-parity XOR (which on 🦭MariaDB / 🐬MySQL delegates to its native
+/// `XOR`) use `where.xor_parity` instead.
 ///
 pub fn xor_having(select select: Select, having where: Where) -> Select {
   case select.having {
@@ -518,6 +1001,37 @@ pub fn xor_having(select select: Select, having where: Where) -> Select {
     XorWhere(conditions:) ->
       Select(..select, having: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, having: [select.having, where] |> XorWhere)
+  }
+}
+
+/// Sets a `NotWhere` or appends into an existing `AndWhere` for `HAVING`.
+///
+/// - Wraps the given `Where` in a `NotWhere`, then applies it with `AND`
+///   semantics:
+/// - If the query does not have a `HAVING` clause, the given `Where` is set
+///   as a `NotWhere`.
+/// - If the outermost `Where` is an `AndWhere`, the new `NotWhere` is appended
+///   to the list within `AndWhere`.
+/// - If the outermost `Where` is any other kind of `Where`, this and the
+///   current outermost `Where` are wrapped in an `AndWhere`.
+///
+/// See function `having` on details why this takes a `Where`.
+///
+pub fn not_having(select select: Select, having where: Where) -> Select {
+  case select.having {
+    NoWhere -> Select(..select, having: NotWhere(condition: where))
+    AndWhere(conditions:) ->
+      Select(
+        ..select,
+        having: conditions
+          |> list.append([NotWhere(condition: where)])
+          |> AndWhere,
+      )
+    _ ->
+      Select(
+        ..select,
+        having: [select.having, NotWhere(condition: where)] |> AndWhere,
+      )
   }
 }
 

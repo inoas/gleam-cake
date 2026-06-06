@@ -11,7 +11,6 @@
 - [`SELECT` and `JOIN`](./07_select_join/README.md)
 - [fragment with prepared statement](./08_prepared_fragment/README.md)
 
-
 The demo apps come with a docker `compose.yml` file which contains a
 database setup. You will need to install or have installed _Git_,
 _Erlang_, _Gleam_, and _Docker_ however, thus:

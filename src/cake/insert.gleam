@@ -1,5 +1,336 @@
 //// A DSL to build `INSERT` queries.
 ////
+//// ## Aliases
+////
+//// ```gleam
+//// import cake/insert as i
+//// import cake/where as w
+//// import cake/fragment as f
+//// ```
+////
+//// ---
+////
+//// ## Query Lifecycle
+////
+//// ```mermaid
+//// flowchart LR
+////     A[i.from_records / i.from_values / i.new] --> B[configure table & columns]
+////     B --> C[on_conflict strategy]
+////     C --> D[returning]
+////     D --> E[i.to_query]
+//// ```
+////
+//// ---
+////
+//// ## Constructors
+////
+//// There are three ways to start building an `INSERT` query.
+////
+//// ### `from_records(table_name, columns, records, encoder) -> Insert(a)`
+////
+//// The idiomatic way. Supply a list of typed Gleam records and an encoder function
+//// that maps each record to an `InsertRow`.
+////
+//// ```gleam
+//// type User {
+////   User(name: String, age: Int)
+//// }
+////
+//// fn encode_user(u: User) -> i.InsertRow {
+////   i.row([i.string(u.name), i.int(u.age)])
+//// }
+////
+//// [User("Alice", 30), User("Bob", 25)]
+//// |> i.from_records(
+////   table_name: "users",
+////   columns: ["name", "age"],
+////   encoder: encode_user,
+//// )
+//// |> i.to_query
+//// // INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4)
+//// ```
+////
+//// ### `from_values(table_name, columns, values) -> Insert(a)`
+////
+//// Supply pre-built `InsertRow` values directly.
+////
+//// ```gleam
+//// [
+////   i.row([i.string("Alice"), i.int(30)]),
+////   i.row([i.string("Bob"), i.int(25)]),
+//// ]
+//// |> i.from_values(table_name: "users", columns: ["name", "age"])
+//// |> i.to_query
+//// ```
+////
+//// ### `new() -> Insert(a)`
+////
+//// Creates a completely empty `Insert`. Useful when building the query
+//// incrementally.
+////
+//// ```gleam
+//// i.new()
+//// |> i.table("users")
+//// |> i.columns(["name", "age"])
+//// |> i.source_values([i.row([i.string("Alice"), i.int(30)])])
+//// |> i.to_query
+//// ```
+////
+//// ### `to_query(insert: Insert(a)) -> WriteQuery(a)`
+////
+//// Converts an `Insert` into a `WriteQuery` for execution.
+////
+//// ---
+////
+//// ## Row and Value Constructors
+////
+//// ### `row(values: List(InsertValue)) -> InsertRow`
+////
+//// Wraps a list of `InsertValue`s into a single `InsertRow`.
+////
+//// ```gleam
+//// i.row([i.string("Alice"), i.int(30), i.bool(True)])
+//// ```
+////
+//// ### Value constructors
+////
+//// | Function          | SQL type         |
+////
+//// | Function        | SQL type         |
+//// | ----------      | ---------------- |
+//// | `bool(value)`     | Boolean param    |
+//// | `float(value)`    | Float param      |
+//// | `int(value)`      | Integer param    |
+//// | `string(value)`   | String param     |
+//// | `null()`          | NULL             |
+//// | `date(value)`     | Date param       |
+//// | `fragment(value)` | Raw SQL fragment |
+////
+//// ```gleam
+//// // Inserting a UUID via a database cast
+//// import cake/fragment as f
+////
+//// i.fragment(f.prepared("?::uuid", [f.string("0000-0000-4000-a000-a00000000000")]))
+//// ```
+////
+//// ---
+////
+//// ## Setting the Table
+////
+//// When using `new()` you can configure (or override) the target table:
+////
+//// ```gleam
+//// i.new() |> i.table("users")
+//// ```
+////
+//// ---
+////
+//// ## Configuring the Source
+////
+//// ### `source_records(insert, records, encoder) -> Insert(a)`
+////
+//// Attach a list of records and an encoder to an existing `Insert`.
+////
+//// ### `source_values(insert, rows) -> Insert(a)`
+////
+//// Attach raw `InsertRow` values to an existing `Insert`.
+////
+//// ### `columns(insert, columns) -> Insert(a)`
+////
+//// Set the column list. The number of columns **must** match the number of values
+//// in each `InsertRow`.
+////
+//// ---
+////
+//// ## Conflict Strategies
+////
+//// ```mermaid
+//// flowchart TD
+////     A[Insert] --> B{on conflict}
+////     B -->|error| C[InsertConflictError\ndefault - raise error]
+////     B -->|ignore columns| D[on_columns_conflict_ignore\nPG + SQLite]
+////     B -->|ignore constraint| E[on_constraint_conflict_ignore\nPG + SQLite]
+////     B -->|upsert columns| F[on_columns_conflict_update\nPG + SQLite]
+////     B -->|upsert constraint| G[on_constraint_conflict_update\nPG only]
+////     B -->|duplicate key| H[on_duplicate_key_update\nMySQL + MariaDB]
+//// ```
+////
+//// ### `on_conflict_error(insert) -> Insert(a)`
+////
+//// The default. Any uniqueness/constraint violation raises an error.
+////
+//// ### `on_columns_conflict_ignore(insert, columns, where) -> Insert(a)`
+////
+//// Silently skip conflicting rows when the conflict is on the given columns.
+////
+//// > Supported by 🐘 PostgreSQL and 🪶 SQLite.
+////
+//// ```gleam
+//// i.from_values("users", ["email"], [i.row([i.string("a@b.com")])])
+//// |> i.on_columns_conflict_ignore(
+////   columns: ["email"],
+////   where: w.none(),
+//// )
+//// // INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING
+//// ```
+////
+//// ### `on_constraint_conflict_ignore(insert, constraint, where) -> Insert(a)`
+////
+//// Same as above but identifies the conflict target by constraint name.
+////
+//// > Supported by 🐘 PostgreSQL and 🪶 SQLite.
+////
+//// ### `on_columns_conflict_update(insert, columns, where, update) -> Insert(a)`
+////
+//// **Upsert** — insert or update on conflict (PostgreSQL / SQLite style).
+////
+//// Use `excluded.column` in your `Update` expressions to reference the values
+//// that were being inserted.
+////
+//// > Supported by 🐘 PostgreSQL ✅ and 🪶 SQLite ✅.
+//// > Not supported by 🦭 MariaDB or 🐬 MySQL — use `on_duplicate_key_update` instead.
+////
+//// ```gleam
+//// import cake/update as u
+////
+//// i.from_values("scores", ["username", "score"], [
+////   i.row([i.string("alice"), i.int(100)]),
+//// ])
+//// |> i.on_columns_conflict_update(
+////   columns: ["username"],
+////   where: w.none(),
+////   update: u.new()
+////     |> u.set(u.set_expression("score", "excluded.score")),
+//// )
+//// // INSERT INTO scores (username, score) VALUES ($1, $2)
+//// // ON CONFLICT (username) DO UPDATE SET score = excluded.score
+//// ```
+////
+//// ### `on_constraint_conflict_update(insert, constraint, where, update) -> Insert(a)`
+////
+//// Same as above but targets a named constraint.
+////
+//// > Supported by 🐘 PostgreSQL only.
+////
+//// ### `on_duplicate_key_update(insert, update) -> Insert(a)`
+////
+//// **MySQL / MariaDB upsert** using `ON DUPLICATE KEY UPDATE` syntax.
+////
+//// Use `VALUES(column)` (not `excluded.column`) in your `Update` expressions.
+////
+//// > Supported by 🦭 MariaDB ✅ and 🐬 MySQL ✅ only.
+////
+//// ```gleam
+//// i.from_values("scores", ["username", "score"], [
+////   i.row([i.string("alice"), i.int(100)]),
+//// ])
+//// |> i.on_duplicate_key_update(
+////   update: u.new()
+////     |> u.set(u.set_expression("score", "VALUES(score) + scores.score")),
+//// )
+//// // INSERT INTO scores (username, score) VALUES (?, ?)
+//// // ON DUPLICATE KEY UPDATE score = VALUES(score) + scores.score
+//// ```
+////
+//// ---
+////
+//// ## RETURNING
+////
+//// Fetch column values from the inserted rows (🐘 PostgreSQL and 🪶 SQLite).
+////
+//// > 🦭 MariaDB and 🐬 MySQL do not support `RETURNING` in `INSERT` queries.
+////
+//// ```gleam
+//// i.from_values("users", ["name"], [i.row([i.string("Alice")])])
+//// |> i.returning(["id", "name"])
+//// // INSERT INTO users (name) VALUES ($1) RETURNING id, name
+//// ```
+////
+//// | Function                  | Effect                    |
+////
+//// | Function             | Effect                    |
+//// | ------             | ------                    |
+//// | `returning(insert, cols)` | Return the listed columns |
+//// | `no_returning(insert)`    | Remove RETURNING clause   |
+////
+//// ---
+////
+//// ## Modifier
+////
+//// A raw string modifier inserted after `INSERT` (e.g. `OR IGNORE` for SQLite).
+////
+//// ```gleam
+//// i.new() |> i.modifier("OR IGNORE")
+//// // INSERT OR IGNORE INTO ...
+//// ```
+////
+//// ---
+////
+//// ## Epilog and Comment
+////
+//// ```gleam
+//// i.new()
+//// |> i.from_values("logs", ["msg"], [i.row([i.string("hello")])])
+//// |> i.epilog("RETURNING id")
+//// |> i.comment("audit log insert")
+//// ```
+////
+//// ---
+////
+//// ## Full Example
+////
+//// ```gleam
+//// import cake/insert as i
+//// import cake/update as u
+//// import cake/where as w
+////
+//// type Product { Product(sku: String, price: Float) }
+////
+//// fn encode_product(p: Product) -> i.InsertRow {
+////   i.row([i.string(p.sku), i.float(p.price)])
+//// }
+////
+//// [Product("ABC-1", 9.99), Product("ABC-2", 14.99)]
+//// |> i.from_records(
+////   table_name: "products",
+////   columns: ["sku", "price"],
+////   encoder: encode_product,
+//// )
+//// |> i.on_columns_conflict_update(
+////   columns: ["sku"],
+////   where: w.none(),
+////   update: u.new() |> u.set(u.set_expression("price", "excluded.price")),
+//// )
+//// |> i.returning(["id", "sku"])
+//// |> i.to_query
+//// ```
+////
+////
+//// <!-- html assets for docs gen -->
+//// <style>
+////  .page {
+////    display: block;
+////  }
+////  .content {
+////    width: auto;
+////    max-width: none;
+////  }
+//// </style>
+//// <!--<script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>-->
+//// <script
+////   src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+////   integrity="sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4="
+////   crossorigin="anonymous"
+//// ></script>
+//// <script>
+//// (callback => document.readyState !== 'loading' ? callback() : document.addEventListener('DOMContentLoaded', callback, { once: true }))(() => {
+////   mermaid.initialize({ startOnLoad: false })
+////   mermaid.run({
+////     querySelector: ".language-mermaid",
+////   })
+//// })
+//// </script>
+////
 
 import cake/fragment.{type Fragment}
 import cake/internal/read_query.{Comment, Epilog, NoComment, NoEpilog}

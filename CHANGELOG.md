@@ -8,6 +8,41 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 -->
 
+## [4.1.0] - 2026-06-06
+
+### Added
+
+- **`select.not_where`**: sets a `NotWhere` clause on a SELECT query, allowing
+  negated WHERE conditions with `AND` semantics.
+
+- **`select.not_having`**: sets a `NotWhere` clause on the `HAVING` portion of
+  a SELECT query, for negated aggregation filters.
+
+- **`delete.not_where`**: sets a `NotWhere` clause on a DELETE query, allowing
+  negated WHERE conditions with `AND` semantics.
+
+- **`update.not_where`**: sets a `NotWhere` clause on an UPDATE query, allowing
+  negated WHERE conditions with `AND` semantics.
+
+### Changed
+
+- **Updated XOR documentation** across `select`, `update`, and `delete` modules
+  to clarify that Cake implements `xor` using a custom `OR / AND / NOT` expansion
+  on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) rather than
+  native XOR. Entries now reference `where.xor_parity` for odd-parity XOR use cases.
+
+- **Updated join documentation** in both `join.gleam` and
+  `internal/read_query.gleam` to explain how to make joins _exclusive_ using
+  additional `WHERE` filters (e.g., `LEFT JOIN` + `WHERE b.key IS NULL` for
+  exclusive left joins).
+
+### Documentation
+
+- Improved module documentation for builder APIs.
+- Added mermaid.js bundle (`assets/mermaid.bundle.js`) for rendering diagrams in
+  documentation.
+- Updated README and other documentation files.
+
 ## [4.0.0] - 2026-05-30
 
 ### Breaking changes
@@ -85,7 +120,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   fix also covers the 🦭MariaDB / 🐬MySQL `INSERT IGNORE` fallback path,
   where a user-supplied priority modifier (e.g. `LOW_PRIORITY`) is now
   correctly placed before `IGNORE INTO`: `INSERT LOW_PRIORITY IGNORE INTO
-  …`.
+…`.
 
 - **`select.order_by_asc_nulls_last`,
   `select.replace_order_by_asc_nulls_last`,
@@ -93,7 +128,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `select.replace_order_by_desc_nulls_last` emitted `NULLS FIRST` instead
   of `NULLS LAST`**: all four functions passed the wrong
   `OrderByDirection` variant internally, causing e.g. `ORDER BY col ASC
-  NULLS FIRST` to be emitted when `NULLS LAST` was requested. The
+NULLS FIRST` to be emitted when `NULLS LAST` was requested. The
   equivalent functions in `combined` were unaffected.
 
 - Fixed examples to run without tinkering.
@@ -148,9 +183,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Added convenience functions to `select` module to select columns by col
   names:
-  - `select_cols`
+  - `cols`
   - `replace_select_cols`
-  - `select_col`
+  - `col`
   - `replace_select_col`
 - Replaced dev/test and adapter target `gleam_pgo` with `pgo` dependency.
 - Updated demos.
