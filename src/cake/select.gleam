@@ -4,9 +4,9 @@
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, GroupBy, Joins, NoComment,
   NoEpilog, NoFrom, NoGroupBy, NoJoins, NoLimit, NoOffset, NoOrderBy, NoSelects,
-  NoWhere, OrWhere, OrderBy, OrderByColumn, Select, SelectAlias, SelectAll,
-  SelectColumn, SelectDistinct, SelectFragment, SelectParam, SelectQuery,
-  Selects, XorWhere,
+  NoWhere, NotWhere, OrWhere, OrderBy, OrderByColumn, Select, SelectAlias,
+  SelectAll, SelectColumn, SelectDistinct, SelectFragment, SelectParam,
+  SelectQuery, Selects, XorWhere,
 }
 import cake/param.{
   BoolParam, DateParam, FloatParam, IntParam, NullParam, StringParam,
@@ -421,9 +421,11 @@ pub fn or_where(select select: Select, where where: Where) -> Select {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
-/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in 🦭MariaDB and 🐬MySQL.
+/// NOTICE: *Cake* implements this using a custom `OR / AND / NOT` expansion
+/// on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) —
+/// native `XOR` is **not** used on any adapter.
+/// For odd-parity XOR that delegates to 🦭MariaDB / 🐬MySQL native `XOR`,
+/// use `where.xor_parity` instead.
 ///
 pub fn xor_where(select select: Select, where where: Where) -> Select {
   case select.where {
@@ -431,6 +433,36 @@ pub fn xor_where(select select: Select, where where: Where) -> Select {
     XorWhere(conditions:) ->
       Select(..select, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, where: [select.where, where] |> XorWhere)
+  }
+}
+
+/// Sets a `NotWhere` or appends into an existing `AndWhere`.
+///
+/// Wraps the given `Where` in a `NotWhere`, then applies it with `AND`
+/// semantics:
+///
+/// - If the query does not have a `Where` clause, the given `Where` is set
+///   as a `NotWhere`.
+/// - If the outermost `Where` is an `AndWhere`, the new `NotWhere` is appended
+///   to the list within `AndWhere`.
+/// - If the outermost `Where` is any other kind of `Where`, this and the
+///   current outermost `Where` are wrapped in an `AndWhere`.
+///
+pub fn not_where(select select: Select, where where: Where) -> Select {
+  case select.where {
+    NoWhere -> Select(..select, where: NotWhere(condition: where))
+    AndWhere(conditions:) ->
+      Select(
+        ..select,
+        where: conditions
+          |> list.append([NotWhere(condition: where)])
+          |> AndWhere,
+      )
+    _ ->
+      Select(
+        ..select,
+        where: [select.where, NotWhere(condition: where)] |> AndWhere,
+      )
   }
 }
 
@@ -508,9 +540,12 @@ pub fn or_having(select select: Select, having where: Where) -> Select {
 ///
 /// See function `having` on details why this takes a `Where`.
 ///
-/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite,
-/// and *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
-/// This operator exists in 🦭MariaDB and 🐬MySQL.
+/// NOTICE: *Cake* implements this using a custom `OR / AND / NOT` expansion
+/// on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) —
+/// native `XOR` is **not** used on any adapter.
+///
+/// For odd-parity XOR (which on 🦭MariaDB / 🐬MySQL delegates to its native
+/// `XOR`) use `where.xor_parity` instead.
 ///
 pub fn xor_having(select select: Select, having where: Where) -> Select {
   case select.having {
@@ -518,6 +553,37 @@ pub fn xor_having(select select: Select, having where: Where) -> Select {
     XorWhere(conditions:) ->
       Select(..select, having: conditions |> list.append([where]) |> XorWhere)
     _ -> Select(..select, having: [select.having, where] |> XorWhere)
+  }
+}
+
+/// Sets a `NotWhere` or appends into an existing `AndWhere` for `HAVING`.
+///
+/// - Wraps the given `Where` in a `NotWhere`, then applies it with `AND`
+///   semantics:
+/// - If the query does not have a `HAVING` clause, the given `Where` is set
+///   as a `NotWhere`.
+/// - If the outermost `Where` is an `AndWhere`, the new `NotWhere` is appended
+///   to the list within `AndWhere`.
+/// - If the outermost `Where` is any other kind of `Where`, this and the
+///   current outermost `Where` are wrapped in an `AndWhere`.
+///
+/// See function `having` on details why this takes a `Where`.
+///
+pub fn not_having(select select: Select, having where: Where) -> Select {
+  case select.having {
+    NoWhere -> Select(..select, having: NotWhere(condition: where))
+    AndWhere(conditions:) ->
+      Select(
+        ..select,
+        having: conditions
+          |> list.append([NotWhere(condition: where)])
+          |> AndWhere,
+      )
+    _ ->
+      Select(
+        ..select,
+        having: [select.having, NotWhere(condition: where)] |> AndWhere,
+      )
   }
 }
 

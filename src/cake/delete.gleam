@@ -3,7 +3,7 @@
 
 import cake/internal/read_query.{
   AndWhere, Comment, Epilog, FromSubQuery, FromTable, Joins, NoComment, NoEpilog,
-  NoJoins, NoWhere, OrWhere, XorWhere,
+  NoJoins, NoWhere, NotWhere, OrWhere, XorWhere,
 }
 import cake/internal/write_query.{
   Delete, DeleteModifier, DeleteQuery, DeleteTable, DeleteUsing,
@@ -342,10 +342,12 @@ pub fn or_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
 /// - If the outermost `Where` is any other kind of `Where`, this and the
 ///   current outermost `Where` are wrapped in an `XorWhere`.
 ///
-/// NOTICE: This operator does not exist in 🐘PostgreSQL or 🪶SQLite, and
-/// *Cake* generates equivalent SQL using `OR` and `AND` and `NOT`.
+/// NOTICE: *Cake* implements this using a custom `OR / AND / NOT` expansion
+/// on all four adapters (🐘PostgreSQL, 🪶SQLite, 🦭MariaDB, 🐬MySQL) —
+/// native `XOR` is **not** used on any adapter.
 ///
-/// NOTICE: This operator exists in 🦭MariaDB and 🐬MySQL, natively.
+/// For odd-parity XOR (which on 🦭MariaDB / 🐬MySQL delegates to its native
+/// `XOR`) use `where.xor_parity` instead.
 ///
 pub fn xor_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
   case delete.where {
@@ -353,6 +355,35 @@ pub fn xor_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
     XorWhere(conditions:) ->
       Delete(..delete, where: conditions |> list.append([where]) |> XorWhere)
     _ -> Delete(..delete, where: [delete.where, where] |> XorWhere)
+  }
+}
+
+/// Sets a `NotWhere` or appends into an existing `AndWhere`.
+///
+/// - Wraps the given `Where` in a `NotWhere`, then applies it with `AND`
+///   semantics:
+/// - If the query does not have a `Where` clause, the given `Where` is set
+///   as a `NotWhere`.
+/// - If the outermost `Where` is an `AndWhere`, the new `NotWhere` is appended
+///   to the list within `AndWhere`.
+/// - If the outermost `Where` is any other kind of `Where`, this and the
+///   current outermost `Where` are wrapped in an `AndWhere`.
+///
+pub fn not_where(delete delete: Delete(a), where where: Where) -> Delete(a) {
+  case delete.where {
+    NoWhere -> Delete(..delete, where: NotWhere(condition: where))
+    AndWhere(conditions:) ->
+      Delete(
+        ..delete,
+        where: conditions
+          |> list.append([NotWhere(condition: where)])
+          |> AndWhere,
+      )
+    _ ->
+      Delete(
+        ..delete,
+        where: [delete.where, NotWhere(condition: where)] |> AndWhere,
+      )
   }
 }
 
