@@ -13,7 +13,7 @@ gleam run
 ## Demo source code
 
 See the
-[src directory](https://github.com/inoas/gleam-cake/blob/v4.0.0/examples/06_insert_on_conflict_update/src/).
+[src directory](https://github.com/inoas/gleam-cake/blob/v4.1.0/examples/06_insert_on_conflict_update/src/).
 
 ---
 
