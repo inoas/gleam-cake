@@ -6,7 +6,7 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://cake.hexdocs.pm)
 [![Package Version](https://img.shields.io/hexpm/v/cake)](https://hex.pm/packages/cake)
 [![CI Test](https://github.com/inoas/gleam-cake/actions/workflows/test.yml/badge.svg?branch=main&amp;event=push)](https://github.com/inoas/gleam-cake/actions/workflows/test.yml)
-[![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/v4.0.0/LICENCE)
+[![License](https://img.shields.io/hexpm/l/cake)](https://github.com/inoas/gleam-cake/blob/v4.1.0/LICENCE)
 [![Discord](https://img.shields.io/discord/768594524158427167?label=discord%20chat&amp;color=5865F2)](https://discord.gg/Fm8Pwmy)
 
 <br>
